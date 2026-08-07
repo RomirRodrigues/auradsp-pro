@@ -12,6 +12,41 @@ document.addEventListener('DOMContentLoaded', () => {
   let isSynthBeatActive = false;
   let currentEqGains = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
+  // ─── Mobile Panel Switcher ───────────────────────────────────
+  function isMobile() { return window.innerWidth <= 600; }
+
+  function activateMobilePanel(panelName) {
+    document.querySelectorAll('.studio-grid [data-panel]').forEach(el => {
+      el.classList.remove('mobile-active');
+    });
+    const target = document.querySelector(`.studio-grid [data-panel="${panelName}"]`);
+    if (target) target.classList.add('mobile-active');
+
+    document.querySelectorAll('.mpn-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.panel === panelName);
+    });
+  }
+
+  // Init mobile panel state
+  if (isMobile()) activateMobilePanel('source');
+
+  document.querySelectorAll('.mpn-btn').forEach(btn => {
+    btn.addEventListener('click', () => activateMobilePanel(btn.dataset.panel));
+  });
+
+  // Re-check on resize
+  window.addEventListener('resize', () => {
+    if (!isMobile()) {
+      document.querySelectorAll('.studio-grid [data-panel]').forEach(el => {
+        el.classList.remove('mobile-active');
+      });
+    } else {
+      const active = document.querySelector('.mpn-btn.active');
+      if (active) activateMobilePanel(active.dataset.panel);
+    }
+  });
+  // ─────────────────────────────────────────────────────────────
+
   // Pre-initialize AudioContext on first touch/click
   const initEngineOnce = () => {
     if (window.audioEngine) {

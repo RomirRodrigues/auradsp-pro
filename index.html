@@ -41,13 +41,25 @@
         <span id="activeDeviceText">boAt Audio Preset Active</span>
       </div>
     </div>
+
+    <!-- Mobile hamburger nav -->
+    <button class="mobile-nav-toggle" id="mobileNavToggle" aria-label="Open panel menu">
+      <span></span><span></span><span></span>
+    </button>
   </header>
+
+  <!-- Mobile Bottom Panel Nav -->
+  <nav class="mobile-panel-nav" id="mobilePanelNav">
+    <button class="mpn-btn active" data-panel="source">🎙 Source</button>
+    <button class="mpn-btn" data-panel="center">🎛 EQ</button>
+    <button class="mpn-btn" data-panel="spatial">🌐 3D</button>
+  </nav>
 
   <!-- Main Grid Layout -->
   <main class="studio-grid">
 
     <!-- LEFT COLUMN: Source Input & Device Modes -->
-    <aside class="panel source-panel">
+    <aside class="panel source-panel" data-panel="source">
       <div class="panel-header">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
         <h2>AUDIO SOURCE ROUTER</h2>
@@ -218,7 +230,7 @@
     </aside>
 
     <!-- CENTER COLUMN: Spectrum Analyzer, 10-Band EQ & Curve -->
-    <section class="panel center-panel">
+    <section class="panel center-panel" data-panel="center">
       
       <!-- REAL-TIME VISUALIZER HEADER -->
       <div class="visualizer-container">
@@ -375,7 +387,7 @@
     </section>
 
     <!-- RIGHT COLUMN: 3D Spatial Audio Room & Head Tracker -->
-    <aside class="panel spatial-panel">
+    <aside class="panel spatial-panel" data-panel="spatial">
       <div class="panel-header">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><line x1="2" y1="12" x2="22" y2="12"/></svg>
         <h2>3D SPATIAL AUDIO STAGE</h2>

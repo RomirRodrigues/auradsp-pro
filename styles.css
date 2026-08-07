@@ -1173,3 +1173,253 @@ input:checked + .slider:before {
   color: var(--text-muted);
   letter-spacing: 0.3px;
 }
+
+/* ============================================================
+   MOBILE RESPONSIVE OVERHAUL — Full Touch-First Design
+   ============================================================ */
+
+/* Mobile hamburger button — hidden on desktop */
+.mobile-nav-toggle {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+}
+.mobile-nav-toggle span {
+  display: block;
+  width: 24px;
+  height: 2px;
+  background: var(--accent-cyan);
+  border-radius: 2px;
+  transition: 0.3s;
+}
+
+/* Mobile bottom tab nav — hidden on desktop */
+.mobile-panel-nav {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 200;
+  background: rgba(8, 10, 18, 0.97);
+  border-top: 1px solid rgba(0, 240, 255, 0.2);
+  backdrop-filter: blur(20px);
+  padding: 4px 0 env(safe-area-inset-bottom, 4px);
+}
+
+.mpn-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  padding: 10px 8px;
+  cursor: pointer;
+  transition: color 0.2s;
+  letter-spacing: 0.3px;
+}
+.mpn-btn.active {
+  color: var(--accent-cyan);
+}
+
+/* ===================== TABLET (max 900px) ===================== */
+@media (max-width: 900px) {
+  .studio-grid {
+    grid-template-columns: 1fr;
+    padding: 12px;
+    gap: 14px;
+  }
+  .spatial-panel {
+    grid-column: span 1;
+  }
+  .enhancer-cards-grid {
+    grid-template-columns: 1fr;
+  }
+  .footer-inner {
+    flex-direction: column;
+    text-align: center;
+    gap: 6px;
+  }
+}
+
+/* ===================== MOBILE (max 600px) ===================== */
+@media (max-width: 600px) {
+
+  /* Header: compact for mobile */
+  .app-header {
+    padding: 10px 14px;
+    flex-wrap: nowrap;
+    gap: 8px;
+  }
+  .logo-container h1 {
+    font-size: 1.1rem;
+  }
+  .subtitle { display: none; }
+  .logo-icon { width: 36px; height: 36px; }
+  .status-bar {
+    display: none; /* hide desktop status bar on mobile */
+  }
+  .mobile-nav-toggle {
+    display: flex;
+    margin-left: auto;
+  }
+
+  /* Show bottom tab nav */
+  .mobile-panel-nav {
+    display: flex;
+  }
+
+  /* Main grid becomes single column, panels switch by JS */
+  .studio-grid {
+    grid-template-columns: 1fr;
+    padding: 10px 10px 80px; /* leave room for bottom nav */
+    gap: 0;
+  }
+
+  /* All panels hidden by default on mobile, shown via JS */
+  .studio-grid [data-panel] {
+    display: none !important;
+  }
+  .studio-grid [data-panel].mobile-active {
+    display: flex !important;
+  }
+
+  /* Panel inner padding tighter on mobile */
+  .panel {
+    padding: 14px 12px;
+    border-radius: var(--radius-md);
+    gap: 14px;
+  }
+
+  /* EQ sliders - make touch-friendly vertical */
+  .eq-sliders-grid {
+    gap: 6px;
+  }
+  .eq-band-col {
+    gap: 6px;
+  }
+  .eq-band-col input[type="range"] {
+    height: 130px;
+  }
+  .band-val { font-size: 0.62rem; }
+  .band-freq { font-size: 0.6rem; }
+
+  /* Spectrum canvas - full width */
+  #spectrumCanvas {
+    width: 100% !important;
+    height: 120px !important;
+  }
+  #eqCurveCanvas {
+    width: 100% !important;
+    height: 70px !important;
+  }
+
+  /* Spatial canvas - resize for mobile */
+  #spatialCanvas {
+    width: 100% !important;
+    height: auto !important;
+    max-width: 300px;
+  }
+  .spatial-canvas-wrapper {
+    display: flex;
+    justify-content: center;
+  }
+
+  /* Preset cards - full width stack */
+  .preset-cards-container {
+    flex-direction: column;
+  }
+  .preset-card {
+    min-width: unset;
+    width: 100%;
+  }
+
+  /* Source selector 2-col on mobile */
+  .source-selector {
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+  .source-btn {
+    padding: 10px 6px;
+    font-size: 0.72rem;
+  }
+
+  /* Enhancer cards - single col */
+  .enhancer-cards-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  /* Sliders touch-friendly height */
+  input[type="range"] {
+    min-height: 36px;
+    cursor: pointer;
+  }
+
+  /* Panel headers */
+  .panel-header h2 {
+    font-size: 0.78rem;
+  }
+
+  /* Buttons full-width on mobile */
+  .primary-btn, .accent-btn {
+    width: 100%;
+    padding: 13px;
+    font-size: 0.85rem;
+  }
+
+  /* Spatial controls - full width */
+  .spatial-preset-btns {
+    grid-template-columns: 1fr 1fr;
+  }
+  .spat-btn {
+    padding: 10px 6px;
+    font-size: 0.72rem;
+  }
+
+  /* Knob groups stack */
+  .knob-group-row {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .knob-item {
+    flex: 1 1 45%;
+  }
+
+  /* Footer compact */
+  .app-footer {
+    padding: 14px 16px 84px; /* above bottom nav */
+  }
+  .footer-inner {
+    flex-direction: column;
+    text-align: center;
+    gap: 6px;
+  }
+
+  /* Device badge - hide on mobile header (too wide) */
+  .device-badge { display: none; }
+
+  /* Master sliders - readable */
+  .master-sliders .slider-group {
+    gap: 8px;
+  }
+
+  /* Vis mode buttons */
+  .vis-mode-toggle {
+    gap: 4px;
+  }
+  .vis-btn {
+    padding: 6px 10px;
+    font-size: 0.72rem;
+  }
+}
