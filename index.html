@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AuraDSP Pro - Live Audio Tuning & Spatial Audio Engine</title>
+  <meta name="description" content="Professional real-time audio tuning processor for boAt audio devices, earbuds, and home theater systems with 3D Spatial Audio, Dolby Virtualizer, and 10-Band EQ.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="cyber-dark">
+
+  <!-- Header Banner -->
+  <header class="app-header">
+    <div class="logo-container">
+      <div class="logo-icon">
+        <span class="pulse-ring"></span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2v20M17 5v14M7 5v14M2 9v6M22 9v6"/>
+        </svg>
+      </div>
+      <div>
+        <h1>AURA<span>DSP</span> PRO</h1>
+        <p class="subtitle">Live Real-Time Audio Tuning & 3D Spatial Processor</p>
+      </div>
+    </div>
+
+    <!-- Active Audio Status -->
+    <div class="status-bar">
+      <button id="activateAudioBtn" class="primary-btn-sm glowing-pulse">
+        🔊 CLICK TO ENABLE LIVE AUDIO
+      </button>
+      <div class="status-indicator active" id="engineStatusIndicator">
+        <span class="dot"></span>
+        <span id="engineStatusText">DSP ENGINE ACTIVE</span>
+      </div>
+      <div class="device-badge" id="activeDeviceBadge">
+        <span class="icon">🎧</span>
+        <span id="activeDeviceText">boAt Audio Preset Active</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Grid Layout -->
+  <main class="studio-grid">
+
+    <!-- LEFT COLUMN: Source Input & Device Modes -->
+    <aside class="panel source-panel">
+      <div class="panel-header">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+        <h2>AUDIO SOURCE ROUTER</h2>
+      </div>
+      
+      <div class="source-selector">
+        <button class="source-btn active" id="srcDemoBtn">
+          <span class="src-icon">🎵</span>
+          <span class="src-label">Live Beat & Demos</span>
+        </button>
+        <button class="source-btn" id="srcSpotifyBtn">
+          <span class="src-icon">🟢</span>
+          <span class="src-label">Spotify & Tab</span>
+        </button>
+        <button class="source-btn" id="srcFileBtn">
+          <span class="src-icon">📁</span>
+          <span class="src-label">Audio File</span>
+        </button>
+        <button class="source-btn" id="srcMicBtn">
+          <span class="src-icon">🎙️</span>
+          <span class="src-label">Mic / Line-In</span>
+        </button>
+        <button class="source-btn" id="srcToneBtn">
+          <span class="src-icon">⚡</span>
+          <span class="src-label">Tone Generator</span>
+        </button>
+      </div>
+
+      <!-- Live Beat & Demo Selector Panel -->
+      <div class="source-card" id="cardDemo">
+        <button id="startSynthBeatBtn" class="primary-btn glowing-btn">
+          <span>🔥 Play Studio Synth Groove</span>
+        </button>
+
+        <div class="divider-text">OR TEST AUDIO FILES</div>
+
+        <label for="demoTrackSelect">Select HD Test Track:</label>
+        <select id="demoTrackSelect" class="cyber-select">
+          <option value="bass">Basshead Sub-Bass & Kick Test (Electronic)</option>
+          <option value="spatial">Dolby 7.1 Spatial Audio & Vocal Test</option>
+          <option value="acoustic">Acoustic Guitar & Vocal Clarity Test</option>
+          <option value="movie">Cinematic Explosion & Surround Test</option>
+        </select>
+        <div class="audio-controls">
+          <button id="playPauseBtn" class="accent-btn">
+            <span id="playIcon">▶</span> <span id="playText">Play Selected Track</span>
+          </button>
+        </div>
+        <audio id="audioPlayer" crossorigin="anonymous" loop></audio>
+      </div>
+
+      <!-- SPOTIFY DIRECT APP AUDIO PIPELINE -->
+      <div class="source-card hidden" id="cardSpotify">
+        <div class="spotify-header">
+          <span class="spotify-logo">🟢</span>
+          <div>
+            <h4>Spotify App Direct Audio Connection</h4>
+            <p>Pure direct audio pipeline for Spotify Desktop App & Spotify Web Player</p>
+          </div>
+        </div>
+
+        <div class="direct-spotify-box">
+          <button id="directConnectSpotifyBtn" class="primary-btn spotify-direct-btn">
+            <span class="icon">⚡</span> DIRECT CONNECT SPOTIFY APP SOUND
+          </button>
+          
+          <div id="spotifyLiveBadge" class="spotify-status-badge">
+            <span class="status-dot"></span>
+            <span id="spotifyStatusText">Ready for 1-Click Direct Connection</span>
+          </div>
+        </div>
+
+        <div class="direct-info-box">
+          <p>⚡ <strong>Pure Direct Audio Pipeline:</strong> Click the button above, select your <strong>Spotify App / Window / System Audio</strong>, and every song played in Spotify instantly routes through AuraDSP 10-Band EQ, boAt presets, and 3D Spatial Audio!</p>
+        </div>
+      </div>
+
+      <!-- File Upload Panel -->
+      <div class="source-card hidden" id="cardFile">
+        <label>Upload Any Music / Audio File:</label>
+        <div class="file-dropzone" id="dropzone">
+          <input type="file" id="audioFileInput" accept="audio/*">
+          <p id="fileNameDisplay">📂 Drag & drop audio file or click to select</p>
+        </div>
+      </div>
+
+      <!-- Mic Input Panel -->
+      <div class="source-card hidden" id="cardMic">
+        <p class="info-text">Pass-through live microphone or AUX line-in with real-time low-latency tuning & noise gate.</p>
+        <button id="startMicBtn" class="accent-btn">
+          <span class="icon">🎙️</span> Enable Live Mic / Line-In Input
+        </button>
+      </div>
+
+      <!-- Tone Generator Panel -->
+      <div class="source-card hidden" id="cardTone">
+        <div class="generator-grid">
+          <div class="gen-control">
+            <label for="toneFreq">Frequency: <span id="toneFreqVal">440</span> Hz</label>
+            <input type="range" id="toneFreq" min="20" max="20000" value="440" step="1">
+          </div>
+          <div class="gen-type">
+            <button class="tone-type-btn active" data-type="sine">Sine</button>
+            <button class="tone-type-btn" data-type="square">Square</button>
+            <button class="tone-type-btn" data-type="sub">Sub 40Hz</button>
+            <button class="tone-type-btn" data-type="sweep">20-20k Sweep</button>
+          </div>
+          <button id="toggleToneBtn" class="accent-btn">Start Test Signal</button>
+        </div>
+      </div>
+
+      <!-- DEVICE TUNING MODES & PRESETS -->
+      <div class="panel-section">
+        <div class="section-title">
+          <span>🎧 TARGET DEVICE TUNING PRESETS</span>
+        </div>
+
+        <div class="device-category-tabs">
+          <button class="device-tab active" data-cat="boat">boAt Audio</button>
+          <button class="device-tab" data-cat="earbuds">Earbuds</button>
+          <button class="device-tab" data-cat="hometheater">Home Theater</button>
+          <button class="device-tab" data-cat="custom">Custom EQ</button>
+        </div>
+
+        <div class="preset-cards-container" id="presetCardsContainer">
+          <!-- Dynamically filled by presets.js -->
+        </div>
+      </div>
+
+      <!-- MASTER VOLUME & LIMITER -->
+      <div class="panel-section master-section">
+        <div class="section-title section-title-row">
+          <span>🔊 MASTER CONTROLS & PROTECTION</span>
+          <button id="resetMasterBtn" class="sm-btn">Reset</button>
+        </div>
+        <div class="master-sliders">
+          <div class="slider-group">
+            <div class="slider-header">
+              <label for="masterGain">Master Gain</label>
+              <span id="masterGainVal">0 dB</span>
+            </div>
+            <input type="range" id="masterGain" min="-24" max="12" value="0" step="0.5">
+          </div>
+
+          <div class="slider-group">
+            <div class="slider-header">
+              <label for="bassEnhance">Sub-Bass Synthesizer</label>
+              <span id="bassEnhanceVal">+3.0 dB</span>
+            </div>
+            <input type="range" id="bassEnhance" min="0" max="12" value="3" step="0.5">
+          </div>
+        </div>
+
+        <!-- VU Level Meter -->
+        <div class="vu-meter-container">
+          <div class="vu-label">OUTPUT VU METERS</div>
+          <div class="vu-bars">
+            <div class="vu-channel">
+              <div class="vu-fill" id="vuFillL"></div>
+            </div>
+            <div class="vu-channel">
+              <div class="vu-fill" id="vuFillR"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- CENTER COLUMN: Spectrum Analyzer, 10-Band EQ & Curve -->
+    <section class="panel center-panel">
+      
+      <!-- REAL-TIME VISUALIZER HEADER -->
+      <div class="visualizer-container">
+        <div class="vis-header">
+          <div class="vis-title">
+            <span class="live-dot"></span>
+            <h3>60 FPS FREQUENCY SPECTRUM & WAVEFORM</h3>
+          </div>
+          <div class="vis-mode-toggle">
+            <button class="vis-btn active" id="visModeBars">Spectrum</button>
+            <button class="vis-btn" id="visModeWave">Oscilloscope</button>
+          </div>
+        </div>
+        <canvas id="spectrumCanvas" width="800" height="180"></canvas>
+      </div>
+
+      <!-- 10-BAND PARAMETRIC EQUALIZER -->
+      <div class="eq-container">
+        <div class="panel-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 21v-7"/><path d="M4 10V3"/><path d="M12 21v-9"/><path d="M12 8V3"/><path d="M20 21v-5"/><path d="M20 12V3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+          <h2>10-BAND PRECISION EQUALIZER (REAL DSP)</h2>
+          <button id="resetEqBtn" class="sm-btn">Reset Flat</button>
+        </div>
+
+        <!-- EQ Interactive Response Curve Canvas -->
+        <div class="eq-curve-box">
+          <canvas id="eqCurveCanvas" width="800" height="90"></canvas>
+        </div>
+
+        <!-- 10 Band Sliders Grid -->
+        <div class="eq-sliders-grid" id="eqSlidersGrid">
+          <!-- 10 Bands (31Hz to 16kHz) generated dynamically by app.js -->
+        </div>
+      </div>
+
+      <!-- DOLBY VIRTUALIZER & ENHANCERS RACK -->
+      <div class="enhancers-rack">
+        <div class="panel-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+          <h2>DOLBY VIRTUAL SOUND & SOUNDFIELD ENHANCERS</h2>
+        </div>
+
+        <div class="enhancer-cards-grid">
+          
+          <!-- Dolby Dynamic Range Compressor -->
+          <div class="enhancer-card">
+            <div class="card-header">
+              <label class="switch">
+                <input type="checkbox" id="dolbyCompressorToggle" checked>
+                <span class="slider round"></span>
+              </label>
+              <div class="card-title-group">
+                <h4>Dolby Night & Dynamic Control</h4>
+                <p>Normalizes volume peaks & enhances quiet dialogue resonance</p>
+              </div>
+              <button id="resetDolbyBtn" class="sm-btn card-reset-btn">Reset</button>
+            </div>
+            <div class="knob-group-row">
+              <div class="knob-item">
+                <label for="compThreshold">Threshold</label>
+                <input type="range" id="compThreshold" min="-50" max="0" value="-24" step="1">
+                <span id="compThresholdVal">-24 dB</span>
+              </div>
+              <div class="knob-item">
+                <label for="compRatio">Ratio</label>
+                <input type="range" id="compRatio" min="1" max="16" value="4" step="0.5">
+                <span id="compRatioVal">4:1</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- HAAS 3D Surround Expander -->
+          <div class="enhancer-card">
+            <div class="card-header">
+              <label class="switch">
+                <input type="checkbox" id="haasToggle" checked>
+                <span class="slider round"></span>
+              </label>
+              <div class="card-title-group">
+                <h4>Virtual Soundfield Expander</h4>
+                <p>Pushes stereo soundstage beyond earbud/speaker physical width</p>
+              </div>
+              <button id="resetHaasBtn" class="sm-btn card-reset-btn">Reset</button>
+            </div>
+            <div class="knob-group-row">
+              <div class="knob-item">
+                <label for="haasWidth">Surround Width</label>
+                <input type="range" id="haasWidth" min="0" max="100" value="70" step="1">
+                <span id="haasWidthVal">70%</span>
+              </div>
+              <div class="knob-item">
+                <label for="haasDelay">Haas Delay</label>
+                <input type="range" id="haasDelay" min="5" max="35" value="18" step="1">
+                <span id="haasDelayVal">18 ms</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Vocal Enhancer & Acoustic Clarity -->
+          <div class="enhancer-card">
+            <div class="card-header">
+              <label class="switch">
+                <input type="checkbox" id="vocalEnhancerToggle" checked>
+                <span class="slider round"></span>
+              </label>
+              <div class="card-title-group">
+                <h4>Center Channel Vocal Enhancer</h4>
+                <p>Isolates 1.5kHz-3.5kHz speech bands for crystal clear vocals</p>
+              </div>
+              <button id="resetVocalBtn" class="sm-btn card-reset-btn">Reset</button>
+            </div>
+            <div class="knob-group-row">
+              <div class="knob-item">
+                <label for="vocalBoost">Vocal Gain</label>
+                <input type="range" id="vocalBoost" min="0" max="9" value="3" step="0.5">
+                <span id="vocalBoostVal">+3.0 dB</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Room Acoustics & Reverb convolution -->
+          <div class="enhancer-card">
+            <div class="card-header">
+              <label class="switch">
+                <input type="checkbox" id="roomReverbToggle">
+                <span class="slider round"></span>
+              </label>
+              <div class="card-title-group">
+                <h4>Home Theater Room Acoustics</h4>
+                <p>Simulates cinematic hall, studio room, or open theater space</p>
+              </div>
+              <button id="resetReverbBtn" class="sm-btn card-reset-btn">Reset</button>
+            </div>
+            <div class="knob-group-row">
+              <div class="knob-item">
+                <label for="reverbPreset">Room Size</label>
+                <select id="reverbPreset" class="cyber-select-sm">
+                  <option value="cinema">Cinema Hall (Large)</option>
+                  <option value="studio">Studio Room (Damped)</option>
+                  <option value="stadium">Arena Stadium (Wide)</option>
+                </select>
+              </div>
+              <div class="knob-item">
+                <label for="reverbWet">Wet Level</label>
+                <input type="range" id="reverbWet" min="0" max="80" value="25" step="1">
+                <span id="reverbWetVal">25%</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </section>
+
+    <!-- RIGHT COLUMN: 3D Spatial Audio Room & Head Tracker -->
+    <aside class="panel spatial-panel">
+      <div class="panel-header">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><line x1="2" y1="12" x2="22" y2="12"/></svg>
+        <h2>3D SPATIAL AUDIO STAGE</h2>
+      </div>
+
+      <p class="info-text">Interactive HRTF Binaural Soundstage. Drag the glowing audio node around the listener head to move sound in 3D space live!</p>
+
+      <div class="spatial-canvas-wrapper">
+        <canvas id="spatialCanvas" width="320" height="320"></canvas>
+        <div class="spatial-overlay-info">
+          <div>Azimuth: <span id="spatAzimuth">0°</span></div>
+          <div>Distance: <span id="spatDistance">1.5m</span></div>
+        </div>
+      </div>
+
+      <div class="spatial-controls">
+        <div class="slider-group">
+          <div class="slider-header">
+            <label for="spatialHeight">Sound Elevation (Z-Axis)</label>
+            <span id="spatialHeightVal">0.0 m</span>
+          </div>
+          <input type="range" id="spatialHeight" min="-5" max="5" value="0" step="0.1">
+        </div>
+
+        <!-- 3D Spatial Volume Boost -->
+        <div class="slider-group">
+          <div class="slider-header">
+            <label for="spatialVolumeBoost">🔊 3D Stage Volume Boost</label>
+            <span id="spatialVolumeBoostVal" style="color:#00f0ff">+3 dB</span>
+          </div>
+          <input type="range" id="spatialVolumeBoost" min="0" max="12" value="3" step="0.5">
+        </div>
+
+        <div class="spatial-preset-btns">
+          <button class="spat-btn" data-angle="front">Front Center</button>
+          <button class="spat-btn" data-angle="left">Left Surround</button>
+          <button class="spat-btn" data-angle="right">Right Surround</button>
+          <button class="spat-btn" data-angle="behind">Behind Listener</button>
+          <button class="spat-btn active" id="spatOrbitToggle">🔄 Auto 3D Orbit</button>
+        </div>
+
+        <!-- 3D Surround Orbit Speed Controller -->
+        <div class="slider-group spat-speed-group">
+          <div class="slider-header">
+            <label for="spatialSpeed">3D Orbit Speed</label>
+            <span id="spatialSpeedVal">1.0x</span>
+          </div>
+          <input type="range" id="spatialSpeed" min="0.1" max="5.0" value="1.0" step="0.1">
+        </div>
+      </div>
+
+      <!-- REAL-TIME DSP SIGNAL DIAGRAM -->
+      <div class="dsp-info-box">
+        <h4>⚡ ACTIVE REAL DSP NODES</h4>
+        <ul class="dsp-chain-list">
+          <li class="active">Audio Context Source</li>
+          <li class="active">Sub-Bass Harmonic Filter</li>
+          <li class="active">10-Band BiquadFilter Cascade</li>
+          <li class="active" id="nodeStatusComp">Dolby Compressor (Active)</li>
+          <li class="active" id="nodeStatusHaas">HAAS Stereo Expander (Active)</li>
+          <li class="active">HRTF Binaural 3D PannerNode</li>
+          <li class="active">Output Analyser & DAC Destination</li>
+        </ul>
+      </div>
+
+    </aside>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="app-footer">
+    <p>AuraDSP Pro &copy; 2026 | Real-time Web Audio API Engine | Compatible with boAt Rockerz, Airdopes, Stone, Spotify Web Player, All Bluetooth Earbuds & HDMI 5.1/7.1 AV Receivers</p>
+  </footer>
+
+  <!-- Modular Scripts -->
+  <script src="js/presets.js"></script>
+  <script src="js/audio-engine.js"></script>
+  <script src="js/spatial-canvas.js"></script>
+  <script src="js/visualizer.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
