@@ -116,24 +116,63 @@
         <div class="spotify-header">
           <span class="spotify-logo">🟢</span>
           <div>
-            <h4>Spotify App Direct Audio Connection</h4>
-            <p>Pure direct audio pipeline for Spotify Desktop App & Spotify Web Player</p>
+            <h4>Spotify Audio Connection</h4>
+            <p id="spotifyHeaderDesc">Connecting Spotify sound through AuraDSP DSP pipeline</p>
           </div>
         </div>
 
-        <div class="direct-spotify-box">
-          <button id="directConnectSpotifyBtn" class="primary-btn spotify-direct-btn">
-            <span class="icon">⚡</span> DIRECT CONNECT SPOTIFY APP SOUND
-          </button>
-          
-          <div id="spotifyLiveBadge" class="spotify-status-badge">
-            <span class="status-dot"></span>
-            <span id="spotifyStatusText">Ready for 1-Click Direct Connection</span>
+        <!-- DESKTOP MODE: Direct screen/tab capture -->
+        <div id="spotifyDesktopMode">
+          <div class="direct-spotify-box">
+            <button id="directConnectSpotifyBtn" class="primary-btn spotify-direct-btn">
+              <span class="icon">⚡</span> DIRECT CONNECT SPOTIFY APP SOUND
+            </button>
+            <div id="spotifyLiveBadge" class="spotify-status-badge">
+              <span class="status-dot"></span>
+              <span id="spotifyStatusText">Ready for 1-Click Direct Connection</span>
+            </div>
+          </div>
+          <div class="direct-info-box">
+            <p>⚡ <strong>Desktop:</strong> Click above → select <strong>Spotify App / Window / System Audio</strong> → every song instantly routes through AuraDSP EQ, boAt presets & 3D Spatial Audio!</p>
           </div>
         </div>
 
-        <div class="direct-info-box">
-          <p>⚡ <strong>Pure Direct Audio Pipeline:</strong> Click the button above, select your <strong>Spotify App / Window / System Audio</strong>, and every song played in Spotify instantly routes through AuraDSP 10-Band EQ, boAt presets, and 3D Spatial Audio!</p>
+        <!-- MOBILE MODE: Shown automatically on phones -->
+        <div id="spotifyMobileMode" style="display:none">
+          <div class="mobile-spotify-box">
+            <div class="mobile-spotify-icon">📱</div>
+            <h4 class="mobile-spotify-title">Mobile Audio Mode</h4>
+            <p class="mobile-spotify-desc">Mobile browsers cannot capture Spotify audio directly. Use one of these options:</p>
+          </div>
+
+          <div class="mobile-spotify-options">
+
+            <!-- Option 1: Mic capture -->
+            <div class="mob-option-card">
+              <div class="mob-option-icon">🎙️</div>
+              <div class="mob-option-body">
+                <strong>Mic Capture Mode</strong>
+                <p>Play Spotify from your phone speaker → tap button below → mic captures audio through AuraDSP DSP live!</p>
+              </div>
+              <button id="mobileMicCaptureBtn" class="accent-btn mob-opt-btn">Capture via Mic</button>
+              <div id="mobileMicStatus" class="mob-status-text"></div>
+            </div>
+
+            <!-- Option 2: Use DSP synth while spotify plays separately -->
+            <div class="mob-option-card">
+              <div class="mob-option-icon">🖥️</div>
+              <div class="mob-option-body">
+                <strong>Desktop Required for Direct Connect</strong>
+                <p>Open <strong>darkside18500.github.io/auradsp-pro</strong> on a PC/laptop browser for full Spotify Direct App connection.</p>
+              </div>
+              <a href="https://darkside18500.github.io/auradsp-pro/" target="_blank" class="accent-btn mob-opt-btn" style="text-align:center;text-decoration:none;display:block">Open on Desktop</a>
+            </div>
+
+          </div>
+
+          <div class="direct-info-box" style="margin-top:8px">
+            <p>💡 <strong>Tip:</strong> All EQ, Dolby, and 3D presets still fully work on mobile with the built-in synth demo tracks and mic input!</p>
+          </div>
         </div>
       </div>
 

@@ -327,7 +327,24 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // 1-Click Direct Spotify App Sound Connection
+  // ─── Spotify Mobile/Desktop Detection ──────────────────────
+  const isMobileDevice = () => /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) ||
+    (window.innerWidth <= 600 && !window.matchMedia('(pointer: fine)').matches);
+
+  const spotifyDesktopMode = document.getElementById('spotifyDesktopMode');
+  const spotifyMobileMode  = document.getElementById('spotifyMobileMode');
+
+  if (isMobileDevice()) {
+    if (spotifyDesktopMode) spotifyDesktopMode.style.display = 'none';
+    if (spotifyMobileMode)  spotifyMobileMode.style.display  = 'block';
+    const desc = document.getElementById('spotifyHeaderDesc');
+    if (desc) desc.textContent = 'Mobile Mode — Mic capture or open on desktop';
+  } else {
+    if (spotifyDesktopMode) spotifyDesktopMode.style.display = 'block';
+    if (spotifyMobileMode)  spotifyMobileMode.style.display  = 'none';
+  }
+
+  // Desktop: 1-Click Direct Spotify App Sound Connection
   const directConnectSpotifyBtn = document.getElementById('directConnectSpotifyBtn');
   const spotifyStatusText = document.getElementById('spotifyStatusText');
   const spotifyLiveBadge = document.getElementById('spotifyLiveBadge');
@@ -338,8 +355,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (spotifyStatusText) spotifyStatusText.textContent = "Connecting Spotify App Audio Stream...";
         window.audioEngine.stopSynthGroove();
         await window.audioEngine.connectTabAudio();
-        
-        if (spotifyStatusText) spotifyStatusText.textContent = "SPOTIFY SOUND ENGINE CONNECTED LIVE!";
+        if (spotifyStatusText) spotifyStatusText.textContent = "🟢 SPOTIFY SOUND ENGINE CONNECTED LIVE!";
         if (spotifyLiveBadge) spotifyLiveBadge.classList.add('active');
         directConnectSpotifyBtn.innerHTML = `<span>🟢 SPOTIFY SOUND PIPELINE ACTIVE</span>`;
         directConnectSpotifyBtn.style.background = "linear-gradient(135deg, #1ed760, #1db954)";
@@ -349,6 +365,30 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
+
+  // Mobile: Mic Capture Mode for Spotify
+  const mobileMicCaptureBtn = document.getElementById('mobileMicCaptureBtn');
+  const mobileMicStatus = document.getElementById('mobileMicStatus');
+
+  if (mobileMicCaptureBtn) {
+    mobileMicCaptureBtn.addEventListener('click', async () => {
+      try {
+        mobileMicStatus.textContent = "⏳ Requesting mic permission...";
+        mobileMicStatus.style.color = "#ffaa00";
+        window.audioEngine.stopSynthGroove();
+        await window.audioEngine.connectMicrophone();
+        mobileMicStatus.textContent = "🟢 MIC LIVE — play Spotify from speaker now!";
+        mobileMicStatus.style.color = "#00ff88";
+        mobileMicCaptureBtn.textContent = "🎙️ Mic Capturing Live";
+        mobileMicCaptureBtn.style.background = "#00ff88";
+        mobileMicCaptureBtn.style.color = "#000";
+      } catch (err) {
+        mobileMicStatus.textContent = "❌ Mic permission denied. Allow mic in browser settings.";
+        mobileMicStatus.style.color = "#ff2a6d";
+      }
+    });
+  }
+  // ────────────────────────────────────────────────────────────
 
   // Microphone Input
   const startMicBtn = document.getElementById('startMicBtn');
