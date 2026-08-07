@@ -1124,9 +1124,10 @@ input:checked + .slider:before {
 
 /* FOOTER */
 .app-footer {
-  border-top: 1px solid rgba(0, 240, 255, 0.15);
-  background: rgba(6, 8, 14, 0.98);
-  padding: 20px 32px;
+  border-top: 1px solid rgba(0, 240, 255, 0.18);
+  background: linear-gradient(180deg, rgba(6, 8, 14, 0.97) 0%, rgba(4, 5, 10, 1) 100%);
+  padding: 22px 36px;
+  margin-top: auto;
 }
 
 .footer-inner {
@@ -1205,10 +1206,12 @@ input:checked + .slider:before {
   left: 0;
   right: 0;
   z-index: 200;
-  background: rgba(8, 10, 18, 0.97);
-  border-top: 1px solid rgba(0, 240, 255, 0.2);
-  backdrop-filter: blur(20px);
-  padding: 4px 0 env(safe-area-inset-bottom, 4px);
+  background: rgba(6, 8, 16, 0.98);
+  border-top: 1px solid rgba(0, 240, 255, 0.25);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  padding: 6px 0 env(safe-area-inset-bottom, 8px);
+  box-shadow: 0 -4px 24px rgba(0, 240, 255, 0.08);
 }
 
 .mpn-btn {
@@ -1216,8 +1219,10 @@ input:checked + .slider:before {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
+  gap: 3px;
   background: none;
+  position: relative;
+  transition: color 0.2s, transform 0.15s;
   border: none;
   color: var(--text-muted);
   font-size: 0.75rem;
@@ -1228,8 +1233,23 @@ input:checked + .slider:before {
   transition: color 0.2s;
   letter-spacing: 0.3px;
 }
+.mpn-btn:active { transform: scale(0.94); }
+
 .mpn-btn.active {
   color: var(--accent-cyan);
+  text-shadow: 0 0 8px rgba(0, 240, 255, 0.6);
+}
+
+.mpn-btn.active::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 15%;
+  right: 15%;
+  height: 2px;
+  border-radius: 0 0 3px 3px;
+  background: var(--accent-cyan);
+  box-shadow: 0 0 8px var(--accent-cyan);
 }
 
 /* ===================== TABLET (max 900px) ===================== */
