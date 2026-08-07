@@ -6,7 +6,7 @@
 ---
 
 ## 🌐 Live Demo
-👉 **[Open AuraDSP Pro](https://darkside18500.github.io/auradsp-pro)**
+👉 **[Open AuraDSP Pro](https://RomirRodrigues.github.io/auradsp-pro)**
 
 ---
 
