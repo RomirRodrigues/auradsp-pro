@@ -1157,4 +1157,53 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
+
+  // --- Analog Tube Warmth Logic ---
+  const tubeWarmthToggle = document.getElementById('tubeWarmthToggle');
+  const tubeDrive = document.getElementById('tubeDrive');
+  const tubeDriveVal = document.getElementById('tubeDriveVal');
+  const resetTubeBtn = document.getElementById('resetTubeBtn');
+
+  function updateTube() {
+    const enabled = tubeWarmthToggle.checked;
+    const drive = tubeDrive.value;
+    tubeDriveVal.textContent = `${drive}%`;
+    if (window.audioEngine) window.audioEngine.setTubeWarmth(enabled, drive);
+    markTuningAsManual();
+  }
+
+  if (tubeWarmthToggle) tubeWarmthToggle.addEventListener('change', updateTube);
+  if (tubeDrive) tubeDrive.addEventListener('input', updateTube);
+  if (resetTubeBtn) {
+    resetTubeBtn.addEventListener('click', () => {
+      tubeWarmthToggle.checked = false;
+      tubeDrive.value = 30;
+      updateTube();
+    });
+  }
+
+  // --- Lo-Fi Tape Warble Logic ---
+  const lofiTapeToggle = document.getElementById('lofiTapeToggle');
+  const tapeWobble = document.getElementById('tapeWobble');
+  const tapeWobbleVal = document.getElementById('tapeWobbleVal');
+  const resetLofiBtn = document.getElementById('resetLofiBtn');
+
+  function updateTape() {
+    const enabled = lofiTapeToggle.checked;
+    const wobble = tapeWobble.value;
+    tapeWobbleVal.textContent = `${wobble}%`;
+    if (window.audioEngine) window.audioEngine.setTapeWarble(enabled, wobble);
+    markTuningAsManual();
+  }
+
+  if (lofiTapeToggle) lofiTapeToggle.addEventListener('change', updateTape);
+  if (tapeWobble) tapeWobble.addEventListener('input', updateTape);
+  if (resetLofiBtn) {
+    resetLofiBtn.addEventListener('click', () => {
+      lofiTapeToggle.checked = false;
+      tapeWobble.value = 40;
+      updateTape();
+    });
+  }
+
 });

@@ -208,13 +208,30 @@ class AudioEngine {
     this.analyserNode.fftSize = 256;
     this.analyserNode.smoothingTimeConstant = 0.8;
 
+    // --- New Modules: Tube & Tape ---
+    this.tubeShaperNode = this.ctx.createWaveShaper();
+    this.tubeShaperNode.oversample = '4x';
+    this.tubeShaperNode.curve = this.makeDistortionCurve(0); // Off by default
+
+    this.tapeDelayNode = this.ctx.createDelay(1.0);
+    this.tapeDelayNode.delayTime.value = 0.02; // 20ms base delay
+    this.tapeLfo = this.ctx.createOscillator();
+    this.tapeLfo.type = 'sine';
+    this.tapeLfo.frequency.value = 2.0; // 2 Hz wobble
+    this.tapeLfoGain = this.ctx.createGain();
+    this.tapeLfoGain.gain.value = 0.0; // Off by default
+    this.tapeLfo.connect(this.tapeLfoGain);
+    this.tapeLfoGain.connect(this.tapeDelayNode.delayTime);
+    this.tapeLfo.start();
+
     // --- Build Signal Pipeline ---
-    // PreGain -> SubBass -> 10-Band EQ -> Mid/Side Splitting Matrix
+    // PreGain -> SubBass -> 10-Band EQ -> Tube -> Mid/Side Splitting Matrix
     this.preGainNode.connect(this.subBassFilter);
     this.subBassFilter.connect(this.eqNodes[0]);
 
     const lastEqNode = this.eqNodes[this.eqNodes.length - 1];
-    lastEqNode.connect(this.msSplitter);
+    lastEqNode.connect(this.tubeShaperNode);
+    this.tubeShaperNode.connect(this.msSplitter);
 
     // Connect Splitter outputs to Mid/Side Summing networks
     this.msSplitter.connect(this.midGainL, 0); // L input to Mid
@@ -254,9 +271,10 @@ class AudioEngine {
     this.convolverNode.connect(this.reverbGainNode);
     this.reverbGainNode.connect(this.pannerNode);
 
-    // Panner -> Spatial Gain Boost -> Master Gain -> Limiter -> Analyser -> Output
+    // Panner -> Spatial Gain Boost -> Tape Warble -> Master Gain -> Limiter -> Analyser -> Output
     this.pannerNode.connect(this.spatialGainNode);
-    this.spatialGainNode.connect(this.masterGainNode);
+    this.spatialGainNode.connect(this.tapeDelayNode);
+    this.tapeDelayNode.connect(this.masterGainNode);
     this.masterGainNode.connect(this.limiterNode);
     this.limiterNode.connect(this.analyserNode);
     this.analyserNode.connect(this.ctx.destination);
@@ -745,6 +763,43 @@ class AudioEngine {
       this.pannerNode.positionZ.setTargetAtTime(z, now, 0.03);
     } else if (this.pannerNode.setPosition) {
       this.pannerNode.setPosition(x, y, z);
+    }
+  }
+
+  // --- Analog Warmth & Tape Modules ---
+  makeDistortionCurve(amount) {
+    if (amount === 0) return null;
+    const k = typeof amount === 'number' ? amount : 50;
+    const n_samples = 44100;
+    const curve = new Float32Array(n_samples);
+    const deg = Math.PI / 180;
+    for (let i = 0; i < n_samples; ++i) {
+      const x = i * 2 / n_samples - 1;
+      // Soft saturation formula
+      curve[i] = (3 + k) * x * 20 * deg / (Math.PI + k * Math.abs(x));
+    }
+    return curve;
+  }
+
+  setTubeWarmth(enabled, drivePercent = 30) {
+    if (!this.tubeShaperNode) return;
+    if (enabled) {
+      // Map 0-100 slider to 0-400 distortion amount
+      const amount = (parseFloat(drivePercent) / 100) * 400;
+      this.tubeShaperNode.curve = this.makeDistortionCurve(amount);
+    } else {
+      this.tubeShaperNode.curve = null; // Bypass shaper
+    }
+  }
+
+  setTapeWarble(enabled, depthPercent = 40) {
+    if (!this.tapeLfoGain) return;
+    if (enabled) {
+      // depthPercent 0-100 maps to 0.0 - 0.005 seconds of delay wobble
+      const wobble = (parseFloat(depthPercent) / 100) * 0.005;
+      this.tapeLfoGain.gain.value = wobble;
+    } else {
+      this.tapeLfoGain.gain.value = 0.0;
     }
   }
 }
