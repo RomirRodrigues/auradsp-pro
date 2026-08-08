@@ -179,18 +179,38 @@
             <input type="range" id="spotifyVolumeSlider" min="0" max="100" value="80">
           </div>
 
+          <!-- Playlists & Search Selector Tabs -->
+          <div class="spotify-content-tabs" style="margin-top: 15px; display: flex; gap: 8px; margin-bottom: 12px;">
+            <button id="spotifyShowSearchBtn" class="sm-btn active" style="flex: 1; font-size: 0.72rem; padding: 6px; border-radius: 4px; background: rgba(0, 240, 255, 0.15); border-color: var(--accent-cyan);">🔍 Search Catalog</button>
+            <button id="spotifyShowPlaylistsBtn" class="sm-btn" style="flex: 1; font-size: 0.72rem; padding: 6px; border-radius: 4px; background: transparent; border-color: rgba(255,255,255,0.1);">📂 Your Playlists</button>
+          </div>
+
           <!-- Catalog Search Box -->
-          <div class="spotify-search-box">
+          <div id="spotifySearchContainer" class="spotify-search-box">
             <label for="spotifySearchInput">🔍 Search Spotify Catalog:</label>
             <input type="text" id="spotifySearchInput" class="cyber-input" placeholder="Type song, artist...">
-            <div id="spotifySearchResults" class="search-results-list"></div>
+            <div id="spotifySearchResults" class="search-results-list" style="max-height: 180px; overflow-y: auto;"></div>
+          </div>
+
+          <!-- User Playlists Box -->
+          <div id="spotifyPlaylistsContainer" class="spotify-playlists-box hidden">
+            <div id="spotifyPlaylistsList" class="search-results-list" style="max-height: 180px; overflow-y: auto;">
+              <div style="padding:10px; font-size:0.75rem; color:var(--text-muted); text-align:center;">Loading playlists...</div>
+            </div>
+            <div id="spotifyPlaylistTracksContainer" class="hidden" style="margin-top: 10px; border-top: 1px dashed rgba(255,255,255,0.08); padding-top: 10px;">
+              <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+                <label id="spotifyPlaylistNameLabel" style="font-weight:600; color:var(--accent-cyan); font-size:0.78rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:70%;"></label>
+                <button id="spotifyBackToPlaylistsBtn" class="sm-btn" style="font-size:0.68rem; padding: 2px 8px; min-width:auto; width:auto; border-radius:4px;">⬅ Back</button>
+              </div>
+              <div id="spotifyPlaylistTracksList" class="search-results-list" style="max-height: 180px; overflow-y: auto;"></div>
+            </div>
           </div>
 
           <div class="direct-info-box" style="margin-top:12px;">
             <p>💡 <strong>Beat Sync Mode Active:</strong> Spotify playback uses browser-level secure decoding. AuraDSP uses a Virtual DSP Sync Engine to animate the visualizer and VU meters in real-time response to the song's BPM and your active EQ slider configurations.</p>
           </div>
 
-          <button id="spotifyLogoutBtn" class="accent-btn" style="width:100%; margin-top:12px; background:rgba(255, 42, 109, 0.2); border-color:var(--accent-red); color:var(--text-main);">
+          <button id="spotifyLogoutBtn" class="accent-btn" style="width:100%; margin-top:12px; background:rgba(255, 42, 109, 0.15); border-color:var(--accent-red); color:var(--text-main);">
             Disconnect Spotify Account
           </button>
         </div>

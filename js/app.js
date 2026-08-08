@@ -594,17 +594,231 @@ document.addEventListener('DOMContentLoaded', () => {
   const authStateDiv = document.getElementById('spotifyAuthState');
   const playerStateDiv = document.getElementById('spotifyPlayerState');
 
+  // ─── Playlists & Search Tab Switching ───
+  const showSearchBtn = document.getElementById('spotifyShowSearchBtn');
+  const showPlaylistsBtn = document.getElementById('spotifyShowPlaylistsBtn');
+  const searchContainer = document.getElementById('spotifySearchContainer');
+  const playlistsContainer = document.getElementById('spotifyPlaylistsContainer');
+
+  if (showSearchBtn && showPlaylistsBtn) {
+    showSearchBtn.addEventListener('click', () => {
+      showSearchBtn.classList.add('active');
+      showSearchBtn.style.background = 'rgba(0, 240, 255, 0.15)';
+      showSearchBtn.style.borderColor = 'var(--accent-cyan)';
+      
+      showPlaylistsBtn.classList.remove('active');
+      showPlaylistsBtn.style.background = 'transparent';
+      showPlaylistsBtn.style.borderColor = 'rgba(255,255,255,0.1)';
+
+      if (searchContainer) searchContainer.classList.remove('hidden');
+      if (playlistsContainer) playlistsContainer.classList.add('hidden');
+    });
+
+    showPlaylistsBtn.addEventListener('click', () => {
+      showPlaylistsBtn.classList.add('active');
+      showPlaylistsBtn.style.background = 'rgba(0, 240, 255, 0.15)';
+      showPlaylistsBtn.style.borderColor = 'var(--accent-cyan)';
+
+      showSearchBtn.classList.remove('active');
+      showSearchBtn.style.background = 'transparent';
+      showSearchBtn.style.borderColor = 'rgba(255,255,255,0.1)';
+
+      if (playlistsContainer) playlistsContainer.classList.remove('hidden');
+      if (searchContainer) searchContainer.classList.add('hidden');
+      
+      loadSpotifyPlaylists();
+    });
+  }
+
   function updateSpotifyUI() {
     const token = localStorage.getItem('spotify_access_token');
     if (token) {
       if (authStateDiv) authStateDiv.style.display = 'none';
       if (playerStateDiv) playerStateDiv.style.display = 'block';
+      // Load user playlists upon successful connection
+      loadSpotifyPlaylists();
     } else {
       if (authStateDiv) authStateDiv.style.display = 'block';
       if (playerStateDiv) playerStateDiv.style.display = 'none';
     }
   }
   updateSpotifyUI();
+
+  // Playlists API Handling
+  function loadSpotifyPlaylists() {
+    const token = localStorage.getItem('spotify_access_token');
+    if (!token) return;
+    
+    const playlistsList = document.getElementById('spotifyPlaylistsList');
+    if (playlistsList) playlistsList.innerHTML = '<div style="padding:10px; font-size:0.75rem; color:var(--text-muted); text-align:center;">Loading playlists...</div>';
+
+    fetch('https://api.spotify.com/v1/me/playlists?limit=25', {
+      headers: { 'Authorization': `Bearer ${token}` }
+    })
+    .then(res => {
+      if (res.status === 401) {
+        localStorage.removeItem('spotify_access_token');
+        updateSpotifyUI();
+        return null;
+      }
+      return res.json();
+    })
+    .then(data => {
+      if (!data) return;
+      renderSpotifyPlaylists(data.items || []);
+    })
+    .catch(err => {
+      console.error('Error fetching playlists:', err);
+      if (playlistsList) playlistsList.innerHTML = '<div style="padding:10px; font-size:0.75rem; color:var(--accent-red); text-align:center;">Failed to load playlists</div>';
+    });
+  }
+
+  function renderSpotifyPlaylists(playlists) {
+    const playlistsList = document.getElementById('spotifyPlaylistsList');
+    if (!playlistsList) return;
+    playlistsList.innerHTML = '';
+    
+    // Reset secondary container
+    const tracksContainer = document.getElementById('spotifyPlaylistTracksContainer');
+    if (tracksContainer) tracksContainer.classList.add('hidden');
+    playlistsList.classList.remove('hidden');
+
+    if (playlists.length === 0) {
+      playlistsList.innerHTML = '<div style="padding:10px; font-size:0.75rem; color:var(--text-muted); text-align:center;">No playlists found</div>';
+      return;
+    }
+
+    playlists.forEach(playlist => {
+      const item = document.createElement('div');
+      item.className = 'search-result-item';
+      item.style.display = 'flex';
+      item.style.alignItems = 'center';
+      item.style.gap = '10px';
+      item.style.padding = '8px';
+      item.style.margin = '4px 0';
+      item.style.borderRadius = '4px';
+      item.style.cursor = 'pointer';
+      item.style.background = 'rgba(255,255,255,0.02)';
+      item.style.border = '1px solid rgba(255,255,255,0.04)';
+      item.style.transition = 'all 0.1s';
+      
+      const imgUrl = playlist.images && playlist.images[0] ? playlist.images[0].url : 'https://images.unsplash.com/photo-1614680376593-902f74fa0d41?w=40';
+      
+      item.innerHTML = `
+        <img src="${imgUrl}" style="width:36px; height:36px; border-radius:4px; object-fit:cover;">
+        <div style="flex:1; overflow:hidden;">
+          <div style="font-size:0.8rem; font-weight:600; color:var(--text-main); white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">${playlist.name}</div>
+          <div style="font-size:0.68rem; color:var(--text-muted);">${playlist.tracks.total} tracks</div>
+        </div>
+      `;
+
+      item.addEventListener('mouseenter', () => {
+        item.style.background = 'rgba(0, 240, 255, 0.06)';
+        item.style.borderColor = 'rgba(0, 240, 255, 0.2)';
+      });
+      item.addEventListener('mouseleave', () => {
+        item.style.background = 'rgba(255,255,255,0.02)';
+        item.style.borderColor = 'rgba(255,255,255,0.04)';
+      });
+
+      item.addEventListener('click', () => {
+        loadPlaylistTracks(playlist.id, playlist.name);
+      });
+
+      playlistsList.appendChild(item);
+    });
+  }
+
+  function loadPlaylistTracks(playlistId, playlistName) {
+    const token = localStorage.getItem('spotify_access_token');
+    if (!token) return;
+
+    const listContainer = document.getElementById('spotifyPlaylistTracksList');
+    const container = document.getElementById('spotifyPlaylistTracksContainer');
+    const listMain = document.getElementById('spotifyPlaylistsList');
+    const label = document.getElementById('spotifyPlaylistNameLabel');
+    
+    if (label) label.textContent = playlistName;
+    if (listContainer) listContainer.innerHTML = '<div style="padding:10px; font-size:0.75rem; color:var(--text-muted); text-align:center;">Loading tracks...</div>';
+    
+    if (listMain) listMain.classList.add('hidden');
+    if (container) container.classList.remove('hidden');
+
+    fetch(`https://api.spotify.com/v1/playlists/${playlistId}/tracks?limit=40`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    })
+    .then(res => res.json())
+    .then(data => {
+      renderPlaylistTracks(data.items || []);
+    })
+    .catch(err => {
+      console.error('Error fetching tracks:', err);
+      if (listContainer) listContainer.innerHTML = '<div style="padding:10px; font-size:0.75rem; color:var(--accent-red); text-align:center;">Failed to load tracks</div>';
+    });
+  }
+
+  function renderPlaylistTracks(items) {
+    const listContainer = document.getElementById('spotifyPlaylistTracksList');
+    if (!listContainer) return;
+    listContainer.innerHTML = '';
+    
+    const tracks = items.map(item => item.track).filter(track => track && track.uri);
+    
+    if (tracks.length === 0) {
+      listContainer.innerHTML = '<div style="padding:10px; font-size:0.75rem; color:var(--text-muted); text-align:center;">No tracks in this playlist</div>';
+      return;
+    }
+
+    tracks.forEach(track => {
+      const item = document.createElement('div');
+      item.className = 'search-result-item';
+      item.style.display = 'flex';
+      item.style.alignItems = 'center';
+      item.style.gap = '10px';
+      item.style.padding = '8px';
+      item.style.margin = '4px 0';
+      item.style.borderRadius = '4px';
+      item.style.cursor = 'pointer';
+      item.style.background = 'rgba(255,255,255,0.02)';
+      item.style.border = '1px solid rgba(255,255,255,0.04)';
+      item.style.transition = 'all 0.1s';
+
+      const imgUrl = track.album.images && track.album.images[0] ? track.album.images[0].url : 'https://images.unsplash.com/photo-1614680376593-902f74fa0d41?w=40';
+      
+      item.innerHTML = `
+        <img src="${imgUrl}" style="width:36px; height:36px; border-radius:4px; object-fit:cover;">
+        <div style="flex:1; overflow:hidden;">
+          <div style="font-size:0.8rem; font-weight:600; color:var(--text-main); white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">${track.name}</div>
+          <div style="font-size:0.68rem; color:var(--text-muted); white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">${track.artists.map(a => a.name).join(', ')}</div>
+        </div>
+      `;
+
+      item.addEventListener('mouseenter', () => {
+        item.style.background = 'rgba(0, 240, 255, 0.06)';
+        item.style.borderColor = 'rgba(0, 240, 255, 0.2)';
+      });
+      item.addEventListener('mouseleave', () => {
+        item.style.background = 'rgba(255,255,255,0.02)';
+        item.style.borderColor = 'rgba(255,255,255,0.04)';
+      });
+
+      item.addEventListener('click', () => {
+        playSpotifyTrack(track.uri);
+      });
+
+      listContainer.appendChild(item);
+    });
+  }
+
+  const backToPlaylistsBtn = document.getElementById('spotifyBackToPlaylistsBtn');
+  if (backToPlaylistsBtn) {
+    backToPlaylistsBtn.addEventListener('click', () => {
+      const container = document.getElementById('spotifyPlaylistTracksContainer');
+      const listMain = document.getElementById('spotifyPlaylistsList');
+      if (container) container.classList.add('hidden');
+      if (listMain) listMain.classList.remove('hidden');
+    });
+  }
 
   const loginBtn = document.getElementById('spotifyLoginBtn');
   if (loginBtn) {
@@ -614,7 +828,7 @@ document.addEventListener('DOMContentLoaded', () => {
         alert('Please enter your Spotify Developer Client ID first!');
         return;
       }
-      const scopes = 'streaming user-read-playback-state user-modify-playback-state user-read-currently-playing';
+      const scopes = 'streaming user-read-playback-state user-modify-playback-state user-read-currently-playing playlist-read-private playlist-read-collaborative';
       const authUrl = `https://accounts.spotify.com/authorize?client_id=${encodeURIComponent(clientId)}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scopes)}&response_type=token&show_dialog=true`;
       window.location.href = authUrl;
     });
