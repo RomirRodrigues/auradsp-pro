@@ -7,8 +7,8 @@
   <meta name="description" content="Professional real-time audio tuning processor for boAt audio devices, earbuds, and home theater systems with 3D Spatial Audio, Dolby Virtualizer, and 10-Band EQ.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=1.1.9">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&family=Open+Sans:wght@300;400;600;700&family=Montserrat:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&family=Lato:wght@300;400;700&family=Oswald:wght@300;400;500;600;700&family=Raleway:wght@300;400;500;600;700&family=Nunito:wght@300;400;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Comic+Neue:wght@300;400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=1.1.10">
 </head>
 <body class="cyber-dark">
 
@@ -39,6 +39,24 @@
       <div class="device-badge" id="activeDeviceBadge">
         <span class="icon">🎧</span>
         <span id="activeDeviceText">boAt Audio Preset Active</span>
+      </div>
+      
+      <div class="theme-picker" style="margin-left: 10px;">
+        <select id="appFontSelector" title="Change UI Font">
+          <option value="font-outfit">Outfit (Default)</option>
+          <option value="font-inter">Inter</option>
+          <option value="font-roboto">Roboto</option>
+          <option value="font-opensans">Open Sans</option>
+          <option value="font-montserrat">Montserrat</option>
+          <option value="font-poppins">Poppins</option>
+          <option value="font-lato">Lato</option>
+          <option value="font-oswald">Oswald</option>
+          <option value="font-raleway">Raleway</option>
+          <option value="font-nunito">Nunito</option>
+          <option value="font-playfair">Playfair Display</option>
+          <option value="font-spacemono">Space Mono</option>
+          <option value="font-comicneue">Comic Neue</option>
+        </select>
       </div>
       <div class="theme-picker" style="margin-left:auto;">
         <select id="appThemeSelector" title="Change UI Theme">
@@ -643,10 +661,10 @@
   </footer>
 
   <!-- Modular Scripts -->
-  <script src="js/presets.js?v=1.1.9"></script>
-  <script src="js/audio-engine.js?v=1.1.9"></script>
-  <script src="js/spatial-canvas.js?v=1.1.9"></script>
-  <script src="js/visualizer.js?v=1.1.9"></script>
-  <script src="js/app.js?v=1.1.9"></script>
+  <script src="js/presets.js?v=1.1.10"></script>
+  <script src="js/audio-engine.js?v=1.1.10"></script>
+  <script src="js/spatial-canvas.js?v=1.1.10"></script>
+  <script src="js/visualizer.js?v=1.1.10"></script>
+  <script src="js/app.js?v=1.1.10"></script>
 </body>
 </html>

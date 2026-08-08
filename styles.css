@@ -2675,3 +2675,84 @@ body.theme-nebula {
   --border-color: #ff00ff40;
   --border-hardware: #00ffff20;
 }
+
+/* =========================================
+   FONT SWITCHER STYLES
+   ========================================= */
+
+#appFontSelector {
+  background: rgba(10, 10, 15, 0.8);
+  color: var(--accent-cyan);
+  border: 1px solid var(--border-hardware);
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-heading);
+  font-size: 0.85rem;
+  font-weight: 600;
+  outline: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+#appFontSelector:hover {
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 10px var(--border-color);
+}
+
+#appFontSelector option {
+  background: var(--bg-primary);
+  color: var(--text-main);
+}
+
+body.font-outfit {
+  --font-heading: 'Outfit', sans-serif;
+}
+
+body.font-inter {
+  --font-heading: 'Inter', sans-serif;
+}
+
+body.font-roboto {
+  --font-heading: 'Roboto', sans-serif;
+}
+
+body.font-opensans {
+  --font-heading: 'Open Sans', sans-serif;
+}
+
+body.font-montserrat {
+  --font-heading: 'Montserrat', sans-serif;
+}
+
+body.font-poppins {
+  --font-heading: 'Poppins', sans-serif;
+}
+
+body.font-lato {
+  --font-heading: 'Lato', sans-serif;
+}
+
+body.font-oswald {
+  --font-heading: 'Oswald', sans-serif;
+}
+
+body.font-raleway {
+  --font-heading: 'Raleway', sans-serif;
+}
+
+body.font-nunito {
+  --font-heading: 'Nunito', sans-serif;
+}
+
+body.font-playfair {
+  --font-heading: 'Playfair Display', serif;
+}
+
+body.font-spacemono {
+  --font-heading: 'Space Mono', monospace;
+}
+
+body.font-comicneue {
+  --font-heading: 'Comic Neue', cursive;
+}

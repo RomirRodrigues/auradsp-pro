@@ -1226,6 +1226,29 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  
+  // --- Font Switcher Logic ---
+  const fontSelector = document.getElementById('appFontSelector');
+  if (fontSelector) {
+    const savedFont = localStorage.getItem('auradsp_ui_font');
+    if (savedFont) {
+      document.body.classList.add(savedFont);
+      fontSelector.value = savedFont;
+    }
+
+    fontSelector.addEventListener('change', (e) => {
+      const selectedFont = e.target.value;
+      
+      // Remove all other font classes
+      const fontClasses = Array.from(document.body.classList).filter(c => c.startsWith('font-'));
+      fontClasses.forEach(c => document.body.classList.remove(c));
+      
+      // Add the new one
+      document.body.classList.add(selectedFont);
+      localStorage.setItem('auradsp_ui_font', selectedFont);
+    });
+  }
+
   // --- Theme Switcher Logic ---
   const themeSelector = document.getElementById('appThemeSelector');
   if (themeSelector) {
