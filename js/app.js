@@ -578,6 +578,24 @@ document.addEventListener('DOMContentLoaded', () => {
   // Both APIs are CORS-enabled (Access-Control-Allow-Origin: *) and respond in <1s
 
   const SAAVN_API = 'https://saavn.sumit.co';
+  const AUDIUS_APP_NAME = 'auradsp_pro';
+
+  async function searchAudius(query) {
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), 5000);
+    const res = await fetch(`https://discoveryprovider.audius.co/v1/tracks/search?query=${encodeURIComponent(query)}&app_name=${AUDIUS_APP_NAME}`, { signal: controller.signal });
+    clearTimeout(id);
+    if (!res.ok) throw new Error(`Audius ${res.status}`);
+    const json = await res.json();
+    return (json.data || []).map(t => ({
+      title: t.title || '',
+      uploaderName: t.user?.name || 'Unknown Artist',
+      thumbnail: t.artwork ? (t.artwork['480x480'] || t.artwork['150x150'] || '') : '',
+      duration: t.duration || 0,
+      streamUrl: t.id ? `https://discoveryprovider.audius.co/v1/tracks/${t.id}/stream?app_name=${AUDIUS_APP_NAME}` : '',
+      source: 'audius'
+    })).filter(t => t.title && t.streamUrl);
+  }
 
   async function searchJioSaavn(query) {
     const controller = new AbortController();
@@ -635,10 +653,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let allTracks = [];
 
-    // Search both APIs in parallel for maximum speed and coverage
-    const [saavnResult, itunesResult] = await Promise.allSettled([
+    // Search APIs in parallel for maximum speed and coverage
+    const [saavnResult, itunesResult, audiusResult] = await Promise.allSettled([
       searchJioSaavn(query),
-      searchItunes(query)
+      searchItunes(query),
+      searchAudius(query)
     ]);
 
     if (saavnResult.status === 'fulfilled') {
@@ -659,26 +678,18 @@ document.addEventListener('DOMContentLoaded', () => {
       console.warn('iTunes search failed:', itunesResult.reason);
     }
 
-    // If both failed, try Audius as last resort
-    if (allTracks.length === 0) {
-      try {
-        const res = await fetch(`https://api.audius.co/v1/tracks/search?query=${encodeURIComponent(query)}&app_name=auradsppro`);
-        if (res.ok) {
-          const json = await res.json();
-          const tracks = json.data || [];
-          allTracks = tracks.map(t => ({
-            title: t.title,
-            uploaderName: t.user?.name || 'Unknown Artist',
-            thumbnail: t.artwork && t.artwork['150x150'] ? t.artwork['150x150'] : '',
-            duration: t.duration || 0,
-            streamUrl: `https://api.audius.co/v1/tracks/${t.id}/stream?app_name=auradsppro`,
-            source: 'audius'
-          }));
+    if (audiusResult.status === 'fulfilled') {
+      // Add Audius results that aren't duplicates
+      const existingTitles = new Set(allTracks.map(t => t.title.toLowerCase()));
+      audiusResult.value.forEach(t => {
+        if (!existingTitles.has(t.title.toLowerCase())) {
+          allTracks.push(t);
         }
-      } catch (e) {
-        console.warn('Audius backup also failed:', e);
-      }
+      });
+    } else {
+      console.warn('Audius search failed:', audiusResult.reason);
     }
+
 
     renderWebSearchResults(allTracks);
   }
