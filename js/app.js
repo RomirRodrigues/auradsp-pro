@@ -1,7 +1,6 @@
-/**
- * AuraDSP Application Controller & Event Handler
- * Ultra-Responsive Zero-Lag UI Engine with 4 Distinct Test Audio Generators
- */
+window.addEventListener('error', (e) => {
+  alert(`AuraDSP System Error: ${e.message} \nFile: ${e.filename ? e.filename.split('/').pop() : 'unknown'} \nLine: ${e.lineno || 'unknown'}`);
+});
 
 document.addEventListener('DOMContentLoaded', () => {
   // 1. Initialize Visualizer & Spatial Canvas
