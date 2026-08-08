@@ -940,9 +940,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Playback Control Event Handlers
-  const playPauseBtn = document.getElementById('spotifyPlayPauseBtn');
-  if (playPauseBtn) {
-    playPauseBtn.addEventListener('click', () => {
+  const spotifyPlayPauseBtn = document.getElementById('spotifyPlayPauseBtn');
+  if (spotifyPlayPauseBtn) {
+    spotifyPlayPauseBtn.addEventListener('click', () => {
       if (window.spotifyPlayerInstance) window.spotifyPlayerInstance.togglePlay();
     });
   }
