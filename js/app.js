@@ -10,7 +10,47 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let isPlaying = false;
   let isSynthBeatActive = false;
+  let isToneActive = false;
   let currentEqGains = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+  function resetAllPlaybackUI() {
+    isPlaying = false;
+    isSynthBeatActive = false;
+    isToneActive = false;
+
+    const playText = document.getElementById('playText');
+    const playIcon = document.getElementById('playIcon');
+    const startSynthBeatBtn = document.getElementById('startSynthBeatBtn');
+    const filePlayPauseBtn = document.getElementById('filePlayPauseBtn');
+    const startMicBtn = document.getElementById('startMicBtn');
+    const toggleToneBtn = document.getElementById('toggleToneBtn');
+
+    if (playText) playText.textContent = "Play Selected Track";
+    if (playIcon) playIcon.textContent = "▶";
+    if (startSynthBeatBtn) {
+      const span = startSynthBeatBtn.querySelector('span');
+      if (span) span.textContent = "🔥 Play Studio Synth Groove";
+      else startSynthBeatBtn.textContent = "🔥 Play Studio Synth Groove";
+      startSynthBeatBtn.classList.add('glowing-btn');
+      startSynthBeatBtn.style.background = "";
+      startSynthBeatBtn.style.color = "";
+    }
+    if (filePlayPauseBtn) {
+      filePlayPauseBtn.innerHTML = "▶ Play File";
+    }
+    if (startMicBtn) {
+      startMicBtn.textContent = "▶ Start Live Mic Input";
+      startMicBtn.style.background = "";
+      startMicBtn.style.color = "";
+    }
+    if (toggleToneBtn) {
+      toggleToneBtn.textContent = "Start Test Signal";
+      toggleToneBtn.classList.remove('primary-btn');
+      toggleToneBtn.classList.add('accent-btn');
+      toggleToneBtn.style.background = "";
+      toggleToneBtn.style.color = "";
+    }
+  }
 
   // ─── Mobile Panel Switcher ───────────────────────────────────
   function isMobile() { return window.innerWidth <= 600; }
@@ -334,15 +374,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const trackMode = demoTrackSelect ? demoTrackSelect.value : 'bass';
 
     if (isSynthBeatActive) {
-      window.audioEngine.stopSynthGroove();
-      isSynthBeatActive = false;
-      startSynthBeatBtn.textContent = "🔥 Play Studio Synth Groove";
-      startSynthBeatBtn.classList.add('glowing-btn');
-      playText.textContent = "Play Selected Track";
-      playIcon.textContent = "▶";
+      window.audioEngine.stopAllSources();
+      resetAllPlaybackUI();
     } else {
+      window.audioEngine.stopAllSources();
+      resetAllPlaybackUI();
+      window.audioEngine.activeSource = 'synth';
       window.audioEngine.startSynthGroove(trackMode);
       isSynthBeatActive = true;
+      isPlaying = true;
       startSynthBeatBtn.textContent = "⏸ Pause Studio Synth Groove";
       startSynthBeatBtn.classList.remove('glowing-btn');
       playText.textContent = "Pause Track";
@@ -356,14 +396,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const trackMode = demoTrackSelect ? demoTrackSelect.value : 'bass';
 
     if (isSynthBeatActive || isPlaying) {
-      window.audioEngine.stopSynthGroove();
-      isSynthBeatActive = false;
-      isPlaying = false;
-      playText.textContent = "Play Selected Track";
-      playIcon.textContent = "▶";
-      startSynthBeatBtn.textContent = "🔥 Play Studio Synth Groove";
-      startSynthBeatBtn.classList.add('glowing-btn');
+      window.audioEngine.stopAllSources();
+      resetAllPlaybackUI();
     } else {
+      window.audioEngine.stopAllSources();
+      resetAllPlaybackUI();
+      window.audioEngine.activeSource = 'synth';
       window.audioEngine.startSynthGroove(trackMode);
       isSynthBeatActive = true;
       isPlaying = true;
@@ -479,6 +517,12 @@ document.addEventListener('DOMContentLoaded', () => {
     filePlayPauseBtn.addEventListener('click', async () => {
       if (window.audioEngine) await window.audioEngine.resumeCtx();
       if (audioPlayer.paused) {
+        if (window.audioEngine) {
+          window.audioEngine.stopAllSources();
+          resetAllPlaybackUI();
+          window.audioEngine.activeSource = 'file';
+          window.audioEngine.connectMediaElement(audioPlayer);
+        }
         audioPlayer.play();
       } else {
         audioPlayer.pause();
@@ -613,7 +657,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
     player.addListener('player_state_changed', state => {
       if (!state) return;
+
+      const wasPaused = window.spotifyPlayerState ? window.spotifyPlayerState.paused : true;
       window.spotifyPlayerState = state;
+
+      if (!state.paused && wasPaused) {
+        // Spotify just started playing! Stop all other audio sources.
+        if (window.audioEngine) {
+          const tempPlayer = window.spotifyPlayerInstance;
+          window.spotifyPlayerInstance = null; // Temporarily bypass so stopAllSources doesn't pause Spotify
+
+          window.audioEngine.stopAllSources();
+
+          window.spotifyPlayerInstance = tempPlayer;
+          window.audioEngine.activeSource = 'spotify';
+          resetAllPlaybackUI();
+        }
+      }
       
       const track = state.track_window.current_track;
       const artImg = document.getElementById('spotifyAlbumArt');
@@ -772,6 +832,7 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       if (window.audioEngine) {
         window.audioEngine.stopAllSources();
+        resetAllPlaybackUI();
         window.audioEngine.activeSource = 'spotify';
       }
       
@@ -854,7 +915,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Tone Generator
   const toggleToneBtn = document.getElementById('toggleToneBtn');
-  let isToneActive = false;
   let currentToneType = 'sine';
 
   document.querySelectorAll('.tone-type-btn').forEach(tBtn => {
@@ -880,12 +940,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   toggleToneBtn.addEventListener('click', () => {
     if (isToneActive) {
-      window.audioEngine.stopToneGenerator();
-      isToneActive = false;
-      toggleToneBtn.textContent = "Start Test Signal";
-      toggleToneBtn.classList.remove('primary-btn');
-      toggleToneBtn.classList.add('accent-btn');
+      window.audioEngine.stopAllSources();
+      resetAllPlaybackUI();
     } else {
+      window.audioEngine.stopAllSources();
+      resetAllPlaybackUI();
+      window.audioEngine.activeSource = 'tone';
       const freq = toneFreqInput.value;
       window.audioEngine.startToneGenerator(currentToneType, freq);
       isToneActive = true;
