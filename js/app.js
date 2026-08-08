@@ -562,44 +562,79 @@ document.addEventListener('DOMContentLoaded', () => {
   let searchTimeout = null;
 
   // List of public Piped API nodes for failover rotation
-  const pipedInstances = [
-    'https://pipedapi.kavin.rocks',
-    'https://api.piped.yt',
-    'https://piped-api.lunar.icu',
-    'https://pipedapi.tokhmi.xyz',
-    'https://pipedapi.qt.to'
+  // --- Invidious API Backend (YouTube search + stream extraction) ---
+  const invidiousInstances = [
+    'https://invidious.materialio.us',
+    'https://inv.nadeko.net',
+    'https://invidious.nerdvpn.de',
+    'https://iv.ggtyler.dev',
+    'https://yewtu.be',
+    'https://invidious.protokolla.fi',
+    'https://invidious.perennialte.ch',
+    'https://vid.puffyan.us',
+    'https://invidious.lunar.icu',
+    'https://iv.nbooo.com',
+    'https://invidious.io.lol',
+    'https://invidious.privacydev.net',
+    'https://inv.tux.pizza',
+    'https://invidious.fdn.fr',
+    'https://invidious.slipfox.xyz'
   ];
-  let currentPipedInstanceIndex = 0;
+  let currentInvInstanceIndex = 0;
+  let lastWorkingInstance = null;
 
-  function getPipedInstanceUrl() {
-    return pipedInstances[currentPipedInstanceIndex];
+  function getInvInstanceUrl() {
+    if (lastWorkingInstance) return lastWorkingInstance;
+    return invidiousInstances[currentInvInstanceIndex];
   }
 
-  function rotatePipedInstance() {
-    currentPipedInstanceIndex = (currentPipedInstanceIndex + 1) % pipedInstances.length;
-    console.log("Rotating Piped API instance to:", getPipedInstanceUrl());
+  function rotateInvInstance() {
+    currentInvInstanceIndex = (currentInvInstanceIndex + 1) % invidiousInstances.length;
+    console.log("Rotating Invidious instance to:", invidiousInstances[currentInvInstanceIndex]);
   }
 
-  async function fetchPiped(endpoint) {
-    let attempts = 0;
-    while (attempts < pipedInstances.length) {
-      const baseUrl = getPipedInstanceUrl();
+  async function fetchInvidious(endpoint) {
+    // Try last working instance first
+    if (lastWorkingInstance) {
       try {
         const controller = new AbortController();
-        const id = setTimeout(() => controller.abort(), 6000); // 6s timeout
-        const res = await fetch(baseUrl + endpoint, { signal: controller.signal });
+        const id = setTimeout(() => controller.abort(), 8000);
+        const res = await fetch(lastWorkingInstance + endpoint, { signal: controller.signal });
         clearTimeout(id);
         if (res.ok) {
           const json = await res.json();
           if (json) return json;
         }
       } catch (e) {
-        console.warn(`Piped fetch failed on instance ${baseUrl}:`, e);
+        console.warn(`Last working instance ${lastWorkingInstance} failed, rotating...`);
+        lastWorkingInstance = null;
       }
-      rotatePipedInstance();
+    }
+
+    // Rotate through all instances
+    let attempts = 0;
+    while (attempts < invidiousInstances.length) {
+      const baseUrl = invidiousInstances[currentInvInstanceIndex];
+      try {
+        const controller = new AbortController();
+        const id = setTimeout(() => controller.abort(), 8000);
+        const res = await fetch(baseUrl + endpoint, { signal: controller.signal });
+        clearTimeout(id);
+        if (res.ok) {
+          const json = await res.json();
+          if (json) {
+            lastWorkingInstance = baseUrl;
+            console.log("Found working Invidious instance:", baseUrl);
+            return json;
+          }
+        }
+      } catch (e) {
+        console.warn(`Invidious fetch failed on ${baseUrl}:`, e.message || e);
+      }
+      rotateInvInstance();
       attempts++;
     }
-    throw new Error("All Piped API instances failed");
+    throw new Error("All Invidious API instances failed");
   }
 
   if (webSearchInput) {
@@ -618,11 +653,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   async function performWebMusicSearch(query) {
     if (webSearchResults) {
-      webSearchResults.innerHTML = '<div style="padding:10px; font-size:0.75rem; color:var(--text-muted); text-align:center;">Searching Web Library...</div>';
+      webSearchResults.innerHTML = '<div style="padding:10px; font-size:0.75rem; color:var(--text-muted); text-align:center;">Searching YouTube Library...</div>';
     }
     try {
-      const data = await fetchPiped(`/search?q=${encodeURIComponent(query)}&filter=videos`);
+      const data = await fetchInvidious(`/api/v1/search?q=${encodeURIComponent(query)}&type=video`);
       
+      // Invidious returns a direct JSON array
       let items = [];
       if (Array.isArray(data)) {
         items = data;
@@ -630,17 +666,27 @@ document.addEventListener('DOMContentLoaded', () => {
         items = data.items;
       } else if (data && typeof data === 'object') {
         for (const key in data) {
-          if (Array.isArray(data[key])) {
-            items = data[key];
-            break;
-          }
+          if (Array.isArray(data[key])) { items = data[key]; break; }
         }
       }
       
-      const tracks = items.filter(item => item && item.title && (item.url || item.videoId));
+      // Normalize Invidious results to our track format
+      const tracks = items
+        .filter(item => item && (item.videoId || item.url) && item.title)
+        .map(item => ({
+          title: item.title,
+          videoId: item.videoId || '',
+          uploaderName: item.author || item.uploaderName || 'Unknown Artist',
+          thumbnail: (item.videoThumbnails && item.videoThumbnails.length > 0)
+            ? item.videoThumbnails.find(t => t.quality === 'medium')?.url || item.videoThumbnails[0].url
+            : (item.thumbnail || ''),
+          duration: item.lengthSeconds || item.duration || 0,
+          url: item.url || ''
+        }));
+      
       renderWebSearchResults(tracks);
     } catch (err) {
-      console.error('Web Search error, attempting Audius backup:', err);
+      console.error('Invidious Search error, attempting Audius backup:', err);
       if (webSearchResults) {
         webSearchResults.innerHTML = '<div style="padding:10px; font-size:0.75rem; color:var(--text-muted); text-align:center;">Searching Backup Library...</div>';
       }
@@ -661,7 +707,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       } catch (backupErr) {
         if (webSearchResults) {
-          webSearchResults.innerHTML = '<div style="padding:10px; font-size:0.75rem; color:var(--accent-red); text-align:center;">Search failed. Try again with different keywords.</div>';
+          webSearchResults.innerHTML = '<div style="padding:10px; font-size:0.75rem; color:var(--accent-red); text-align:center;">Search failed. Please try again later.</div>';
         }
       }
     }
@@ -740,12 +786,18 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         if (!videoId) throw new Error("Could not extract video ID");
-        const streamInfo = await fetchPiped(`/streams/${videoId}`);
-        const audioStreams = streamInfo.audioStreams || [];
-        if (audioStreams.length === 0) throw new Error("No audio stream found");
         
-        // Grab the first audio stream (usually m4a or webm/opus)
-        streamUrl = audioStreams[0].url;
+        // Invidious API: /api/v1/videos/:id returns adaptiveFormats with audio streams
+        const videoInfo = await fetchInvidious(`/api/v1/videos/${videoId}`);
+        const adaptiveFormats = videoInfo.adaptiveFormats || [];
+        
+        // Filter for audio-only streams and pick best quality
+        const audioFormats = adaptiveFormats.filter(f => f.type && f.type.startsWith('audio/'));
+        if (audioFormats.length === 0) throw new Error("No audio stream found for this video");
+        
+        // Prefer higher bitrate audio
+        audioFormats.sort((a, b) => (b.bitrate || 0) - (a.bitrate || 0));
+        streamUrl = audioFormats[0].url;
       }
 
       if (window.audioEngine) {
