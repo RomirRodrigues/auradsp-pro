@@ -62,6 +62,22 @@ class AudioEngine {
     this.analyserNode = null;
     this.limiterNode = null;
 
+    // --- GOD MODE NODES ---
+    // Earthquake Bass
+    this.godBassFilter = null;
+    this.godBassShaper = null;
+    // Crystal Clarity
+    this.godClarityHighpass = null;
+    this.godClarityShaper = null;
+    this.godClarityGain = null;
+    // Omnipresent Spatial
+    this.godSpatialDelayL = null;
+    this.godSpatialDelayR = null;
+    this.godSpatialFeedback = null;
+    // Aura OTT
+    this.godOttComp1 = null;
+    this.godOttComp2 = null;
+
     // Parameters State
     this.subBassAmount = 3.0;
     this.haasWidth = 70;
@@ -223,6 +239,37 @@ class AudioEngine {
     this.tapeLfo.connect(this.tapeLfoGain);
     this.tapeLfoGain.connect(this.tapeDelayNode.delayTime);
     this.tapeLfo.start();
+
+    
+    // --- GOD MODE NODE INIT ---
+    // 1. Earthquake Bass (Sub-harmonic exciter)
+    this.godBassFilter = this.ctx.createBiquadFilter();
+    this.godBassFilter.type = 'peaking';
+    this.godBassFilter.frequency.value = 45; // Deep sub
+    this.godBassFilter.Q.value = 1.0;
+    this.godBassFilter.gain.value = 0; // Off by default
+
+    // 2. Crystal Clarity (Parallel High Exciter)
+    this.godClarityHighpass = this.ctx.createBiquadFilter();
+    this.godClarityHighpass.type = 'highpass';
+    this.godClarityHighpass.frequency.value = 6000;
+    this.godClarityShaper = this.ctx.createWaveShaper();
+    this.godClarityShaper.curve = this.makeDistortionCurve(0);
+    this.godClarityGain = this.ctx.createGain();
+    this.godClarityGain.gain.value = 0; // Off by default
+
+    // 3. Omnipresent Spatial (Extreme wide Haas)
+    this.godSpatialDelay = this.ctx.createDelay();
+    this.godSpatialDelay.delayTime.value = 0; // Off by default
+
+    // 4. Aura OTT Dynamics (Upwards/Downwards Multiband compression)
+    this.godOttComp = this.ctx.createDynamicsCompressor();
+    this.godOttComp.threshold.value = 0; // Off by default
+    this.godOttComp.ratio.value = 1; // 1:1 (off)
+    this.godOttComp.attack.value = 0.001;
+    this.godOttComp.release.value = 0.1;
+    this.godOttGain = this.ctx.createGain();
+    this.godOttGain.gain.value = 1.0;
 
     // --- Build Signal Pipeline ---
     // PreGain -> SubBass -> 10-Band EQ -> Tube -> Mid/Side Splitting Matrix

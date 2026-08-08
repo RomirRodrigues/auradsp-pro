@@ -1664,6 +1664,70 @@ input:checked + .slider:before {
 }
 
 /* =========================================
+   GOD MODE ENHANCEMENTS STYLES
+   ========================================= */
+
+.god-mode-container {
+  background: linear-gradient(135deg, rgba(20, 5, 20, 0.95), rgba(40, 10, 20, 0.95));
+  border: 1px solid rgba(255, 0, 100, 0.5);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  margin-top: 15px;
+  box-shadow: 0 0 20px rgba(255, 0, 100, 0.2), inset 0 0 10px rgba(255, 0, 100, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.god-mode-container::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #ff0055, #ffcc00, transparent);
+  animation: godScan 3s linear infinite;
+}
+
+@keyframes godScan {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.god-mode-title {
+  margin-bottom: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 10px;
+  color: #fff;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.5), 0 0 20px #ff0055;
+  text-align: center;
+}
+
+.god-toggle-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.god-toggle-row:last-child {
+  margin-bottom: 0;
+}
+
+.god-label {
+  font-size: 0.9rem;
+  color: #ffe6f0;
+  font-weight: 600;
+  text-shadow: 0 0 5px rgba(255, 0, 100, 0.3);
+}
+
+/* God Mode specific switch styling overrides */
+.god-switch input:checked + .slider {
+  background-color: #ff0055 !important;
+  box-shadow: 0 0 15px #ff0055, 0 0 30px #ff0055 !important;
+}
+
+/* =========================================
    THEME SWITCHER STYLES
    ========================================= */
 

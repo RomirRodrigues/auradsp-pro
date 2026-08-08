@@ -1227,6 +1227,38 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   
+  
+  // --- GOD MODE UI LOGIC ---
+  const godBassToggle = document.getElementById('godBassToggle');
+  const godClarityToggle = document.getElementById('godClarityToggle');
+  const godSpatialToggle = document.getElementById('godSpatialToggle');
+  const godOttToggle = document.getElementById('godOttToggle');
+
+  if (godBassToggle) {
+    godBassToggle.addEventListener('change', (e) => {
+      if (window.audioEngine) window.audioEngine.setGodBass(e.target.checked);
+      markTuningAsManual();
+    });
+  }
+  if (godClarityToggle) {
+    godClarityToggle.addEventListener('change', (e) => {
+      if (window.audioEngine) window.audioEngine.setGodClarity(e.target.checked);
+      markTuningAsManual();
+    });
+  }
+  if (godSpatialToggle) {
+    godSpatialToggle.addEventListener('change', (e) => {
+      if (window.audioEngine) window.audioEngine.setGodSpatial(e.target.checked);
+      markTuningAsManual();
+    });
+  }
+  if (godOttToggle) {
+    godOttToggle.addEventListener('change', (e) => {
+      if (window.audioEngine) window.audioEngine.setGodOtt(e.target.checked);
+      markTuningAsManual();
+    });
+  }
+
   // --- Font Switcher Logic ---
   const fontSelector = document.getElementById('appFontSelector');
   if (fontSelector) {
