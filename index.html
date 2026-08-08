@@ -255,7 +255,37 @@
           </div>
         </div>
 
-        <!-- PROFESSIONAL METERING SECTION -->
+        
+            </div>
+            <div class="vu-channel">
+              <div class="vu-fill" id="vuFillR"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- CENTER COLUMN: Spectrum Analyzer, 10-Band EQ & Curve -->
+    <section class="panel center-panel" data-panel="center">
+      
+      <!-- REAL-TIME VISUALIZER HEADER -->
+      <div class="visualizer-container">
+        <div class="vis-header">
+          <div class="vis-title">
+            <span class="live-dot"></span>
+            <h3>60 FPS FREQUENCY SPECTRUM & WAVEFORM</h3>
+          </div>
+          <div class="vis-mode-toggle">
+            <button class="vis-btn active" id="visModeBars">Spectrum</button>
+            <button class="vis-btn" id="visModeWave">Oscilloscope</button>
+          </div>
+        </div>
+        <canvas id="spectrumCanvas" width="800" height="180"></canvas>
+      </div>
+      <!-- CENTER METERING DASHBOARD -->
+      <div style="margin-bottom: 20px;">
+<!-- PROFESSIONAL METERING SECTION -->
         <div class="pro-metering-container">
           <h4 class="pro-dsp-title" style="margin-bottom:10px; font-size:0.75rem; text-align:center;">DSP METERING</h4>
           
@@ -313,32 +343,6 @@
             </div>
           </div>
         </div>
-            </div>
-            <div class="vu-channel">
-              <div class="vu-fill" id="vuFillR"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-    </aside>
-
-    <!-- CENTER COLUMN: Spectrum Analyzer, 10-Band EQ & Curve -->
-    <section class="panel center-panel" data-panel="center">
-      
-      <!-- REAL-TIME VISUALIZER HEADER -->
-      <div class="visualizer-container">
-        <div class="vis-header">
-          <div class="vis-title">
-            <span class="live-dot"></span>
-            <h3>60 FPS FREQUENCY SPECTRUM & WAVEFORM</h3>
-          </div>
-          <div class="vis-mode-toggle">
-            <button class="vis-btn active" id="visModeBars">Spectrum</button>
-            <button class="vis-btn" id="visModeWave">Oscilloscope</button>
-          </div>
-        </div>
-        <canvas id="spectrumCanvas" width="800" height="180"></canvas>
       </div>
 
       <!-- 10-BAND PARAMETRIC EQUALIZER -->
