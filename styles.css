@@ -1875,3 +1875,803 @@ body.theme-monochrome {
   --border-color: rgba(255, 255, 255, 0.3);
   --border-hardware: rgba(255, 255, 255, 0.15);
 }
+
+/* 12+1. Sunset Gradient */
+body.theme-sunset {
+  --bg-primary: #1a0b1c;
+  --bg-panel: rgba(38, 14, 28, 0.9);
+  --bg-card: rgba(38, 14, 28, 0.7);
+  --bg-card-hover: rgba(38, 14, 28, 1);
+  --accent-cyan: #ff4b1f;
+  --accent-neon: #ff9068;
+  --accent-amber: #ff4b1f;
+  --accent-green: #ff9068;
+  --accent-red: #ff4b1f;
+  --text-main: #ffe6e6;
+  --border-color: #ff4b1f40;
+  --border-hardware: #ff906820;
+}
+
+/* 12+2. Deep Forest */
+body.theme-forest {
+  --bg-primary: #0b1c10;
+  --bg-panel: rgba(14, 38, 22, 0.9);
+  --bg-card: rgba(14, 38, 22, 0.7);
+  --bg-card-hover: rgba(14, 38, 22, 1);
+  --accent-cyan: #11998e;
+  --accent-neon: #38ef7d;
+  --accent-amber: #11998e;
+  --accent-green: #38ef7d;
+  --accent-red: #11998e;
+  --text-main: #e6ffe6;
+  --border-color: #11998e40;
+  --border-hardware: #38ef7d20;
+}
+
+/* 12+3. Neon Tokyo */
+body.theme-neon-tokyo {
+  --bg-primary: #09080e;
+  --bg-panel: rgba(23, 17, 36, 0.9);
+  --bg-card: rgba(23, 17, 36, 0.7);
+  --bg-card-hover: rgba(23, 17, 36, 1);
+  --accent-cyan: #ff007f;
+  --accent-neon: #00f0ff;
+  --accent-amber: #ff007f;
+  --accent-green: #00f0ff;
+  --accent-red: #ff007f;
+  --text-main: #ffffff;
+  --border-color: #ff007f40;
+  --border-hardware: #00f0ff20;
+}
+
+/* 12+4. Morning Coffee */
+body.theme-coffee {
+  --bg-primary: #1c1511;
+  --bg-panel: rgba(46, 32, 23, 0.9);
+  --bg-card: rgba(46, 32, 23, 0.7);
+  --bg-card-hover: rgba(46, 32, 23, 1);
+  --accent-cyan: #c0a080;
+  --accent-neon: #8b5a2b;
+  --accent-amber: #c0a080;
+  --accent-green: #8b5a2b;
+  --accent-red: #c0a080;
+  --text-main: #f0e6d2;
+  --border-color: #c0a08040;
+  --border-hardware: #8b5a2b20;
+}
+
+/* 12+5. Terminal Hacker */
+body.theme-hacker {
+  --bg-primary: #000000;
+  --bg-panel: rgba(0, 20, 0, 0.9);
+  --bg-card: rgba(0, 20, 0, 0.7);
+  --bg-card-hover: rgba(30,30,30,0.9);
+  --accent-cyan: #00ff00;
+  --accent-neon: #009900;
+  --accent-amber: #00ff00;
+  --accent-green: #009900;
+  --accent-red: #00ff00;
+  --text-main: #00ff00;
+  --border-color: #00ff0040;
+  --border-hardware: #00990020;
+}
+
+/* 12+6. Lavender Dream */
+body.theme-lavender {
+  --bg-primary: #181522;
+  --bg-panel: rgba(35, 30, 48, 0.9);
+  --bg-card: rgba(35, 30, 48, 0.7);
+  --bg-card-hover: rgba(35, 30, 48, 1);
+  --accent-cyan: #b39ddb;
+  --accent-neon: #7e57c2;
+  --accent-amber: #b39ddb;
+  --accent-green: #7e57c2;
+  --accent-red: #b39ddb;
+  --text-main: #f3e5f5;
+  --border-color: #b39ddb40;
+  --border-hardware: #7e57c220;
+}
+
+/* 12+7. Volcanic Ash */
+body.theme-volcano {
+  --bg-primary: #110c0c;
+  --bg-panel: rgba(36, 20, 20, 0.9);
+  --bg-card: rgba(36, 20, 20, 0.7);
+  --bg-card-hover: rgba(36, 20, 20, 1);
+  --accent-cyan: #ff3300;
+  --accent-neon: #cc0000;
+  --accent-amber: #ff3300;
+  --accent-green: #cc0000;
+  --accent-red: #ff3300;
+  --text-main: #ffcccc;
+  --border-color: #ff330040;
+  --border-hardware: #cc000020;
+}
+
+/* 12+8. Arctic Ice */
+body.theme-ice {
+  --bg-primary: #0a192f;
+  --bg-panel: rgba(17, 43, 79, 0.9);
+  --bg-card: rgba(17, 43, 79, 0.7);
+  --bg-card-hover: rgba(17, 43, 79, 1);
+  --accent-cyan: #64ffda;
+  --accent-neon: #00bfff;
+  --accent-amber: #64ffda;
+  --accent-green: #00bfff;
+  --accent-red: #64ffda;
+  --text-main: #e6f1ff;
+  --border-color: #64ffda40;
+  --border-hardware: #00bfff20;
+}
+
+/* 12+9. Bubblegum Pop */
+body.theme-bubblegum {
+  --bg-primary: #2b1b24;
+  --bg-panel: rgba(64, 36, 52, 0.9);
+  --bg-card: rgba(64, 36, 52, 0.7);
+  --bg-card-hover: rgba(64, 36, 52, 1);
+  --accent-cyan: #ff77ff;
+  --accent-neon: #ff33cc;
+  --accent-amber: #ff77ff;
+  --accent-green: #ff33cc;
+  --accent-red: #ff77ff;
+  --text-main: #ffe6f9;
+  --border-color: #ff77ff40;
+  --border-hardware: #ff33cc20;
+}
+
+/* 12+10. Military Camo */
+body.theme-military {
+  --bg-primary: #171a15;
+  --bg-panel: rgba(36, 43, 30, 0.9);
+  --bg-card: rgba(36, 43, 30, 0.7);
+  --bg-card-hover: rgba(36, 43, 30, 1);
+  --accent-cyan: #8bc34a;
+  --accent-neon: #558b2f;
+  --accent-amber: #8bc34a;
+  --accent-green: #558b2f;
+  --accent-red: #8bc34a;
+  --text-main: #f1f8e9;
+  --border-color: #8bc34a40;
+  --border-hardware: #558b2f20;
+}
+
+/* 12+11. Cherry Blossom */
+body.theme-cherry {
+  --bg-primary: #2a1a1f;
+  --bg-panel: rgba(56, 30, 40, 0.9);
+  --bg-card: rgba(56, 30, 40, 0.7);
+  --bg-card-hover: rgba(56, 30, 40, 1);
+  --accent-cyan: #ffb7b2;
+  --accent-neon: #e28495;
+  --accent-amber: #ffb7b2;
+  --accent-green: #e28495;
+  --accent-red: #ffb7b2;
+  --text-main: #ffe5ec;
+  --border-color: #ffb7b240;
+  --border-hardware: #e2849520;
+}
+
+/* 12+12. Royal Purple */
+body.theme-royal {
+  --bg-primary: #130b1f;
+  --bg-panel: rgba(32, 17, 56, 0.9);
+  --bg-card: rgba(32, 17, 56, 0.7);
+  --bg-card-hover: rgba(32, 17, 56, 1);
+  --accent-cyan: #9c27b0;
+  --accent-neon: #6a1b9a;
+  --accent-amber: #9c27b0;
+  --accent-green: #6a1b9a;
+  --accent-red: #9c27b0;
+  --text-main: #f3e5f5;
+  --border-color: #9c27b040;
+  --border-hardware: #6a1b9a20;
+}
+
+/* 12+13. Mustard Yellow */
+body.theme-mustard {
+  --bg-primary: #1a180b;
+  --bg-panel: rgba(43, 38, 14, 0.9);
+  --bg-card: rgba(43, 38, 14, 0.7);
+  --bg-card-hover: rgba(43, 38, 14, 1);
+  --accent-cyan: #ffc107;
+  --accent-neon: #ffa000;
+  --accent-amber: #ffc107;
+  --accent-green: #ffa000;
+  --accent-red: #ffc107;
+  --text-main: #fffde7;
+  --border-color: #ffc10740;
+  --border-hardware: #ffa00020;
+}
+
+/* 12+14. Navy Blue */
+body.theme-navy {
+  --bg-primary: #0b101c;
+  --bg-panel: rgba(14, 25, 46, 0.9);
+  --bg-card: rgba(14, 25, 46, 0.7);
+  --bg-card-hover: rgba(14, 25, 46, 1);
+  --accent-cyan: #1976d2;
+  --accent-neon: #0d47a1;
+  --accent-amber: #1976d2;
+  --accent-green: #0d47a1;
+  --accent-red: #1976d2;
+  --text-main: #e3f2fd;
+  --border-color: #1976d240;
+  --border-hardware: #0d47a120;
+}
+
+/* 12+15. Vibrant Teal */
+body.theme-teal {
+  --bg-primary: #091c1b;
+  --bg-panel: rgba(13, 46, 44, 0.9);
+  --bg-card: rgba(13, 46, 44, 0.7);
+  --bg-card-hover: rgba(13, 46, 44, 1);
+  --accent-cyan: #009688;
+  --accent-neon: #00796b;
+  --accent-amber: #009688;
+  --accent-green: #00796b;
+  --accent-red: #009688;
+  --text-main: #e0f2f1;
+  --border-color: #00968840;
+  --border-hardware: #00796b20;
+}
+
+/* 12+16. Coral Reef */
+body.theme-coral {
+  --bg-primary: #241413;
+  --bg-panel: rgba(54, 26, 24, 0.9);
+  --bg-card: rgba(54, 26, 24, 0.7);
+  --bg-card-hover: rgba(54, 26, 24, 1);
+  --accent-cyan: #ff7f50;
+  --accent-neon: #ff6b6b;
+  --accent-amber: #ff7f50;
+  --accent-green: #ff6b6b;
+  --accent-red: #ff7f50;
+  --text-main: #ffece6;
+  --border-color: #ff7f5040;
+  --border-hardware: #ff6b6b20;
+}
+
+/* 12+17. Fresh Mint */
+body.theme-mint {
+  --bg-primary: #0d1c16;
+  --bg-panel: rgba(19, 46, 34, 0.9);
+  --bg-card: rgba(19, 46, 34, 0.7);
+  --bg-card-hover: rgba(19, 46, 34, 1);
+  --accent-cyan: #98ff98;
+  --accent-neon: #3cb371;
+  --accent-amber: #98ff98;
+  --accent-green: #3cb371;
+  --accent-red: #98ff98;
+  --text-main: #e6ffe6;
+  --border-color: #98ff9840;
+  --border-hardware: #3cb37120;
+}
+
+/* 12+18. Rose Gold */
+body.theme-rose {
+  --bg-primary: #1f1617;
+  --bg-panel: rgba(51, 33, 36, 0.9);
+  --bg-card: rgba(51, 33, 36, 0.7);
+  --bg-card-hover: rgba(51, 33, 36, 1);
+  --accent-cyan: #b76e79;
+  --accent-neon: #c07c88;
+  --accent-amber: #b76e79;
+  --accent-green: #c07c88;
+  --accent-red: #b76e79;
+  --text-main: #f9f1f2;
+  --border-color: #b76e7940;
+  --border-hardware: #c07c8820;
+}
+
+/* 12+19. Slate Gray */
+body.theme-slate {
+  --bg-primary: #15171a;
+  --bg-panel: rgba(32, 36, 43, 0.9);
+  --bg-card: rgba(32, 36, 43, 0.7);
+  --bg-card-hover: rgba(32, 36, 43, 1);
+  --accent-cyan: #708090;
+  --accent-neon: #778899;
+  --accent-amber: #708090;
+  --accent-green: #778899;
+  --accent-red: #708090;
+  --text-main: #f8f9fa;
+  --border-color: #70809040;
+  --border-hardware: #77889920;
+}
+
+/* 12+20. Glowing Amber */
+body.theme-amber {
+  --bg-primary: #1c130b;
+  --bg-panel: rgba(46, 29, 14, 0.9);
+  --bg-card: rgba(46, 29, 14, 0.7);
+  --bg-card-hover: rgba(46, 29, 14, 1);
+  --accent-cyan: #ffbf00;
+  --accent-neon: #ff8c00;
+  --accent-amber: #ffbf00;
+  --accent-green: #ff8c00;
+  --accent-red: #ffbf00;
+  --text-main: #fff8e1;
+  --border-color: #ffbf0040;
+  --border-hardware: #ff8c0020;
+}
+
+/* 12+21. Peacock Feather */
+body.theme-peacock {
+  --bg-primary: #0a161c;
+  --bg-panel: rgba(14, 38, 48, 0.9);
+  --bg-card: rgba(14, 38, 48, 0.7);
+  --bg-card-hover: rgba(14, 38, 48, 1);
+  --accent-cyan: #33a1c9;
+  --accent-neon: #20b2aa;
+  --accent-amber: #33a1c9;
+  --accent-green: #20b2aa;
+  --accent-red: #33a1c9;
+  --text-main: #e6f7ff;
+  --border-color: #33a1c940;
+  --border-hardware: #20b2aa20;
+}
+
+/* 12+22. Red Wine */
+body.theme-wine {
+  --bg-primary: #1a080c;
+  --bg-panel: rgba(46, 11, 18, 0.9);
+  --bg-card: rgba(46, 11, 18, 0.7);
+  --bg-card-hover: rgba(46, 11, 18, 1);
+  --accent-cyan: #722f37;
+  --accent-neon: #8b0000;
+  --accent-amber: #722f37;
+  --accent-green: #8b0000;
+  --accent-red: #722f37;
+  --text-main: #ffcccc;
+  --border-color: #722f3740;
+  --border-hardware: #8b000020;
+}
+
+/* 12+23. Pumpkin Spice */
+body.theme-pumpkin {
+  --bg-primary: #1c1007;
+  --bg-panel: rgba(48, 25, 10, 0.9);
+  --bg-card: rgba(48, 25, 10, 0.7);
+  --bg-card-hover: rgba(48, 25, 10, 1);
+  --accent-cyan: #ff7518;
+  --accent-neon: #e65c00;
+  --accent-amber: #ff7518;
+  --accent-green: #e65c00;
+  --accent-red: #ff7518;
+  --text-main: #ffeee6;
+  --border-color: #ff751840;
+  --border-hardware: #e65c0020;
+}
+
+/* 12+24. Sapphire Crystal */
+body.theme-sapphire {
+  --bg-primary: #060a1c;
+  --bg-panel: rgba(10, 18, 48, 0.9);
+  --bg-card: rgba(10, 18, 48, 0.7);
+  --bg-card-hover: rgba(10, 18, 48, 1);
+  --accent-cyan: #0f52ba;
+  --accent-neon: #082567;
+  --accent-amber: #0f52ba;
+  --accent-green: #082567;
+  --accent-red: #0f52ba;
+  --text-main: #e6ebff;
+  --border-color: #0f52ba40;
+  --border-hardware: #08256720;
+}
+
+/* 12+25. Emerald Gem */
+body.theme-emerald {
+  --bg-primary: #061a10;
+  --bg-panel: rgba(11, 43, 25, 0.9);
+  --bg-card: rgba(11, 43, 25, 0.7);
+  --bg-card-hover: rgba(11, 43, 25, 1);
+  --accent-cyan: #50c878;
+  --accent-neon: #2e8b57;
+  --accent-amber: #50c878;
+  --accent-green: #2e8b57;
+  --accent-red: #50c878;
+  --text-main: #e6ffe6;
+  --border-color: #50c87840;
+  --border-hardware: #2e8b5720;
+}
+
+/* 12+26. Amethyst Stone */
+body.theme-amethyst {
+  --bg-primary: #150a1f;
+  --bg-panel: rgba(34, 15, 51, 0.9);
+  --bg-card: rgba(34, 15, 51, 0.7);
+  --bg-card-hover: rgba(34, 15, 51, 1);
+  --accent-cyan: #9966cc;
+  --accent-neon: #663399;
+  --accent-amber: #9966cc;
+  --accent-green: #663399;
+  --accent-red: #9966cc;
+  --text-main: #f2e6ff;
+  --border-color: #9966cc40;
+  --border-hardware: #66339920;
+}
+
+/* 12+27. Polished Bronze */
+body.theme-bronze {
+  --bg-primary: #1a130b;
+  --bg-panel: rgba(46, 31, 15, 0.9);
+  --bg-card: rgba(46, 31, 15, 0.7);
+  --bg-card-hover: rgba(46, 31, 15, 1);
+  --accent-cyan: #cd7f32;
+  --accent-neon: #a0522d;
+  --accent-amber: #cd7f32;
+  --accent-green: #a0522d;
+  --accent-red: #cd7f32;
+  --text-main: #fdf5e6;
+  --border-color: #cd7f3240;
+  --border-hardware: #a0522d20;
+}
+
+/* 12+28. Metallic Silver */
+body.theme-silver {
+  --bg-primary: #171717;
+  --bg-panel: rgba(43, 43, 43, 0.9);
+  --bg-card: rgba(43, 43, 43, 0.7);
+  --bg-card-hover: rgba(43, 43, 43, 1);
+  --accent-cyan: #c0c0c0;
+  --accent-neon: #a9a9a9;
+  --accent-amber: #c0c0c0;
+  --accent-green: #a9a9a9;
+  --accent-red: #c0c0c0;
+  --text-main: #ffffff;
+  --border-color: #c0c0c040;
+  --border-hardware: #a9a9a920;
+}
+
+/* 12+29. Rusted Iron */
+body.theme-rust {
+  --bg-primary: #1c0f0a;
+  --bg-panel: rgba(48, 23, 14, 0.9);
+  --bg-card: rgba(48, 23, 14, 0.7);
+  --bg-card-hover: rgba(48, 23, 14, 1);
+  --accent-cyan: #b7410e;
+  --accent-neon: #8b4513;
+  --accent-amber: #b7410e;
+  --accent-green: #8b4513;
+  --accent-red: #b7410e;
+  --text-main: #ffe6cc;
+  --border-color: #b7410e40;
+  --border-hardware: #8b451320;
+}
+
+/* 12+30. Olive Grove */
+body.theme-olive {
+  --bg-primary: #15170b;
+  --bg-panel: rgba(35, 38, 14, 0.9);
+  --bg-card: rgba(35, 38, 14, 0.7);
+  --bg-card-hover: rgba(35, 38, 14, 1);
+  --accent-cyan: #808000;
+  --accent-neon: #556b2f;
+  --accent-amber: #808000;
+  --accent-green: #556b2f;
+  --accent-red: #808000;
+  --text-main: #f5f5dc;
+  --border-color: #80800040;
+  --border-hardware: #556b2f20;
+}
+
+/* 12+31. Deep Plum */
+body.theme-plum {
+  --bg-primary: #170c17;
+  --bg-panel: rgba(41, 19, 41, 0.9);
+  --bg-card: rgba(41, 19, 41, 0.7);
+  --bg-card-hover: rgba(41, 19, 41, 1);
+  --accent-cyan: #dda0dd;
+  --accent-neon: #800080;
+  --accent-amber: #dda0dd;
+  --accent-green: #800080;
+  --accent-red: #dda0dd;
+  --text-main: #ffe6ff;
+  --border-color: #dda0dd40;
+  --border-hardware: #80008020;
+}
+
+/* 12+32. Electric Cyan */
+body.theme-cyan {
+  --bg-primary: #05171a;
+  --bg-panel: rgba(10, 39, 43, 0.9);
+  --bg-card: rgba(10, 39, 43, 0.7);
+  --bg-card-hover: rgba(10, 39, 43, 1);
+  --accent-cyan: #00ffff;
+  --accent-neon: #00ced1;
+  --accent-amber: #00ffff;
+  --accent-green: #00ced1;
+  --accent-red: #00ffff;
+  --text-main: #e6ffff;
+  --border-color: #00ffff40;
+  --border-hardware: #00ced120;
+}
+
+/* 12+33. Pure Magenta */
+body.theme-magenta {
+  --bg-primary: #1a0517;
+  --bg-panel: rgba(43, 10, 39, 0.9);
+  --bg-card: rgba(43, 10, 39, 0.7);
+  --bg-card-hover: rgba(43, 10, 39, 1);
+  --accent-cyan: #ff00ff;
+  --accent-neon: #c71585;
+  --accent-amber: #ff00ff;
+  --accent-green: #c71585;
+  --accent-red: #ff00ff;
+  --text-main: #ffe6ff;
+  --border-color: #ff00ff40;
+  --border-hardware: #c7158520;
+}
+
+/* 12+34. Indigo Night */
+body.theme-indigo {
+  --bg-primary: #0d0b1a;
+  --bg-panel: rgba(21, 17, 46, 0.9);
+  --bg-card: rgba(21, 17, 46, 0.7);
+  --bg-card-hover: rgba(21, 17, 46, 1);
+  --accent-cyan: #4b0082;
+  --accent-neon: #483d8b;
+  --accent-amber: #4b0082;
+  --accent-green: #483d8b;
+  --accent-red: #4b0082;
+  --text-main: #e6e6ff;
+  --border-color: #4b008240;
+  --border-hardware: #483d8b20;
+}
+
+/* 12+35. Lemon Drop */
+body.theme-lemon {
+  --bg-primary: #1a1a05;
+  --bg-panel: rgba(43, 43, 10, 0.9);
+  --bg-card: rgba(43, 43, 10, 0.7);
+  --bg-card-hover: rgba(43, 43, 10, 1);
+  --accent-cyan: #fffacd;
+  --accent-neon: #ffd700;
+  --accent-amber: #fffacd;
+  --accent-green: #ffd700;
+  --accent-red: #fffacd;
+  --text-main: #ffffe6;
+  --border-color: #fffacd40;
+  --border-hardware: #ffd70020;
+}
+
+/* 12+36. Soft Peach */
+body.theme-peach {
+  --bg-primary: #1f1513;
+  --bg-panel: rgba(54, 34, 30, 0.9);
+  --bg-card: rgba(54, 34, 30, 0.7);
+  --bg-card-hover: rgba(54, 34, 30, 1);
+  --accent-cyan: #ffdab9;
+  --accent-neon: #ffa07a;
+  --accent-amber: #ffdab9;
+  --accent-green: #ffa07a;
+  --accent-red: #ffdab9;
+  --text-main: #fff0e6;
+  --border-color: #ffdab940;
+  --border-hardware: #ffa07a20;
+}
+
+/* 12+37. Crimson Red */
+body.theme-crimson {
+  --bg-primary: #1a0609;
+  --bg-panel: rgba(43, 11, 17, 0.9);
+  --bg-card: rgba(43, 11, 17, 0.7);
+  --bg-card-hover: rgba(43, 11, 17, 1);
+  --accent-cyan: #dc143c;
+  --accent-neon: #b22222;
+  --accent-amber: #dc143c;
+  --accent-green: #b22222;
+  --accent-red: #dc143c;
+  --text-main: #ffcccc;
+  --border-color: #dc143c40;
+  --border-hardware: #b2222220;
+}
+
+/* 12+38. Sky Blue */
+body.theme-sky {
+  --bg-primary: #0b161f;
+  --bg-panel: rgba(17, 39, 56, 0.9);
+  --bg-card: rgba(17, 39, 56, 0.7);
+  --bg-card-hover: rgba(17, 39, 56, 1);
+  --accent-cyan: #87ceeb;
+  --accent-neon: #4682b4;
+  --accent-amber: #87ceeb;
+  --accent-green: #4682b4;
+  --accent-red: #87ceeb;
+  --text-main: #e6f2ff;
+  --border-color: #87ceeb40;
+  --border-hardware: #4682b420;
+}
+
+/* 12+39. Neon Lime */
+body.theme-lime {
+  --bg-primary: #0d1a08;
+  --bg-panel: rgba(20, 43, 11, 0.9);
+  --bg-card: rgba(20, 43, 11, 0.7);
+  --bg-card-hover: rgba(20, 43, 11, 1);
+  --accent-cyan: #32cd32;
+  --accent-neon: #00ff00;
+  --accent-amber: #32cd32;
+  --accent-green: #00ff00;
+  --accent-red: #32cd32;
+  --text-main: #e6ffe6;
+  --border-color: #32cd3240;
+  --border-hardware: #00ff0020;
+}
+
+/* 12+40. Salmon Pink */
+body.theme-salmon {
+  --bg-primary: #1c1010;
+  --bg-panel: rgba(48, 25, 25, 0.9);
+  --bg-card: rgba(48, 25, 25, 0.7);
+  --bg-card-hover: rgba(48, 25, 25, 1);
+  --accent-cyan: #fa8072;
+  --accent-neon: #e9967a;
+  --accent-amber: #fa8072;
+  --accent-green: #e9967a;
+  --accent-red: #fa8072;
+  --text-main: #ffe6e6;
+  --border-color: #fa807240;
+  --border-hardware: #e9967a20;
+}
+
+/* 12+41. Dark Chocolate */
+body.theme-chocolate {
+  --bg-primary: #170e0a;
+  --bg-panel: rgba(38, 20, 11, 0.9);
+  --bg-card: rgba(38, 20, 11, 0.7);
+  --bg-card-hover: rgba(38, 20, 11, 1);
+  --accent-cyan: #d2691e;
+  --accent-neon: #8b4513;
+  --accent-amber: #d2691e;
+  --accent-green: #8b4513;
+  --accent-red: #d2691e;
+  --text-main: #ffe6cc;
+  --border-color: #d2691e40;
+  --border-hardware: #8b451320;
+}
+
+/* 12+42. Ivory White */
+body.theme-ivory {
+  --bg-primary: #f0f0f0;
+  --bg-panel: rgba(255, 255, 255, 0.9);
+  --bg-card: rgba(255, 255, 255, 0.7);
+  --bg-card-hover: rgba(255, 255, 255, 1);
+  --accent-cyan: #8b8b8b;
+  --accent-neon: #555555;
+  --accent-amber: #8b8b8b;
+  --accent-green: #555555;
+  --accent-red: #8b8b8b;
+  --text-main: #333333;
+  --border-color: #8b8b8b40;
+  --border-hardware: #55555520;
+}
+
+/* 12+43. Sepia Tone */
+body.theme-sepia {
+  --bg-primary: #1f1c18;
+  --bg-panel: rgba(56, 48, 38, 0.9);
+  --bg-card: rgba(56, 48, 38, 0.7);
+  --bg-card-hover: rgba(56, 48, 38, 1);
+  --accent-cyan: #e3dac9;
+  --accent-neon: #c4b59d;
+  --accent-amber: #e3dac9;
+  --accent-green: #c4b59d;
+  --accent-red: #e3dac9;
+  --text-main: #fcfaf5;
+  --border-color: #e3dac940;
+  --border-hardware: #c4b59d20;
+}
+
+/* 12+44. Turquoise Gem */
+body.theme-turquoise {
+  --bg-primary: #081c1c;
+  --bg-panel: rgba(12, 48, 48, 0.9);
+  --bg-card: rgba(12, 48, 48, 0.7);
+  --bg-card-hover: rgba(12, 48, 48, 1);
+  --accent-cyan: #40e0d0;
+  --accent-neon: #00ced1;
+  --accent-amber: #40e0d0;
+  --accent-green: #00ced1;
+  --accent-red: #40e0d0;
+  --text-main: #e6ffff;
+  --border-color: #40e0d040;
+  --border-hardware: #00ced120;
+}
+
+/* 12+45. Deep Violet */
+body.theme-violet {
+  --bg-primary: #12051c;
+  --bg-panel: rgba(29, 10, 48, 0.9);
+  --bg-card: rgba(29, 10, 48, 0.7);
+  --bg-card-hover: rgba(29, 10, 48, 1);
+  --accent-cyan: #ee82ee;
+  --accent-neon: #9400d3;
+  --accent-amber: #ee82ee;
+  --accent-green: #9400d3;
+  --accent-red: #ee82ee;
+  --text-main: #ffe6ff;
+  --border-color: #ee82ee40;
+  --border-hardware: #9400d320;
+}
+
+/* 12+46. Jade Green */
+body.theme-jade {
+  --bg-primary: #0b1a13;
+  --bg-panel: rgba(16, 43, 30, 0.9);
+  --bg-card: rgba(16, 43, 30, 0.7);
+  --bg-card-hover: rgba(16, 43, 30, 1);
+  --accent-cyan: #00a86b;
+  --accent-neon: #2e8b57;
+  --accent-amber: #00a86b;
+  --accent-green: #2e8b57;
+  --accent-red: #00a86b;
+  --text-main: #e6ffe6;
+  --border-color: #00a86b40;
+  --border-hardware: #2e8b5720;
+}
+
+/* 12+47. Ruby Red */
+body.theme-ruby {
+  --bg-primary: #1c050a;
+  --bg-panel: rgba(48, 10, 19, 0.9);
+  --bg-card: rgba(48, 10, 19, 0.7);
+  --bg-card-hover: rgba(48, 10, 19, 1);
+  --accent-cyan: #e0115f;
+  --accent-neon: #c71585;
+  --accent-amber: #e0115f;
+  --accent-green: #c71585;
+  --accent-red: #e0115f;
+  --text-main: #ffcccc;
+  --border-color: #e0115f40;
+  --border-hardware: #c7158520;
+}
+
+/* 12+48. Pearl White */
+body.theme-pearl {
+  --bg-primary: #f5f5f5;
+  --bg-panel: rgba(255, 255, 255, 0.95);
+  --bg-card: rgba(255, 255, 255, 0.75);
+  --bg-card-hover: rgba(255, 255, 255, 15);
+  --accent-cyan: #b0c4de;
+  --accent-neon: #778899;
+  --accent-amber: #b0c4de;
+  --accent-green: #778899;
+  --accent-red: #b0c4de;
+  --text-main: #222222;
+  --border-color: #b0c4de40;
+  --border-hardware: #77889920;
+}
+
+/* 12+49. Obsidian Glass */
+body.theme-obsidian {
+  --bg-primary: #050505;
+  --bg-panel: rgba(15, 15, 15, 0.85);
+  --bg-card: rgba(15, 15, 15, 0.6);
+  --bg-card-hover: rgba(15, 15, 15, 0.95);
+  --accent-cyan: #555555;
+  --accent-neon: #333333;
+  --accent-amber: #555555;
+  --accent-green: #333333;
+  --accent-red: #555555;
+  --text-main: #dddddd;
+  --border-color: #55555540;
+  --border-hardware: #33333320;
+}
+
+/* 12+50. Cosmic Nebula */
+body.theme-nebula {
+  --bg-primary: #120a1c;
+  --bg-panel: rgba(30, 15, 48, 0.9);
+  --bg-card: rgba(30, 15, 48, 0.7);
+  --bg-card-hover: rgba(30, 15, 48, 1);
+  --accent-cyan: #ff00ff;
+  --accent-neon: #00ffff;
+  --accent-amber: #ff00ff;
+  --accent-green: #00ffff;
+  --accent-red: #ff00ff;
+  --text-main: #ffe6ff;
+  --border-color: #ff00ff40;
+  --border-hardware: #00ffff20;
+}
