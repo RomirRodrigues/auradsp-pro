@@ -66,7 +66,7 @@ class AudioEngine {
     this.subBassAmount = 3.0;
     this.haasWidth = 70;
     this.haasDelayMs = 18;
-    this.spatialVolumeBoost = 3.0; // Default +3dB 3D Volume Boost
+    this.spatialVolumeBoost = 8.0; // Default +8dB 3D Volume Boost to counter HRTF loss
     this.isSynthLoopActive = false;
     this.currentTrackMode = 'bass';
     this.activeSource = 'demo';
@@ -87,9 +87,9 @@ class AudioEngine {
       }
     }
 
-    // 1. Pre-Gain
+    // 1. Pre-Gain (boosted slightly to compensate for Web Audio API native HRTF volume drops)
     this.preGainNode = this.ctx.createGain();
-    this.preGainNode.gain.value = 1.0;
+    this.preGainNode.gain.value = 1.5;
 
     // 2. Sub-Bass Synthesizer (Low-shelf 30Hz - 120Hz)
     this.subBassFilter = this.ctx.createBiquadFilter();
@@ -195,14 +195,14 @@ class AudioEngine {
 
     // 9. Master Gain, Safety Limiter & Analyser
     this.masterGainNode = this.ctx.createGain();
-    this.masterGainNode.gain.value = 1.0;
+    this.masterGainNode.gain.value = 1.2; // Extra 20% master boost
 
     this.limiterNode = this.ctx.createDynamicsCompressor();
-    this.limiterNode.threshold.value = -1.0; // Prevent digital clipping at -1dB
-    this.limiterNode.knee.value = 0;         // Hard knee for limiting
-    this.limiterNode.ratio.value = 20;       // Extreme compression ratio for limiting
-    this.limiterNode.attack.value = 0.001;   // Rapid 1ms attack time
-    this.limiterNode.release.value = 0.1;    // 100ms release time
+    this.limiterNode.threshold.value = -0.1; // Prevent digital clipping just under 0dBFS
+    this.limiterNode.knee.value = 2.0;       // Soft knee for more transparent limiting
+    this.limiterNode.ratio.value = 12;       // High compression ratio for limiting, but not total brickwall
+    this.limiterNode.attack.value = 0.003;   // 3ms attack time
+    this.limiterNode.release.value = 0.15;   // 150ms release time
 
     this.analyserNode = this.ctx.createAnalyser();
     this.analyserNode.fftSize = 256;

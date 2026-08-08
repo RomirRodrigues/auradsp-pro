@@ -242,7 +242,7 @@ document.addEventListener('DOMContentLoaded', () => {
       reverb: document.getElementById('roomReverbToggle')?.checked || false,
       reverbPreset: document.getElementById('reverbPreset')?.value || 'cinema',
       reverbWet: parseFloat(document.getElementById('reverbWet')?.value || 25),
-      spatialBoost: parseFloat(document.getElementById('spatialVolumeBoost')?.value || 3.0),
+      spatialBoost: parseFloat(document.getElementById('spatialVolumeBoost')?.value || 8.0),
       isUser: true
     };
 
