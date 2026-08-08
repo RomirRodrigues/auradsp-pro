@@ -524,6 +524,12 @@ body.cyber-dark {
   border-radius: 4px;
 }
 
+.delete-preset-btn:hover {
+  transform: scale(1.18);
+  color: #ff0055 !important;
+  filter: drop-shadow(0 0 4px rgba(255, 0, 85, 0.4));
+}
+
 /* MASTER SLIDERS & VU METERS */
 .master-sliders {
   display: flex;

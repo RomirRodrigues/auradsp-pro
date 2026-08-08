@@ -66,6 +66,13 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // Helper to deselect active preset and show manual tuning status
+  function markTuningAsManual() {
+    document.querySelectorAll('.preset-card').forEach(c => c.classList.remove('active'));
+    const badgeText = document.getElementById('activeDeviceText');
+    if (badgeText) badgeText.textContent = "Manual Custom Tuning";
+  }
+
   // 2. Build 10-Band EQ Sliders UI
   const eqGrid = document.getElementById('eqSlidersGrid');
   eqGrid.innerHTML = '';
@@ -95,6 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
         window.audioEngine.setBandGain(idx, val);
       }
       window.visualizer.drawEqCurve(currentEqGains);
+      markTuningAsManual();
     });
   });
 
@@ -103,20 +111,67 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function renderPresets(category = 'boat') {
     presetCardsContainer.innerHTML = '';
-    const presets = AUDIO_PRESETS[category] || AUDIO_PRESETS.boat;
+    
+    let presets = [];
+    if (category === 'custom') {
+      const basePresets = AUDIO_PRESETS.custom || [];
+      const userPresets = JSON.parse(localStorage.getItem('user_presets') || '[]');
+      presets = [...basePresets, ...userPresets];
+      
+      // Render "Save Current Tuning" dotted card at the top
+      const saveCard = document.createElement('div');
+      saveCard.className = 'preset-card';
+      saveCard.style.border = '1px dashed var(--accent-cyan)';
+      saveCard.style.background = 'rgba(0, 240, 255, 0.05)';
+      saveCard.innerHTML = `
+        <div class="preset-info">
+          <h4 style="color:var(--accent-cyan);">💾 Save Current Tuning</h4>
+          <p>Save active EQ and filter levels as a custom preset</p>
+        </div>
+        <button class="primary-btn-sm" style="padding: 4px 10px; font-size: 0.72rem; width: auto; min-width: auto; background: linear-gradient(135deg, var(--accent-cyan), #00a8ff); color: #000; box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);">Save</button>
+      `;
+      saveCard.addEventListener('click', (e) => {
+        const presetName = prompt("Enter a name for your custom preset:", "My Headphone Profile");
+        if (presetName && presetName.trim()) {
+          saveUserPreset(presetName.trim());
+        }
+      });
+      presetCardsContainer.appendChild(saveCard);
+    } else {
+      presets = AUDIO_PRESETS[category] || AUDIO_PRESETS.boat;
+    }
 
     presets.forEach((preset, index) => {
       const card = document.createElement('div');
-      card.className = `preset-card ${index === 0 ? 'active' : ''}`;
+      card.className = `preset-card ${index === 0 && category !== 'custom' ? 'active' : ''}`;
       card.dataset.id = preset.id;
 
-      card.innerHTML = `
-        <div class="preset-info">
-          <h4>${preset.name}</h4>
-          <p>${preset.desc}</p>
-        </div>
-        <span class="preset-badge">${preset.badge}</span>
-      `;
+      if (preset.isUser) {
+        card.innerHTML = `
+          <div class="preset-info">
+            <h4>${preset.name}</h4>
+            <p>${preset.desc}</p>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span class="preset-badge" style="background:rgba(0, 240, 255, 0.12); border: 1px solid var(--accent-cyan); color:var(--accent-cyan);">${preset.badge}</span>
+            <button class="delete-preset-btn" style="background:none; border:none; color:var(--accent-red); cursor:pointer; font-size:0.95rem; padding: 4px; display: flex; align-items: center; justify-content: center; transition: transform 0.1s;" title="Delete Preset">🗑️</button>
+          </div>
+        `;
+        card.querySelector('.delete-preset-btn').addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (confirm(`Are you sure you want to delete the custom preset "${preset.name}"?`)) {
+            deleteUserPreset(preset.id);
+          }
+        });
+      } else {
+        card.innerHTML = `
+          <div class="preset-info">
+            <h4>${preset.name}</h4>
+            <p>${preset.desc}</p>
+          </div>
+          <span class="preset-badge">${preset.badge}</span>
+        `;
+      }
 
       card.addEventListener('click', () => {
         document.querySelectorAll('.preset-card').forEach(c => c.classList.remove('active'));
@@ -127,8 +182,57 @@ document.addEventListener('DOMContentLoaded', () => {
       presetCardsContainer.appendChild(card);
     });
 
-    if (presets.length > 0) {
+    // If first rendering or non-custom, apply first element by default
+    if (category !== 'custom' && presets.length > 0) {
       applyPreset(presets[0]);
+    }
+  }
+
+  function saveUserPreset(name) {
+    const newPreset = {
+      id: "user_preset_" + Date.now(),
+      name: name,
+      desc: "User custom headphone tuning profile",
+      badge: "USER",
+      eq: [...currentEqGains],
+      subBass: parseFloat(document.getElementById('bassEnhance')?.value || 3.0),
+      haasWidth: parseFloat(document.getElementById('haasWidth')?.value || 70),
+      haasDelay: parseFloat(document.getElementById('haasDelay')?.value || 18),
+      dolbyComp: document.getElementById('dolbyCompressorToggle')?.checked || false,
+      vocalBoost: document.getElementById('vocalEnhancerToggle')?.checked ? parseFloat(document.getElementById('vocalBoost')?.value || 3.0) : 0.0,
+      reverb: document.getElementById('roomReverbToggle')?.checked || false,
+      reverbPreset: document.getElementById('reverbPreset')?.value || 'cinema',
+      reverbWet: parseFloat(document.getElementById('reverbWet')?.value || 25),
+      spatialBoost: parseFloat(document.getElementById('spatialVolumeBoost')?.value || 3.0),
+      isUser: true
+    };
+
+    const userPresets = JSON.parse(localStorage.getItem('user_presets') || '[]');
+    userPresets.push(newPreset);
+    localStorage.setItem('user_presets', JSON.stringify(userPresets));
+
+    renderPresets('custom');
+    applyPreset(newPreset);
+
+    // Make the newly created card active visually
+    setTimeout(() => {
+      document.querySelectorAll('.preset-card').forEach(c => {
+        if (c.dataset.id === newPreset.id) c.classList.add('active');
+        else c.classList.remove('active');
+      });
+    }, 40);
+  }
+
+  function deleteUserPreset(id) {
+    let userPresets = JSON.parse(localStorage.getItem('user_presets') || '[]');
+    userPresets = userPresets.filter(p => p.id !== id);
+    localStorage.setItem('user_presets', JSON.stringify(userPresets));
+    renderPresets('custom');
+    
+    // Fallback to flat reference if current deleted preset was active
+    const badgeText = document.getElementById('activeDeviceText');
+    if (badgeText && badgeText.textContent.includes('Active')) {
+      applyPreset(AUDIO_PRESETS.custom[0]); // Reference Flat
     }
   }
 
@@ -739,6 +843,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const val = e.target.value;
     bassEnhanceVal.textContent = `+${val} dB`;
     if (window.audioEngine) window.audioEngine.setSubBass(val);
+    markTuningAsManual();
   });
 
   const resetMasterBtn = document.getElementById('resetMasterBtn');
@@ -794,6 +899,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (window.audioEngine) {
       window.audioEngine.setDolbyCompressor(compToggle.checked, compThreshold.value, compRatio.value);
     }
+    markTuningAsManual();
   };
   compToggle.addEventListener('change', updateComp);
   compThreshold.addEventListener('input', updateComp);
@@ -811,6 +917,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (window.audioEngine) {
       window.audioEngine.setHaasExpander(haasToggle.checked, haasWidth.value, haasDelay.value);
     }
+    markTuningAsManual();
   };
   haasToggle.addEventListener('change', updateHaas);
   haasWidth.addEventListener('input', updateHaas);
@@ -825,6 +932,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (window.audioEngine) {
       window.audioEngine.setVocalEnhancer(vocalToggle.checked, vocalBoost.value);
     }
+    markTuningAsManual();
   };
   vocalToggle.addEventListener('change', updateVocal);
   vocalBoost.addEventListener('input', updateVocal);
@@ -839,6 +947,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (window.audioEngine) {
       window.audioEngine.setRoomReverb(reverbToggle.checked, reverbPreset.value, reverbWet.value);
     }
+    markTuningAsManual();
   };
   reverbToggle.addEventListener('change', updateReverb);
   reverbPreset.addEventListener('change', updateReverb);
@@ -913,6 +1022,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const val = parseFloat(e.target.value);
       if (spatialVolumeBoostVal) spatialVolumeBoostVal.textContent = `+${val} dB`;
       if (window.audioEngine) window.audioEngine.setSpatialVolumeBoost(val);
+      markTuningAsManual();
     });
   }
 });
