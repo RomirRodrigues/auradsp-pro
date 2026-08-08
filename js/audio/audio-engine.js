@@ -224,6 +224,28 @@ class AudioEngine {
     this.analyserNode.fftSize = 256;
     this.analyserNode.smoothingTimeConstant = 0.8;
 
+    // Load Meter Worklets
+    if (this.ctx.audioWorklet) {
+      this.ctx.audioWorklet.addModule('js/dsp/meter-worklet.js').then(() => {
+        this.inputMeterNode = new AudioWorkletNode(this.ctx, 'meter-processor');
+        this.outputMeterNode = new AudioWorkletNode(this.ctx, 'meter-processor');
+
+        // Setup message handlers
+        this.inputMeterNode.port.onmessage = (e) => {
+          if (window.updateInputMeters) window.updateInputMeters(e.data);
+        };
+        this.outputMeterNode.port.onmessage = (e) => {
+          if (window.updateOutputMeters) window.updateOutputMeters(e.data);
+        };
+
+        // Wire them up (Input is post-preGain, Output is post-limiter)
+        this.preGainNode.connect(this.inputMeterNode);
+        // The Limiter is already connected to Analyser. We can just tap the signal.
+        this.limiterNode.connect(this.outputMeterNode);
+      }).catch(err => console.error("Worklet load error:", err));
+    }
+
+
     // --- New Modules: Tube & Tape ---
     this.tubeShaperNode = this.ctx.createWaveShaper();
     this.tubeShaperNode.oversample = '4x';
