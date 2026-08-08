@@ -73,9 +73,36 @@ const AUDIO_PRESETS = {
       desc: "Booming 808 bass, snappy snares & spacious hi-hat rolls",
       badge: "HIP-HOP",
       eq: [8.5, 7.5, 5.0, 2.5, -0.5, -1.0, 1.5, 3.0, 3.5, 4.0],
-      subBass: 8.0, haasWidth: 60, haasDelay: 15,
-      dolbyComp: true, compThreshold: -22, compRatio: 5,
-      vocalBoost: 2.0, reverb: false, spatialBoost: 4
+    },
+    {
+      id: "boat_acoustic",
+      name: "boAt Acoustic & Live",
+      desc: "Sparkling string details & live concert presence",
+      badge: "ACOUSTIC",
+      eq: [2.0, 1.5, 2.5, 3.0, 1.0, 2.0, 4.0, 5.5, 6.0, 5.0],
+      subBass: 1.5, haasWidth: 80, haasDelay: 20,
+      dolbyComp: false, compThreshold: -28, compRatio: 2,
+      vocalBoost: 4.0, reverb: true, reverbPreset: "studio", reverbWet: 15, spatialBoost: 4
+    },
+    {
+      id: "boat_podcast",
+      name: "boAt Podcast & Vocal",
+      desc: "Maximum speech intelligibility and reduced fatigue for long listening",
+      badge: "PODCAST",
+      eq: [-3.0, -2.0, -1.0, 1.5, 4.5, 5.0, 3.5, 1.5, -1.0, -2.0],
+      subBass: -2.0, haasWidth: 40, haasDelay: 10,
+      dolbyComp: true, compThreshold: -32, compRatio: 6,
+      vocalBoost: 5.5, reverb: false, spatialBoost: 2
+    },
+    {
+      id: "boat_workout",
+      name: "boAt Workout Hype",
+      desc: "High energy, adrenaline-pumping bass and piercing highs",
+      badge: "WORKOUT",
+      eq: [9.5, 8.0, 6.0, 2.0, -1.5, 1.0, 3.0, 5.5, 7.0, 6.5],
+      subBass: 9.0, haasWidth: 65, haasDelay: 16,
+      dolbyComp: true, compThreshold: -18, compRatio: 7,
+      vocalBoost: 1.5, reverb: false, spatialBoost: 5
     }
   ],
 
@@ -149,6 +176,36 @@ const AUDIO_PRESETS = {
       subBass: 5.5, haasWidth: 55, haasDelay: 14,
       dolbyComp: true, compThreshold: -16, compRatio: 7,
       vocalBoost: 4.0, reverb: false, spatialBoost: 4
+    },
+    {
+      id: "earbud_transparency",
+      name: "Open-Back Transparency",
+      desc: "Simulates an open-back headphone feel with airy, natural acoustics",
+      badge: "AIRY",
+      eq: [-2.0, -1.0, 0.0, 1.0, 2.5, 3.5, 5.0, 6.0, 7.5, 8.5],
+      subBass: -1.0, haasWidth: 100, haasDelay: 25,
+      dolbyComp: false, compThreshold: -24, compRatio: 2,
+      vocalBoost: 2.0, reverb: true, reverbPreset: "studio", reverbWet: 20, spatialBoost: 4
+    },
+    {
+      id: "earbud_lofi",
+      name: "Lo-Fi Hip Hop Chill",
+      desc: "Vintage warmth, heavy mid-bass bounce, and rolled-off treble",
+      badge: "LO-FI",
+      eq: [6.5, 7.5, 6.0, 4.0, 2.0, -0.5, -2.0, -3.5, -4.5, -5.0],
+      subBass: 7.0, haasWidth: 50, haasDelay: 12,
+      dolbyComp: true, compThreshold: -26, compRatio: 5,
+      vocalBoost: 1.0, reverb: true, reverbPreset: "studio", reverbWet: 30, spatialBoost: 3
+    },
+    {
+      id: "earbud_asmr",
+      name: "ASMR Detail Enhancer",
+      desc: "Ultra-wide stereo, extreme high-frequency clarity and whisper focus",
+      badge: "ASMR",
+      eq: [1.0, 1.0, 1.5, 2.0, 3.0, 5.5, 7.0, 8.5, 9.5, 10.0],
+      subBass: 1.0, haasWidth: 100, haasDelay: 35,
+      dolbyComp: true, compThreshold: -35, compRatio: 8,
+      vocalBoost: 6.5, reverb: false, spatialBoost: 6
     }
   ],
 
@@ -222,6 +279,36 @@ const AUDIO_PRESETS = {
       subBass: 7.5, haasWidth: 100, haasDelay: 35,
       dolbyComp: true, compThreshold: -18, compRatio: 3,
       vocalBoost: 4.5, reverb: true, reverbPreset: "cinema", reverbWet: 28, spatialBoost: 7
+    },
+    {
+      id: "ht_midnight",
+      name: "Midnight Binge TV",
+      desc: "Zero subwoofer rumble, hyper-compressed dynamics so you don't wake the house",
+      badge: "LATE NIGHT",
+      eq: [-6.0, -4.0, -2.0, 1.0, 3.5, 4.5, 3.5, 2.0, 0.0, -2.0],
+      subBass: -8.0, haasWidth: 40, haasDelay: 10,
+      dolbyComp: true, compThreshold: -40, compRatio: 12,
+      vocalBoost: 6.0, reverb: false, spatialBoost: 1
+    },
+    {
+      id: "ht_vintage_film",
+      name: "Vintage 35mm Film Audio",
+      desc: "Simulates classic cinema sound with prominent midrange and warm distortion",
+      badge: "CLASSIC",
+      eq: [-3.0, -1.0, 2.5, 4.0, 5.5, 4.5, 2.0, -1.0, -3.0, -5.0],
+      subBass: 0.0, haasWidth: 30, haasDelay: 8,
+      dolbyComp: true, compThreshold: -24, compRatio: 6,
+      vocalBoost: 4.0, reverb: true, reverbPreset: "cinema", reverbWet: 15, spatialBoost: 3
+    },
+    {
+      id: "ht_scifi",
+      name: "Massive Sci-Fi Epic",
+      desc: "Wall-shaking LFE rumble and immense alien soundscapes",
+      badge: "SCI-FI",
+      eq: [10.0, 9.0, 6.0, 2.0, 0.0, 1.5, 4.0, 6.0, 7.5, 8.5],
+      subBass: 10.0, haasWidth: 100, haasDelay: 40,
+      dolbyComp: true, compThreshold: -20, compRatio: 5,
+      vocalBoost: 3.0, reverb: true, reverbPreset: "cinema", reverbWet: 35, spatialBoost: 8
     }
   ],
 
@@ -265,6 +352,36 @@ const AUDIO_PRESETS = {
       subBass: 7.0, haasWidth: 70, haasDelay: 18,
       dolbyComp: true, compThreshold: -16, compRatio: 8,
       vocalBoost: 2.5, reverb: false, spatialBoost: 6
+    },
+    {
+      id: "custom_vocal_forward",
+      name: "Vocal Forward",
+      desc: "Pushes the lead singer to the very front of the mix",
+      badge: "VOCAL",
+      eq: [-1.0, -0.5, 0.5, 2.5, 5.0, 6.5, 4.5, 2.0, 0.5, 0.0],
+      subBass: 0.0, haasWidth: 50, haasDelay: 12,
+      dolbyComp: true, compThreshold: -28, compRatio: 4,
+      vocalBoost: 7.0, reverb: false, spatialBoost: 3
+    },
+    {
+      id: "custom_v_shape",
+      name: "V-Shape Smile",
+      desc: "Classic fun EQ: Scooped mids with thumping bass and sparkling treble",
+      badge: "V-SHAPE",
+      eq: [8.0, 6.5, 4.0, 1.0, -2.5, -2.0, 1.5, 4.5, 6.5, 8.0],
+      subBass: 7.5, haasWidth: 80, haasDelay: 22,
+      dolbyComp: true, compThreshold: -24, compRatio: 3,
+      vocalBoost: 0.0, reverb: false, spatialBoost: 5
+    },
+    {
+      id: "custom_mid_centric",
+      name: "Mid-Centric Vintage",
+      desc: "Focused purely on guitars, keys, and vocals for a retro feel",
+      badge: "RETRO",
+      eq: [-4.0, -2.0, 1.5, 3.5, 5.5, 4.5, 2.5, 0.0, -2.5, -4.5],
+      subBass: 0.0, haasWidth: 40, haasDelay: 10,
+      dolbyComp: false, compThreshold: -24, compRatio: 2,
+      vocalBoost: 3.5, reverb: false, spatialBoost: 2
     }
   ]
 };
