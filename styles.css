@@ -1662,3 +1662,216 @@ input:checked + .slider:before {
     font-size: 0.72rem;
   }
 }
+
+/* =========================================
+   THEME SWITCHER STYLES
+   ========================================= */
+
+#appThemeSelector {
+  background: rgba(10, 10, 15, 0.8);
+  color: var(--accent-cyan);
+  border: 1px solid var(--border-hardware);
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-heading);
+  font-size: 0.85rem;
+  font-weight: 600;
+  outline: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+#appThemeSelector:hover {
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 10px var(--border-color);
+}
+
+#appThemeSelector option {
+  background: var(--bg-primary);
+  color: var(--text-main);
+}
+
+/* 1. Midnight OLED */
+body.theme-oled {
+  --bg-primary: #000000;
+  --bg-panel: rgba(5, 5, 5, 0.9);
+  --bg-card: rgba(15, 15, 15, 0.9);
+  --bg-card-hover: rgba(25, 25, 25, 1);
+  --accent-cyan: #00a8ff;
+  --accent-neon: #0097e6;
+  --accent-amber: #fbc531;
+  --accent-green: #4cd137;
+  --accent-red: #e84118;
+  --border-color: rgba(0, 168, 255, 0.3);
+  --border-hardware: rgba(255, 255, 255, 0.1);
+}
+
+/* 2. Synthwave '84 */
+body.theme-synthwave {
+  --bg-primary: #120428;
+  --bg-panel: rgba(26, 9, 51, 0.85);
+  --bg-card: rgba(43, 17, 84, 0.7);
+  --bg-card-hover: rgba(73, 29, 136, 0.85);
+  --accent-cyan: #00f0ff;
+  --accent-neon: #ff0055;
+  --accent-amber: #f9d71c;
+  --accent-green: #39ff14;
+  --accent-red: #ff2a2a;
+  --border-color: rgba(255, 0, 85, 0.4);
+  --border-hardware: rgba(0, 240, 255, 0.2);
+}
+
+/* 3. Spotify Dark */
+body.theme-spotify {
+  --bg-primary: #121212;
+  --bg-panel: rgba(24, 24, 24, 0.9);
+  --bg-card: rgba(40, 40, 40, 0.8);
+  --bg-card-hover: rgba(60, 60, 60, 0.9);
+  --accent-cyan: #1DB954;
+  --accent-neon: #1ed760;
+  --accent-amber: #ffc82c;
+  --accent-green: #1DB954;
+  --accent-red: #e22134;
+  --border-color: rgba(29, 185, 84, 0.3);
+  --border-hardware: rgba(255, 255, 255, 0.08);
+}
+
+/* 4. Discord Blurple */
+body.theme-discord {
+  --bg-primary: #313338;
+  --bg-panel: rgba(43, 45, 49, 0.95);
+  --bg-card: rgba(30, 31, 34, 0.8);
+  --bg-card-hover: rgba(64, 66, 73, 0.9);
+  --accent-cyan: #5865F2;
+  --accent-neon: #7289da;
+  --accent-amber: #fee75c;
+  --accent-green: #57F287;
+  --accent-red: #ED4245;
+  --border-color: rgba(88, 101, 242, 0.4);
+  --border-hardware: rgba(255, 255, 255, 0.06);
+}
+
+/* 5. Dracula */
+body.theme-dracula {
+  --bg-primary: #282a36;
+  --bg-panel: rgba(68, 71, 90, 0.8);
+  --bg-card: rgba(56, 58, 89, 0.7);
+  --bg-card-hover: rgba(80, 82, 120, 0.9);
+  --accent-cyan: #bd93f9;
+  --accent-neon: #ff79c6;
+  --accent-amber: #f1fa8c;
+  --accent-green: #50fa7b;
+  --accent-red: #ff5555;
+  --text-main: #f8f8f2;
+  --text-muted: #6272a4;
+  --border-color: rgba(189, 147, 249, 0.4);
+  --border-hardware: rgba(98, 114, 164, 0.4);
+}
+
+/* 6. Vampire Red */
+body.theme-blood {
+  --bg-primary: #0a0000;
+  --bg-panel: rgba(20, 0, 0, 0.9);
+  --bg-card: rgba(35, 5, 5, 0.8);
+  --bg-card-hover: rgba(55, 10, 10, 0.9);
+  --accent-cyan: #ff002b;
+  --accent-neon: #d90429;
+  --accent-amber: #ef233c;
+  --accent-green: #ff6b6b;
+  --accent-red: #bf0603;
+  --border-color: rgba(255, 0, 43, 0.3);
+  --border-hardware: rgba(255, 255, 255, 0.1);
+}
+
+/* 7. Matrix Hacker */
+body.theme-matrix {
+  --bg-primary: #000500;
+  --bg-panel: rgba(0, 15, 0, 0.9);
+  --bg-card: rgba(0, 25, 0, 0.7);
+  --bg-card-hover: rgba(0, 45, 0, 0.9);
+  --accent-cyan: #00ff41;
+  --accent-neon: #008f11;
+  --accent-amber: #00ff41;
+  --accent-green: #00ff41;
+  --accent-red: #00ff41;
+  --text-main: #00ff41;
+  --text-muted: #008f11;
+  --border-color: rgba(0, 255, 65, 0.3);
+  --border-hardware: rgba(0, 255, 65, 0.2);
+}
+
+/* 8. Luxury Gold */
+body.theme-gold {
+  --bg-primary: #080808;
+  --bg-panel: rgba(20, 18, 14, 0.9);
+  --bg-card: rgba(36, 32, 24, 0.8);
+  --bg-card-hover: rgba(54, 48, 36, 0.9);
+  --accent-cyan: #d4af37;
+  --accent-neon: #b5952f;
+  --accent-amber: #f9d71c;
+  --accent-green: #d4af37;
+  --accent-red: #b5952f;
+  --text-main: #fcf8e3;
+  --text-muted: #a69877;
+  --border-color: rgba(212, 175, 55, 0.3);
+  --border-hardware: rgba(212, 175, 55, 0.15);
+}
+
+/* 9. Deep Ocean */
+body.theme-ocean {
+  --bg-primary: #020c1b;
+  --bg-panel: rgba(10, 25, 47, 0.9);
+  --bg-card: rgba(17, 34, 64, 0.8);
+  --bg-card-hover: rgba(35, 53, 84, 0.9);
+  --accent-cyan: #64ffda;
+  --accent-neon: #48b79d;
+  --accent-amber: #ffd700;
+  --accent-green: #64ffda;
+  --accent-red: #ff5555;
+  --text-main: #e6f1ff;
+  --text-muted: #8892b0;
+  --border-color: rgba(100, 255, 218, 0.3);
+  --border-hardware: rgba(100, 255, 218, 0.15);
+}
+
+/* 10. Clean Light Mode */
+body.theme-light {
+  --bg-primary: #f0f2f5;
+  --bg-panel: rgba(255, 255, 255, 0.9);
+  --bg-card: rgba(240, 242, 245, 0.8);
+  --bg-card-hover: rgba(225, 230, 235, 0.9);
+  --accent-cyan: #0052cc;
+  --accent-neon: #0065ff;
+  --accent-amber: #ff991f;
+  --accent-green: #36b37e;
+  --accent-red: #ff5630;
+  --text-main: #172b4d;
+  --text-muted: #5e6c84;
+  --border-color: rgba(0, 82, 204, 0.2);
+  --border-hardware: rgba(9, 30, 66, 0.1);
+}
+body.theme-light #appThemeSelector {
+  background: #ffffff;
+  color: var(--accent-cyan);
+}
+body.theme-light .dsp-node {
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+/* 11. Monochrome */
+body.theme-monochrome {
+  --bg-primary: #111111;
+  --bg-panel: rgba(30, 30, 30, 0.95);
+  --bg-card: rgba(50, 50, 50, 0.8);
+  --bg-card-hover: rgba(80, 80, 80, 0.9);
+  --accent-cyan: #ffffff;
+  --accent-neon: #e0e0e0;
+  --accent-amber: #cccccc;
+  --accent-green: #ffffff;
+  --accent-red: #aaaaaa;
+  --text-main: #ffffff;
+  --text-muted: #888888;
+  --border-color: rgba(255, 255, 255, 0.3);
+  --border-hardware: rgba(255, 255, 255, 0.15);
+}

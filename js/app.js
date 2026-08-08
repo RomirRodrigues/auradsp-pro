@@ -1226,4 +1226,23 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // --- Theme Switcher Logic ---
+  const themeSelector = document.getElementById('appThemeSelector');
+  if (themeSelector) {
+    // Load saved theme
+    const savedTheme = localStorage.getItem('auradsp_ui_theme');
+    if (savedTheme) {
+      document.body.className = savedTheme;
+      themeSelector.value = savedTheme;
+    }
+
+    themeSelector.addEventListener('change', (e) => {
+      const selectedTheme = e.target.value;
+      // Remove all theme classes and add the new one
+      document.body.className = selectedTheme;
+      // Save to localStorage
+      localStorage.setItem('auradsp_ui_theme', selectedTheme);
+    });
+  }
+
 });
