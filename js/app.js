@@ -605,14 +605,24 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!res.ok) throw new Error(`JioSaavn ${res.status}`);
     const json = await res.json();
     const results = json.data?.results || json.results || [];
-    return results.map(t => ({
-      title: t.name || t.title || '',
-      uploaderName: t.artists?.primary?.map(a => a.name).join(', ') || t.primaryArtists || 'Unknown Artist',
-      thumbnail: (t.image && Array.isArray(t.image)) ? (t.image.find(i => i.quality === '500x500') || t.image[t.image.length - 1])?.url || '' : (typeof t.image === 'string' ? t.image : ''),
-      duration: t.duration || 0,
-      streamUrl: (t.downloadUrl && Array.isArray(t.downloadUrl)) ? (t.downloadUrl.find(d => d.quality === '320kbps') || t.downloadUrl[t.downloadUrl.length - 1])?.url || '' : (typeof t.downloadUrl === 'string' ? t.downloadUrl : ''),
-      source: 'jiosaavn'
-    })).filter(t => t.title && t.streamUrl);
+    return results.map(t => {
+      // Prefer 160kbps to avoid Akamai CDN 30-sec cutoff limits on large 320kbps files
+      let stream = '';
+      if (t.downloadUrl && Array.isArray(t.downloadUrl)) {
+        const preferred = t.downloadUrl.find(d => d.quality === '160kbps') || t.downloadUrl.find(d => d.quality === '96kbps') || t.downloadUrl[0];
+        stream = preferred?.url || '';
+      } else if (typeof t.downloadUrl === 'string') {
+        stream = t.downloadUrl;
+      }
+      return {
+        title: t.name || t.title || '',
+        uploaderName: t.artists?.primary?.map(a => a.name).join(', ') || t.primaryArtists || 'Unknown Artist',
+        thumbnail: (t.image && Array.isArray(t.image)) ? (t.image.find(i => i.quality === '500x500') || t.image[t.image.length - 1])?.url || '' : (typeof t.image === 'string' ? t.image : ''),
+        duration: t.duration || 0,
+        streamUrl: stream,
+        source: 'jiosaavn'
+      };
+    }).filter(t => t.title && t.streamUrl);
   }
 
   async function searchItunes(query) {
@@ -623,10 +633,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!res.ok) throw new Error(`iTunes ${res.status}`);
     const json = await res.json();
     return (json.results || []).map(t => ({
-      title: t.trackName || '',
+      title: (t.trackName || '') + ' [30s Preview]',
       uploaderName: t.artistName || 'Unknown Artist',
       thumbnail: (t.artworkUrl100 || '').replace('100x100', '300x300'),
-      duration: Math.round((t.trackTimeMillis || 0) / 1000),
+      duration: 30, // iTunes ONLY provides exactly 30 seconds for previews
       streamUrl: t.previewUrl || '',
       source: 'itunes'
     })).filter(t => t.title && t.streamUrl);
