@@ -1086,4 +1086,51 @@ document.addEventListener('DOMContentLoaded', () => {
       markTuningAsManual();
     });
   }
+  // --- Quick Enhancements Logic ---
+  const vocalClarityToggle = document.getElementById('vocalClarityToggle');
+  if (vocalClarityToggle) {
+    vocalClarityToggle.addEventListener('change', (e) => {
+      if (window.audioEngine) {
+        window.audioEngine.setVocalEnhancer(e.target.checked, 5.0); // +5dB boost at vocal range
+      }
+    });
+  }
+
+  const nightModeToggle = document.getElementById('nightModeToggle');
+  if (nightModeToggle) {
+    nightModeToggle.addEventListener('change', (e) => {
+      if (window.audioEngine) {
+        // Extreme compression for night mode: levels everything out
+        window.audioEngine.setDolbyCompressor(e.target.checked, -35, 10);
+      }
+    });
+  }
+
+  const playbackSpeed = document.getElementById('playbackSpeed');
+  const playbackSpeedVal = document.getElementById('playbackSpeedVal');
+  if (playbackSpeed) {
+    playbackSpeed.addEventListener('input', (e) => {
+      const val = parseFloat(e.target.value);
+      if (playbackSpeedVal) playbackSpeedVal.textContent = `${val.toFixed(2)}x`;
+      if (audioPlayer) {
+        audioPlayer.playbackRate = val;
+      }
+    });
+  }
+
+  const stereoWidth = document.getElementById('stereoWidth');
+  const stereoWidthVal = document.getElementById('stereoWidthVal');
+  if (stereoWidth) {
+    stereoWidth.addEventListener('input', (e) => {
+      const val = parseFloat(e.target.value);
+      if (stereoWidthVal) stereoWidthVal.textContent = `${val.toFixed(1)}x`;
+      if (window.audioEngine) {
+        // sideWidthGain value of 1.0 = original width. 
+        // Our val is 0.0 to 3.0, mapping perfectly to sideWidthGain scale (0 to 3).
+        if (window.audioEngine.sideWidthGain) {
+          window.audioEngine.sideWidthGain.gain.value = val;
+        }
+      }
+    });
+  }
 });
