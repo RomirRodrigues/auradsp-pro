@@ -213,9 +213,22 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       card.addEventListener('click', () => {
-        document.querySelectorAll('.preset-card').forEach(c => c.classList.remove('active'));
-        card.classList.add('active');
-        applyPreset(preset);
+        if (card.classList.contains('active')) {
+          card.classList.remove('active');
+          const FLAT_PRESET = {
+            id: "flat",
+            name: "Flat / Manual",
+            eq: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            subBass: 3.0, haasWidth: 70, haasDelay: 18,
+            dolbyComp: false, compThreshold: -24, compRatio: 4,
+            vocalBoost: 0, reverb: false, spatialBoost: 8.0
+          };
+          applyPreset(FLAT_PRESET);
+        } else {
+          document.querySelectorAll('.preset-card').forEach(c => c.classList.remove('active'));
+          card.classList.add('active');
+          applyPreset(preset);
+        }
       });
 
       presetCardsContainer.appendChild(card);
