@@ -135,7 +135,7 @@ class SpatialCanvas {
 
     // Update UI Stats
     const azimuthDeg = Math.round((Math.atan2(this.sourceX, -this.sourceY) * 180) / Math.PI);
-    const distanceMeters = Math.hypot(audioX, audioY).toFixed(1);
+    const distanceMeters = Math.hypot(audioX, audioY, audioZ).toFixed(1);
 
     const elAz = document.getElementById('spatAzimuth');
     const elDist = document.getElementById('spatDistance');
