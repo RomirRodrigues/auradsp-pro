@@ -737,22 +737,28 @@ document.addEventListener('DOMContentLoaded', () => {
     fetch('https://api.spotify.com/v1/me/playlists?limit=25', {
       headers: { 'Authorization': `Bearer ${token}` }
     })
-    .then(res => {
+    .then(async res => {
+      if (res.status === 403) {
+        throw new Error("INSUFFICIENT_SCOPES");
+      }
       if (res.status === 401) {
         return refreshSpotifyToken()
-          .then(newToken => {
-            return fetch('https://api.spotify.com/v1/me/playlists?limit=25', {
+          .then(async newToken => {
+            const retryRes = await fetch('https://api.spotify.com/v1/me/playlists?limit=25', {
               headers: { 'Authorization': `Bearer ${newToken}` }
             });
+            if (retryRes.status === 403) {
+              throw new Error("INSUFFICIENT_SCOPES");
+            }
+            return retryRes.json();
           })
-          .then(r => r.json())
           .catch((err) => {
             if (err.message === "SESSION_EXPIRED") {
               localStorage.removeItem('spotify_access_token');
               localStorage.removeItem('spotify_refresh_token');
               updateSpotifyUI();
             }
-            return null;
+            throw err;
           });
       }
       return res.json();
@@ -763,7 +769,13 @@ document.addEventListener('DOMContentLoaded', () => {
     })
     .catch(err => {
       console.error('Error fetching playlists:', err);
-      if (playlistsList) playlistsList.innerHTML = '<div style="padding:10px; font-size:0.75rem; color:var(--accent-red); text-align:center;">Failed to load playlists</div>';
+      if (playlistsList) {
+        if (err.message === "INSUFFICIENT_SCOPES") {
+          playlistsList.innerHTML = '<div style="padding:10px; font-size:0.75rem; color:var(--accent-red); text-align:center;">Permissions needed!<br><span style="color:var(--text-muted); font-size:0.68rem; display:block; margin-top:4px;">Please click "Disconnect Spotify Account" at the bottom and reconnect to grant playlist access.</span></div>';
+        } else {
+          playlistsList.innerHTML = '<div style="padding:10px; font-size:0.75rem; color:var(--accent-red); text-align:center;">Failed to load playlists</div>';
+        }
+      }
     });
   }
 
