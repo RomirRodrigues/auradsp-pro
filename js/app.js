@@ -447,25 +447,8 @@ document.addEventListener('DOMContentLoaded', () => {
         window.audioEngine.activeSource = sourceMap[btn.id] || 'demo';
       }
 
-      // 2. Reset UI Play states for other sources
-      isPlaying = false;
-      isSynthBeatActive = false;
-      if (playText) playText.textContent = "Play Selected Track";
-      if (playIcon) playIcon.textContent = "▶";
-      if (startSynthBeatBtn) {
-        startSynthBeatBtn.querySelector('span').textContent = "🔥 Play Studio Synth Groove";
-        startSynthBeatBtn.style.background = "";
-      }
-      if (startMicBtn) {
-        startMicBtn.textContent = "▶ Start Live Mic Input";
-        startMicBtn.style.background = "";
-        startMicBtn.style.color = "";
-      }
-      if (toggleToneBtn) {
-        toggleToneBtn.textContent = "⚡ Activate Tone Oscillator";
-        toggleToneBtn.style.background = "";
-        toggleToneBtn.style.color = "";
-      }
+      // 2. Reset UI Play states for all sources
+      resetAllPlaybackUI();
 
       // 3. Switch panel tab active states
       sourceBtns.forEach(b => b.classList.remove('active'));

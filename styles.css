@@ -300,8 +300,8 @@ body.cyber-dark {
   gap: 12px;
 }
 
-.source-card.hidden {
-  display: none;
+.source-card.hidden, .hidden {
+  display: none !important;
 }
 
 .cyber-select, .cyber-select-sm {
