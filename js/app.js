@@ -601,8 +601,16 @@ document.addEventListener('DOMContentLoaded', () => {
       },
       body: body
     })
-    .then(res => {
-      if (!res.ok) throw new Error("Failed to refresh");
+    .then(async res => {
+      if (!res.ok) {
+        if (res.status === 400) {
+          const errData = await res.json().catch(() => ({}));
+          if (errData.error === 'invalid_grant') {
+            throw new Error("SESSION_EXPIRED");
+          }
+        }
+        throw new Error("TEMP_NETWORK_ERROR");
+      }
       return res.json();
     })
     .then(data => {
@@ -649,15 +657,19 @@ document.addEventListener('DOMContentLoaded', () => {
           if (data.refresh_token) {
             localStorage.setItem('spotify_refresh_token', data.refresh_token);
           }
-          // Remove query params from address bar clean
-          window.history.replaceState("", document.title, window.location.pathname);
           updateSpotifyUI();
           if (window.onSpotifyWebPlaybackSDKReady) {
             window.onSpotifyWebPlaybackSDKReady();
           }
         }
       })
-      .catch(err => console.error("Error exchanging authorization code:", err));
+      .catch(err => console.error("Error exchanging authorization code:", err))
+      .finally(() => {
+        // ALWAYS clear the query params from the address bar to prevent double exchange attempts on reload
+        try {
+          window.history.replaceState("", document.title, window.location.pathname);
+        } catch(e){}
+      });
     }
   }
 
@@ -734,9 +746,12 @@ document.addEventListener('DOMContentLoaded', () => {
             });
           })
           .then(r => r.json())
-          .catch(() => {
-            localStorage.removeItem('spotify_access_token');
-            updateSpotifyUI();
+          .catch((err) => {
+            if (err.message === "SESSION_EXPIRED") {
+              localStorage.removeItem('spotify_access_token');
+              localStorage.removeItem('spotify_refresh_token');
+              updateSpotifyUI();
+            }
             return null;
           });
       }
@@ -959,9 +974,12 @@ document.addEventListener('DOMContentLoaded', () => {
           player.disconnect();
           window.onSpotifyWebPlaybackSDKReady();
         })
-        .catch(() => {
-          localStorage.removeItem('spotify_access_token');
-          updateSpotifyUI();
+        .catch((err) => {
+          if (err.message === "SESSION_EXPIRED") {
+            localStorage.removeItem('spotify_access_token');
+            localStorage.removeItem('spotify_refresh_token');
+            updateSpotifyUI();
+          }
         });
     });
     player.addListener('account_error', ({ message }) => { 
