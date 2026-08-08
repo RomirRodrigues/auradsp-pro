@@ -105,7 +105,7 @@ class AudioEngine {
 
     // 1. Pre-Gain (boosted slightly to compensate for Web Audio API native HRTF volume drops)
     this.preGainNode = this.ctx.createGain();
-    this.preGainNode.gain.value = 1.5;
+    this.preGainNode.gain.value = 1.0; // Normal unity gain
 
     // 2. Sub-Bass Synthesizer (Low-shelf 30Hz - 120Hz)
     this.subBassFilter = this.ctx.createBiquadFilter();
@@ -211,7 +211,7 @@ class AudioEngine {
 
     // 9. Master Gain, Safety Limiter & Analyser
     this.masterGainNode = this.ctx.createGain();
-    this.masterGainNode.gain.value = 1.2; // Extra 20% master boost
+    this.masterGainNode.gain.value = 1.0; // Normal unity gain
 
     this.limiterNode = this.ctx.createDynamicsCompressor();
     this.limiterNode.threshold.value = -0.1; // Prevent digital clipping just under 0dBFS
