@@ -26,19 +26,29 @@ class AudioEngine {
     this.eqNodes = [];
     this.bands = FREQ_BANDS;
 
-    // Dolby Multiband Compressor & Makeup Gain
+    // Dolby Compressor Nodes
     this.compressorNode = null;
     this.compMakeupGainNode = null;
 
-    // HAAS 3D Expander Matrix Nodes
-    this.splitterNode = null;
-    this.mergerNode = null;
-    this.delayNodeL = null;
-    this.delayNodeR = null;
-    this.sideGainNode = null;
-
-    // Vocal Enhancer Node
+    // Vocal Enhancer Peaking Filter Node
     this.vocalBandpassNode = null;
+
+    // Mid/Side Matrix & Soundfield Expander Nodes
+    this.msSplitter = null;
+    this.msMerger = null;
+    this.midGainL = null;
+    this.midGainR = null;
+    this.midSum = null;
+    this.sideGainL = null;
+    this.sideGainR = null;
+    this.sideSum = null;
+    
+    this.sideWidthGain = null;
+    this.sideDelayNode = null;
+    
+    this.outL = null;
+    this.outR = null;
+    this.sideInvGain = null;
 
     // Room Reverb Nodes
     this.convolverNode = null;
@@ -108,34 +118,58 @@ class AudioEngine {
       this.eqNodes[i].connect(this.eqNodes[i + 1]);
     }
 
-    // 4. Vocal Enhancer Node
+    // 4. Center Channel Vocal Enhancer Node (Peaking EQ at 2500Hz for speech intelligibility)
     this.vocalBandpassNode = this.ctx.createBiquadFilter();
     this.vocalBandpassNode.type = 'peaking';
     this.vocalBandpassNode.frequency.value = 2500;
-    this.vocalBandpassNode.Q.value = 0.8;
-    this.vocalBandpassNode.gain.value = 3.0;
+    this.vocalBandpassNode.Q.value = 0.85;
+    this.vocalBandpassNode.gain.value = 0.0; // Disabled by default
 
     // 5. Dolby Dynamic Range Compressor & Makeup Gain
     this.compressorNode = this.ctx.createDynamicsCompressor();
-    this.compressorNode.threshold.value = -24;
+    this.compressorNode.threshold.value = 0.0; // Neutral default
     this.compressorNode.knee.value = 12;
-    this.compressorNode.ratio.value = 4;
-    this.compressorNode.attack.value = 0.003;
-    this.compressorNode.release.value = 0.25;
+    this.compressorNode.ratio.value = 1.0;     // Neutral default
+    this.compressorNode.attack.value = 0.005;  // 5ms attack
+    this.compressorNode.release.value = 0.20;  // 200ms release
 
     this.compMakeupGainNode = this.ctx.createGain();
-    this.compMakeupGainNode.gain.value = 1.4;
+    this.compMakeupGainNode.gain.value = 1.0;
 
-    // 6. HAAS 3D Surround Expander Matrix
-    this.splitterNode = this.ctx.createChannelSplitter(2);
-    this.mergerNode = this.ctx.createChannelMerger(2);
-    this.delayNodeL = this.ctx.createDelay(0.1);
-    this.delayNodeR = this.ctx.createDelay(0.1);
-    this.sideGainNode = this.ctx.createGain();
+    // 6. Mid-Side (M/S) Matrix & Haas Soundfield Expander Nodes
+    this.msSplitter = this.ctx.createChannelSplitter(2);
+    this.msMerger = this.ctx.createChannelMerger(2);
 
-    this.delayNodeL.delayTime.value = 0.0;
-    this.delayNodeR.delayTime.value = this.haasDelayMs / 1000;
-    this.sideGainNode.gain.value = 1.3;
+    // Summing nodes to extract Mid channel: Mid = (L + R) * 0.5
+    this.midGainL = this.ctx.createGain();
+    this.midGainR = this.ctx.createGain();
+    this.midGainL.gain.value = 0.5;
+    this.midGainR.gain.value = 0.5;
+    this.midSum = this.ctx.createGain();
+    this.midSum.gain.value = 1.0;
+
+    // Summing nodes to extract Side channel: Side = (L - R) * 0.5
+    this.sideGainL = this.ctx.createGain();
+    this.sideGainR = this.ctx.createGain();
+    this.sideGainL.gain.value = 0.5;
+    this.sideGainR.gain.value = -0.5; // Phase inverted to subtract Right from Left
+    this.sideSum = this.ctx.createGain();
+    this.sideSum.gain.value = 1.0;
+
+    // Stereo widening controller & Haas micro-delay for side channel
+    this.sideWidthGain = this.ctx.createGain();
+    this.sideWidthGain.gain.value = 1.0; // Neutral default
+    this.sideDelayNode = this.ctx.createDelay(0.1);
+    this.sideDelayNode.delayTime.value = 0.0; // Neutral default
+
+    // Nodes to reconstruct Left & Right: L = Mid + Side, R = Mid - Side
+    this.outL = this.ctx.createGain();
+    this.outR = this.ctx.createGain();
+    this.outL.gain.value = 1.0;
+    this.outR.gain.value = 1.0;
+
+    this.sideInvGain = this.ctx.createGain();
+    this.sideInvGain.gain.value = -1.0; // Phase inverted side to subtract from Mid on Right channel
 
     // 7. Convolution Room Reverb Nodes
     this.convolverNode = this.ctx.createConvolver();
@@ -146,10 +180,10 @@ class AudioEngine {
     // 8. 3D Binaural HRTF PannerNode (Calibrated for High Loudness)
     this.pannerNode = this.ctx.createPanner();
     this.pannerNode.panningModel = 'HRTF';
-    this.pannerNode.distanceModel = 'linear'; // Prevents quiet volume drops at distance!
+    this.pannerNode.distanceModel = 'linear'; 
     this.pannerNode.refDistance = 3.0;
     this.pannerNode.maxDistance = 10000;
-    this.pannerNode.rolloffFactor = 0.2; // Low attenuation for loud 3D positioning
+    this.pannerNode.rolloffFactor = 0.2; 
     this.pannerNode.coneInnerAngle = 360;
     if (this.pannerNode.setPosition) {
       this.pannerNode.setPosition(0, 0, -2.0);
@@ -175,25 +209,48 @@ class AudioEngine {
     this.analyserNode.smoothingTimeConstant = 0.8;
 
     // --- Build Signal Pipeline ---
+    // PreGain -> SubBass -> 10-Band EQ -> Mid/Side Splitting Matrix
     this.preGainNode.connect(this.subBassFilter);
     this.subBassFilter.connect(this.eqNodes[0]);
 
     const lastEqNode = this.eqNodes[this.eqNodes.length - 1];
-    lastEqNode.connect(this.vocalBandpassNode);
+    lastEqNode.connect(this.msSplitter);
+
+    // Connect Splitter outputs to Mid/Side Summing networks
+    this.msSplitter.connect(this.midGainL, 0); // L input to Mid
+    this.msSplitter.connect(this.midGainR, 1); // R input to Mid
+    this.midGainL.connect(this.midSum);
+    this.midGainR.connect(this.midSum);
+
+    this.msSplitter.connect(this.sideGainL, 0); // L input to Side
+    this.msSplitter.connect(this.sideGainR, 1); // R (inverted) input to Side
+    this.sideGainL.connect(this.sideSum);
+    this.sideGainR.connect(this.sideSum);
+
+    // PROCESS MID CHANNEL: Peaking Vocal EQ -> Dolby Compressor
+    this.midSum.connect(this.vocalBandpassNode);
     this.vocalBandpassNode.connect(this.compressorNode);
     this.compressorNode.connect(this.compMakeupGainNode);
 
-    this.compMakeupGainNode.connect(this.splitterNode);
-    this.splitterNode.connect(this.delayNodeL, 0);
-    this.splitterNode.connect(this.delayNodeR, 1);
+    // PROCESS SIDE CHANNEL: Stereo Width -> Haas Delay
+    this.sideSum.connect(this.sideWidthGain);
+    this.sideWidthGain.connect(this.sideDelayNode);
 
-    this.delayNodeL.connect(this.mergerNode, 0, 0);
-    this.delayNodeR.connect(this.sideGainNode);
-    this.sideGainNode.connect(this.mergerNode, 0, 1);
+    // RECONSTRUCT STEREO: L = Mid + Side, R = Mid - Side
+    this.compMakeupGainNode.connect(this.outL); // Mid L contribution
+    this.sideDelayNode.connect(this.outL);      // Side L contribution
 
-    this.mergerNode.connect(this.pannerNode);
+    this.compMakeupGainNode.connect(this.outR); // Mid R contribution
+    this.sideDelayNode.connect(this.sideInvGain);
+    this.sideInvGain.connect(this.outR);        // Side R (inverted) contribution
 
-    this.mergerNode.connect(this.convolverNode);
+    // Merge Left and Right back to stereo stream
+    this.outL.connect(this.msMerger, 0, 0);
+    this.outR.connect(this.msMerger, 0, 1);
+
+    // Route stereo stream to Panner and Room Reverb
+    this.msMerger.connect(this.pannerNode);
+    this.msMerger.connect(this.convolverNode);
     this.convolverNode.connect(this.reverbGainNode);
     this.reverbGainNode.connect(this.pannerNode);
 
@@ -567,10 +624,17 @@ class AudioEngine {
   setDolbyCompressor(enabled, threshold = -24, ratio = 4) {
     if (!this.compressorNode || !this.compMakeupGainNode) return;
     if (enabled) {
-      this.compressorNode.threshold.value = parseFloat(threshold);
-      this.compressorNode.ratio.value = parseFloat(ratio);
-      this.compressorNode.knee.value = 15;
-      this.compMakeupGainNode.gain.value = 1.6;
+      const threshVal = parseFloat(threshold);
+      const ratioVal = parseFloat(ratio);
+      
+      this.compressorNode.threshold.value = threshVal;
+      this.compressorNode.ratio.value = ratioVal;
+      this.compressorNode.knee.value = 12;
+
+      // Mathematically correct makeup gain to offset loudness loss from compression:
+      // Gain(dB) = (Abs(Threshold) / 2) * (1 - 1/Ratio)
+      const makeupDb = (Math.abs(threshVal) / 2) * (1.0 - 1.0 / ratioVal);
+      this.compMakeupGainNode.gain.value = Math.pow(10, makeupDb / 20);
     } else {
       this.compressorNode.threshold.value = 0;
       this.compressorNode.ratio.value = 1;
@@ -582,44 +646,58 @@ class AudioEngine {
     this.haasWidth = widthPercent;
     this.haasDelayMs = delayMs;
 
-    if (!this.delayNodeR || !this.sideGainNode) return;
+    if (!this.sideWidthGain || !this.sideDelayNode) return;
     if (enabled) {
-      const delaySec = (delayMs / 1000) * (widthPercent / 100);
-      this.delayNodeR.delayTime.value = delaySec;
-      this.sideGainNode.gain.value = 1.0 + (widthPercent / 100) * 0.8;
+      // 50% width = original stereo width (1.0). 100% = extra wide (2.0). 0% = mono (0.0).
+      this.sideWidthGain.gain.value = parseFloat(widthPercent) / 50;
+      this.sideDelayNode.delayTime.value = parseFloat(delayMs) / 1000;
     } else {
-      this.delayNodeR.delayTime.value = 0;
-      this.sideGainNode.gain.value = 1.0;
+      this.sideWidthGain.gain.value = 1.0;
+      this.sideDelayNode.delayTime.value = 0.0;
     }
   }
 
   setVocalEnhancer(enabled, boostDb = 3.0) {
     if (!this.vocalBandpassNode) return;
     if (enabled) {
-      this.vocalBandpassNode.gain.value = parseFloat(boostDb) * 1.5;
+      this.vocalBandpassNode.gain.value = parseFloat(boostDb);
     } else {
-      this.vocalBandpassNode.gain.value = 0;
+      this.vocalBandpassNode.gain.value = 0.0;
     }
   }
 
   generateImpulseResponse(preset = 'cinema') {
     if (!this.ctx) return;
-    let duration = 2.5;
-    let decay = 2.2;
+    let duration = 2.0;
+    let decay = 2.0;
 
-    if (preset === 'studio') { duration = 0.9; decay = 4.5; }
-    if (preset === 'stadium') { duration = 4.5; decay = 1.2; }
+    if (preset === 'studio') { duration = 0.8; decay = 4.0; }
+    if (preset === 'stadium') { duration = 4.0; decay = 1.0; }
 
     const sampleRate = this.ctx.sampleRate;
-    const length = sampleRate * duration;
+    const length = Math.floor(sampleRate * duration);
     const impulse = this.ctx.createBuffer(2, length, sampleRate);
     const left = impulse.getChannelData(0);
     const right = impulse.getChannelData(1);
 
+    let prevL = 0;
+    let prevR = 0;
+
     for (let i = 0; i < length; i++) {
-      const n = i;
-      left[i] = (Math.random() * 2 - 1) * Math.pow(1 - n / length, decay);
-      right[i] = (Math.random() * 2 - 1) * Math.pow(1 - n / length, decay);
+      const t = i / length;
+      // Sliding lowpass damping filter to simulate frequency-dependent room absorption:
+      // High frequencies absorb faster, leaving a warm low-mid decay tail
+      const alpha = 0.04 + 0.96 * Math.pow(1 - t, 2.5);
+      
+      const rawL = (Math.random() * 2 - 1) * Math.pow(1 - t, decay);
+      const rawR = (Math.random() * 2 - 1) * Math.pow(1 - t, decay);
+
+      // Simple one-pole IIR filter
+      prevL = prevL + alpha * (rawL - prevL);
+      prevR = prevR + alpha * (rawR - prevR);
+
+      left[i] = prevL;
+      right[i] = prevR;
     }
     this.convolverNode.buffer = impulse;
   }
@@ -628,9 +706,10 @@ class AudioEngine {
     if (!this.reverbGainNode) return;
     if (enabled) {
       this.generateImpulseResponse(preset);
-      this.reverbGainNode.gain.value = (wetPercent / 100) * 0.95;
+      // Calibrate wet level contribution
+      this.reverbGainNode.gain.value = (wetPercent / 100) * 0.45;
     } else {
-      this.reverbGainNode.gain.value = 0;
+      this.reverbGainNode.gain.value = 0.0;
     }
   }
 
