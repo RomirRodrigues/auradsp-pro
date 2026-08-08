@@ -577,18 +577,105 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Parse implicit grant hash
-  const hashParams = {};
-  const regex = /([^&;=]+)=?([^&;]*)/g;
-  const fragment = window.location.hash.substring(1);
-  let match;
-  while (match = regex.exec(fragment)) {
-    hashParams[match[1]] = decodeURIComponent(match[2]);
+  // ─── Spotify PKCE Authentication Flow ───
+  // Helper functions for Cryptographic PKCE Generation
+  function generateRandomString(length) {
+    let text = '';
+    const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
+    for (let i = 0; i < length; i++) {
+      text += possible.charAt(Math.floor(Math.random() * possible.length));
+    }
+    return text;
   }
 
-  if (hashParams.access_token) {
-    localStorage.setItem('spotify_access_token', hashParams.access_token);
-    window.history.replaceState("", document.title, window.location.pathname + window.location.search);
+  function base64urlencode(a) {
+    return btoa(String.fromCharCode.apply(null, new Uint8Array(a)))
+      .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  }
+
+  async function generateCodeChallenge(v) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(v);
+    const hashed = await window.crypto.subtle.digest('SHA-256', data);
+    return base64urlencode(hashed);
+  }
+
+  function refreshSpotifyToken() {
+    const refreshToken = localStorage.getItem('spotify_refresh_token');
+    const clientId = localStorage.getItem('spotify_client_id');
+    if (!refreshToken || !clientId) return Promise.reject("No refresh token or client ID");
+
+    const body = new URLSearchParams({
+      grant_type: 'refresh_token',
+      refresh_token: refreshToken,
+      client_id: clientId
+    });
+
+    return fetch('https://accounts.spotify.com/api/token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: body
+    })
+    .then(res => {
+      if (!res.ok) throw new Error("Failed to refresh");
+      return res.json();
+    })
+    .then(data => {
+      if (data.access_token) {
+        localStorage.setItem('spotify_access_token', data.access_token);
+        if (data.refresh_token) {
+          localStorage.setItem('spotify_refresh_token', data.refresh_token);
+        }
+        return data.access_token;
+      } else {
+        throw new Error("Failed to refresh token");
+      }
+    });
+  }
+
+  // Parse authorization code from redirect URL query parameters
+  const urlParams = new URLSearchParams(window.location.search);
+  const authCode = urlParams.get('code');
+  if (authCode) {
+    const clientId = localStorage.getItem('spotify_client_id') || '';
+    const codeVerifier = localStorage.getItem('spotify_code_verifier') || '';
+    const redirectUri = window.location.origin + window.location.pathname;
+
+    if (clientId && codeVerifier) {
+      const body = new URLSearchParams({
+        grant_type: 'authorization_code',
+        code: authCode,
+        redirect_uri: redirectUri,
+        client_id: clientId,
+        code_verifier: codeVerifier
+      });
+
+      fetch('https://accounts.spotify.com/api/token', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: body
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.access_token) {
+          localStorage.setItem('spotify_access_token', data.access_token);
+          if (data.refresh_token) {
+            localStorage.setItem('spotify_refresh_token', data.refresh_token);
+          }
+          // Remove query params from address bar clean
+          window.history.replaceState("", document.title, window.location.pathname);
+          updateSpotifyUI();
+          if (window.onSpotifyWebPlaybackSDKReady) {
+            window.onSpotifyWebPlaybackSDKReady();
+          }
+        }
+      })
+      .catch(err => console.error("Error exchanging authorization code:", err));
+    }
   }
 
   const authStateDiv = document.getElementById('spotifyAuthState');
@@ -657,9 +744,18 @@ document.addEventListener('DOMContentLoaded', () => {
     })
     .then(res => {
       if (res.status === 401) {
-        localStorage.removeItem('spotify_access_token');
-        updateSpotifyUI();
-        return null;
+        return refreshSpotifyToken()
+          .then(newToken => {
+            return fetch('https://api.spotify.com/v1/me/playlists?limit=25', {
+              headers: { 'Authorization': `Bearer ${newToken}` }
+            });
+          })
+          .then(r => r.json())
+          .catch(() => {
+            localStorage.removeItem('spotify_access_token');
+            updateSpotifyUI();
+            return null;
+          });
       }
       return res.json();
     })
@@ -747,9 +843,18 @@ document.addEventListener('DOMContentLoaded', () => {
     fetch(`https://api.spotify.com/v1/playlists/${playlistId}/tracks?limit=40`, {
       headers: { 'Authorization': `Bearer ${token}` }
     })
-    .then(res => res.json())
+    .then(async res => {
+      if (res.status === 401) {
+        const newToken = await refreshSpotifyToken();
+        const retryRes = await fetch(`https://api.spotify.com/v1/playlists/${playlistId}/tracks?limit=40`, {
+          headers: { 'Authorization': `Bearer ${newToken}` }
+        });
+        return retryRes.json();
+      }
+      return res.json();
+    })
     .then(data => {
-      renderPlaylistTracks(data.items || []);
+      if (data) renderPlaylistTracks(data.items || []);
     })
     .catch(err => {
       console.error('Error fetching tracks:', err);
@@ -822,14 +927,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const loginBtn = document.getElementById('spotifyLoginBtn');
   if (loginBtn) {
-    loginBtn.addEventListener('click', () => {
+    loginBtn.addEventListener('click', async () => {
       const clientId = localStorage.getItem('spotify_client_id') || '';
       if (!clientId) {
         alert('Please enter your Spotify Developer Client ID first!');
         return;
       }
+      
+      const codeVerifier = generateRandomString(64);
+      localStorage.setItem('spotify_code_verifier', codeVerifier);
+      const codeChallenge = await generateCodeChallenge(codeVerifier);
+
       const scopes = 'streaming user-read-playback-state user-modify-playback-state user-read-currently-playing playlist-read-private playlist-read-collaborative';
-      const authUrl = `https://accounts.spotify.com/authorize?client_id=${encodeURIComponent(clientId)}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scopes)}&response_type=token&show_dialog=true`;
+      const authUrl = `https://accounts.spotify.com/authorize?client_id=${encodeURIComponent(clientId)}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scopes)}&response_type=code&code_challenge_method=S256&code_challenge=${codeChallenge}&show_dialog=true`;
       window.location.href = authUrl;
     });
   }
@@ -861,8 +971,15 @@ document.addEventListener('DOMContentLoaded', () => {
     player.addListener('initialization_error', ({ message }) => { console.error('Initialization Error:', message); });
     player.addListener('authentication_error', ({ message }) => { 
       console.error('Authentication Error:', message);
-      localStorage.removeItem('spotify_access_token');
-      updateSpotifyUI();
+      refreshSpotifyToken()
+        .then(() => {
+          player.disconnect();
+          window.onSpotifyWebPlaybackSDKReady();
+        })
+        .catch(() => {
+          localStorage.removeItem('spotify_access_token');
+          updateSpotifyUI();
+        });
     });
     player.addListener('account_error', ({ message }) => { 
       alert('Spotify Playback SDK requires a Spotify Premium account.'); 
@@ -1002,9 +1119,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const token = localStorage.getItem('spotify_access_token');
     if (!token) return;
     try {
-      const res = await fetch(`https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=track&limit=5`, {
+      let res = await fetch(`https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=track&limit=5`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
+      
+      if (res.status === 401) {
+        const newToken = await refreshSpotifyToken();
+        res = await fetch(`https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=track&limit=5`, {
+          headers: { 'Authorization': `Bearer ${newToken}` }
+        });
+      }
+      
       const data = await res.json();
       renderSearchResults(data.tracks?.items || []);
     } catch (err) {
@@ -1050,7 +1175,7 @@ document.addEventListener('DOMContentLoaded', () => {
         window.audioEngine.activeSource = 'spotify';
       }
       
-      await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
+      let res = await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
         method: 'PUT',
         body: JSON.stringify({ uris: [uri] }),
         headers: {
@@ -1058,6 +1183,18 @@ document.addEventListener('DOMContentLoaded', () => {
           'Authorization': `Bearer ${token}`
         }
       });
+      
+      if (res.status === 401) {
+        const newToken = await refreshSpotifyToken();
+        res = await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
+          method: 'PUT',
+          body: JSON.stringify({ uris: [uri] }),
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${newToken}`
+          }
+        });
+      }
       
       fetchTrackTempo(uri.split(':').pop());
     } catch (err) {
@@ -1069,9 +1206,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const token = localStorage.getItem('spotify_access_token');
     if (!token) return;
     try {
-      const res = await fetch(`https://api.spotify.com/v1/audio-features/${trackId}`, {
+      let res = await fetch(`https://api.spotify.com/v1/audio-features/${trackId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
+      
+      if (res.status === 401) {
+        const newToken = await refreshSpotifyToken();
+        res = await fetch(`https://api.spotify.com/v1/audio-features/${trackId}`, {
+          headers: { 'Authorization': `Bearer ${newToken}` }
+        });
+      }
+      
       const data = await res.json();
       window.spotifyTempo = data.tempo || 120;
     } catch (e) {
