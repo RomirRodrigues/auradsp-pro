@@ -1354,6 +1354,30 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  
+  // --- GLOBAL BYPASS UI ---
+  const globalBypassBtn = document.getElementById('globalBypassBtn');
+  let isGlobalBypass = false;
+  
+  if (globalBypassBtn) {
+    globalBypassBtn.addEventListener('click', () => {
+      isGlobalBypass = !isGlobalBypass;
+      if (isGlobalBypass) {
+        globalBypassBtn.textContent = 'GLOBAL BYPASS: ON';
+        globalBypassBtn.style.background = '#4cd137'; // Green when active bypass
+        document.body.classList.add('bypassed');
+      } else {
+        globalBypassBtn.textContent = 'GLOBAL BYPASS: OFF';
+        globalBypassBtn.style.background = '#ff3366';
+        document.body.classList.remove('bypassed');
+      }
+      
+      if (window.audioEngine) {
+        window.audioEngine.setGlobalBypass(isGlobalBypass);
+      }
+    });
+  }
+
   // --- PRO DSP UI LOGIC ---
   const proBtns = [
     { id: 'godBassToggle', method: 'setGodBass' },

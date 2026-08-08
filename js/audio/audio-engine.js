@@ -866,6 +866,24 @@ class AudioEngine {
   }
 
   // --- Analog Warmth & Tape Modules ---
+  
+  // --- GLOBAL BYPASS ---
+  setGlobalBypass(isBypassed) {
+    if (this.isBypassed === isBypassed) return;
+    this.isBypassed = isBypassed;
+    
+    // Disconnect preGainNode from current routing
+    this.preGainNode.disconnect();
+    
+    if (isBypassed) {
+      // Route directly to Master Gain, skipping EQ, Spatial, and FX
+      this.preGainNode.connect(this.masterGainNode);
+    } else {
+      // Route back to normal chain (EQ)
+      this.preGainNode.connect(this.eqBands[0]);
+    }
+  }
+
   makeDistortionCurve(amount) {
     if (amount === 0) return null;
     const k = typeof amount === 'number' ? amount : 50;

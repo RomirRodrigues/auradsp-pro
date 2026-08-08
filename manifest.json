@@ -1,0 +1,21 @@
+{
+  "name": "AuraDSP Pro",
+  "short_name": "AuraDSP",
+  "description": "Professional Web Audio DSP & Spatial Engine",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#09090b",
+  "theme_color": "#ff007f",
+  "icons": [
+    {
+      "src": "https://img.icons8.com/?size=192&id=11802&format=png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://img.icons8.com/?size=512&id=11802&format=png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
