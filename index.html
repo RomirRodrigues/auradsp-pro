@@ -203,13 +203,17 @@
           <input type="file" id="audioFileInput" accept="audio/*">
           <p id="fileNameDisplay">📂 Drag & drop audio file or click to select</p>
         </div>
+        <div id="fileControlsRow" class="hidden" style="margin-top:12px; display:flex; align-items:center; gap:12px; padding: 10px; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: var(--radius-md);">
+          <button id="filePlayPauseBtn" class="primary-btn-sm" style="flex: 1; min-height: 38px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 6px;">▶ Play File</button>
+          <span id="fileTimeDisplay" style="font-size:0.75rem; font-family:var(--font-mono); color:var(--text-muted); min-width: 85px; text-align: right; padding-right: 4px;">0:00 / 0:00</span>
+        </div>
       </div>
 
       <!-- Mic Input Panel -->
       <div class="source-card hidden" id="cardMic">
         <p class="info-text">Pass-through live microphone or AUX line-in with real-time low-latency tuning & noise gate.</p>
-        <button id="startMicBtn" class="accent-btn">
-          <span class="icon">🎙️</span> Enable Live Mic / Line-In Input
+        <button id="startMicBtn" class="accent-btn" style="width:100%; display:flex; align-items:center; justify-content:center; gap:8px;">
+          ▶ Start Live Mic Input
         </button>
       </div>
 

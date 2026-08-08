@@ -504,6 +504,15 @@ class AudioEngine {
     return stream;
   }
 
+  stopMicrophone() {
+    if (this.micStream) {
+      try {
+        this.micStream.getTracks().forEach(t => t.stop());
+      } catch (e) {}
+      this.micStream = null;
+    }
+  }
+
   async connectTabAudio() {
     await this.resumeCtx();
     const stream = await navigator.mediaDevices.getDisplayMedia({

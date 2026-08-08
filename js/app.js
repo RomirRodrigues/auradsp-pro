@@ -419,7 +419,7 @@ document.addEventListener('DOMContentLoaded', () => {
         startSynthBeatBtn.style.background = "";
       }
       if (startMicBtn) {
-        startMicBtn.textContent = "🎙️ Start Microphone Pass-Through";
+        startMicBtn.textContent = "▶ Start Live Mic Input";
         startMicBtn.style.background = "";
         startMicBtn.style.color = "";
       }
@@ -442,10 +442,13 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Local File Upload
+  // Local File Upload & Playback Controls
   const audioFileInput = document.getElementById('audioFileInput');
   const fileNameDisplay = document.getElementById('fileNameDisplay');
   const audioPlayer = document.getElementById('audioPlayer');
+  const fileControlsRow = document.getElementById('fileControlsRow');
+  const filePlayPauseBtn = document.getElementById('filePlayPauseBtn');
+  const fileTimeDisplay = document.getElementById('fileTimeDisplay');
 
   audioFileInput.addEventListener('change', (e) => {
     const file = e.target.files[0];
@@ -453,14 +456,67 @@ document.addEventListener('DOMContentLoaded', () => {
       fileNameDisplay.textContent = `🎵 Active File: ${file.name}`;
       const url = URL.createObjectURL(file);
       audioPlayer.src = url;
-      window.audioEngine.stopSynthGroove();
-      window.audioEngine.connectMediaElement(audioPlayer);
+      
+      if (window.audioEngine) {
+        window.audioEngine.stopAllSources();
+        window.audioEngine.activeSource = 'file';
+        window.audioEngine.connectMediaElement(audioPlayer);
+      }
+      
       audioPlayer.play();
+      
+      if (fileControlsRow) fileControlsRow.classList.remove('hidden');
+      if (filePlayPauseBtn) filePlayPauseBtn.innerHTML = "⏸ Pause File";
+      
       isPlaying = true;
       isSynthBeatActive = false;
-      playText.textContent = "Pause Track";
-      playIcon.textContent = "⏸";
+      if (playText) playText.textContent = "Pause Track";
+      if (playIcon) playIcon.textContent = "⏸";
     }
+  });
+
+  if (filePlayPauseBtn) {
+    filePlayPauseBtn.addEventListener('click', async () => {
+      if (window.audioEngine) await window.audioEngine.resumeCtx();
+      if (audioPlayer.paused) {
+        audioPlayer.play();
+      } else {
+        audioPlayer.pause();
+      }
+    });
+  }
+
+  function formatTime(secs) {
+    if (isNaN(secs) || !isFinite(secs)) return "0:00";
+    const m = Math.floor(secs / 60);
+    const s = Math.floor(secs % 60).toString().padStart(2, '0');
+    return `${m}:${s}`;
+  }
+
+  audioPlayer.addEventListener('timeupdate', () => {
+    if (fileTimeDisplay) {
+      fileTimeDisplay.textContent = `${formatTime(audioPlayer.currentTime)} / ${formatTime(audioPlayer.duration)}`;
+    }
+  });
+
+  audioPlayer.addEventListener('durationchange', () => {
+    if (fileTimeDisplay) {
+      fileTimeDisplay.textContent = `${formatTime(audioPlayer.currentTime)} / ${formatTime(audioPlayer.duration)}`;
+    }
+  });
+
+  audioPlayer.addEventListener('play', () => {
+    if (filePlayPauseBtn) filePlayPauseBtn.innerHTML = "⏸ Pause File";
+    isPlaying = true;
+    if (playText) playText.textContent = "Pause Track";
+    if (playIcon) playIcon.textContent = "⏸";
+  });
+
+  audioPlayer.addEventListener('pause', () => {
+    if (filePlayPauseBtn) filePlayPauseBtn.innerHTML = "▶ Play File";
+    isPlaying = false;
+    if (playText) playText.textContent = "Play Selected Track";
+    if (playIcon) playIcon.textContent = "▶";
   });
 
   // ─── Spotify Direct In-App Player & Authentication ──────────
@@ -771,17 +827,28 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   // ────────────────────────────────────────────────────────────
 
-  // Microphone Input
+  // Microphone Input (Play/Pause Toggle)
   const startMicBtn = document.getElementById('startMicBtn');
   startMicBtn.addEventListener('click', async () => {
-    try {
-      window.audioEngine.stopSynthGroove();
-      await window.audioEngine.connectMicrophone();
-      startMicBtn.textContent = "🎙️ Mic Live Pass-Through Active";
-      startMicBtn.style.background = "#00ff88";
-      startMicBtn.style.color = "#000";
-    } catch (err) {
-      alert("Microphone permission denied or unavailable.");
+    await window.audioEngine.resumeCtx();
+    if (window.audioEngine.micStream) {
+      // Microphone is active, pause/stop it
+      window.audioEngine.stopMicrophone();
+      startMicBtn.textContent = "▶ Start Live Mic Input";
+      startMicBtn.style.background = "";
+      startMicBtn.style.color = "";
+    } else {
+      // Microphone is inactive, start it
+      try {
+        window.audioEngine.stopAllSources();
+        window.audioEngine.activeSource = 'mic';
+        await window.audioEngine.connectMicrophone();
+        startMicBtn.textContent = "⏸ Pause Live Mic Input";
+        startMicBtn.style.background = "#00ff88";
+        startMicBtn.style.color = "#000";
+      } catch (err) {
+        alert("Microphone permission denied or unavailable.");
+      }
     }
   });
 
