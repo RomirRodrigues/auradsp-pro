@@ -547,7 +547,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-  // ─── Web Music Streamer (Audius Search & Play Integration) ───
+  // ─── Web Music Streamer (Piped API & YouTube Integration) ───
   const webSearchInput = document.getElementById('webSearchInput');
   const webSearchResults = document.getElementById('webSearchResults');
   const webPlayPauseBtn = document.getElementById('webPlayPauseBtn');
@@ -561,6 +561,47 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentWebTrack = null;
   let searchTimeout = null;
 
+  // List of public Piped API nodes for failover rotation
+  const pipedInstances = [
+    'https://pipedapi.kavin.rocks',
+    'https://api.piped.yt',
+    'https://piped-api.lunar.icu',
+    'https://pipedapi.tokhmi.xyz',
+    'https://pipedapi.qt.to'
+  ];
+  let currentPipedInstanceIndex = 0;
+
+  function getPipedInstanceUrl() {
+    return pipedInstances[currentPipedInstanceIndex];
+  }
+
+  function rotatePipedInstance() {
+    currentPipedInstanceIndex = (currentPipedInstanceIndex + 1) % pipedInstances.length;
+    console.log("Rotating Piped API instance to:", getPipedInstanceUrl());
+  }
+
+  async function fetchPiped(endpoint) {
+    let attempts = 0;
+    while (attempts < pipedInstances.length) {
+      const baseUrl = getPipedInstanceUrl();
+      try {
+        const controller = new AbortController();
+        const id = setTimeout(() => controller.abort(), 6000); // 6s timeout
+        const res = await fetch(baseUrl + endpoint, { signal: controller.signal });
+        clearTimeout(id);
+        if (res.ok) {
+          const json = await res.json();
+          if (json) return json;
+        }
+      } catch (e) {
+        console.warn(`Piped fetch failed on instance ${baseUrl}:`, e);
+      }
+      rotatePipedInstance();
+      attempts++;
+    }
+    throw new Error("All Piped API instances failed");
+  }
+
   if (webSearchInput) {
     webSearchInput.addEventListener('input', (e) => {
       clearTimeout(searchTimeout);
@@ -571,7 +612,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       searchTimeout = setTimeout(() => {
         performWebMusicSearch(query);
-      }, 400);
+      }, 500);
     });
   }
 
@@ -580,15 +621,34 @@ document.addEventListener('DOMContentLoaded', () => {
       webSearchResults.innerHTML = '<div style="padding:10px; font-size:0.75rem; color:var(--text-muted); text-align:center;">Searching Web Library...</div>';
     }
     try {
-      const res = await fetch(`https://api.audius.co/v1/tracks/search?query=${encodeURIComponent(query)}&app_name=auradsppro`);
-      if (!res.ok) throw new Error("Search API error");
-      const json = await res.json();
-      const tracks = json.data || [];
+      const data = await fetchPiped(`/search?q=${encodeURIComponent(query)}&filter=videos`);
+      const items = data.items || [];
+      const tracks = items.filter(item => item.type === 'stream' || item.url);
       renderWebSearchResults(tracks);
     } catch (err) {
-      console.error('Web Search error:', err);
+      console.error('Web Search error, attempting Audius backup:', err);
       if (webSearchResults) {
-        webSearchResults.innerHTML = '<div style="padding:10px; font-size:0.75rem; color:var(--accent-red); text-align:center;">Failed to search web music</div>';
+        webSearchResults.innerHTML = '<div style="padding:10px; font-size:0.75rem; color:var(--text-muted); text-align:center;">Searching Backup Library...</div>';
+      }
+      try {
+        const res = await fetch(`https://api.audius.co/v1/tracks/search?query=${encodeURIComponent(query)}&app_name=auradsppro`);
+        if (res.ok) {
+          const json = await res.json();
+          const tracks = json.data || [];
+          renderWebSearchResults(tracks.map(t => ({
+            title: t.title,
+            uploaderName: t.user.name,
+            thumbnail: t.artwork && t.artwork['150x150'] ? t.artwork['150x150'] : '',
+            audiusTrackId: t.id,
+            duration: t.duration
+          })));
+        } else {
+          throw new Error("Audius backup failed");
+        }
+      } catch (backupErr) {
+        if (webSearchResults) {
+          webSearchResults.innerHTML = '<div style="padding:10px; font-size:0.75rem; color:var(--accent-red); text-align:center;">Search failed. Try again with different keywords.</div>';
+        }
       }
     }
   }
@@ -616,13 +676,13 @@ document.addEventListener('DOMContentLoaded', () => {
       item.style.border = '1px solid rgba(255,255,255,0.04)';
       item.style.transition = 'all 0.1s';
 
-      const imgUrl = track.artwork && track.artwork['150x150'] ? track.artwork['150x150'] : 'https://images.unsplash.com/photo-1614680376593-902f74fa0d41?w=40';
+      const imgUrl = track.thumbnail ? track.thumbnail : 'https://images.unsplash.com/photo-1614680376593-902f74fa0d41?w=40';
 
       item.innerHTML = `
         <img src="${imgUrl}" style="width:36px; height:36px; border-radius:4px; object-fit:cover;">
         <div style="flex:1; overflow:hidden;">
           <div style="font-size:0.8rem; font-weight:600; color:var(--text-main); white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">${track.title}</div>
-          <div style="font-size:0.68rem; color:var(--text-muted); white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">${track.user.name}</div>
+          <div style="font-size:0.68rem; color:var(--text-muted); white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">${track.uploaderName || track.user?.name || 'Unknown Artist'}</div>
         </div>
       `;
 
@@ -643,32 +703,53 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  function playWebTrack(track) {
+  async function playWebTrack(track) {
     currentWebTrack = track;
     if (webTrackName) webTrackName.textContent = track.title;
-    if (webArtistName) webArtistName.textContent = track.user.name;
+    if (webArtistName) webArtistName.textContent = track.uploaderName || 'Unknown Artist';
     if (webAlbumArt) {
-      webAlbumArt.src = track.artwork && track.artwork['480x480'] ? track.artwork['480x480'] : 'https://images.unsplash.com/photo-1614680376593-902f74fa0d41?w=120';
+      webAlbumArt.src = track.thumbnail || 'https://images.unsplash.com/photo-1614680376593-902f74fa0d41?w=120';
     }
 
-    if (window.audioEngine) {
-      window.audioEngine.stopAllSources();
-      resetAllPlaybackUI();
-      window.audioEngine.activeSource = 'file'; // Play through audioPlayer to enable real biquad filter nodes
-      window.audioEngine.connectMediaElement(audioPlayer);
-    }
+    if (webPlayPauseBtn) webPlayPauseBtn.innerHTML = "<span>⏳ Loading Stream...</span>";
 
-    const streamUrl = `https://api.audius.co/v1/tracks/${track.id}/stream?app_name=auradsppro`;
-    audioPlayer.src = streamUrl;
-    audioPlayer.play()
-      .then(() => {
-        isPlaying = true;
-        if (webPlayPauseBtn) webPlayPauseBtn.innerHTML = "<span>⏸ Pause Track</span>";
-      })
-      .catch(err => {
-        console.error('Play error:', err);
-        alert(`Stream Playback Error: ${err.message || err}`);
-      });
+    try {
+      let streamUrl = "";
+      if (track.audiusTrackId) {
+        streamUrl = `https://api.audius.co/v1/tracks/${track.audiusTrackId}/stream?app_name=auradsppro`;
+      } else {
+        const videoId = track.url.split('v=').pop();
+        const streamInfo = await fetchPiped(`/streams/${videoId}`);
+        const audioStreams = streamInfo.audioStreams || [];
+        if (audioStreams.length === 0) throw new Error("No audio stream found");
+        
+        // Grab the first audio stream (usually m4a or webm/opus)
+        streamUrl = audioStreams[0].url;
+      }
+
+      if (window.audioEngine) {
+        window.audioEngine.stopAllSources();
+        resetAllPlaybackUI();
+        window.audioEngine.activeSource = 'file'; // Play through audioPlayer to route to biquad filter nodes
+        window.audioEngine.connectMediaElement(audioPlayer);
+      }
+
+      audioPlayer.src = streamUrl;
+      audioPlayer.play()
+        .then(() => {
+          isPlaying = true;
+          if (webPlayPauseBtn) webPlayPauseBtn.innerHTML = "<span>⏸ Pause Track</span>";
+        })
+        .catch(err => {
+          console.error('Play error:', err);
+          alert(`Stream Playback Error: Browser security blocked the stream or the link expired. Try playing again or selecting another result!`);
+          if (webPlayPauseBtn) webPlayPauseBtn.innerHTML = "<span>▶ Play Track</span>";
+        });
+    } catch (err) {
+      console.error('Play stream resolve error:', err);
+      alert(`Failed to resolve audio stream. Error: ${err.message || err}`);
+      if (webPlayPauseBtn) webPlayPauseBtn.innerHTML = "<span>▶ Play Track</span>";
+    }
   }
 
   if (webPlayPauseBtn) {
