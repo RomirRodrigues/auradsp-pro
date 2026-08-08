@@ -47,7 +47,51 @@ class AudioVisualizer {
     const isSpotify = window.audioEngine && window.audioEngine.activeSource === 'spotify';
     const isSpotifyPlaying = isSpotify && window.spotifyPlayerState && !window.spotifyPlayerState.paused;
 
-    if (isSpotify) {
+    // Detect if any audio source is actively producing sound
+    let isActivelyPlaying = false;
+    const audioEngine = window.audioEngine;
+    if (audioEngine) {
+      if (audioEngine.activeSource === 'spotify') {
+        isActivelyPlaying = isSpotifyPlaying;
+      } else if (audioEngine.activeSource === 'synth') {
+        isActivelyPlaying = audioEngine.isSynthLoopActive;
+      } else if (audioEngine.activeSource === 'track' || audioEngine.activeSource === 'file') {
+        isActivelyPlaying = audioEngine.connectedElement && !audioEngine.connectedElement.paused;
+      } else if (audioEngine.activeSource === 'mic') {
+        isActivelyPlaying = !!audioEngine.micStream;
+      } else if (audioEngine.activeSource === 'tone') {
+        isActivelyPlaying = !!audioEngine.oscillator;
+      }
+    }
+
+    if (!isActivelyPlaying) {
+      // ─── STANDBY IDLE STATE: Render gentle, glowing ambient breathing graphics ───
+      const now = Date.now() / 1000;
+      if (this.visMode === 'bars') {
+        bufferLength = 64;
+        dataArray = new Uint8Array(bufferLength);
+        for (let b = 0; b < bufferLength; b++) {
+          const norm = b / bufferLength;
+          const w1 = Math.sin(norm * Math.PI * 2.0 + now * 1.5) * 0.5 + 0.5;
+          const w2 = Math.cos(norm * Math.PI * 4.0 - now * 1.0) * 0.3 + 0.5;
+          const breath = 0.5 + 0.5 * Math.sin(now * 0.6);
+          const damping = Math.pow(1 - norm, 0.4);
+          const val = (w1 * 0.7 + w2 * 0.3) * breath * 45 * damping;
+          dataArray[b] = Math.max(3, val + Math.random() * 2);
+        }
+      } else {
+        bufferLength = 128;
+        dataArray = new Uint8Array(bufferLength);
+        for (let i = 0; i < bufferLength; i++) {
+          const norm = i / bufferLength;
+          const w1 = Math.sin(norm * Math.PI * 3.0 + now * 2.0) * 12;
+          const w2 = Math.cos(norm * Math.PI * 6.0 - now * 1.2) * 5;
+          const breath = 0.5 + 0.5 * Math.sin(now * 0.8);
+          const envelope = Math.sin(norm * Math.PI); // Fades ends to zero for a clean trace
+          dataArray[i] = 128 + (w1 + w2) * breath * envelope;
+        }
+      }
+    } else if (isSpotify) {
       bufferLength = 128;
       dataArray = new Uint8Array(bufferLength);
       if (isSpotifyPlaying) {
@@ -105,7 +149,7 @@ class AudioVisualizer {
 
       for (let b = 0; b < numBars; b++) {
         let val = 0;
-        if (isSpotify) {
+        if (isSpotify || !isActivelyPlaying) {
           const idx = Math.floor((b / numBars) * bufferLength);
           val = dataArray[idx];
         } else {
@@ -174,35 +218,38 @@ class AudioVisualizer {
 
   // True Peak-RMS Stereophonic VU Meter Engine
   updateVUMeters(dataArray) {
-    if (!dataArray || dataArray.length === 0) return;
+    let rawL = 0;
+    let rawR = 0;
 
-    // Peak level calculation across active low/mid frequencies
-    let peakSum = 0;
-    const activeLength = Math.min(80, dataArray.length);
+    if (dataArray && dataArray.length > 0) {
+      // Peak level calculation across active low/mid frequencies
+      let peakSum = 0;
+      const activeLength = Math.min(80, dataArray.length);
 
-    for (let i = 0; i < activeLength; i++) {
-      peakSum += dataArray[i] * dataArray[i];
+      for (let i = 0; i < activeLength; i++) {
+        peakSum += dataArray[i] * dataArray[i];
+      }
+      const rms = Math.sqrt(peakSum / activeLength);
+
+      // Scale RMS (0 to 255) to VU percentage (0% to 100%)
+      let targetPercent = Math.min(100, Math.max(0, Math.pow(rms / 180, 0.85) * 100));
+
+      // Fallback floor if audio is playing but quiet
+      if (rms > 10 && targetPercent < 15) {
+        targetPercent = 15 + (rms / 255) * 40;
+      }
+
+      // Stereophonic channel micro-offset simulation
+      rawL = Math.min(100, targetPercent * (1.0 + (Math.sin(Date.now() / 100) * 0.08)));
+      rawR = Math.min(100, targetPercent * (0.96 + (Math.cos(Date.now() / 110) * 0.08)));
     }
-    const rms = Math.sqrt(peakSum / activeLength);
-
-    // Scale RMS (0 to 255) to VU percentage (0% to 100%)
-    let targetPercent = Math.min(100, Math.max(0, Math.pow(rms / 180, 0.85) * 100));
-
-    // Fallback floor if audio is playing but quiet
-    if (rms > 10 && targetPercent < 15) {
-      targetPercent = 15 + (rms / 255) * 40;
-    }
-
-    // Stereophonic channel micro-offset simulation
-    const rawL = Math.min(100, targetPercent * (1.0 + (Math.sin(Date.now() / 100) * 0.08)));
-    const rawR = Math.min(100, targetPercent * (0.96 + (Math.cos(Date.now() / 110) * 0.08)));
 
     // Smooth Ballistic Needle Decay (60 FPS Attack & Decay)
-    this.smoothL += (rawL - this.smoothL) * (rawL > this.smoothL ? 0.6 : 0.2);
-    this.smoothR += (rawR - this.smoothR) * (rawR > this.smoothR ? 0.6 : 0.2);
+    this.smoothL += (rawL - this.smoothL) * (rawL > this.smoothL ? 0.6 : 0.15);
+    this.smoothR += (rawR - this.smoothR) * (rawR > this.smoothR ? 0.6 : 0.15);
 
-    if (this.vuFillL) this.vuFillL.style.width = `${Math.max(0, this.smoothL.toFixed(1))}%`;
-    if (this.vuFillR) this.vuFillR.style.width = `${Math.max(0, this.smoothR.toFixed(1))}%`;
+    if (this.vuFillL) this.vuFillL.style.width = `${Math.max(0, parseFloat(this.smoothL.toFixed(1)))}%`;
+    if (this.vuFillR) this.vuFillR.style.width = `${Math.max(0, parseFloat(this.smoothR.toFixed(1)))}%`;
   }
 
   drawEqCurve(gainsArray) {
