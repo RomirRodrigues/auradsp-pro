@@ -1144,13 +1144,46 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  async function getSpotifyDeviceId() {
+    if (window.spotifyDeviceId) return window.spotifyDeviceId;
+
+    const token = localStorage.getItem('spotify_access_token');
+    if (!token) return null;
+
+    try {
+      const res = await fetch('https://api.spotify.com/v1/me/player/devices', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const devices = data.devices || [];
+        const activeDevice = devices.find(d => d.is_active);
+        if (activeDevice) {
+          return activeDevice.id;
+        }
+        if (devices.length > 0) {
+          return devices[0].id;
+        }
+      }
+    } catch (e) {
+      console.error('Error fetching Spotify devices:', e);
+    }
+    return null;
+  }
+
   async function playSpotifyTrack(uri) {
     const token = localStorage.getItem('spotify_access_token');
-    const deviceId = window.spotifyDeviceId;
-    if (!token || !deviceId) {
-      alert('Spotify Player is not ready. Make sure you connected your account.');
+    if (!token) {
+      alert('Please connect your Spotify account first.');
       return;
     }
+
+    const deviceId = await getSpotifyDeviceId();
+    if (!deviceId) {
+      alert('No active Spotify player found! Please open Spotify on your phone or computer, play a song for 1 second to wake it up, then try again!');
+      return;
+    }
+
     try {
       if (window.audioEngine) {
         window.audioEngine.stopAllSources();
