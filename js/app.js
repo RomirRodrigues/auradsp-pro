@@ -622,8 +622,22 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     try {
       const data = await fetchPiped(`/search?q=${encodeURIComponent(query)}&filter=videos`);
-      const items = data.items || [];
-      const tracks = items.filter(item => item.type === 'stream' || item.url);
+      
+      let items = [];
+      if (Array.isArray(data)) {
+        items = data;
+      } else if (data && Array.isArray(data.items)) {
+        items = data.items;
+      } else if (data && typeof data === 'object') {
+        for (const key in data) {
+          if (Array.isArray(data[key])) {
+            items = data[key];
+            break;
+          }
+        }
+      }
+      
+      const tracks = items.filter(item => item && item.title && (item.url || item.videoId));
       renderWebSearchResults(tracks);
     } catch (err) {
       console.error('Web Search error, attempting Audius backup:', err);
@@ -718,7 +732,14 @@ document.addEventListener('DOMContentLoaded', () => {
       if (track.audiusTrackId) {
         streamUrl = `https://api.audius.co/v1/tracks/${track.audiusTrackId}/stream?app_name=auradsppro`;
       } else {
-        const videoId = track.url.split('v=').pop();
+        let videoId = "";
+        if (track.videoId) {
+          videoId = track.videoId;
+        } else if (track.url) {
+          videoId = track.url.split('v=').pop().split('&')[0];
+        }
+        
+        if (!videoId) throw new Error("Could not extract video ID");
         const streamInfo = await fetchPiped(`/streams/${videoId}`);
         const audioStreams = streamInfo.audioStreams || [];
         if (audioStreams.length === 0) throw new Error("No audio stream found");
