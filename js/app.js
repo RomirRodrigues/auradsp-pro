@@ -1052,6 +1052,7 @@ document.addEventListener('DOMContentLoaded', () => {
     player.addListener('ready', ({ device_id }) => {
       console.log('Spotify SDK Player Ready with Device ID:', device_id);
       window.spotifyDeviceId = device_id;
+      transferSpotifyPlayback(device_id);
     });
 
     player.addListener('not_ready', ({ device_id }) => {
@@ -1173,6 +1174,26 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  async function transferSpotifyPlayback(deviceId) {
+    const token = localStorage.getItem('spotify_access_token');
+    if (!token) return;
+    try {
+      await fetch('https://api.spotify.com/v1/me/player', {
+        method: 'PUT',
+        body: JSON.stringify({
+          device_ids: [deviceId],
+          play: false
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+    } catch (e) {
+      console.error('Error transferring playback:', e);
+    }
+  }
+
   async function getSpotifyDeviceId() {
     if (window.spotifyDeviceId) return window.spotifyDeviceId;
 
@@ -1219,6 +1240,10 @@ document.addEventListener('DOMContentLoaded', () => {
         resetAllPlaybackUI();
         window.audioEngine.activeSource = 'spotify';
       }
+
+      // Explicitly transfer playback to this device to make it active
+      await transferSpotifyPlayback(deviceId);
+      await new Promise(resolve => setTimeout(resolve, 150)); // Short delay for Spotify to propagate transfer
       
       let res = await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
         method: 'PUT',
