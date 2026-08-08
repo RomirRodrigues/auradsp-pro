@@ -21,7 +21,8 @@ class SpatialCanvas {
     this.isOrbiting = true;
     this.orbitAngle = 0;
     this.baseOrbitSpeed = 0.015; // Base speed step
-    this.speedMultiplier = 1.0;  // User controllable multiplier (0.1x to 5.0x)
+    this.speedMultiplier = 1.0;
+    this.orbitRadiusMultiplier = 0.85; // Default distance
 
     this.initEvents();
     this.startLoop();
@@ -108,6 +109,13 @@ class SpatialCanvas {
 
   setOrbitSpeed(speedVal) {
     this.speedMultiplier = parseFloat(speedVal);
+  }
+
+  setOrbitRadius(radiusPercent) {
+    this.orbitRadiusMultiplier = parseFloat(radiusPercent) / 100;
+    if (!this.isOrbiting) {
+      this.draw(); // Force redraw if paused so user sees the change immediately
+    }
   }
 
   setElevation(zMeter) {
@@ -197,8 +205,8 @@ class SpatialCanvas {
     // 4. Auto 3D Orbit Movement calculation with speed control
     if (this.isOrbiting && !this.isDragging) {
       this.orbitAngle += this.baseOrbitSpeed * this.speedMultiplier;
-      this.sourceX = Math.sin(this.orbitAngle) * (this.radius * 0.85);
-      this.sourceY = -Math.cos(this.orbitAngle) * (this.radius * 0.85);
+      this.sourceX = Math.sin(this.orbitAngle) * (this.radius * this.orbitRadiusMultiplier);
+      this.sourceY = -Math.cos(this.orbitAngle) * (this.radius * this.orbitRadiusMultiplier);
       this.updateAudioPosition();
     }
 

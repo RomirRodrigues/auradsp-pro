@@ -1099,6 +1099,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  const spatialOrbitRadius = document.getElementById('spatialOrbitRadius');
+  const spatialOrbitRadiusVal = document.getElementById('spatialOrbitRadiusVal');
+  if (spatialOrbitRadius) {
+    spatialOrbitRadius.addEventListener('input', (e) => {
+      const val = parseInt(e.target.value, 10);
+      if (spatialOrbitRadiusVal) spatialOrbitRadiusVal.textContent = `${val}%`;
+      if (window.spatialCanvas) window.spatialCanvas.setOrbitRadius(val);
+    });
+  }
+
   // 3D Stage Volume Boost Slider
   const spatialVolumeBoost = document.getElementById('spatialVolumeBoost');
   const spatialVolumeBoostVal = document.getElementById('spatialVolumeBoostVal');
