@@ -275,13 +275,27 @@ class AudioEngine {
 
   connectMediaElement(audioElement) {
     this.resumeCtx();
-    if (this.connectedElement === audioElement && this.mediaSourceNode) {
+    
+    // Web Audio API throws an error if createMediaElementSource is called twice on the same HTML element.
+    // We cache the created node on the element itself to reuse it across song changes.
+    if (audioElement._mediaSourceNode) {
+      if (this.mediaSourceNode && this.mediaSourceNode !== audioElement._mediaSourceNode) {
+        try { this.mediaSourceNode.disconnect(); } catch (e) {}
+      }
+      this.mediaSourceNode = audioElement._mediaSourceNode;
+      try { this.mediaSourceNode.disconnect(); } catch(e) {} // Disconnect from old paths
+      this.mediaSourceNode.connect(this.preGainNode);
+      this.connectedElement = audioElement;
       return;
     }
+
     if (this.mediaSourceNode) {
       try { this.mediaSourceNode.disconnect(); } catch (e) {}
     }
+    
     this.mediaSourceNode = this.ctx.createMediaElementSource(audioElement);
+    audioElement._mediaSourceNode = this.mediaSourceNode; // Save to prevent future re-creation
+    
     this.mediaSourceNode.connect(this.preGainNode);
     this.connectedElement = audioElement;
   }
