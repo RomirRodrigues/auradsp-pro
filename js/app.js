@@ -1241,10 +1241,21 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         });
       }
+
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        if (errData.error) {
+          alert(`Playback failed: ${errData.error.message}`);
+        } else {
+          alert(`Playback failed with HTTP status ${res.status}`);
+        }
+        return;
+      }
       
       fetchTrackTempo(uri.split(':').pop());
     } catch (err) {
       console.error('Play track error:', err);
+      alert(`Play error: ${err.message || err}`);
     }
   }
 
