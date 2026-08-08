@@ -1228,36 +1228,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
   
   
-  // --- GOD MODE UI LOGIC ---
-  const godBassToggle = document.getElementById('godBassToggle');
-  const godClarityToggle = document.getElementById('godClarityToggle');
-  const godSpatialToggle = document.getElementById('godSpatialToggle');
-  const godOttToggle = document.getElementById('godOttToggle');
+  // --- PRO DSP UI LOGIC ---
+  const proBtns = [
+    { id: 'godBassToggle', method: 'setGodBass' },
+    { id: 'godClarityToggle', method: 'setGodClarity' },
+    { id: 'godSpatialToggle', method: 'setGodSpatial' },
+    { id: 'godOttToggle', method: 'setGodOtt' }
+  ];
 
-  if (godBassToggle) {
-    godBassToggle.addEventListener('change', (e) => {
-      if (window.audioEngine) window.audioEngine.setGodBass(e.target.checked);
-      markTuningAsManual();
-    });
-  }
-  if (godClarityToggle) {
-    godClarityToggle.addEventListener('change', (e) => {
-      if (window.audioEngine) window.audioEngine.setGodClarity(e.target.checked);
-      markTuningAsManual();
-    });
-  }
-  if (godSpatialToggle) {
-    godSpatialToggle.addEventListener('change', (e) => {
-      if (window.audioEngine) window.audioEngine.setGodSpatial(e.target.checked);
-      markTuningAsManual();
-    });
-  }
-  if (godOttToggle) {
-    godOttToggle.addEventListener('change', (e) => {
-      if (window.audioEngine) window.audioEngine.setGodOtt(e.target.checked);
-      markTuningAsManual();
-    });
-  }
+  proBtns.forEach(btnInfo => {
+    const btn = document.getElementById(btnInfo.id);
+    if (btn) {
+      btn.addEventListener('click', () => {
+        const isChecked = btn.getAttribute('aria-checked') === 'true';
+        const newState = !isChecked;
+        btn.setAttribute('aria-checked', newState.toString());
+        if (window.audioEngine) window.audioEngine[btnInfo.method](newState);
+        markTuningAsManual();
+      });
+    }
+  });
 
   // --- Font Switcher Logic ---
   const fontSelector = document.getElementById('appFontSelector');
