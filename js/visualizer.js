@@ -26,48 +26,106 @@ class AudioVisualizer {
   }
 
   drawSpectrum() {
-    if (!this.specCtx || !window.audioEngine || !window.audioEngine.analyserNode) return;
+    if (!this.specCanvas) return;
 
+    // Auto-resize canvas backing store to match layout size (DPI-aware)
     const canvas = this.specCanvas;
+    const rect = canvas.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    if (canvas.width !== rect.width * dpr || canvas.height !== rect.height * dpr) {
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+    }
+
     const ctx = this.specCtx;
     const width = canvas.width;
     const height = canvas.height;
-    const analyser = window.audioEngine.analyserNode;
-    const bufferLength = analyser.frequencyBinCount;
-    const dataArray = new Uint8Array(bufferLength);
-
     ctx.clearRect(0, 0, width, height);
 
-    if (this.visMode === 'bars') {
-      analyser.getByteFrequencyData(dataArray);
+    let dataArray;
+    let bufferLength;
+    const isSpotify = window.audioEngine && window.audioEngine.activeSource === 'spotify';
+    const isSpotifyPlaying = isSpotify && window.spotifyPlayerState && !window.spotifyPlayerState.paused;
 
+    if (isSpotify) {
+      bufferLength = 128;
+      dataArray = new Uint8Array(bufferLength);
+      if (isSpotifyPlaying) {
+        // Generate simulated beat frequencies
+        const now = Date.now() / 1000;
+        const bpm = window.spotifyTempo || 120;
+        const bps = bpm / 60;
+        const kickPulse = Math.pow(Math.abs(Math.sin(now * Math.PI * bps)), 8);
+        const snarePulse = Math.pow(Math.abs(Math.cos(now * Math.PI * bps / 2)), 6);
+        const hatPulse = Math.pow(Math.abs(Math.sin(now * Math.PI * bps * 2)), 4);
+
+        for (let i = 0; i < bufferLength; i++) {
+          const normIdx = i / bufferLength;
+          let val = 0;
+          if (normIdx < 0.15) {
+            val = (kickPulse * 170) + (Math.random() * 30);
+          } else if (normIdx < 0.5) {
+            const midWave = Math.sin(now * 15 + i * 0.4) * 0.5 + 0.5;
+            val = (midWave * 90) + (snarePulse * 40) + (Math.random() * 25);
+          } else {
+            val = (hatPulse * 50) + (Math.random() * 40);
+          }
+          // Apply EQ band scaling
+          const eqBandIdx = Math.floor(normIdx * 10);
+          const eqGain = (window.audioEngine && window.audioEngine.eqNodes[eqBandIdx]) ? window.audioEngine.eqNodes[eqBandIdx].gain.value : 0;
+          const gainFactor = Math.pow(10, eqGain / 20);
+          val = val * gainFactor;
+          dataArray[i] = Math.min(255, Math.max(0, val));
+        }
+      } else {
+        // Quiet noise floor when paused
+        for (let i = 0; i < bufferLength; i++) {
+          dataArray[i] = Math.random() * 3;
+        }
+      }
+    } else {
+      // Normal browser audio capture
+      if (!window.audioEngine || !window.audioEngine.analyserNode) return;
+      const analyser = window.audioEngine.analyserNode;
+      bufferLength = analyser.frequencyBinCount;
+      dataArray = new Uint8Array(bufferLength);
+      if (this.visMode === 'bars') {
+        analyser.getByteFrequencyData(dataArray);
+      } else {
+        analyser.getByteTimeDomainData(dataArray);
+      }
+    }
+
+    if (this.visMode === 'bars') {
       const numBars = 64;
-      const sampleRate = window.audioEngine.ctx ? window.audioEngine.ctx.sampleRate : 44100;
+      const barWidth = (width / numBars) - (2 * dpr);
+      const sampleRate = (window.audioEngine && window.audioEngine.ctx) ? window.audioEngine.ctx.sampleRate : 44100;
       const minFreq = 20;
       const maxFreq = 20000;
 
-      const barWidth = (width / numBars) - 2;
-
       for (let b = 0; b < numBars; b++) {
-        const freq1 = minFreq * Math.pow(maxFreq / minFreq, b / numBars);
-        const freq2 = minFreq * Math.pow(maxFreq / minFreq, (b + 1) / numBars);
-
-        const index1 = Math.floor((freq1 / (sampleRate / 2)) * bufferLength);
-        const index2 = Math.min(bufferLength - 1, Math.ceil((freq2 / (sampleRate / 2)) * bufferLength));
-
-        let maxVal = 0;
-        for (let i = index1; i <= index2; i++) {
-          if (dataArray[i] > maxVal) maxVal = dataArray[i];
+        let val = 0;
+        if (isSpotify) {
+          const idx = Math.floor((b / numBars) * bufferLength);
+          val = dataArray[idx];
+        } else {
+          const freq1 = minFreq * Math.pow(maxFreq / minFreq, b / numBars);
+          const freq2 = minFreq * Math.pow(maxFreq / minFreq, (b + 1) / numBars);
+          const index1 = Math.floor((freq1 / (sampleRate / 2)) * bufferLength);
+          const index2 = Math.min(bufferLength - 1, Math.ceil((freq2 / (sampleRate / 2)) * bufferLength));
+          let maxVal = 0;
+          for (let i = index1; i <= index2; i++) {
+            if (dataArray[i] > maxVal) maxVal = dataArray[i];
+          }
+          const freqBoost = 1 + (b / numBars) * 1.5;
+          val = Math.min(255, maxVal * freqBoost);
         }
 
-        const freqBoost = 1 + (b / numBars) * 1.5;
-        const normalizedVal = Math.min(255, maxVal * freqBoost);
-
-        const barHeight = (normalizedVal / 255) * (height - 10);
-        const x = b * (barWidth + 2);
+        const barHeight = (val / 255) * (height - 10 * dpr);
+        const x = b * (barWidth + 2 * dpr);
         const y = height - barHeight;
 
-        if (barHeight > 2) {
+        if (barHeight > 2 * dpr) {
           const gradient = ctx.createLinearGradient(0, height, 0, 0);
           gradient.addColorStop(0, '#7000ff');
           gradient.addColorStop(0.5, '#00f0ff');
@@ -77,19 +135,18 @@ class AudioVisualizer {
           ctx.fillRect(x, y, barWidth, barHeight);
 
           ctx.fillStyle = '#ffffff';
-          ctx.fillRect(x, y - 2, barWidth, 2);
+          ctx.fillRect(x, y - 2 * dpr, barWidth, 2 * dpr);
         } else {
           ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
-          ctx.fillRect(x, height - 2, barWidth, 2);
+          ctx.fillRect(x, height - 2 * dpr, barWidth, 2 * dpr);
         }
       }
     } else {
-      analyser.getByteTimeDomainData(dataArray);
-
-      ctx.lineWidth = 2;
+      // Waveform mode
+      ctx.lineWidth = 2 * dpr;
       ctx.strokeStyle = '#00f0ff';
       ctx.shadowColor = '#00f0ff';
-      ctx.shadowBlur = 12;
+      ctx.shadowBlur = 12 * dpr;
       ctx.beginPath();
 
       const sliceWidth = width / bufferLength;
@@ -112,7 +169,6 @@ class AudioVisualizer {
       ctx.shadowBlur = 0;
     }
 
-    // Update Stereophonic VU Meters with True Peak-RMS Peak Detector
     this.updateVUMeters(dataArray);
   }
 
@@ -152,63 +208,109 @@ class AudioVisualizer {
   drawEqCurve(gainsArray) {
     if (!this.eqCtx || !this.eqCanvas) return;
 
+    // Responsive auto-resize to match display size
+    const canvas = this.eqCanvas;
+    const rect = canvas.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    if (canvas.width !== rect.width * dpr || canvas.height !== rect.height * dpr) {
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+    }
+
     const ctx = this.eqCtx;
-    const width = this.eqCanvas.width;
-    const height = this.eqCanvas.height;
+    const width = canvas.width;
+    const height = canvas.height;
     const centerY = height / 2;
 
     ctx.clearRect(0, 0, width, height);
 
+    // Draw reference flat dashed line (0dB)
     ctx.beginPath();
     ctx.moveTo(0, centerY);
     ctx.lineTo(width, centerY);
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
-    ctx.setLineDash([4, 4]);
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
+    ctx.setLineDash([6, 6]);
+    ctx.lineWidth = 1 * dpr;
     ctx.stroke();
     ctx.setLineDash([]);
 
     if (!gainsArray || gainsArray.length === 0) return;
 
+    // Calculate points corresponding exactly to the center of each of the 10 slider columns
+    const numColumns = 10;
+    const colWidth = width / numColumns;
     const points = gainsArray.map((gain, i) => {
-      const x = (i / (gainsArray.length - 1)) * (width - 40) + 20;
+      const x = (i + 0.5) * colWidth;
       const clampedGain = Math.max(-12, Math.min(12, gain));
-      const y = centerY - (clampedGain / 12) * (height / 2 - 10);
+      // Map gain range [-12, 12] to canvas Y coords with a margin at top and bottom
+      const margin = 12 * dpr;
+      const y = centerY - (clampedGain / 12) * (centerY - margin);
       return { x, y };
     });
 
-    ctx.beginPath();
-    ctx.moveTo(points[0].x, points[0].y);
+    // Calculate slopes at each point for Cubic Hermite spline interpolation
+    const slopes = [];
+    for (let i = 0; i < points.length; i++) {
+      if (i === 0) {
+        slopes.push((points[1].y - points[0].y) / (points[1].x - points[0].x));
+      } else if (i === points.length - 1) {
+        slopes.push((points[points.length - 1].y - points[points.length - 2].y) / (points[points.length - 1].x - points[points.length - 2].x));
+      } else {
+        // Average slope of surrounding points
+        slopes.push((points[i + 1].y - points[i - 1].y) / (points[i + 1].x - points[i - 1].x));
+      }
+    }
+
+    // Build the curve path using cubic Bezier approximations of Hermite spline
+    const curvePath = new Path2D();
+    curvePath.moveTo(0, centerY); // Extend to start at left edge of canvas
+    curvePath.lineTo(points[0].x, points[0].y);
 
     for (let i = 0; i < points.length - 1; i++) {
-      const xc = (points[i].x + points[i + 1].x) / 2;
-      const yc = (points[i].y + points[i + 1].y) / 2;
-      ctx.quadraticCurveTo(points[i].x, points[i].y, xc, yc);
+      const p1 = points[i];
+      const p2 = points[i + 1];
+      const dx = p2.x - p1.x;
+      const cp1x = p1.x + dx / 3;
+      const cp1y = p1.y + slopes[i] * dx / 3;
+      const cp2x = p2.x - dx / 3;
+      const cp2y = p2.y - slopes[i + 1] * dx / 3;
+      curvePath.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, p2.x, p2.y);
     }
-    ctx.lineTo(points[points.length - 1].x, points[points.length - 1].y);
+    curvePath.lineTo(width, centerY); // Extend to end at right edge of canvas
 
+    // Draw the gradient filled area under the curve
     ctx.save();
-    const fillGradient = ctx.createLinearGradient(0, 0, 0, height);
-    fillGradient.addColorStop(0, 'rgba(0, 240, 255, 0.35)');
-    fillGradient.addColorStop(1, 'rgba(112, 0, 255, 0.05)');
+    const fillPath = new Path2D(curvePath);
+    fillPath.lineTo(width, height);
+    fillPath.lineTo(0, height);
+    fillPath.closePath();
 
-    ctx.lineTo(width, centerY);
-    ctx.lineTo(0, centerY);
+    const fillGradient = ctx.createLinearGradient(0, 0, 0, height);
+    fillGradient.addColorStop(0, 'rgba(0, 240, 255, 0.25)');
+    fillGradient.addColorStop(0.5, 'rgba(112, 0, 255, 0.08)');
+    fillGradient.addColorStop(1, 'rgba(6, 8, 14, 0.02)');
     ctx.fillStyle = fillGradient;
-    ctx.fill();
+    ctx.fill(fillPath);
     ctx.restore();
 
+    // Draw the curve outline with high-contrast glowing neon stroke
+    ctx.save();
     ctx.strokeStyle = '#00f0ff';
-    ctx.lineWidth = 3;
+    ctx.lineWidth = 3.5 * dpr;
     ctx.shadowColor = '#00f0ff';
-    ctx.shadowBlur = 12;
-    ctx.stroke();
-    ctx.shadowBlur = 0;
+    ctx.shadowBlur = 10 * dpr;
+    ctx.stroke(curvePath);
+    ctx.restore();
 
+    // Draw indicator dots on the curve at each slider position
     points.forEach((pt) => {
       ctx.beginPath();
-      ctx.arc(pt.x, pt.y, 4, 0, Math.PI * 2);
+      ctx.arc(pt.x, pt.y, 4.5 * dpr, 0, Math.PI * 2);
       ctx.fillStyle = '#ffffff';
+      ctx.strokeStyle = '#00f0ff';
+      ctx.lineWidth = 1.5 * dpr;
       ctx.fill();
+      ctx.stroke();
     });
   }
 

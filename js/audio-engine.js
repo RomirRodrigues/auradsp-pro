@@ -50,6 +50,7 @@ class AudioEngine {
 
     // Analyser Node for Spectrum & VU Meters
     this.analyserNode = null;
+    this.limiterNode = null;
 
     // Parameters State
     this.subBassAmount = 3.0;
@@ -58,6 +59,7 @@ class AudioEngine {
     this.spatialVolumeBoost = 3.0; // Default +3dB 3D Volume Boost
     this.isSynthLoopActive = false;
     this.currentTrackMode = 'bass';
+    this.activeSource = 'demo';
   }
 
   init() {
@@ -157,9 +159,16 @@ class AudioEngine {
     this.spatialGainNode = this.ctx.createGain();
     this.spatialGainNode.gain.value = Math.pow(10, this.spatialVolumeBoost / 20);
 
-    // 9. Master Gain & Analyser
+    // 9. Master Gain, Safety Limiter & Analyser
     this.masterGainNode = this.ctx.createGain();
     this.masterGainNode.gain.value = 1.0;
+
+    this.limiterNode = this.ctx.createDynamicsCompressor();
+    this.limiterNode.threshold.value = -1.0; // Prevent digital clipping at -1dB
+    this.limiterNode.knee.value = 0;         // Hard knee for limiting
+    this.limiterNode.ratio.value = 20;       // Extreme compression ratio for limiting
+    this.limiterNode.attack.value = 0.001;   // Rapid 1ms attack time
+    this.limiterNode.release.value = 0.1;    // 100ms release time
 
     this.analyserNode = this.ctx.createAnalyser();
     this.analyserNode.fftSize = 256;
@@ -188,10 +197,11 @@ class AudioEngine {
     this.convolverNode.connect(this.reverbGainNode);
     this.reverbGainNode.connect(this.pannerNode);
 
-    // Panner -> Spatial Gain Boost -> Master Gain -> Analyser -> Output
+    // Panner -> Spatial Gain Boost -> Master Gain -> Limiter -> Analyser -> Output
     this.pannerNode.connect(this.spatialGainNode);
     this.spatialGainNode.connect(this.masterGainNode);
-    this.masterGainNode.connect(this.analyserNode);
+    this.masterGainNode.connect(this.limiterNode);
+    this.limiterNode.connect(this.analyserNode);
     this.analyserNode.connect(this.ctx.destination);
 
     this.isInitialized = true;
@@ -489,6 +499,39 @@ class AudioEngine {
         this.oscillator.disconnect();
       } catch (e) {}
       this.oscillator = null;
+    }
+  }
+
+  stopAllSources() {
+    this.stopSynthGroove();
+    this.stopToneGenerator();
+
+    if (this.micStream) {
+      try {
+        this.micStream.getTracks().forEach(t => t.stop());
+      } catch (e) {}
+      this.micStream = null;
+    }
+
+    if (this.tabStream) {
+      try {
+        this.tabStream.getTracks().forEach(t => t.stop());
+      } catch (e) {}
+      this.tabStream = null;
+    }
+
+    if (this.connectedElement) {
+      try {
+        this.connectedElement.pause();
+        this.connectedElement.currentTime = 0;
+      } catch (e) {}
+      this.connectedElement = null;
+    }
+
+    if (window.spotifyPlayerInstance) {
+      try {
+        window.spotifyPlayerInstance.pause();
+      } catch (e) {}
     }
   }
 
