@@ -22,6 +22,14 @@ class AudioEngine {
     this.masterGainNode = null;
     this.subBassFilter = null;
 
+    
+    // Advanced FX
+    this.tubeShaper = null;
+    this.tubeGain = null;
+    this.tapeDelay = null;
+    this.tapeLFO = null;
+    this.tapeLFOGain = null;
+
     // 10 EQ Bands
     this.eqNodes = [];
     this.bands = FREQ_BANDS;
@@ -208,6 +216,28 @@ class AudioEngine {
     // Dedicated 3D Spatial Volume Boost Gain Node
     this.spatialGainNode = this.ctx.createGain();
     this.spatialGainNode.gain.value = Math.pow(10, this.spatialVolumeBoost / 20);
+
+    
+    // --- ADVANCED FX (Tube & Tape) ---
+    // Tube Saturation (WaveShaper)
+    this.tubeShaper = this.ctx.createWaveShaper();
+    this.tubeShaper.oversample = '4x';
+    this.tubeGain = this.ctx.createGain();
+    this.tubeGain.gain.value = 1.0;
+    this.setTubeWarmth(false, 30); // Default off
+
+    // Tape Warble (Delay + LFO)
+    this.tapeDelay = this.ctx.createDelay(1.0);
+    this.tapeDelay.delayTime.value = 0.05; // 50ms base delay
+    this.tapeLFO = this.ctx.createOscillator();
+    this.tapeLFO.type = 'sine';
+    this.tapeLFO.frequency.value = 1.5; // 1.5Hz warble
+    this.tapeLFOGain = this.ctx.createGain();
+    this.tapeLFOGain.gain.value = 0; // modulated depth
+    this.tapeLFO.connect(this.tapeLFOGain);
+    this.tapeLFOGain.connect(this.tapeDelay.delayTime);
+    this.tapeLFO.start();
+    this.setTapeWarble(false, 40); // Default off
 
     // 9. Master Gain, Safety Limiter & Analyser
     this.masterGainNode = this.ctx.createGain();
