@@ -71,8 +71,8 @@
           <span class="src-label">Live Beat & Demos</span>
         </button>
         <button class="source-btn" id="srcSpotifyBtn">
-          <span class="src-icon">🟢</span>
-          <span class="src-label">Spotify & Tab</span>
+          <span class="src-icon">🌐</span>
+          <span class="src-label">Web Streamer</span>
         </button>
         <button class="source-btn" id="srcFileBtn">
           <span class="src-icon">📁</span>
@@ -112,107 +112,51 @@
       </div>
 
       <!-- SPOTIFY IN-APP DIRECT AUDIO PLAYER -->
+      <!-- WEB MUSIC STREAMER (REAL EQ PROCESSING) -->
       <div class="source-card hidden" id="cardSpotify">
         <div class="spotify-header">
-          <span class="spotify-logo">🟢</span>
+          <span class="spotify-logo">🌐</span>
           <div>
-            <h4>Spotify Direct Player</h4>
-            <p id="spotifyHeaderDesc">Connect your Spotify account to search & play directly in the app</p>
+            <h4>Web Music Streamer</h4>
+            <p id="spotifyHeaderDesc">Search & stream millions of tracks with real real-time 10-Band EQ & 3D Spatial Audio processing!</p>
           </div>
         </div>
 
-        <!-- AUTH STATE: Missing token or credentials -->
-        <div id="spotifyAuthState" class="spotify-sub-card">
-          <p class="direct-info-text">⚡ AuraDSP Pro streams full Spotify tracks directly in-app using the Spotify Player SDK. This works on both Mobile and Desktop (requires Spotify Premium).</p>
-          
-          <div class="spotify-form-group">
-            <label for="spotifyClientIdInput">Spotify Developer Client ID:</label>
-            <input type="text" id="spotifyClientIdInput" class="cyber-input" placeholder="Paste Client ID here...">
-          </div>
-
-          <div class="spotify-redirect-info">
-            <strong>Required Spotify Settings:</strong>
-            <p>1. Go to <a href="https://developer.spotify.com/dashboard" target="_blank" class="cyber-link">developer.spotify.com</a> and create an App.</p>
-            <p>2. Set the Redirect URI in settings to: <code id="spotifyRedirectUriVal">https://darkside18500.github.io/auradsp-pro/</code></p>
-          </div>
-
-          <button id="spotifyLoginBtn" class="primary-btn glowing-btn spotify-direct-btn">
-            <span>🟢 CONNECT SPOTIFY ACCOUNT</span>
-          </button>
-        </div>
-
-        <!-- PLAYER STATE: Logged in & Connected -->
-        <div id="spotifyPlayerState" class="spotify-sub-card" style="display:none">
+        <!-- Zero-Setup Player Card -->
+        <div class="spotify-sub-card">
           <!-- Active Track Info -->
           <div class="spotify-now-playing">
             <div class="album-art-wrap">
-              <img id="spotifyAlbumArt" src="https://images.unsplash.com/photo-1614680376593-902f74fa0d41?w=120" alt="Album Art" class="spotify-art">
+              <img id="webAlbumArt" src="https://images.unsplash.com/photo-1614680376593-902f74fa0d41?w=120" alt="Album Art" class="spotify-art">
             </div>
             <div class="track-details">
-              <div id="spotifyTrackName" class="spotify-track-title">Not Playing</div>
-              <div id="spotifyArtistName" class="spotify-track-artist">Select a track below</div>
+              <div id="webTrackName" class="spotify-track-title">Not Playing</div>
+              <div id="webArtistName" class="spotify-track-artist">Search and select a track below</div>
             </div>
           </div>
 
-          <!-- Playback Controls -->
+          <!-- Playback Controls (Wired to audioPlayer) -->
           <div class="spotify-player-controls">
-            <button id="spotifyPrevBtn" class="spat-btn ctrl-btn">⏮</button>
-            <button id="spotifyPlayPauseBtn" class="primary-btn glowing-btn play-pause-ctrl"><span>▶ Play</span></button>
-            <button id="spotifyNextBtn" class="spat-btn ctrl-btn">⏭</button>
+            <button id="webPlayPauseBtn" class="primary-btn glowing-btn play-pause-ctrl" style="width: 100%; border-radius: 6px;">
+              <span>▶ Play Track</span>
+            </button>
           </div>
 
           <!-- Seek/Progress bar -->
           <div class="slider-group spotify-progress-group">
             <div class="slider-header">
-              <span id="spotifyCurrentTime" class="time-label">0:00</span>
-              <span id="spotifyDuration" class="time-label">0:00</span>
+              <span id="webCurrentTime" class="time-label">0:00</span>
+              <span id="webDuration" class="time-label">0:00</span>
             </div>
-            <input type="range" id="spotifyProgressBar" min="0" max="100" value="0">
-          </div>
-
-          <!-- Volume slider -->
-          <div class="slider-group spotify-volume-group">
-            <div class="slider-header">
-              <label for="spotifyVolumeSlider">Player Volume</label>
-              <span id="spotifyVolumeVal">80%</span>
-            </div>
-            <input type="range" id="spotifyVolumeSlider" min="0" max="100" value="80">
-          </div>
-
-          <!-- Playlists & Search Selector Tabs -->
-          <div class="spotify-content-tabs" style="margin-top: 15px; display: flex; gap: 8px; margin-bottom: 12px;">
-            <button id="spotifyShowSearchBtn" class="sm-btn active" style="flex: 1; font-size: 0.72rem; padding: 6px; border-radius: 4px; background: rgba(0, 240, 255, 0.15); border-color: var(--accent-cyan);">🔍 Search Catalog</button>
-            <button id="spotifyShowPlaylistsBtn" class="sm-btn" style="flex: 1; font-size: 0.72rem; padding: 6px; border-radius: 4px; background: transparent; border-color: rgba(255,255,255,0.1);">📂 Your Playlists</button>
+            <input type="range" id="webProgressBar" min="0" max="100" value="0">
           </div>
 
           <!-- Catalog Search Box -->
-          <div id="spotifySearchContainer" class="spotify-search-box">
-            <label for="spotifySearchInput">🔍 Search Spotify Catalog:</label>
-            <input type="text" id="spotifySearchInput" class="cyber-input" placeholder="Type song, artist...">
-            <div id="spotifySearchResults" class="search-results-list" style="max-height: 180px; overflow-y: auto;"></div>
+          <div class="spotify-search-box" style="margin-top: 15px;">
+            <label for="webSearchInput">🔍 Search Web Music Library:</label>
+            <input type="text" id="webSearchInput" class="cyber-input" placeholder="Type song, artist, genre...">
+            <div id="webSearchResults" class="search-results-list" style="max-height: 220px; overflow-y: auto; margin-top: 8px;"></div>
           </div>
-
-          <!-- User Playlists Box -->
-          <div id="spotifyPlaylistsContainer" class="spotify-playlists-box hidden">
-            <div id="spotifyPlaylistsList" class="search-results-list" style="max-height: 180px; overflow-y: auto;">
-              <div style="padding:10px; font-size:0.75rem; color:var(--text-muted); text-align:center;">Loading playlists...</div>
-            </div>
-            <div id="spotifyPlaylistTracksContainer" class="hidden" style="margin-top: 10px; border-top: 1px dashed rgba(255,255,255,0.08); padding-top: 10px;">
-              <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
-                <label id="spotifyPlaylistNameLabel" style="font-weight:600; color:var(--accent-cyan); font-size:0.78rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:70%;"></label>
-                <button id="spotifyBackToPlaylistsBtn" class="sm-btn" style="font-size:0.68rem; padding: 2px 8px; min-width:auto; width:auto; border-radius:4px;">⬅ Back</button>
-              </div>
-              <div id="spotifyPlaylistTracksList" class="search-results-list" style="max-height: 180px; overflow-y: auto;"></div>
-            </div>
-          </div>
-
-          <div class="direct-info-box" style="margin-top:12px;">
-            <p>💡 <strong>Beat Sync Mode Active:</strong> Spotify playback uses browser-level secure decoding. AuraDSP uses a Virtual DSP Sync Engine to animate the visualizer and VU meters in real-time response to the song's BPM and your active EQ slider configurations.</p>
-          </div>
-
-          <button id="spotifyLogoutBtn" class="accent-btn" style="width:100%; margin-top:12px; background:rgba(255, 42, 109, 0.15); border-color:var(--accent-red); color:var(--text-main);">
-            Disconnect Spotify Account
-          </button>
         </div>
       </div>
 
