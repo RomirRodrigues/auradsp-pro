@@ -561,80 +561,44 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentWebTrack = null;
   let searchTimeout = null;
 
-  // List of public Piped API nodes for failover rotation
-  // --- Invidious API Backend (YouTube search + stream extraction) ---
-  const invidiousInstances = [
-    'https://invidious.materialio.us',
-    'https://inv.nadeko.net',
-    'https://invidious.nerdvpn.de',
-    'https://iv.ggtyler.dev',
-    'https://yewtu.be',
-    'https://invidious.protokolla.fi',
-    'https://invidious.perennialte.ch',
-    'https://vid.puffyan.us',
-    'https://invidious.lunar.icu',
-    'https://iv.nbooo.com',
-    'https://invidious.io.lol',
-    'https://invidious.privacydev.net',
-    'https://inv.tux.pizza',
-    'https://invidious.fdn.fr',
-    'https://invidious.slipfox.xyz'
-  ];
-  let currentInvInstanceIndex = 0;
-  let lastWorkingInstance = null;
+  // --- Music Search Backend: JioSaavn (Indian) + iTunes (Western) ---
+  // Both APIs are CORS-enabled (Access-Control-Allow-Origin: *) and respond in <1s
 
-  function getInvInstanceUrl() {
-    if (lastWorkingInstance) return lastWorkingInstance;
-    return invidiousInstances[currentInvInstanceIndex];
+  const SAAVN_API = 'https://saavn.sumit.co';
+
+  async function searchJioSaavn(query) {
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), 5000);
+    const res = await fetch(`${SAAVN_API}/api/search/songs?query=${encodeURIComponent(query)}&limit=20`, { signal: controller.signal });
+    clearTimeout(id);
+    if (!res.ok) throw new Error(`JioSaavn ${res.status}`);
+    const json = await res.json();
+    const results = json.data?.results || json.results || [];
+    return results.map(t => ({
+      title: t.name || t.title || '',
+      uploaderName: t.artists?.primary?.map(a => a.name).join(', ') || t.primaryArtists || 'Unknown Artist',
+      thumbnail: (t.image && Array.isArray(t.image)) ? (t.image.find(i => i.quality === '500x500') || t.image[t.image.length - 1])?.url || '' : (typeof t.image === 'string' ? t.image : ''),
+      duration: t.duration || 0,
+      streamUrl: (t.downloadUrl && Array.isArray(t.downloadUrl)) ? (t.downloadUrl.find(d => d.quality === '320kbps') || t.downloadUrl[t.downloadUrl.length - 1])?.url || '' : (typeof t.downloadUrl === 'string' ? t.downloadUrl : ''),
+      source: 'jiosaavn'
+    })).filter(t => t.title && t.streamUrl);
   }
 
-  function rotateInvInstance() {
-    currentInvInstanceIndex = (currentInvInstanceIndex + 1) % invidiousInstances.length;
-    console.log("Rotating Invidious instance to:", invidiousInstances[currentInvInstanceIndex]);
-  }
-
-  async function fetchInvidious(endpoint) {
-    // Try last working instance first
-    if (lastWorkingInstance) {
-      try {
-        const controller = new AbortController();
-        const id = setTimeout(() => controller.abort(), 8000);
-        const res = await fetch(lastWorkingInstance + endpoint, { signal: controller.signal });
-        clearTimeout(id);
-        if (res.ok) {
-          const json = await res.json();
-          if (json) return json;
-        }
-      } catch (e) {
-        console.warn(`Last working instance ${lastWorkingInstance} failed, rotating...`);
-        lastWorkingInstance = null;
-      }
-    }
-
-    // Rotate through all instances
-    let attempts = 0;
-    while (attempts < invidiousInstances.length) {
-      const baseUrl = invidiousInstances[currentInvInstanceIndex];
-      try {
-        const controller = new AbortController();
-        const id = setTimeout(() => controller.abort(), 8000);
-        const res = await fetch(baseUrl + endpoint, { signal: controller.signal });
-        clearTimeout(id);
-        if (res.ok) {
-          const json = await res.json();
-          if (json) {
-            lastWorkingInstance = baseUrl;
-            console.log("Found working Invidious instance:", baseUrl);
-            return json;
-          }
-        }
-      } catch (e) {
-        console.warn(`Invidious fetch failed on ${baseUrl}:`, e.message || e);
-      }
-      rotateInvInstance();
-      attempts++;
-    }
-    throw new Error("All Invidious API instances failed");
+  async function searchItunes(query) {
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), 5000);
+    const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&media=music&limit=15`, { signal: controller.signal });
+    clearTimeout(id);
+    if (!res.ok) throw new Error(`iTunes ${res.status}`);
+    const json = await res.json();
+    return (json.results || []).map(t => ({
+      title: t.trackName || '',
+      uploaderName: t.artistName || 'Unknown Artist',
+      thumbnail: (t.artworkUrl100 || '').replace('100x100', '300x300'),
+      duration: Math.round((t.trackTimeMillis || 0) / 1000),
+      streamUrl: t.previewUrl || '',
+      source: 'itunes'
+    })).filter(t => t.title && t.streamUrl);
   }
 
   if (webSearchInput) {
@@ -647,70 +611,63 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       searchTimeout = setTimeout(() => {
         performWebMusicSearch(query);
-      }, 500);
+      }, 400);
     });
   }
 
   async function performWebMusicSearch(query) {
     if (webSearchResults) {
-      webSearchResults.innerHTML = '<div style="padding:10px; font-size:0.75rem; color:var(--text-muted); text-align:center;">Searching YouTube Library...</div>';
+      webSearchResults.innerHTML = '<div style="padding:10px; font-size:0.75rem; color:var(--text-muted); text-align:center;">🔍 Searching music library...</div>';
     }
-    try {
-      const data = await fetchInvidious(`/api/v1/search?q=${encodeURIComponent(query)}&type=video`);
-      
-      // Invidious returns a direct JSON array
-      let items = [];
-      if (Array.isArray(data)) {
-        items = data;
-      } else if (data && Array.isArray(data.items)) {
-        items = data.items;
-      } else if (data && typeof data === 'object') {
-        for (const key in data) {
-          if (Array.isArray(data[key])) { items = data[key]; break; }
+
+    let allTracks = [];
+
+    // Search both APIs in parallel for maximum speed and coverage
+    const [saavnResult, itunesResult] = await Promise.allSettled([
+      searchJioSaavn(query),
+      searchItunes(query)
+    ]);
+
+    if (saavnResult.status === 'fulfilled') {
+      allTracks.push(...saavnResult.value);
+    } else {
+      console.warn('JioSaavn search failed:', saavnResult.reason);
+    }
+
+    if (itunesResult.status === 'fulfilled') {
+      // Add iTunes results that aren't duplicates
+      const existingTitles = new Set(allTracks.map(t => t.title.toLowerCase()));
+      itunesResult.value.forEach(t => {
+        if (!existingTitles.has(t.title.toLowerCase())) {
+          allTracks.push(t);
         }
-      }
-      
-      // Normalize Invidious results to our track format
-      const tracks = items
-        .filter(item => item && (item.videoId || item.url) && item.title)
-        .map(item => ({
-          title: item.title,
-          videoId: item.videoId || '',
-          uploaderName: item.author || item.uploaderName || 'Unknown Artist',
-          thumbnail: (item.videoThumbnails && item.videoThumbnails.length > 0)
-            ? item.videoThumbnails.find(t => t.quality === 'medium')?.url || item.videoThumbnails[0].url
-            : (item.thumbnail || ''),
-          duration: item.lengthSeconds || item.duration || 0,
-          url: item.url || ''
-        }));
-      
-      renderWebSearchResults(tracks);
-    } catch (err) {
-      console.error('Invidious Search error, attempting Audius backup:', err);
-      if (webSearchResults) {
-        webSearchResults.innerHTML = '<div style="padding:10px; font-size:0.75rem; color:var(--text-muted); text-align:center;">Searching Backup Library...</div>';
-      }
+      });
+    } else {
+      console.warn('iTunes search failed:', itunesResult.reason);
+    }
+
+    // If both failed, try Audius as last resort
+    if (allTracks.length === 0) {
       try {
         const res = await fetch(`https://api.audius.co/v1/tracks/search?query=${encodeURIComponent(query)}&app_name=auradsppro`);
         if (res.ok) {
           const json = await res.json();
           const tracks = json.data || [];
-          renderWebSearchResults(tracks.map(t => ({
+          allTracks = tracks.map(t => ({
             title: t.title,
-            uploaderName: t.user.name,
+            uploaderName: t.user?.name || 'Unknown Artist',
             thumbnail: t.artwork && t.artwork['150x150'] ? t.artwork['150x150'] : '',
-            audiusTrackId: t.id,
-            duration: t.duration
-          })));
-        } else {
-          throw new Error("Audius backup failed");
+            duration: t.duration || 0,
+            streamUrl: `https://api.audius.co/v1/tracks/${t.id}/stream?app_name=auradsppro`,
+            source: 'audius'
+          }));
         }
-      } catch (backupErr) {
-        if (webSearchResults) {
-          webSearchResults.innerHTML = '<div style="padding:10px; font-size:0.75rem; color:var(--accent-red); text-align:center;">Search failed. Please try again later.</div>';
-        }
+      } catch (e) {
+        console.warn('Audius backup also failed:', e);
       }
     }
+
+    renderWebSearchResults(allTracks);
   }
 
   function renderWebSearchResults(tracks) {
@@ -736,13 +693,15 @@ document.addEventListener('DOMContentLoaded', () => {
       item.style.border = '1px solid rgba(255,255,255,0.04)';
       item.style.transition = 'all 0.1s';
 
-      const imgUrl = track.thumbnail ? track.thumbnail : 'https://images.unsplash.com/photo-1614680376593-902f74fa0d41?w=40';
+      const imgUrl = track.thumbnail || 'https://images.unsplash.com/photo-1614680376593-902f74fa0d41?w=40';
+      const durationStr = track.duration > 0 ? `${Math.floor(track.duration / 60)}:${String(track.duration % 60).padStart(2, '0')}` : '';
+      const sourceIcon = track.source === 'jiosaavn' ? '🎵' : (track.source === 'itunes' ? '🍎' : '🎧');
 
       item.innerHTML = `
-        <img src="${imgUrl}" style="width:36px; height:36px; border-radius:4px; object-fit:cover;">
+        <img src="${imgUrl}" style="width:36px; height:36px; border-radius:4px; object-fit:cover;" onerror="this.src='https://images.unsplash.com/photo-1614680376593-902f74fa0d41?w=40'">
         <div style="flex:1; overflow:hidden;">
-          <div style="font-size:0.8rem; font-weight:600; color:var(--text-main); white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">${track.title}</div>
-          <div style="font-size:0.68rem; color:var(--text-muted); white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">${track.uploaderName || track.user?.name || 'Unknown Artist'}</div>
+          <div style="font-size:0.8rem; font-weight:600; color:var(--text-main); white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">${sourceIcon} ${track.title}</div>
+          <div style="font-size:0.68rem; color:var(--text-muted); white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">${track.uploaderName}${durationStr ? ' · ' + durationStr : ''}</div>
         </div>
       `;
 
@@ -774,36 +733,13 @@ document.addEventListener('DOMContentLoaded', () => {
     if (webPlayPauseBtn) webPlayPauseBtn.innerHTML = "<span>⏳ Loading Stream...</span>";
 
     try {
-      let streamUrl = "";
-      if (track.audiusTrackId) {
-        streamUrl = `https://api.audius.co/v1/tracks/${track.audiusTrackId}/stream?app_name=auradsppro`;
-      } else {
-        let videoId = "";
-        if (track.videoId) {
-          videoId = track.videoId;
-        } else if (track.url) {
-          videoId = track.url.split('v=').pop().split('&')[0];
-        }
-        
-        if (!videoId) throw new Error("Could not extract video ID");
-        
-        // Invidious API: /api/v1/videos/:id returns adaptiveFormats with audio streams
-        const videoInfo = await fetchInvidious(`/api/v1/videos/${videoId}`);
-        const adaptiveFormats = videoInfo.adaptiveFormats || [];
-        
-        // Filter for audio-only streams and pick best quality
-        const audioFormats = adaptiveFormats.filter(f => f.type && f.type.startsWith('audio/'));
-        if (audioFormats.length === 0) throw new Error("No audio stream found for this video");
-        
-        // Prefer higher bitrate audio
-        audioFormats.sort((a, b) => (b.bitrate || 0) - (a.bitrate || 0));
-        streamUrl = audioFormats[0].url;
-      }
+      const streamUrl = track.streamUrl;
+      if (!streamUrl) throw new Error("No stream URL available for this track");
 
       if (window.audioEngine) {
         window.audioEngine.stopAllSources();
         resetAllPlaybackUI();
-        window.audioEngine.activeSource = 'file'; // Play through audioPlayer to route to biquad filter nodes
+        window.audioEngine.activeSource = 'file';
         window.audioEngine.connectMediaElement(audioPlayer);
       }
 
@@ -815,12 +751,11 @@ document.addEventListener('DOMContentLoaded', () => {
         })
         .catch(err => {
           console.error('Play error:', err);
-          alert(`Stream Playback Error: Browser security blocked the stream or the link expired. Try playing again or selecting another result!`);
           if (webPlayPauseBtn) webPlayPauseBtn.innerHTML = "<span>▶ Play Track</span>";
         });
     } catch (err) {
-      console.error('Play stream resolve error:', err);
-      alert(`Failed to resolve audio stream. Error: ${err.message || err}`);
+      console.error('Play stream error:', err);
+      alert(`Failed to play: ${err.message || err}`);
       if (webPlayPauseBtn) webPlayPauseBtn.innerHTML = "<span>▶ Play Track</span>";
     }
   }
