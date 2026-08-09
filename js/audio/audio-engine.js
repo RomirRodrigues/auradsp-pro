@@ -96,10 +96,10 @@ class AudioEngine {
     this.godOttComp2 = null;
 
     // Parameters State
-    this.subBassAmount = 3.0;
-    this.haasWidth = 70;
-    this.haasDelayMs = 18;
-    this.spatialVolumeBoost = 8.0; // Default +8dB 3D Volume Boost to counter HRTF loss
+    this.subBassAmount = 0.0;
+    this.haasWidth = 0;
+    this.haasDelayMs = 0;
+    this.spatialVolumeBoost = 0.0; // Default +8dB 3D Volume Boost to counter HRTF loss
     this.isSynthLoopActive = false;
     this.currentTrackMode = 'bass';
     this.activeSource = 'demo';
@@ -128,7 +128,7 @@ class AudioEngine {
     this.subBassFilter = this.ctx.createBiquadFilter();
     this.subBassFilter.type = 'lowshelf';
     this.subBassFilter.frequency.value = 80;
-    this.subBassFilter.gain.value = this.subBassAmount;
+    this.subBassFilter.gain.value = 0.0;
 
     // 3. 10 Band EQ BiquadFilters
     this.eqNodes = this.bands.map((freq) => {
