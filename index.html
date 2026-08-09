@@ -81,6 +81,20 @@
     </button>
   </header>
 
+  <!-- MASTER 1-CLICK AUDIO UNMUTE & DIAGNOSTIC BANNER -->
+  <div id="masterUnmuteBanner" style="background: linear-gradient(135deg, rgba(0,240,255,0.18), rgba(112,0,255,0.25)); border: 1px solid #00f0ff; border-radius: 12px; margin: 12px 20px 0 20px; padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; box-shadow: 0 0 24px rgba(0,240,255,0.25);">
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <span style="font-size: 1.6rem; filter: drop-shadow(0 0 8px #00ffa3);">🔊</span>
+      <div>
+        <div style="font-weight: 800; font-size: 0.95rem; color: #ffffff; letter-spacing: 0.5px;">CAN'T HEAR SONG VOCALS / VOICE IN SPEAKERS?</div>
+        <div id="audioStatusText" style="font-size: 0.78rem; color: #00f0ff; font-family: var(--font-mono); font-weight: 600;">Status: Click the green button to force-unmute audio & play real HD song vocals!</div>
+      </div>
+    </div>
+    <button id="masterForceUnmuteBtn" class="primary-btn glowing-btn" style="background: linear-gradient(135deg, #00ffa3, #00f0ff); color: #000; font-weight: 800; padding: 12px 24px; border-radius: 8px; cursor: pointer; border: none; font-size: 0.9rem; box-shadow: 0 0 20px rgba(0,255,163,0.5);">
+      ▶ CLICK TO UNMUTE & PLAY VOCAL SONG NOW
+    </button>
+  </div>
+
   <!-- Mobile Bottom Panel Nav -->
   <nav class="mobile-panel-nav" id="mobilePanelNav">
     <button class="mpn-btn active" data-panel="source">🎙 Source</button>
@@ -797,11 +811,11 @@
   </footer>
 
   <!-- Modular Scripts -->
-  <script src="js/data/presets.js?v=5.3.0"></script>
-  <script src="js/audio/audio-engine.js?v=5.3.0"></script>
-  <script src="js/visual/spatial-canvas.js?v=5.3.0"></script>
-  <script src="js/visual/visualizer.js?v=5.3.0"></script>
-  <script src="js/app.js?v=5.3.0"></script>
+  <script src="js/data/presets.js?v=5.4.0"></script>
+  <script src="js/audio/audio-engine.js?v=5.4.0"></script>
+  <script src="js/visual/spatial-canvas.js?v=5.4.0"></script>
+  <script src="js/visual/visualizer.js?v=5.4.0"></script>
+  <script src="js/app.js?v=5.4.0"></script>
 
   <script>
     if ('serviceWorker' in navigator) {
