@@ -1,68 +1,107 @@
-# 🎧 AuraDSP Pro — Live Audio Tuning & 3D Spatial Sound Engine
+# 🎛️ AuraDSP Pro — Professional Web Audio Processing & 3D Spatialization Lab
 
-> **Real-time DSP audio tuner for boAt Audio, TWS Earbuds, and Home Theater systems.**  
-> Built with pure Web Audio API — no plugins, no installs, just open and tune.
-
----
-
-## 🌐 Live Demo
-👉 **[Open AuraDSP Pro](https://RomirRodrigues.github.io/auradsp-pro)**
+> **A professional-grade, mathematically accurate Web Audio DSP Workstation operating entirely in the browser.**  
+> Built with zero dependencies using pure Web Audio API, AudioWorklets, and Canvas 2D.
 
 ---
 
-## ✨ Features
-
-- 🎛️ **10-Band Precision Equalizer** — Real DSP BiquadFilter nodes (31Hz–16kHz)
-- 🔊 **Dolby Night & Dynamic Control** — DynamicsCompressor + makeup gain
-- 🌐 **Virtual Soundfield Expander** — HAAS 3D stereo width matrix (up to 1.8× width)
-- 🎤 **Center Channel Vocal Enhancer** — Peaking filter at 2.5kHz for crisp vocals
-- 🏠 **Home Theater Room Acoustics** — ConvolverNode impulse-response reverb (Cinema / Studio / Stadium)
-- 🎯 **3D HRTF Binaural Spatial Stage** — Drag-and-drop interactive soundstage with Auto Orbit
-- 📊 **60 FPS Logarithmic Spectrum Analyzer** — 64 log-spaced frequency bands (20Hz–20kHz)
-- 🎵 **25 Expert Sound Profiles** — boAt Audio, Earbuds, Home Theater, Custom EQ tabs
-- 🟢 **Spotify Direct App Connection** — Capture Spotify Desktop App audio live into the DSP pipeline
-- 🎙️ **Microphone Live Input** — Real-time EQ & 3D processing on mic input
-- 🔬 **Test Signal Generator** — Sine, Sawtooth, Square, Sub-bass, Frequency Sweep
+## 🌐 Live Demo & Deployment
+👉 **[Open AuraDSP Pro Live Site](https://RomirRodrigues.github.io/auradsp-pro/)**
 
 ---
 
-## 📁 File Structure
+## 🎛️ DSP Signal Chain Architecture
+
+```
+[ AUDIO SOURCE ] (Local File / Mic / Test Lab / Web Streamer)
+       │
+       ▼
+[ PRE-GAIN STAGE ] (Input Gain Control & Metering)
+       │
+       ▼
+[ 10-BAND PARAMETRIC / GRAPHIC EQ ] (31Hz–16kHz Biquad Filters)
+       │
+       ▼
+[ DYNAMIC RANGE COMPRESSOR ] (Soft-Knee Knee/Attack/Release)
+       │
+       ▼
+[ ANALOG TUBE & TAPE SATURATION ] (WaveShaper Soft-Clipping + Wow/Flutter LFO)
+       │
+       ▼
+[ HARMONIC EXCITER ] (High-Pass High-Frequency Harmonic Synthesizer)
+       │
+       ▼
+[ MID/SIDE MATRIX & STEREO WIDENER ] (Haas Micro-Delay + Center Image Vocal Enhancer)
+       │
+       ▼
+[ CONVOLUTION ROOM REVERB ] (Acoustic Impulse Responses)
+       │
+       ▼
+[ 3D BINAURAL HRTF SPATIALIZER ] (LFO Orbit, Figure-8, Sweep, Random Motion)
+       │
+       ▼
+[ BRICKWALL SAFETY LIMITER ] (-0.1 dBTP Ceiling Protection)
+       │
+       ▼
+[ PRO METERING & ANALYZER ] (AudioWorklet Peak/RMS, LUFS, Phase Correlation)
+       │
+       ▼
+[ AUDIO OUTPUT ]
+```
+
+---
+
+## ✨ Features Overview
+
+- **🎚️ 10-Band EQ & Interactive Parametric Canvas**: Real BiquadFilter nodes (31Hz to 16kHz) with interactive node dragging.
+- **📊 AudioWorklet Pro Metering**: Off-main-thread Peak, RMS, True-Peak clipping, Phase Correlation (-1 to +1), and Momentary/Short-Term **LUFS**.
+- **🌐 3D HRTF Binaural Spatializer**: Interactive soundstage canvas with coordinate overlay and automated motion patterns (Circular Orbit, Figure-Eight ♾️, Left-Right Sweep, Random).
+- **🎛️ Analog DSP FX Suite**:
+  - **Tube Warmth**: 4x oversampled `WaveShaperNode` soft-clipping distortion.
+  - **Lo-Fi Tape Warble**: 1.5Hz sub-audible LFO delay pitch modulation.
+  - **Harmonic Exciter**: High-frequency psychoacoustic harmonic synthesis.
+- **🔄 Mid/Side Processing & Vocal Enhancer**: Center Image Vocal Enhancer for isolating 1.5–3.5kHz vocals, plus Mono Summing test toggle.
+- **🔴 Global Bypass & A/B Comparison**: A/B state snapshot engine for comparing processed states vs dry audio.
+- **🧪 Expanded Test Signal Lab**: Pure Sine, Square, 40Hz Sub-bass, and 20Hz-20kHz Logarithmic Frequency Sweeps.
+- **💾 JSON Preset Management**: Save, Export JSON, and Import custom `.json` preset files.
+- **📱 PWA & Offline Support**: Web App Manifest and Service Worker caching for complete offline functionality.
+
+---
+
+## 📁 Modular Project Structure
 
 ```
 auradsp-pro/
-├── index.html          # Main app UI
-├── styles.css          # Dark studio hardware theme
-├── .nojekyll           # GitHub Pages fix
+├── index.html              # Studio console HTML layout
+├── styles.css              # Cyber-dark hardware aesthetics & animations
+├── manifest.json           # PWA Web App Manifest
+├── sw.js                   # Service Worker offline asset cache
 └── js/
-    ├── presets.js      # 25 sound profiles database
-    ├── audio-engine.js # Core DSP signal chain
-    ├── visualizer.js   # Spectrum analyzer & VU meters
-    ├── spatial-canvas.js # 3D HRTF soundstage canvas
-    └── app.js          # UI controller & event wiring
+    ├── app.js              # UI controller & event binding
+    ├── audio/
+    │   └── audio-engine.js # Core Web Audio API DSP signal chain
+    ├── dsp/
+    │   └── meter-worklet.js# AudioWorklet processor for 60fps meters & LUFS
+    ├── visual/
+    │   ├── visualizer.js   # Spectrum, Waveform, Spectrogram & Phase Scope
+    │   └── spatial-canvas.js # 3D HRTF soundstage canvas
+    └── data/
+        └── presets.js      # Reference sound tuning profiles database
 ```
 
 ---
 
-## 🚀 Deploy to GitHub Pages
+## 🛠️ Technical Specifications
 
-1. Upload all files to a GitHub repo
-2. Go to **Settings → Pages → Branch: main → Save**
-3. Live in ~60 seconds at `https://your-username.github.io/repo-name`
-
----
-
-## 🛠️ Tech Stack
-
-| Technology | Usage |
+| Component | Technical Implementation |
 |---|---|
-| Web Audio API | Real-time DSP signal processing |
-| BiquadFilterNode | 10-Band parametric EQ |
-| DynamicsCompressorNode | Dolby-style compression |
-| ConvolverNode | Room acoustics reverb |
-| PannerNode (HRTF) | 3D binaural spatial audio |
-| Canvas 2D | Spectrum analyzer & spatial stage |
-| Vanilla JS / CSS | Zero-dependency frontend |
+| Audio Core | Web Audio API (`AudioContext`, `AudioWorkletNode`) |
+| Equalization | 10x `BiquadFilterNode` peaking filters |
+| Metering | `AudioWorkletProcessor` (Float32Array buffer analysis) |
+| Spatial Audio | `PannerNode` with HRTF panning model |
+| Saturation | `WaveShaperNode` with polynomial curve & `DelayNode` + `OscillatorNode` |
+| Storage | HTML5 LocalStorage & JSON file serialization |
 
 ---
 
-Made with ❤️ using the Web Audio API
+Made with ❤️ for Audio Engineers & Audiophiles.

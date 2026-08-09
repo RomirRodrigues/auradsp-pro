@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AuraDSP Pro - Live Audio Tuning & Spatial Audio Engine</title>
-  <meta name="description" content="Professional real-time audio tuning processor for boAt audio devices, earbuds, and home theater systems with 3D Spatial Audio, Dolby Virtualizer, and 10-Band EQ.">
+  <meta name="description" content="Professional real-time audio tuning processor for Aura Audio Gear, earbuds, and home theater systems with 3D Spatial Audio, Aura Virtualizer, and 10-Band EQ.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
@@ -12,6 +12,8 @@
   <link rel="manifest" href="manifest.json">
 </head>
 <body class="cyber-dark">
+  <!-- Toast Notification System -->
+  <div id="toastContainer" class="toast-container"></div>
 
   <!-- Header Banner -->
   <header class="app-header">
@@ -39,12 +41,16 @@
       </div>
       <div class="device-badge" id="activeDeviceBadge">
         <span class="icon">🎧</span>
-        <span id="activeDeviceText">boAt Audio Preset Active</span>
+        <span id="activeDeviceText">Aura Reference Active</span>
       </div>
       
       
       <div class="theme-picker" style="margin-left: 10px;">
-        <button id="globalBypassBtn" class="sm-btn" style="background:#ff3366; color:white; font-weight:bold;">GLOBAL BYPASS: OFF</button>
+        
+      <div class="theme-picker" style="margin-left: 10px;">
+        <button id="abStateBtn" class="sm-btn" style="background:#00d2d3; color:#09090b; font-weight:bold;">A/B: STATE A</button>
+      </div>
+      <button id="globalBypassBtn" class="sm-btn" style="background:#ff3366; color:white; font-weight:bold;">GLOBAL BYPASS: OFF</button>
       </div>
       <div class="theme-picker" style="margin-left: 10px;">
         <select id="appFontSelector" title="Change UI Font">
@@ -76,6 +82,25 @@
   </nav>
 
   <!-- Main Grid Layout -->
+  
+  <!-- VISUAL SIGNAL FLOW BAR (Point 35) -->
+  <div class="signal-flow-bar" id="signalFlowBar">
+    <span class="sf-title">DSP FLOW:</span>
+    <div class="sf-node active" data-target="source">SRC</div>
+    <span class="sf-arrow">➔</span>
+    <div class="sf-node active" data-target="center">EQ</div>
+    <span class="sf-arrow">➔</span>
+    <div class="sf-node active" data-target="center">DYN</div>
+    <span class="sf-arrow">➔</span>
+    <div class="sf-node active" data-target="center">SAT</div>
+    <span class="sf-arrow">➔</span>
+    <div class="sf-node active" data-target="spatial">3D</div>
+    <span class="sf-arrow">➔</span>
+    <div class="sf-node active" data-target="center">LIMIT</div>
+    <span class="sf-arrow">➔</span>
+    <div class="sf-node active" data-target="center">METER</div>
+  </div>
+
   <main class="studio-grid">
 
     <!-- LEFT COLUMN: Source Input & Device Modes -->
@@ -119,7 +144,7 @@
         <label for="demoTrackSelect">Select HD Test Track:</label>
         <select id="demoTrackSelect" class="cyber-select">
           <option value="bass">Basshead Sub-Bass & Kick Test (Electronic)</option>
-          <option value="spatial">Dolby 7.1 Spatial Audio & Vocal Test</option>
+          <option value="spatial">7.1 Spatial Audio & Vocal Test</option>
           <option value="acoustic">Acoustic Guitar & Vocal Clarity Test</option>
           <option value="movie">Cinematic Explosion & Surround Test</option>
         </select>
@@ -225,12 +250,19 @@
         </div>
 
         <div class="device-category-tabs">
-          <button class="device-tab active" data-cat="boat">boAt Audio</button>
+          <button class="device-tab active" data-cat="boat">Aura Tuned</gi/button>
           <button class="device-tab" data-cat="earbuds">Earbuds</button>
           <button class="device-tab" data-cat="hometheater">Home Theater</button>
           <button class="device-tab" data-cat="custom">Custom EQ</button>
         </div>
 
+        
+        <div class="preset-action-bar" style="margin-bottom:12px; display:flex; gap:6px; flex-wrap:wrap;">
+          <button id="savePresetBtn" class="sm-btn" style="flex:1;">💾 Save</button>
+          <button id="exportPresetBtn" class="sm-btn" style="flex:1;">📤 Export JSON</button>
+          <button id="importPresetBtn" class="sm-btn" style="flex:1;">📥 Import JSON</button>
+          <input type="file" id="importPresetInput" accept=".json" style="display:none;">
+        </div>
         <div class="preset-cards-container" id="presetCardsContainer">
           <!-- Dynamically filled by presets.js -->
         </div>
@@ -313,16 +345,16 @@
         </div>
       </div>
 
-      <!-- DOLBY VIRTUALIZER & ENHANCERS RACK -->
+      <!-- Aura Virtualizer & ENHANCERS RACK -->
       <div class="enhancers-rack">
         <div class="panel-header">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
-          <h2>DOLBY VIRTUAL SOUND & SOUNDFIELD ENHANCERS</h2>
+          <h2>AURA DYNAMIC SOUND & SOUNDFIELD ENHANCERS</h2>
         </div>
 
         <div class="enhancer-cards-grid">
           
-          <!-- Dolby Dynamic Range Compressor -->
+          <!-- Aura Dynamic Range Compressor -->
           <div class="enhancer-card">
             <div class="card-header">
               <label class="switch">
@@ -330,7 +362,7 @@
                 <span class="slider round"></span>
               </label>
               <div class="card-title-group">
-                <h4>Dolby Night & Dynamic Control</h4>
+                <h4>Dynamic Night Mode & Vocal Control</h4>
                 <p>Normalizes volume peaks & enhances quiet dialogue resonance</p>
               </div>
               <button id="resetDolbyBtn" class="sm-btn card-reset-btn">Reset</button>
@@ -450,6 +482,33 @@
             </div>
           </div>
 
+          
+          <!-- Harmonic Exciter -->
+          <div class="enhancer-card">
+            <div class="card-header">
+              <label class="switch">
+                <input type="checkbox" id="exciterToggle">
+                <span class="slider round"></span>
+              </label>
+              <div class="card-title-group">
+                <h4>Harmonic High-End Exciter</h4>
+                <p>Synthesizes psychoacoustic upper harmonics for air & brilliance</p>
+              </div>
+              <button id="resetExciterBtn" class="sm-btn card-reset-btn">Reset</button>
+            </div>
+            <div class="knob-group-row">
+              <div class="knob-item">
+                <label for="exciterAmount">Exciter Drive</label>
+                <input type="range" id="exciterAmount" min="0" max="100" value="30" step="1">
+                <span id="exciterAmountVal">30%</span>
+              </div>
+              <div class="knob-item">
+                <label for="exciterFreq">High Cutoff</label>
+                <input type="range" id="exciterFreq" min="3000" max="10000" value="5000" step="100">
+                <span id="exciterFreqVal">5.0 kHz</span>
+              </div>
+            </div>
+          </div>
           <!-- Lo-Fi Tape Warble -->
           <div class="enhancer-card">
             <div class="card-header">
@@ -520,6 +579,19 @@
           <button class="spat-btn active" id="spatOrbitToggle">🔄 Auto 3D Orbit</button>
         </div>
 
+        
+        <!-- Spatial Automation Pattern -->
+        <div class="slider-group spat-speed-group">
+          <div class="slider-header">
+            <label for="spatialPatternSelect">Orbit Pattern</label>
+          </div>
+          <select id="spatialPatternSelect" class="cyber-select-sm" style="width:100%;">
+            <option value="orbit">Circular Orbit</option>
+            <option value="figure8">Figure-Eight ♾️</option>
+            <option value="sweep">Left-Right Sweep</option>
+            <option value="random">Random Motion</option>
+          </select>
+        </div>
         <!-- 3D Surround Orbit Speed Controller -->
         <div class="slider-group spat-speed-group">
           <div class="slider-header">

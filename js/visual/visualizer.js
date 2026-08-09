@@ -12,6 +12,10 @@ class AudioVisualizer {
 
     this.visMode = 'bars';
 
+    this.spectrogramHistory = [];
+    this.maxSpectrogramHistory = 100;
+
+
     this.vuFillL = document.getElementById('vuFillL');
     this.vuFillR = document.getElementById('vuFillR');
 

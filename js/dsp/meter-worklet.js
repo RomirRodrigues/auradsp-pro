@@ -12,6 +12,10 @@ class MeterProcessor extends AudioWorkletProcessor {
     // For Stereo Correlation
     this.crossSum = 0;
 
+    // LUFS buffers (rolling window)
+    this.lufsHistory = [];
+    this.maxLufsHistory = 180; // ~3 seconds at 60fps
+
     // Send updates every 16ms (~60fps)
     this.updateInterval = sampleRate * 0.016; 
   }
@@ -53,12 +57,27 @@ class MeterProcessor extends AudioWorkletProcessor {
       const rightRms = Math.sqrt(this.rightSumSquares / this.sampleCount);
 
       // Calculate Correlation (Pearson coefficient approximation)
-      // r = sum(xy) / sqrt(sum(x^2) * sum(y^2))
       let correlation = 0;
       const denom = Math.sqrt(this.leftSumSquares * this.rightSumSquares);
       if (denom > 0) {
         correlation = this.crossSum / denom;
       }
+
+      // LUFS Momentary (400ms ~ 25 frames) & Short-term (3s ~ 180 frames)
+      const meanSquareCurrent = (this.leftSumSquares + this.rightSumSquares) / (2 * this.sampleCount);
+      this.lufsHistory.push(meanSquareCurrent);
+      if (this.lufsHistory.length > this.maxLufsHistory) {
+        this.lufsHistory.shift();
+      }
+
+      // Momentary (last 25 frames)
+      const momFrames = this.lufsHistory.slice(-25);
+      const momPower = momFrames.reduce((a, b) => a + b, 0) / (momFrames.length || 1);
+      const lufsMomentary = momPower > 0.00000001 ? -0.691 + 10 * Math.log10(momPower) : -100;
+
+      // Short-Term (all 180 frames)
+      const stPower = this.lufsHistory.reduce((a, b) => a + b, 0) / (this.lufsHistory.length || 1);
+      const lufsShortTerm = stPower > 0.00000001 ? -0.691 + 10 * Math.log10(stPower) : -100;
 
       // Send to main thread
       this.port.postMessage({
@@ -66,7 +85,9 @@ class MeterProcessor extends AudioWorkletProcessor {
         rightPeak: this.rightPeak,
         leftRms: leftRms,
         rightRms: rightRms,
-        correlation: correlation
+        correlation: correlation,
+        lufsMomentary: lufsMomentary,
+        lufsShortTerm: lufsShortTerm
       });
 
       // Reset accumulators

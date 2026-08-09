@@ -19,6 +19,7 @@ class SpatialCanvas {
 
     this.isDragging = false;
     this.isOrbiting = true;
+    this.autoPattern = 'orbit';
     this.orbitAngle = 0;
     this.baseOrbitSpeed = 0.015; // Base speed step
     this.speedMultiplier = 1.0;
@@ -202,13 +203,29 @@ class SpatialCanvas {
 
     this.ctx.restore();
 
-    // 4. Auto 3D Orbit Movement calculation with speed control
+
+    // 4. Auto 3D Orbit & Pattern Movement calculation with speed control
     if (this.isOrbiting && !this.isDragging) {
       this.orbitAngle += this.baseOrbitSpeed * this.speedMultiplier;
-      this.sourceX = Math.sin(this.orbitAngle) * (this.radius * this.orbitRadiusMultiplier);
-      this.sourceY = -Math.cos(this.orbitAngle) * (this.radius * this.orbitRadiusMultiplier);
+      const rad = this.radius * this.orbitRadiusMultiplier;
+
+      if (this.autoPattern === 'figure8') {
+        this.sourceX = Math.sin(this.orbitAngle) * rad;
+        this.sourceY = Math.sin(this.orbitAngle * 2) * rad * 0.6;
+      } else if (this.autoPattern === 'sweep') {
+        this.sourceX = Math.sin(this.orbitAngle) * rad;
+        this.sourceY = 0;
+      } else if (this.autoPattern === 'random') {
+        this.sourceX = (Math.sin(this.orbitAngle * 1.3) + Math.cos(this.orbitAngle * 0.7)) * rad * 0.5;
+        this.sourceY = (Math.cos(this.orbitAngle * 1.1) - Math.sin(this.orbitAngle * 0.5)) * rad * 0.5;
+      } else {
+        // Default orbit
+        this.sourceX = Math.sin(this.orbitAngle) * rad;
+        this.sourceY = -Math.cos(this.orbitAngle) * rad;
+      }
       this.updateAudioPosition();
     }
+
 
     // 5. Draw Sound Beam Connection Line
     const targetCanvasX = this.centerX + this.sourceX;
