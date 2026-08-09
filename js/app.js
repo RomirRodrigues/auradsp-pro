@@ -95,15 +95,6 @@ document.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('click', initEngineOnce, { once: true });
   window.addEventListener('touchstart', initEngineOnce, { once: true });
 
-  const activateAudioBtn = document.getElementById('activateAudioBtn');
-  if (activateAudioBtn) {
-    activateAudioBtn.addEventListener('click', async () => {
-      await window.audioEngine.resumeCtx();
-      activateAudioBtn.textContent = "🟢 ENGINE ACTIVE";
-      activateAudioBtn.style.background = "#00ff88";
-      setTimeout(() => { activateAudioBtn.style.display = "none"; }, 1200);
-    });
-  }
 
   // Helper to deselect active preset and show manual tuning status
   function markTuningAsManual() {
