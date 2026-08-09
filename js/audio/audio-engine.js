@@ -455,50 +455,22 @@ class AudioEngine {
     }
   }
 
-  connectMediaElement(audioElement) {
+    connectMediaElement(audioElement) {
     if (!audioElement) return;
     this.resumeCtx();
     
-    // Web Audio API throws if createMediaElementSource is called twice on the same element or with different AudioContexts.
-    if (audioElement._mediaSourceNode) {
-      if (audioElement._mediaSourceNode.context === this.ctx) {
-        if (this.mediaSourceNode && this.mediaSourceNode !== audioElement._mediaSourceNode) {
-          try { this.mediaSourceNode.disconnect(); } catch (e) {}
-        }
-        this.mediaSourceNode = audioElement._mediaSourceNode;
-        try { this.mediaSourceNode.disconnect(); } catch(e) {}
-        try { this.mediaSourceNode.connect(this.preGainNode); } catch(e) {}
-        this.connectedElement = audioElement;
-        return;
-      } else {
-        // Disconnected from previous context instance
-        audioElement._mediaSourceNode = null;
-      }
-    }
-
-    if (this.mediaSourceNode) {
-      try { this.mediaSourceNode.disconnect(); } catch (e) {}
-    }
-    
     try {
-      this.mediaSourceNode = this.ctx.createMediaElementSource(audioElement);
-      audioElement._mediaSourceNode = this.mediaSourceNode;
-      this.mediaSourceNode.connect(this.preGainNode);
-      this.connectedElement = audioElement;
-    } catch (err) {
-      console.warn("MediaElementSource safe fallback:", err);
-      if (audioElement._mediaSourceNode && audioElement._mediaSourceNode.context === this.ctx) {
-        this.mediaSourceNode = audioElement._mediaSourceNode;
-        try { this.mediaSourceNode.connect(this.preGainNode); } catch(e) {}
+      if (!audioElement._mediaSourceNode) {
+        audioElement._mediaSourceNode = this.ctx.createMediaElementSource(audioElement);
       }
+      this.mediaSourceNode = audioElement._mediaSourceNode;
+      if (this.mediaSourceNode) {
+        this.mediaSourceNode.connect(this.preGainNode);
+      }
+    } catch (err) {
+      console.warn("MediaElementSource connection fallback (playing via HTML5 Direct Output):", err);
     }
-  }
-
-  fadeGain(targetGain = 1.0, durationMs = 30) {
-    if (!this.preGainNode || !this.ctx) return;
-    const now = this.ctx.currentTime;
-    this.preGainNode.gain.cancelScheduledValues(now);
-    this.preGainNode.gain.setTargetAtTime(targetGain, now, durationMs / 1000);
+    this.connectedElement = audioElement;
   }
 
   startSynthGroove(trackMode = 'bass') {

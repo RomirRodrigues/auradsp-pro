@@ -766,7 +766,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  async function playWebTrack(track) {
+    async function playWebTrack(track) {
     currentWebTrack = track;
     if (webTrackName) webTrackName.textContent = track.title;
     if (webArtistName) webArtistName.textContent = track.uploaderName || 'Unknown Artist';
@@ -781,21 +781,30 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!streamUrl) throw new Error("No stream URL available for this track");
 
       if (window.audioEngine) {
+        window.audioEngine.resumeCtx();
         window.audioEngine.stopAllSources();
         resetAllPlaybackUI();
         window.audioEngine.activeSource = 'file';
-        window.audioEngine.connectMediaElement(audioPlayer);
       }
 
       audioPlayer.src = streamUrl;
+      audioPlayer.volume = 1.0;
+      audioPlayer.load();
+
+      if (window.audioEngine) {
+        window.audioEngine.connectMediaElement(audioPlayer);
+      }
+
       audioPlayer.play()
         .then(() => {
           isPlaying = true;
           if (webPlayPauseBtn) webPlayPauseBtn.innerHTML = "<span>⏸ Pause Track</span>";
+          if (window.showToast) window.showToast("Playing: " + track.title, "success");
         })
         .catch(err => {
-          console.error('Play error:', err);
+          console.error('Play stream error:', err);
           if (webPlayPauseBtn) webPlayPauseBtn.innerHTML = "<span>▶ Play Track</span>";
+          if (window.showToast) window.showToast("Stream Error: Click ▶ Play to retry", "warning");
         });
     } catch (err) {
       console.error('Play stream error:', err);
