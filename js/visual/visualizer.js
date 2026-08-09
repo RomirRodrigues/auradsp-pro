@@ -84,33 +84,36 @@ class AudioVisualizer {
     const isSpotifyPlaying = isSpotify && window.spotifyPlayerState && !window.spotifyPlayerState.paused;
 
     // Detect if any audio source is actively producing sound
-        // Detect if any audio source is actively producing sound
-        // Detect if any audio source is actively producing sound
     let isActivelyPlaying = false;
     const audioEngine = window.audioEngine;
     const player = document.getElementById('audioPlayer');
-    const isPlayerPlaying = player && !player.paused;
+    const isPlayerPlaying = player && (!player.paused || (player.currentTime > 0 && !player.ended));
 
     if (audioEngine) {
-      if (audioEngine.isBufferPlaying || audioEngine.isSynthLoopActive || audioEngine.oscillator || audioEngine.micStream || isPlayerPlaying) {
+      if (audioEngine.isPlaying || audioEngine.isBufferPlaying || audioEngine.isSynthLoopActive || audioEngine.oscillator || audioEngine.micStream || isPlayerPlaying) {
         isActivelyPlaying = true;
       }
     }
 
+    const now = Date.now() / 1000;
+
     if (!isActivelyPlaying) {
-      // Standby Idle Wave
-      const now = Date.now() / 1000;
+      // ─── 1. STANDBY IDLE STATE: 100% Continuous Flowing Ambient Wave Across ALL 64 Bars ───
       bufferLength = 64;
       dataArray = new Uint8Array(bufferLength);
       for (let b = 0; b < bufferLength; b++) {
         const norm = b / bufferLength;
-        const w1 = Math.sin(norm * Math.PI * 2.0 + now * 1.5) * 0.5 + 0.5;
-        const breath = 0.5 + 0.5 * Math.sin(now * 0.6);
-        const val = w1 * breath * 25 * Math.pow(1 - norm, 0.4);
-        dataArray[b] = Math.max(2, val);
+        const wave1 = Math.sin(norm * Math.PI * 6.0 + now * 3.0) * 0.5 + 0.5;
+        const wave2 = Math.cos(norm * Math.PI * 4.0 - now * 2.0) * 0.5 + 0.5;
+        const wave3 = Math.sin(norm * Math.PI * 8.0 + now * 4.5) * 0.2;
+        const pulse = 0.75 + 0.25 * Math.sin(now * 1.5);
+        
+        // Continuous height across all bars 0..63 with zero blank gaps at edges
+        const val = (wave1 * 0.45 + wave2 * 0.35 + wave3 + 0.2) * pulse * 95 + 35;
+        dataArray[b] = Math.min(255, Math.max(35, val));
       }
     } else {
-      // Read Real Frequency & Waveform Data from AnalyserNode
+      // ─── 2. ACTIVE MUSIC STATE: High-Rise Dynamic Audio Spectrum Across ALL Bars ───
       if (window.audioEngine && window.audioEngine.analyserNode) {
         const analyser = window.audioEngine.analyserNode;
         bufferLength = analyser.frequencyBinCount;
@@ -121,20 +124,22 @@ class AudioVisualizer {
           analyser.getByteTimeDomainData(dataArray);
         }
 
-        // If dataArray is empty (CORS stream fallback), generate vibrant audio spectrum bars
+        // Calculate max sample
         let maxSample = 0;
         for (let i = 0; i < dataArray.length; i++) {
           if (dataArray[i] > maxSample) maxSample = dataArray[i];
         }
 
-        if (maxSample < 5 && isActivelyPlaying) {
-          const now = Date.now() / 1000;
+        // Active music fallback wave across all bars
+        if (maxSample < 10) {
           for (let i = 0; i < dataArray.length; i++) {
             const norm = i / dataArray.length;
-            const pulse = Math.sin(now * 8 + norm * 12) * 0.5 + 0.5;
-            const bass = Math.pow(1 - norm, 1.5) * 180 * (Math.sin(now * 4) * 0.4 + 0.6);
-            const mid = Math.sin(now * 10 + norm * 20) * 80;
-            dataArray[i] = Math.min(255, Math.max(15, (bass + mid) * pulse));
+            const bassPulse = Math.pow(1 - norm * 0.7, 1.2) * 220 * (Math.sin(now * 5.0) * 0.4 + 0.6);
+            const midPulse = Math.sin(now * 9.0 + norm * 14.0) * 140 * (Math.cos(now * 3.5) * 0.3 + 0.7);
+            const treblePulse = Math.sin(now * 16.0 + norm * 28.0) * 90;
+            const rhythm = Math.pow(Math.abs(Math.sin(now * Math.PI * 2.5)), 2) * 0.4 + 0.6;
+
+            dataArray[i] = Math.min(255, Math.max(45, (bassPulse + midPulse + treblePulse) * rhythm));
           }
         }
       }
