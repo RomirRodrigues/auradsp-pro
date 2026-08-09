@@ -1,4 +1,4 @@
-const CACHE_NAME = 'auradsp-pro-v2.0.2';
+const CACHE_NAME = 'auradsp-pro-v2.0.3';
 const ASSETS = [
   './',
   './index.html',
@@ -34,7 +34,6 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// NETWORK-FIRST STRATEGY: Always fetch fresh code from network, fallback to cache if offline
 self.addEventListener('fetch', (event) => {
   event.respondWith(
     fetch(event.request)

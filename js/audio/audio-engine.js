@@ -878,22 +878,29 @@ class AudioEngine {
 
   // --- Analog Warmth & Tape Modules ---
   
+  
   // --- GLOBAL BYPASS ---
   setGlobalBypass(isBypassed) {
-    if (this.isBypassed === isBypassed) return;
-    this.isBypassed = isBypassed;
+    this.isBypassed = !!isBypassed;
+    if (!this.preGainNode || !this.masterGainNode || !this.eqBands || !this.eqBands[0]) return;
     
-    // Disconnect preGainNode from current routing
-    this.preGainNode.disconnect();
-    
-    if (isBypassed) {
-      // Route directly to Master Gain, skipping EQ, Spatial, and FX
-      this.preGainNode.connect(this.masterGainNode);
-    } else {
-      // Route back to normal chain (EQ)
-      this.preGainNode.connect(this.eqBands[0]);
+    try {
+      this.preGainNode.disconnect();
+    } catch (e) {}
+
+    try {
+      if (this.isBypassed) {
+        // Route directly to Master Gain, skipping EQ, Spatial, and FX
+        this.preGainNode.connect(this.masterGainNode);
+      } else {
+        // Route back to normal chain (EQ)
+        this.preGainNode.connect(this.eqBands[0]);
+      }
+    } catch (e) {
+      console.warn("Bypass routing warning:", e);
     }
   }
+
 
   
   // --- HARMONIC EXCITER ---

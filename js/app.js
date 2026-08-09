@@ -1,5 +1,5 @@
 window.addEventListener('error', (e) => {
-  alert(`AuraDSP System Error: ${e.message} \nFile: ${e.filename ? e.filename.split('/').pop() : 'unknown'} \nLine: ${e.lineno || 'unknown'}`);
+  if (window.showToast) window.showToast("Engine Notice: " + e.message, "error"); console.error(e);
 });
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -789,7 +789,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     } catch (err) {
       console.error('Play stream error:', err);
-      alert(`Failed to play: ${err.message || err}`);
+      if (window.showToast) window.showToast("Playback Error: " + (err.message || err), "error");
       if (webPlayPauseBtn) webPlayPauseBtn.innerHTML = "<span>▶ Play Track</span>";
     }
   }
@@ -876,7 +876,7 @@ document.addEventListener('DOMContentLoaded', () => {
         startMicBtn.style.background = "#00ff88";
         startMicBtn.style.color = "#000";
       } catch (err) {
-        alert("Microphone permission denied or unavailable.");
+        if (window.showToast) window.showToast("Microphone permission denied or unavailable.", "error");
       }
     }
   });
