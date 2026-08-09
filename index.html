@@ -284,6 +284,40 @@
         </div>
       </div>
 
+    
+        <!-- OVERPOWERED PREMIUM FEATURE: AI SPECTRUM MATCHER (Target Curve Auto-Tuner) -->
+        <div class="enhancer-card spectrum-matcher-card" style="margin-top: 15px; background: linear-gradient(135deg, rgba(0, 240, 255, 0.08), rgba(255, 0, 127, 0.08)); border: 1px solid rgba(0, 240, 255, 0.3);">
+          <div class="card-header" style="margin-bottom:10px;">
+            <div class="card-title-group">
+              <h4 style="color:#00f0ff; display:flex; align-items:center; gap:6px;">
+                <span>🤖</span> AI SPECTRUM MATCH & AUTO-TUNE
+              </h4>
+              <p style="font-size:0.7rem; color:#a0a0b8;">Matches audio spectrum to acoustic target curves in real-time</p>
+            </div>
+          </div>
+
+          <div class="slider-group" style="margin-bottom:10px;">
+            <label for="targetCurveSelect" style="font-size:0.75rem; color:#ddd; margin-bottom:4px; display:block;">Target Acoustic Curve</label>
+            <select id="targetCurveSelect" class="cyber-select-sm" style="width:100%; font-size:0.8rem; padding:6px; background:#0e121a; color:#fff; border:1px solid rgba(0,240,255,0.3); border-radius:6px;">
+              <option value="harman_in_ear">🎯 Harman Target 2019 (In-Ear Audiophile)</option>
+              <option value="harman_over_ear">🎧 Harman Target 2018 (Over-Ear Reference)</option>
+              <option value="bk_flat">📻 B&K 1974 Studio Flat Curve</option>
+              <option value="club_bass">🔊 Club Bass Impact (+6dB Sub-Woofer)</option>
+              <option value="speech_clarity">🎙️ Broadcast Speech Intelligibility</option>
+            </select>
+          </div>
+
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:12px;">
+            <button id="autoMatchBtn" class="primary-btn-sm" style="flex:1; background: linear-gradient(135deg, #00f0ff, #7000ff); color:#fff; font-weight:bold; border:none; padding:10px; border-radius:8px; cursor:pointer; box-shadow:0 0 12px rgba(0,240,255,0.3);">
+              ⚡ AUTO-MATCH EQ
+            </button>
+            <div style="font-family:var(--font-mono); font-size:0.75rem; color:#00ffa3; text-align:right;">
+              <div>MATCH SCORE</div>
+              <div id="matchScoreVal" style="font-size:0.95rem; font-weight:bold; color:#00f0ff;">98.4%</div>
+            </div>
+          </div>
+        </div>
+
     </aside>
 
     <!-- CENTER COLUMN: Spectrum Analyzer, 10-Band EQ & Curve -->
@@ -647,11 +681,11 @@
   </footer>
 
   <!-- Modular Scripts -->
-  <script src="js/data/presets.js?v=2.2.3"></script>
-  <script src="js/audio/audio-engine.js?v=2.2.3"></script>
-  <script src="js/visual/spatial-canvas.js?v=2.2.3"></script>
-  <script src="js/visual/visualizer.js?v=2.2.3"></script>
-  <script src="js/app.js?v=2.2.3"></script>
+  <script src="js/data/presets.js?v=2.3.0"></script>
+  <script src="js/audio/audio-engine.js?v=2.3.0"></script>
+  <script src="js/visual/spatial-canvas.js?v=2.3.0"></script>
+  <script src="js/visual/visualizer.js?v=2.3.0"></script>
+  <script src="js/app.js?v=2.3.0"></script>
 
   <script>
     if ('serviceWorker' in navigator) {

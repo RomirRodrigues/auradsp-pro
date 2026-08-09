@@ -1,4 +1,4 @@
-const CACHE_NAME = 'auradsp-pro-v2.2.3';
+const CACHE_NAME = 'auradsp-pro-v2.3.0';
 const ASSETS = [
   './',
   './index.html',
