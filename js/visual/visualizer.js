@@ -35,10 +35,13 @@ class AudioVisualizer {
     // Auto-resize canvas backing store to match layout size (DPI-aware)
     const canvas = this.specCanvas;
     const rect = canvas.getBoundingClientRect();
+    if (!rect || rect.width <= 0 || rect.height <= 0) return;
     const dpr = window.devicePixelRatio || 1;
-    if (canvas.width !== rect.width * dpr || canvas.height !== rect.height * dpr) {
-      canvas.width = rect.width * dpr;
-      canvas.height = rect.height * dpr;
+    const targetW = Math.round(rect.width * dpr);
+    const targetH = Math.round(rect.height * dpr);
+    if (targetW > 0 && targetH > 0 && (canvas.width !== targetW || canvas.height !== targetH)) {
+      canvas.width = targetW;
+      canvas.height = targetH;
     }
 
     const ctx = this.specCtx;
@@ -291,10 +294,13 @@ class AudioVisualizer {
     // Responsive auto-resize to match display size
     const canvas = this.eqCanvas;
     const rect = canvas.getBoundingClientRect();
+    if (!rect || rect.width <= 0 || rect.height <= 0) return;
     const dpr = window.devicePixelRatio || 1;
-    if (canvas.width !== rect.width * dpr || canvas.height !== rect.height * dpr) {
-      canvas.width = rect.width * dpr;
-      canvas.height = rect.height * dpr;
+    const targetW = Math.round(rect.width * dpr);
+    const targetH = Math.round(rect.height * dpr);
+    if (targetW > 0 && targetH > 0 && (canvas.width !== targetW || canvas.height !== targetH)) {
+      canvas.width = targetW;
+      canvas.height = targetH;
     }
 
     const ctx = this.eqCtx;

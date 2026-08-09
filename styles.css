@@ -2721,3 +2721,20 @@ button:active, .sm-btn:active, .primary-btn-sm:active {
 .vu-fill {
   background: linear-gradient(90deg, #00ffa3 0%, #00f0ff 60%, #ffd700 85%, #ff2a5f 100%) !important;
 }
+
+
+/* CRITICAL 10/10 CANVAS BACKGROUND & LAYOUT PROTECTION */
+#spectrumCanvas, #eqCurveCanvas, #spatialCanvas {
+  background: #040609 !important;
+  display: block !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+#spectrumCanvas {
+  min-height: 160px !important;
+}
+
+#eqCurveCanvas {
+  min-height: 90px !important;
+}
