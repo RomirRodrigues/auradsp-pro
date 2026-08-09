@@ -1602,6 +1602,67 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  
+  // --- MASTER BALANCE & UTILITY MATRIX LOGIC ---
+  const panBalance = document.getElementById('panBalance');
+  const panBalanceVal = document.getElementById('panBalanceVal');
+  const resetBalanceBtn = document.getElementById('resetBalanceBtn');
+  const quickMuteBtn = document.getElementById('quickMuteBtn');
+  const quickMonoBtn = document.getElementById('quickMonoBtn');
+  const quickLoudnessBtn = document.getElementById('quickLoudnessBtn');
+
+  if (panBalance && panBalanceVal) {
+    panBalance.addEventListener('input', (e) => {
+      const val = parseFloat(e.target.value);
+      if (val === 0) panBalanceVal.textContent = 'CENTER';
+      else if (val < 0) panBalanceVal.textContent = `L ${Math.abs(val)}%`;
+      else panBalanceVal.textContent = `R ${val}%`;
+
+      if (window.audioEngine) window.audioEngine.setPanBalance(val);
+    });
+  }
+
+  if (resetBalanceBtn && panBalance) {
+    resetBalanceBtn.addEventListener('click', () => {
+      panBalance.value = 0;
+      if (panBalanceVal) panBalanceVal.textContent = 'CENTER';
+      if (window.audioEngine) window.audioEngine.setPanBalance(0);
+    });
+  }
+
+  if (quickMuteBtn) {
+    quickMuteBtn.addEventListener('click', () => {
+      if (!window.audioEngine) return;
+      const isMuted = window.audioEngine.toggleMute();
+      quickMuteBtn.style.background = isMuted ? '#ff2a5f' : 'rgba(255,42,95,0.2)';
+      quickMuteBtn.style.color = isMuted ? '#ffffff' : '#ff2a5f';
+      quickMuteBtn.textContent = isMuted ? '🔊 Unmute' : '🔇 Mute Output';
+      if (window.showToast) window.showToast(isMuted ? 'Master Muted' : 'Master Unmuted', 'info');
+    });
+  }
+
+  if (quickMonoBtn) {
+    let isMonoMode = false;
+    quickMonoBtn.addEventListener('click', () => {
+      if (!window.audioEngine) return;
+      isMonoMode = !isMonoMode;
+      window.audioEngine.setMonoMode(isMonoMode);
+      quickMonoBtn.style.background = isMonoMode ? '#00f0ff' : 'rgba(0,240,255,0.15)';
+      quickMonoBtn.style.color = isMonoMode ? '#09090b' : '#00f0ff';
+      if (window.showToast) window.showToast(isMonoMode ? 'Mono Compatibility Mode: ON' : 'Stereo Mode: ON', 'info');
+    });
+  }
+
+  if (quickLoudnessBtn) {
+    quickLoudnessBtn.addEventListener('click', () => {
+      if (!window.audioEngine) return;
+      const isBoosted = window.audioEngine.toggleLoudnessBoost();
+      quickLoudnessBtn.style.background = isBoosted ? '#ffd700' : 'rgba(255,215,0,0.15)';
+      quickLoudnessBtn.style.color = isBoosted ? '#09090b' : '#ffd700';
+      if (window.showToast) window.showToast(isBoosted ? 'Loudness Maximizer: ON (+8dB)' : 'Normal Gain', 'info');
+    });
+  }
+
   // --- PRO DSP UI LOGIC ---
   const proBtns = [
     { id: 'godBassToggle', method: 'setGodBass' },

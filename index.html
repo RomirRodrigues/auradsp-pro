@@ -318,6 +318,42 @@
           </div>
         </div>
 
+    
+        <!-- MASTER CHANNEL BALANCE & UTILITY TOOLBAR -->
+        <div class="enhancer-card utility-matrix-card" style="margin-top: 15px; background: rgba(18, 22, 32, 0.8); border: 1px solid rgba(0, 240, 255, 0.2);">
+          <div class="card-header" style="margin-bottom:10px;">
+            <div class="card-title-group">
+              <h4 style="color:#00f0ff; display:flex; align-items:center; gap:6px;">
+                <span>🎚️</span> MASTER BALANCE & UTILITY RACK
+              </h4>
+              <p style="font-size:0.7rem; color:#a0a0b8;">L/R Stereo Panning, Mono Check & Instant Mute</p>
+            </div>
+            <button id="resetBalanceBtn" class="sm-btn card-reset-btn">Reset</button>
+          </div>
+
+          <!-- L/R Balance Slider -->
+          <div class="slider-group" style="margin-bottom:12px;">
+            <div class="slider-header" style="display:flex; justify-space-between; font-size:0.75rem;">
+              <label for="panBalance">L/R Stereo Panning</label>
+              <span id="panBalanceVal" style="color:#00f0ff; font-family:var(--font-mono);">CENTER</span>
+            </div>
+            <input type="range" id="panBalance" min="-100" max="100" value="0" step="1">
+          </div>
+
+          <!-- Quick Action Buttons -->
+          <div style="display:flex; gap:6px; flex-wrap:wrap;">
+            <button id="quickMuteBtn" class="sm-btn" style="flex:1; background:rgba(255,42,95,0.2); border:1px solid #ff2a5f; color:#ff2a5f; font-weight:bold;">
+              🔇 Mute Output
+            </button>
+            <button id="quickMonoBtn" class="sm-btn" style="flex:1; background:rgba(0,240,255,0.15); border:1px solid #00f0ff; color:#00f0ff; font-weight:bold;">
+              🎧 Mono Check
+            </button>
+            <button id="quickLoudnessBtn" class="sm-btn" style="flex:1; background:rgba(255,215,0,0.15); border:1px solid #ffd700; color:#ffd700; font-weight:bold;">
+              💥 Loud Boost
+            </button>
+          </div>
+        </div>
+
     </aside>
 
     <!-- CENTER COLUMN: Spectrum Analyzer, 10-Band EQ & Curve -->
@@ -681,11 +717,11 @@
   </footer>
 
   <!-- Modular Scripts -->
-  <script src="js/data/presets.js?v=2.3.0"></script>
-  <script src="js/audio/audio-engine.js?v=2.3.0"></script>
-  <script src="js/visual/spatial-canvas.js?v=2.3.0"></script>
-  <script src="js/visual/visualizer.js?v=2.3.0"></script>
-  <script src="js/app.js?v=2.3.0"></script>
+  <script src="js/data/presets.js?v=2.4.0"></script>
+  <script src="js/audio/audio-engine.js?v=2.4.0"></script>
+  <script src="js/visual/spatial-canvas.js?v=2.4.0"></script>
+  <script src="js/visual/visualizer.js?v=2.4.0"></script>
+  <script src="js/app.js?v=2.4.0"></script>
 
   <script>
     if ('serviceWorker' in navigator) {

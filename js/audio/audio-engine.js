@@ -250,6 +250,12 @@ class AudioEngine {
     this.exciterShaper.connect(this.exciterGain);
     this.exciterGain.connect(this.tapeDelay);
 
+    
+    // L/R Stereo Panner Node
+    this.stereoPannerNode = null;
+    this.isMuted = false;
+    this.isMonoCheck = false;
+    this.isLoudBoost = false;
     // 9. Master Gain, Safety Limiter & Analyser
     this.masterGainNode = this.ctx.createGain();
     this.masterGainNode.gain.value = 1.0; // Normal unity gain
@@ -385,7 +391,17 @@ class AudioEngine {
     this.pannerNode.connect(this.spatialGainNode);
     this.spatialGainNode.connect(this.tapeDelayNode);
     this.tapeDelayNode.connect(this.masterGainNode);
-    this.masterGainNode.connect(this.limiterNode);
+    
+    // Stereo Panner Node Initialization
+    if (this.ctx.createStereoPanner) {
+      this.stereoPannerNode = this.ctx.createStereoPanner();
+      this.stereoPannerNode.pan.value = 0; // Center default
+      this.masterGainNode.connect(this.stereoPannerNode);
+      this.stereoPannerNode.connect(this.limiterNode);
+    } else {
+      this.masterGainNode.connect(this.limiterNode);
+    }
+
     this.limiterNode.connect(this.analyserNode);
     this.analyserNode.connect(this.ctx.destination);
 
@@ -973,6 +989,28 @@ class AudioEngine {
     if (state.isBypassed !== undefined && this.setGlobalBypass) {
       this.setGlobalBypass(state.isBypassed);
     }
+  }
+
+  
+  // --- MASTER PANNING & UTILITIES ---
+  setPanBalance(panValPercent) {
+    if (!this.stereoPannerNode) return;
+    const panNormalized = Math.max(-1, Math.min(1, parseFloat(panValPercent) / 100));
+    this.stereoPannerNode.pan.value = panNormalized;
+  }
+
+  toggleMute() {
+    if (!this.masterGainNode) return false;
+    this.isMuted = !this.isMuted;
+    this.masterGainNode.gain.value = this.isMuted ? 0.0 : 1.0;
+    return this.isMuted;
+  }
+
+  toggleLoudnessBoost() {
+    if (!this.masterGainNode) return false;
+    this.isLoudBoost = !this.isLoudBoost;
+    this.masterGainNode.gain.value = this.isLoudBoost ? 2.5 : 1.0; // +8dB transparent boost
+    return this.isLoudBoost;
   }
 
   makeDistortionCurve(amount) {
