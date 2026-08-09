@@ -385,7 +385,7 @@ document.addEventListener('DOMContentLoaded', () => {
       window.audioEngine.activeSource = 'synth';
       window.audioEngine.startSynthGroove(trackMode);
       isSynthBeatActive = true;
-      isPlaying = true;
+      isPlaying = true; if (window.audioEngine) window.audioEngine.isPlaying = true;
       startSynthBeatBtn.textContent = "⏸ Pause Studio Synth Groove";
       startSynthBeatBtn.classList.remove('glowing-btn');
       playText.textContent = "Pause Track";

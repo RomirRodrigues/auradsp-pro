@@ -7,6 +7,7 @@ class AudioEngine {
   constructor() {
     this.ctx = null;
     this.isInitialized = false;
+    this.isPlaying = false;
 
     // Audio Source Nodes
     this.mediaSourceNode = null;
