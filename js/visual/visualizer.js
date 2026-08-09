@@ -84,95 +84,59 @@ class AudioVisualizer {
     const isSpotifyPlaying = isSpotify && window.spotifyPlayerState && !window.spotifyPlayerState.paused;
 
     // Detect if any audio source is actively producing sound
+        // Detect if any audio source is actively producing sound
+        // Detect if any audio source is actively producing sound
     let isActivelyPlaying = false;
     const audioEngine = window.audioEngine;
+    const player = document.getElementById('audioPlayer');
+    const isPlayerPlaying = player && !player.paused;
+
     if (audioEngine) {
-      if (audioEngine.activeSource === 'spotify') {
-        isActivelyPlaying = isSpotifyPlaying;
-      } else if (audioEngine.activeSource === 'synth') {
-        isActivelyPlaying = audioEngine.isSynthLoopActive;
-      } else if (audioEngine.activeSource === 'track' || audioEngine.activeSource === 'file') {
-        isActivelyPlaying = audioEngine.connectedElement && !audioEngine.connectedElement.paused;
-      } else if (audioEngine.activeSource === 'mic') {
-        isActivelyPlaying = !!audioEngine.micStream;
-      } else if (audioEngine.activeSource === 'tone') {
-        isActivelyPlaying = !!audioEngine.oscillator;
+      if (audioEngine.isBufferPlaying || audioEngine.isSynthLoopActive || audioEngine.oscillator || audioEngine.micStream || isPlayerPlaying) {
+        isActivelyPlaying = true;
       }
     }
 
     if (!isActivelyPlaying) {
-      // ─── STANDBY IDLE STATE: Render gentle, glowing ambient breathing graphics ───
+      // Standby Idle Wave
       const now = Date.now() / 1000;
-      if (this.visMode === 'bars') {
-        bufferLength = 64;
-        dataArray = new Uint8Array(bufferLength);
-        for (let b = 0; b < bufferLength; b++) {
-          const norm = b / bufferLength;
-          const w1 = Math.sin(norm * Math.PI * 2.0 + now * 1.5) * 0.5 + 0.5;
-          const w2 = Math.cos(norm * Math.PI * 4.0 - now * 1.0) * 0.3 + 0.5;
-          const breath = 0.5 + 0.5 * Math.sin(now * 0.6);
-          const damping = Math.pow(1 - norm, 0.4);
-          const val = (w1 * 0.7 + w2 * 0.3) * breath * 45 * damping;
-          dataArray[b] = Math.max(3, val + Math.random() * 2);
-        }
-      } else {
-        bufferLength = 128;
-        dataArray = new Uint8Array(bufferLength);
-        for (let i = 0; i < bufferLength; i++) {
-          const norm = i / bufferLength;
-          const w1 = Math.sin(norm * Math.PI * 3.0 + now * 2.0) * 12;
-          const w2 = Math.cos(norm * Math.PI * 6.0 - now * 1.2) * 5;
-          const breath = 0.5 + 0.5 * Math.sin(now * 0.8);
-          const envelope = Math.sin(norm * Math.PI); // Fades ends to zero for a clean trace
-          dataArray[i] = 128 + (w1 + w2) * breath * envelope;
-        }
-      }
-    } else if (isSpotify) {
-      bufferLength = 128;
+      bufferLength = 64;
       dataArray = new Uint8Array(bufferLength);
-      if (isSpotifyPlaying) {
-        // Generate simulated beat frequencies
-        const now = Date.now() / 1000;
-        const bpm = window.spotifyTempo || 120;
-        const bps = bpm / 60;
-        const kickPulse = Math.pow(Math.abs(Math.sin(now * Math.PI * bps)), 8);
-        const snarePulse = Math.pow(Math.abs(Math.cos(now * Math.PI * bps / 2)), 6);
-        const hatPulse = Math.pow(Math.abs(Math.sin(now * Math.PI * bps * 2)), 4);
-
-        for (let i = 0; i < bufferLength; i++) {
-          const normIdx = i / bufferLength;
-          let val = 0;
-          if (normIdx < 0.15) {
-            val = (kickPulse * 170) + (Math.random() * 30);
-          } else if (normIdx < 0.5) {
-            const midWave = Math.sin(now * 15 + i * 0.4) * 0.5 + 0.5;
-            val = (midWave * 90) + (snarePulse * 40) + (Math.random() * 25);
-          } else {
-            val = (hatPulse * 50) + (Math.random() * 40);
-          }
-          // Apply EQ band scaling
-          const eqBandIdx = Math.floor(normIdx * 10);
-          const eqGain = (window.audioEngine && window.audioEngine.eqNodes[eqBandIdx]) ? window.audioEngine.eqNodes[eqBandIdx].gain.value : 0;
-          const gainFactor = Math.pow(10, eqGain / 20);
-          val = val * gainFactor;
-          dataArray[i] = Math.min(255, Math.max(0, val));
-        }
-      } else {
-        // Quiet noise floor when paused
-        for (let i = 0; i < bufferLength; i++) {
-          dataArray[i] = Math.random() * 3;
-        }
+      for (let b = 0; b < bufferLength; b++) {
+        const norm = b / bufferLength;
+        const w1 = Math.sin(norm * Math.PI * 2.0 + now * 1.5) * 0.5 + 0.5;
+        const breath = 0.5 + 0.5 * Math.sin(now * 0.6);
+        const val = w1 * breath * 25 * Math.pow(1 - norm, 0.4);
+        dataArray[b] = Math.max(2, val);
       }
     } else {
-      // Normal browser audio capture
-      if (!window.audioEngine || !window.audioEngine.analyserNode) return;
-      const analyser = window.audioEngine.analyserNode;
-      bufferLength = analyser.frequencyBinCount;
-      dataArray = new Uint8Array(bufferLength);
-      if (this.visMode === 'bars') {
-        analyser.getByteFrequencyData(dataArray);
-      } else {
-        analyser.getByteTimeDomainData(dataArray);
+      // Read Real Frequency & Waveform Data from AnalyserNode
+      if (window.audioEngine && window.audioEngine.analyserNode) {
+        const analyser = window.audioEngine.analyserNode;
+        bufferLength = analyser.frequencyBinCount;
+        dataArray = new Uint8Array(bufferLength);
+        if (this.visMode === 'bars') {
+          analyser.getByteFrequencyData(dataArray);
+        } else {
+          analyser.getByteTimeDomainData(dataArray);
+        }
+
+        // If dataArray is empty (CORS stream fallback), generate vibrant audio spectrum bars
+        let maxSample = 0;
+        for (let i = 0; i < dataArray.length; i++) {
+          if (dataArray[i] > maxSample) maxSample = dataArray[i];
+        }
+
+        if (maxSample < 5 && isActivelyPlaying) {
+          const now = Date.now() / 1000;
+          for (let i = 0; i < dataArray.length; i++) {
+            const norm = i / dataArray.length;
+            const pulse = Math.sin(now * 8 + norm * 12) * 0.5 + 0.5;
+            const bass = Math.pow(1 - norm, 1.5) * 180 * (Math.sin(now * 4) * 0.4 + 0.6);
+            const mid = Math.sin(now * 10 + norm * 20) * 80;
+            dataArray[i] = Math.min(255, Math.max(15, (bass + mid) * pulse));
+          }
+        }
       }
     }
 
