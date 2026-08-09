@@ -1718,6 +1718,25 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  
+  // --- ACCESSIBILITY KEYBOARD SHORTCUTS ---
+  window.addEventListener('keydown', (e) => {
+    // Ignore keypress if typing inside input or select
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA') return;
+
+    if (e.code === 'Space') {
+      e.preventDefault();
+      const playBtn = document.getElementById('playStudioBeatBtn') || document.getElementById('playSelectedAudioBtn');
+      if (playBtn) playBtn.click();
+    } else if (e.code === 'KeyB') {
+      const bypassBtn = document.getElementById('globalBypassBtn');
+      if (bypassBtn) bypassBtn.click();
+    } else if (e.code === 'KeyM') {
+      const muteBtn = document.getElementById('quickMuteBtn');
+      if (muteBtn) muteBtn.click();
+    }
+  }, { passive: false });
+
   // --- PRO DSP UI LOGIC ---
   const proBtns = [
     { id: 'godBassToggle', method: 'setGodBass' },

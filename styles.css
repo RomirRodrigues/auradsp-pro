@@ -2528,3 +2528,50 @@ input[type=range]:active::-webkit-slider-thumb {
 #spectrumCanvas, #spatialCanvas {
   animation: beamGlowWave 4s infinite ease-in-out;
 }
+
+
+/* ==========================================================================
+   FINAL 10/10 POLISH: ACCESSIBILITY, PERFORMANCE & MICRO-INTERACTIONS
+   ========================================================================== */
+
+/* Keyboard Focus Ring Accessibility */
+*:focus-visible {
+  outline: 2px solid #00f0ff !important;
+  outline-offset: 2px !important;
+}
+
+/* Hardware Acceleration & Smooth Rendering Performance */
+.panel, .enhancer-card, .preset-card, .vis-btn, .primary-btn-sm, .sm-btn {
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Touch Action Manipulation for Instant Mobile Response */
+button, input[type=range], .preset-card, .sf-node {
+  touch-action: manipulation !important;
+}
+
+/* Responsive Mobile Layout Adjustments (<480px Small Phones) */
+@media (max-width: 480px) {
+  .app-header {
+    padding: 8px 12px !important;
+  }
+  
+  .logo-container h1 {
+    font-size: 1.0rem !important;
+  }
+  
+  .status-bar {
+    font-size: 0.75rem !important;
+  }
+  
+  .knob-group-row {
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+  
+  .preset-card {
+    padding: 8px 10px !important;
+  }
+}
