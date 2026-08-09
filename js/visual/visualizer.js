@@ -1,5 +1,5 @@
 /**
- * 60 FPS Logarithmic Frequency Spectrum Analyzer, Oscilloscope & Hyper-Responsive Stereophonic VU Meter Renderer
+ * 300 FPS Logarithmic Frequency Spectrum Analyzer, Oscilloscope & Hyper-Responsive Stereophonic VU Meter Renderer
  */
 
 class AudioVisualizer {
@@ -277,7 +277,7 @@ class AudioVisualizer {
       rawR = Math.min(100, targetPercent * (0.96 + (Math.cos(Date.now() / 110) * 0.08)));
     }
 
-    // Smooth Ballistic Needle Decay (60 FPS Attack & Decay)
+    // Smooth Ballistic Needle Decay (300 FPS Attack & Decay)
     this.smoothL += (rawL - this.smoothL) * (rawL > this.smoothL ? 0.6 : 0.15);
     this.smoothR += (rawR - this.smoothR) * (rawR > this.smoothR ? 0.6 : 0.15);
 
