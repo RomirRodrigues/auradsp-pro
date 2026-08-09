@@ -432,6 +432,7 @@ class AudioEngine {
 
     this.limiterNode.connect(this.analyserNode);
     this.analyserNode.connect(this.ctx.destination);
+    this.masterGainNode.connect(this.ctx.destination);
 
     this.isInitialized = true;
   }
@@ -455,20 +456,25 @@ class AudioEngine {
     }
   }
 
-    connectMediaElement(audioElement) {
+      connectMediaElement(audioElement) {
     if (!audioElement) return;
     this.resumeCtx();
     
+    // Ensure element volume is 100%
+    audioElement.volume = 1.0;
+    audioElement.muted = false;
+
     try {
       if (!audioElement._mediaSourceNode) {
         audioElement._mediaSourceNode = this.ctx.createMediaElementSource(audioElement);
       }
       this.mediaSourceNode = audioElement._mediaSourceNode;
       if (this.mediaSourceNode) {
+        try { this.mediaSourceNode.disconnect(); } catch (e) {}
         this.mediaSourceNode.connect(this.preGainNode);
       }
     } catch (err) {
-      console.warn("MediaElementSource connection fallback (playing via HTML5 Direct Output):", err);
+      console.warn("MediaElementSource CORS fallback:", err);
     }
     this.connectedElement = audioElement;
   }
