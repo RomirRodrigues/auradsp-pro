@@ -393,33 +393,52 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Play / Pause Selected Track
+    // Play / Pause Selected HD Audio Track (Real Vocals & Songs)
   playPauseBtn.addEventListener('click', async () => {
-    window.audioEngine.resumeCtx();
-    const trackMode = demoTrackSelect ? demoTrackSelect.value : 'bass';
+    if (window.audioEngine) window.audioEngine.resumeCtx();
 
-    if (isSynthBeatActive || isPlaying) {
-      window.audioEngine.stopAllSources();
-      resetAllPlaybackUI();
-    } else {
-      window.audioEngine.stopAllSources();
-      resetAllPlaybackUI();
-      window.audioEngine.activeSource = 'synth';
-      window.audioEngine.startSynthGroove(trackMode);
-      isSynthBeatActive = true;
-      isPlaying = true;
-      playText.textContent = "Pause Track";
-      playIcon.textContent = "⏸";
-      startSynthBeatBtn.textContent = "⏸ Pause Studio Synth Groove";
-      startSynthBeatBtn.classList.remove('glowing-btn');
+    if (isPlaying && audioEngine.activeSource === 'file' && audioPlayer.src === demoTrackSelect.value && !audioPlayer.paused) {
+      audioPlayer.pause();
+      isPlaying = false;
+      playText.textContent = "Play Selected Track";
+      playIcon.textContent = "▶";
+      return;
     }
+
+    const selectedUrl = demoTrackSelect ? demoTrackSelect.value : 'https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=pop-summer-vocal-112776.mp3';
+
+    if (window.audioEngine) {
+      window.audioEngine.stopAllSources();
+      resetAllPlaybackUI();
+      window.audioEngine.activeSource = 'file';
+      window.audioEngine.connectMediaElement(audioPlayer);
+    }
+
+    audioPlayer.src = selectedUrl;
+    audioPlayer.play()
+      .then(() => {
+        isPlaying = true;
+        playText.textContent = "Pause Track";
+        playIcon.textContent = "⏸";
+        if (window.showToast) window.showToast("Playing Real HD Vocal Track", "success");
+      })
+      .catch(err => {
+        console.error("Audio track play error:", err);
+        // Fallback to synth groove if network blocks external audio load
+        if (window.audioEngine) {
+          window.audioEngine.activeSource = 'synth';
+          window.audioEngine.startSynthGroove('bass');
+          isPlaying = true;
+          playText.textContent = "Pause Track";
+          playIcon.textContent = "⏸";
+        }
+      });
   });
 
-  // Live Track Mode Selector (Updates Audio Output Immediately!)
+  // Track change listener
   demoTrackSelect.addEventListener('change', (e) => {
-    const selectedMode = e.target.value;
-    if (isSynthBeatActive || isPlaying) {
-      window.audioEngine.startSynthGroove(selectedMode);
+    if (isPlaying && audioEngine.activeSource === 'file') {
+      playPauseBtn.click(); // Stop & restart with new URL
     }
   });
 
