@@ -432,12 +432,16 @@ class AudioEngine {
     this.isInitialized = true;
   }
 
-  async resumeCtx() {
+    async resumeCtx() {
     if (!this.isInitialized || !this.ctx) {
       this.init();
     }
     if (this.ctx && this.ctx.state === 'suspended') {
-      await this.ctx.resume();
+      try {
+        await this.ctx.resume();
+      } catch (e) {
+        console.warn("AudioContext resume exception:", e);
+      }
     }
   }
 
