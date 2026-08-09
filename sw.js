@@ -1,4 +1,4 @@
-const CACHE_NAME = 'auradsp-pro-v1.3.0';
+const CACHE_NAME = 'auradsp-pro-v2.0.2';
 const ASSETS = [
   './',
   './index.html',
@@ -12,17 +12,10 @@ const ASSETS = [
 ];
 
 self.addEventListener('install', (event) => {
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       return cache.addAll(ASSETS);
-    })
-  );
-});
-
-self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    caches.match(event.request).then((response) => {
-      return response || fetch(event.request);
     })
   );
 });
@@ -37,6 +30,21 @@ self.addEventListener('activate', (event) => {
           }
         })
       );
-    })
+    }).then(() => self.clients.claim())
+  );
+});
+
+// NETWORK-FIRST STRATEGY: Always fetch fresh code from network, fallback to cache if offline
+self.addEventListener('fetch', (event) => {
+  event.respondWith(
+    fetch(event.request)
+      .then((response) => {
+        const resClone = response.clone();
+        caches.open(CACHE_NAME).then((cache) => {
+          cache.put(event.request, resClone);
+        });
+        return response;
+      })
+      .catch(() => caches.match(event.request))
   );
 });
