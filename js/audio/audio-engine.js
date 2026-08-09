@@ -432,20 +432,29 @@ class AudioEngine {
     this.isInitialized = true;
   }
 
-    async resumeCtx() {
+      async resumeCtx() {
     if (!this.isInitialized || !this.ctx) {
       this.init();
     }
-    if (this.ctx && this.ctx.state === 'suspended') {
-      try {
-        await this.ctx.resume();
-      } catch (e) {
-        console.warn("AudioContext resume exception:", e);
+    if (this.ctx) {
+      if (this.ctx.state === 'suspended') {
+        try {
+          await this.ctx.resume();
+        } catch (e) {
+          console.warn("AudioContext resume exception:", e);
+        }
+      }
+      // Ensure master gain is un-muted on play
+      if (this.masterGainNode && this.masterGainNode.gain.value === 0 && !this.isMuted) {
+        this.masterGainNode.gain.value = 1.0;
+      }
+      if (this.preGainNode && this.preGainNode.gain.value === 0) {
+        this.preGainNode.gain.value = 1.0;
       }
     }
   }
 
-    connectMediaElement(audioElement) {
+  connectMediaElement(audioElement) {
     if (!audioElement) return;
     this.resumeCtx();
     
