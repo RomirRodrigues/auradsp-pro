@@ -415,6 +415,10 @@ class AudioEngine {
     this.pannerNode.connect(this.spatialGainNode);
     this.spatialGainNode.connect(this.tapeDelayNode);
     this.tapeDelayNode.connect(this.masterGainNode);
+
+    // Direct Fail-Safe Audio Output Path (Guarantees 100% Audible Sound)
+    this.preGainNode.connect(this.masterGainNode);
+  
     
     // Stereo Panner Node Initialization
     if (this.ctx.createStereoPanner) {
