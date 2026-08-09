@@ -10,6 +10,8 @@ class AudioEngine {
 
     // Audio Source Nodes
     this.mediaSourceNode = null;
+    this.bufferSourceNode = null;
+    this.isBufferPlaying = false;
     this.connectedElement = null;
     this.synthLoopTimer = null;
     this.synthGain = null;
@@ -755,6 +757,7 @@ class AudioEngine {
   }
 
   stopAllSources() {
+    this.stopBufferAudio();
     this.stopSynthGroove();
     this.stopToneGenerator();
 
@@ -1179,6 +1182,31 @@ class AudioEngine {
     }
   }
 
+  makeDistortionCurve(amount) {
+    if (amount === 0) return null;
+    const k = typeof amount === 'number' ? amount : 50;
+    const n_samples = 44100;
+    const curve = new Float32Array(n_samples);
+    const deg = Math.PI / 180;
+    for (let i = 0; i < n_samples; ++i) {
+      const x = i * 2 / n_samples - 1;
+      // Soft saturation formula
+      curve[i] = (3 + k) * x * 20 * deg / (Math.PI + k * Math.abs(x));
+    }
+    return curve;
+  }
+
+  setTubeWarmth(enabled, drivePercent = 30) {
+    if (!this.tubeShaperNode) return;
+    if (enabled) {
+      // Map 0-100 slider to 0-400 distortion amount
+      const amount = (parseFloat(drivePercent) / 100) * 400;
+      this.tubeShaperNode.curve = this.makeDistortionCurve(amount);
+    } else {
+      this.tubeShaperNode.curve = null; // Bypass shaper
+    }
+  }
+
   setTapeWarble(enabled, depthPercent = 40) {
     if (!this.tapeLfoGain) return;
     if (enabled) {
@@ -1188,6 +1216,46 @@ class AudioEngine {
     } else {
       this.tapeLfoGain.gain.value = 0.0;
     }
+  }
+
+  async playAudioUrl(url) {
+    this.resumeCtx();
+    this.stopAllSources();
+    this.activeSource = 'buffer';
+
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error("Network response not ok");
+      const arrayBuffer = await response.arrayBuffer();
+      const decodedData = await this.ctx.decodeAudioData(arrayBuffer);
+
+      if (this.bufferSourceNode) {
+        try { this.bufferSourceNode.stop(); } catch(e) {}
+        try { this.bufferSourceNode.disconnect(); } catch(e) {}
+      }
+
+      this.bufferSourceNode = this.ctx.createBufferSource();
+      this.bufferSourceNode.buffer = decodedData;
+      this.bufferSourceNode.loop = true;
+      this.bufferSourceNode.connect(this.preGainNode);
+      this.bufferSourceNode.start(0);
+      this.isBufferPlaying = true;
+      return true;
+    } catch (err) {
+      console.warn("Buffer fetch/decode failed, using safe MediaElement fallback:", err);
+      return false;
+    }
+  }
+
+  stopBufferAudio() {
+    if (this.bufferSourceNode) {
+      try {
+        this.bufferSourceNode.stop();
+        this.bufferSourceNode.disconnect();
+      } catch(e) {}
+      this.bufferSourceNode = null;
+    }
+    this.isBufferPlaying = false;
   }
 }
 

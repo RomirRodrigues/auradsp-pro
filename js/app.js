@@ -393,12 +393,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-    // Play / Pause Selected HD Audio Track (Real Vocals & Songs)
+      // Play / Pause Selected HD Audio Track (Real Vocals & Songs via High-Fidelity DSP Buffer Engine)
   playPauseBtn.addEventListener('click', async () => {
     if (window.audioEngine) window.audioEngine.resumeCtx();
 
-    if (isPlaying && audioEngine.activeSource === 'file' && audioPlayer.src === demoTrackSelect.value && !audioPlayer.paused) {
-      audioPlayer.pause();
+    if (isPlaying && audioEngine.activeSource === 'buffer') {
+      window.audioEngine.stopAllSources();
+      resetAllPlaybackUI();
       isPlaying = false;
       playText.textContent = "Play Selected Track";
       playIcon.textContent = "▶";
@@ -407,40 +408,39 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const selectedUrl = demoTrackSelect ? demoTrackSelect.value : 'https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=pop-summer-vocal-112776.mp3';
 
+    playText.textContent = "Loading Track...";
+    playIcon.textContent = "⏳";
+
     if (window.audioEngine) {
       window.audioEngine.stopAllSources();
       resetAllPlaybackUI();
-      window.audioEngine.activeSource = 'file';
-      window.audioEngine.connectMediaElement(audioPlayer);
-    }
 
-    audioPlayer.src = selectedUrl;
-    audioPlayer.volume = 1.0;
-    audioPlayer.play()
-      .then(() => {
+      const success = await window.audioEngine.playAudioUrl(selectedUrl);
+      if (success) {
         isPlaying = true;
         playText.textContent = "Pause Track";
         playIcon.textContent = "⏸";
-        if (window.showToast) window.showToast("Playing Real HD Vocal Track", "success");
-      })
-      .catch(err => {
-        console.error("Audio track play error:", err);
-        if (window.audioEngine) {
-          window.audioEngine.activeSource = 'synth';
+        if (window.showToast) window.showToast("Playing Real HD Vocal Track (100% DSP Clarity)", "success");
+      } else {
+        // Fallback to MediaElement
+        window.audioEngine.activeSource = 'file';
+        window.audioEngine.connectMediaElement(audioPlayer);
+        audioPlayer.src = selectedUrl;
+        audioPlayer.play().then(() => {
+          isPlaying = true;
+          playText.textContent = "Pause Track";
+          playIcon.textContent = "⏸";
+        }).catch(err => {
           window.audioEngine.startSynthGroove('bass');
           isPlaying = true;
           playText.textContent = "Pause Track";
           playIcon.textContent = "⏸";
-        }
-      });
-  });
-
-  // Track change listener
-  demoTrackSelect.addEventListener('change', (e) => {
-    if (isPlaying && audioEngine.activeSource === 'file') {
-      playPauseBtn.click();
+        });
+      }
     }
   });
+
+  demoTrackSelect.addEventListener("change", () => { if (isPlaying) playPauseBtn.click(); });
 
   // 5. Fast Source Switcher
   const sourceBtns = document.querySelectorAll('.source-btn');
