@@ -357,32 +357,11 @@ document.addEventListener('DOMContentLoaded', () => {
   renderPresets('boat');
 
   // 4. Synth Beat & Selected Track Generator Controls
-  const startSynthBeatBtn = document.getElementById('startSynthBeatBtn');
   const demoTrackSelect = document.getElementById('demoTrackSelect');
   const playPauseBtn = document.getElementById('playPauseBtn');
   const playText = document.getElementById('playText');
   const playIcon = document.getElementById('playIcon');
 
-  startSynthBeatBtn.addEventListener('click', async () => {
-    window.audioEngine.resumeCtx();
-    const trackMode = demoTrackSelect ? demoTrackSelect.value : 'bass';
-
-    if (isSynthBeatActive) {
-      window.audioEngine.stopAllSources();
-      resetAllPlaybackUI();
-    } else {
-      window.audioEngine.stopAllSources();
-      resetAllPlaybackUI();
-      window.audioEngine.activeSource = 'synth';
-      window.audioEngine.startSynthGroove(trackMode);
-      isSynthBeatActive = true;
-      isPlaying = true; if (window.audioEngine) window.audioEngine.isPlaying = true;
-      startSynthBeatBtn.textContent = "⏸ Pause Studio Synth Groove";
-      startSynthBeatBtn.classList.remove('glowing-btn');
-      playText.textContent = "Pause Track";
-      playIcon.textContent = "⏸";
-    }
-  });
 
         // Play / Pause Selected HD Audio Track (Real Vocals & Songs)
   playPauseBtn.addEventListener('click', async () => {
@@ -866,8 +845,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // ────────────────────────────────────────────────────────────
 
   // Microphone Input (Play/Pause Toggle)
-  const startMicBtn = document.getElementById('startMicBtn');
-  startMicBtn.addEventListener('click', async () => {
+  const startMicBtn = document.getElementById("startMicBtn");
+  if (startMicBtn) startMicBtn.addEventListener('click', async () => {
     window.audioEngine.resumeCtx();
     if (window.audioEngine.micStream) {
       // Microphone is active, pause/stop it
@@ -964,8 +943,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // EQ Reset
-  const resetEqBtn = document.getElementById('resetEqBtn');
-  resetEqBtn.addEventListener('click', () => {
+  const resetEqBtn = document.getElementById("resetEqBtn");
+  if (resetEqBtn) resetEqBtn.addEventListener('click', () => {
     currentEqGains = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
     FREQ_BANDS.forEach((_, i) => {
       const slider = document.getElementById(`eqSlider_${i}`);
