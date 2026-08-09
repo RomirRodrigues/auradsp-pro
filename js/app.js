@@ -373,7 +373,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const playIcon = document.getElementById('playIcon');
 
   startSynthBeatBtn.addEventListener('click', async () => {
-    await window.audioEngine.resumeCtx();
+    window.audioEngine.resumeCtx();
     const trackMode = demoTrackSelect ? demoTrackSelect.value : 'bass';
 
     if (isSynthBeatActive) {
@@ -395,7 +395,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Play / Pause Selected Track
   playPauseBtn.addEventListener('click', async () => {
-    await window.audioEngine.resumeCtx();
+    window.audioEngine.resumeCtx();
     const trackMode = demoTrackSelect ? demoTrackSelect.value : 'bass';
 
     if (isSynthBeatActive || isPlaying) {
@@ -501,7 +501,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (filePlayPauseBtn) {
     filePlayPauseBtn.addEventListener('click', async () => {
-      if (window.audioEngine) await window.audioEngine.resumeCtx();
+      if (window.audioEngine) window.audioEngine.resumeCtx();
       if (audioPlayer.paused) {
         if (window.audioEngine) {
           window.audioEngine.stopAllSources();
@@ -788,7 +788,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (webPlayPauseBtn) {
     webPlayPauseBtn.addEventListener('click', async () => {
       if (!currentWebTrack) return;
-      if (window.audioEngine) await window.audioEngine.resumeCtx();
+      if (window.audioEngine) window.audioEngine.resumeCtx();
       if (audioPlayer.paused) {
         audioPlayer.play();
       } else {
@@ -850,7 +850,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Microphone Input (Play/Pause Toggle)
   const startMicBtn = document.getElementById('startMicBtn');
   startMicBtn.addEventListener('click', async () => {
-    await window.audioEngine.resumeCtx();
+    window.audioEngine.resumeCtx();
     if (window.audioEngine.micStream) {
       // Microphone is active, pause/stop it
       window.audioEngine.stopMicrophone();
