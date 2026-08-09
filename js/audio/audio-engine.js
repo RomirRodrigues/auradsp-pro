@@ -248,7 +248,7 @@ class AudioEngine {
     // Connect Exciter parallel chain from tubeGain -> exciterHPF -> exciterShaper -> exciterGain -> tapeDelay
     this.exciterHPF.connect(this.exciterShaper);
     this.exciterShaper.connect(this.exciterGain);
-    this.exciterGain.connect(this.tapeDelay);
+    if (this.masterGainNode) this.exciterGain.connect(this.masterGainNode);
 
     
     // L/R Stereo Panner Node
