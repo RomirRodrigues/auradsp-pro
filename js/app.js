@@ -19,21 +19,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const playText = document.getElementById('playText');
     const playIcon = document.getElementById('playIcon');
-    const startSynthBeatBtn = document.getElementById('startSynthBeatBtn');
     const filePlayPauseBtn = document.getElementById('filePlayPauseBtn');
     const startMicBtn = document.getElementById('startMicBtn');
     const toggleToneBtn = document.getElementById('toggleToneBtn');
 
     if (playText) playText.textContent = "Play Selected Track";
     if (playIcon) playIcon.textContent = "▶";
-    if (startSynthBeatBtn) {
-      const span = startSynthBeatBtn.querySelector('span');
-      if (span) span.textContent = "🔥 Play Studio Synth Groove";
-      else startSynthBeatBtn.textContent = "🔥 Play Studio Synth Groove";
-      startSynthBeatBtn.classList.add('glowing-btn');
-      startSynthBeatBtn.style.background = "";
-      startSynthBeatBtn.style.color = "";
-    }
     if (filePlayPauseBtn) {
       filePlayPauseBtn.innerHTML = "▶ Play File";
     }

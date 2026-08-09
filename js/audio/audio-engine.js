@@ -1258,6 +1258,52 @@ class AudioEngine {
     }
     this.isBufferPlaying = false;
   }
+
+  // --- MASTER UNIFIED PLAYBACK CONTROLLER ---
+  playMediaStream(url) {
+    this.resumeCtx();
+    this.stopAllSources();
+    
+    const player = document.getElementById('audioPlayer');
+    if (!player) return Promise.reject("Audio player element not found");
+
+    player.src = url;
+    player.volume = 1.0;
+    player.muted = false;
+    player.crossOrigin = "anonymous";
+    player.load();
+
+    this.connectMediaElement(player);
+    this.activeSource = 'file';
+    this.isPlaying = true;
+
+    return player.play();
+  }
+
+  toggleMediaPlayback() {
+    this.resumeCtx();
+    const player = document.getElementById('audioPlayer');
+    if (!player) return false;
+
+    if (this.bufferSourceNode) {
+      if (this.isBufferPlaying) {
+        try { this.bufferSourceNode.stop(); } catch(e) {}
+        this.isBufferPlaying = false;
+        this.isPlaying = false;
+        return false;
+      }
+    }
+
+    if (player.paused) {
+      player.play().catch(e => console.warn("Player play error:", e));
+      this.isPlaying = true;
+      return true;
+    } else {
+      player.pause();
+      this.isPlaying = false;
+      return false;
+    }
+  }
 }
 
 // Global Engine Instance
