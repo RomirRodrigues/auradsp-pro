@@ -961,11 +961,18 @@ class AudioEngine {
         if (this.eqBands[i]) this.eqBands[i].gain.value = val;
       });
     }
-    if (state.haasWidth !== undefined) this.setStereoWidth(state.haasWidth);
-    if (state.haasDelay !== undefined) this.setHaasDelay(state.haasDelay);
-    if (state.vocalBoost !== undefined) this.setVocalBoost(state.vocalBoost);
-    if (state.subBass !== undefined) this.setBassEnhance(state.subBass);
-    if (state.isBypassed !== undefined) this.setGlobalBypass(state.isBypassed);
+    if (state.haasWidth !== undefined && this.setHaasExpander) {
+      this.setHaasExpander(true, state.haasWidth, state.haasDelay || 18);
+    }
+    if (state.vocalBoost !== undefined && this.setVocalEnhancer) {
+      this.setVocalEnhancer(true, state.vocalBoost);
+    }
+    if (state.subBass !== undefined && this.setSubBass) {
+      this.setSubBass(state.subBass);
+    }
+    if (state.isBypassed !== undefined && this.setGlobalBypass) {
+      this.setGlobalBypass(state.isBypassed);
+    }
   }
 
   makeDistortionCurve(amount) {
