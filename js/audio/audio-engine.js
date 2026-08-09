@@ -264,6 +264,22 @@ class AudioEngine {
     this.subOctaveGainNode = null;
     this.crosstalkGainNode = null;
     this.headITDDelay = null;
+    
+    // A, B, C, D Snapshots Storage
+    this.snapshots = { A: null, B: null, C: null, D: null };
+    this.activeSnapshotKey = 'A';
+    
+    // Undo / Redo History Stack
+    this.undoStack = [];
+    this.redoStack = [];
+    
+    // Reference Track Node
+    this.refAudioNode = null;
+    this.isListeningToRef = false;
+    
+    // Limiter Ceiling Gain
+    this.limiterCeilingDb = -0.1;
+    this.targetLoudnessLufs = -14;
     // 9. Master Gain, Safety Limiter & Analyser
     this.masterGainNode = this.ctx.createGain();
     this.masterGainNode.gain.value = 1.0; // Normal unity gain
@@ -1044,6 +1060,60 @@ class AudioEngine {
     if (!this.sideInvGain) return;
     const factor = (parseFloat(amountPercent) / 100) * 0.4;
     this.sideInvGain.gain.value = -1.0 + factor;
+  }
+
+  
+  // --- A, B, C, D SNAPSHOT ENGINE ---
+  saveSnapshot(key) {
+    if (!['A','B','C','D'].includes(key)) return;
+    this.snapshots[key] = this.getSnapshot();
+  }
+
+  loadSnapshot(key) {
+    if (!this.snapshots[key]) return false;
+    this.applySnapshot(this.snapshots[key]);
+    this.activeSnapshotKey = key;
+    return true;
+  }
+
+  // --- UNDO / REDO HISTORY ENGINE ---
+  pushHistory() {
+    const currentState = this.getSnapshot();
+    this.undoStack.push(JSON.stringify(currentState));
+    if (this.undoStack.length > 50) this.undoStack.shift(); // Max 50 undo states
+    this.redoStack = []; // Clear redo stack on new change
+  }
+
+  undo() {
+    if (this.undoStack.length === 0) return false;
+    const currentState = this.getSnapshot();
+    this.redoStack.push(JSON.stringify(currentState));
+    const prevState = JSON.parse(this.undoStack.pop());
+    this.applySnapshot(prevState);
+    return true;
+  }
+
+  redo() {
+    if (this.redoStack.length === 0) return false;
+    const currentState = this.getSnapshot();
+    this.undoStack.push(JSON.stringify(currentState));
+    const nextState = JSON.parse(this.redoStack.pop());
+    this.applySnapshot(nextState);
+    return true;
+  }
+
+  // --- LIMITER CEILING & TARGET LOUDNESSS ---
+  setLimiterCeiling(db) {
+    this.limiterCeilingDb = parseFloat(db);
+    if (this.limiterNode) {
+      // Convert dBTP ceiling to linear amplitude limit
+      const linearCeiling = Math.pow(10, this.limiterCeilingDb / 20);
+      this.limiterNode.threshold.value = this.limiterCeilingDb;
+    }
+  }
+
+  setTargetLoudness(lufs) {
+    this.targetLoudnessLufs = parseFloat(lufs);
   }
 
   makeDistortionCurve(amount) {

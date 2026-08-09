@@ -1737,6 +1737,132 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }, { passive: false });
 
+  
+  // --- A, B, C, D SNAPSHOT UI HANDLERS ---
+  const snapBtns = {
+    A: document.getElementById('snapABtn'),
+    B: document.getElementById('snapBBtn'),
+    C: document.getElementById('snapCBtn'),
+    D: document.getElementById('snapDBtn')
+  };
+
+  // Save initial A snapshot on load
+  setTimeout(() => {
+    if (window.audioEngine) {
+      window.audioEngine.saveSnapshot('A');
+      window.audioEngine.saveSnapshot('B');
+      window.audioEngine.saveSnapshot('C');
+      window.audioEngine.saveSnapshot('D');
+    }
+  }, 1000);
+
+  ['A', 'B', 'C', 'D'].forEach(key => {
+    if (snapBtns[key]) {
+      snapBtns[key].addEventListener('click', () => {
+        if (!window.audioEngine) return;
+        
+        // Save current to active, then switch
+        window.audioEngine.saveSnapshot(window.audioEngine.activeSnapshotKey);
+        const success = window.audioEngine.loadSnapshot(key);
+        
+        Object.keys(snapBtns).forEach(k => {
+          if (snapBtns[k]) {
+            snapBtns[k].style.background = k === key ? '#00d2d3' : '#1e293b';
+            snapBtns[k].style.color = k === key ? '#09090b' : '#ffffff';
+          }
+        });
+
+        if (window.showToast) window.showToast(`Switched to Snapshot ${key}`, 'info');
+      });
+    }
+  });
+
+  // --- UNDO / REDO UI HANDLERS ---
+  const undoBtn = document.getElementById('undoBtn');
+  const redoBtn = document.getElementById('redoBtn');
+
+  if (undoBtn) {
+    undoBtn.addEventListener('click', () => {
+      if (window.audioEngine && window.audioEngine.undo()) {
+        if (window.showToast) window.showToast('↩ Undo Action', 'info');
+      }
+    });
+  }
+
+  if (redoBtn) {
+    redoBtn.addEventListener('click', () => {
+      if (window.audioEngine && window.audioEngine.redo()) {
+        if (window.showToast) window.showToast('↪ Redo Action', 'info');
+      }
+    });
+  }
+
+  // Ctrl+Z & Ctrl+Y Keyboard Shortcuts
+  window.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+      e.preventDefault();
+      if (e.shiftKey) {
+        if (window.audioEngine) window.audioEngine.redo();
+      } else {
+        if (window.audioEngine) window.audioEngine.undo();
+      }
+    } else if ((e.ctrlKey || e.metaKey) && e.key === 'y') {
+      e.preventDefault();
+      if (window.audioEngine) window.audioEngine.redo();
+    }
+  });
+
+  // --- LIMITER CEILING & TARGET LOUDNESS UI HANDLERS ---
+  const limiterCeiling = document.getElementById('limiterCeiling');
+  const limiterCeilingVal = document.getElementById('limiterCeilingVal');
+  const targetLoudness = document.getElementById('targetLoudness');
+  const targetLoudnessVal = document.getElementById('targetLoudnessVal');
+
+  if (limiterCeiling && limiterCeilingVal) {
+    limiterCeiling.addEventListener('input', (e) => {
+      const val = parseFloat(e.target.value).toFixed(1);
+      limiterCeilingVal.textContent = `${val} dBTP`;
+      if (window.audioEngine) window.audioEngine.setLimiterCeiling(val);
+    });
+  }
+
+  if (targetLoudness && targetLoudnessVal) {
+    targetLoudness.addEventListener('input', (e) => {
+      const val = parseInt(e.target.value);
+      let presetLabel = '';
+      if (val === -14) presetLabel = ' (Spotify / YouTube)';
+      else if (val === -16) presetLabel = ' (Apple Music)';
+      else if (val === -9) presetLabel = ' (CD Loud Master)';
+      else if (val === -24) presetLabel = ' (EBU R128 Broadcast)';
+      
+      targetLoudnessVal.textContent = `${val} LUFS${presetLabel}`;
+      if (window.audioEngine) window.audioEngine.setTargetLoudness(val);
+    });
+  }
+
+  // --- REFERENCE TRACK LOADER LOGIC ---
+  const refFileInput = document.getElementById('refFileInput');
+  const toggleRefBtn = document.getElementById('toggleRefBtn');
+  const refStatusText = document.getElementById('refStatusText');
+
+  if (refFileInput && toggleRefBtn) {
+    refFileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        if (refStatusText) refStatusText.textContent = file.name.substring(0, 15) + '...';
+        if (window.showToast) window.showToast(`Reference Track Loaded: ${file.name}`, 'success');
+      }
+    });
+
+    let isListeningRef = false;
+    toggleRefBtn.addEventListener('click', () => {
+      isListeningRef = !isListeningRef;
+      toggleRefBtn.style.background = isListeningRef ? '#ff007f' : '#7000ff';
+      toggleRefBtn.textContent = isListeningRef ? '🎧 LISTENING TO REF' : '🔁 LISTEN TO REF';
+      if (window.showToast) window.showToast(isListeningRef ? 'Switched to Dry Reference Track' : 'Switched to Processed Master', 'info');
+    });
+  }
+
   // --- PRO DSP UI LOGIC ---
   const proBtns = [
     { id: 'godBassToggle', method: 'setGodBass' },

@@ -44,7 +44,17 @@
       
       
       <div class="theme-picker" style="margin-left: 6px;">
-        <button id="abStateBtn" class="sm-btn" style="background:#00d2d3; color:#09090b; font-weight:bold;">A/B: STATE A</button>
+        
+      <div class="theme-picker" style="margin-left: 6px; display:flex; gap:3px;">
+        <button id="undoBtn" class="sm-btn" title="Undo (Ctrl+Z)" style="background:#1e293b; color:#00f0ff; padding:4px 8px;">↩ Undo</button>
+        <button id="redoBtn" class="sm-btn" title="Redo (Ctrl+Y)" style="background:#1e293b; color:#00f0ff; padding:4px 8px;">↪ Redo</button>
+      </div>
+      <div class="theme-picker" style="margin-left: 6px; display:flex; gap:2px;">
+        <button id="snapABtn" class="sm-btn snap-btn active" style="background:#00d2d3; color:#09090b; font-weight:bold; padding:4px 8px;">A</button>
+        <button id="snapBBtn" class="sm-btn snap-btn" style="background:#1e293b; color:#fff; font-weight:bold; padding:4px 8px;">B</button>
+        <button id="snapCBtn" class="sm-btn snap-btn" style="background:#1e293b; color:#fff; font-weight:bold; padding:4px 8px;">C</button>
+        <button id="snapDBtn" class="sm-btn snap-btn" style="background:#1e293b; color:#fff; font-weight:bold; padding:4px 8px;">D</button>
+      </div>
       </div>
       <div class="theme-picker" style="margin-left: 6px;">
         <button id="globalBypassBtn" class="sm-btn" style="background:#ff3366; color:white; font-weight:bold;">GLOBAL BYPASS: OFF</button>
@@ -270,6 +280,23 @@
           </div>
         </div>
 
+        
+          <!-- Limiter Ceiling & Target Loudness -->
+          <div class="slider-group" style="margin-top:8px;">
+            <div class="slider-header">
+              <label for="limiterCeiling">Limiter Ceiling (dBTP)</label>
+              <span id="limiterCeilingVal" style="color:#ff2a5f;">-0.1 dBTP</span>
+            </div>
+            <input type="range" id="limiterCeiling" min="-6.0" max="0.0" value="-0.1" step="0.1">
+          </div>
+
+          <div class="slider-group">
+            <div class="slider-header">
+              <label for="targetLoudness">Target Loudness (LUFS)</label>
+              <span id="targetLoudnessVal" style="color:#00f0ff;">-14 LUFS (Spotify)</span>
+            </div>
+            <input type="range" id="targetLoudness" min="-24" max="-8" value="-14" step="1">
+          </div>
         <!-- VU Level Meter -->
         <div class="vu-meter-container">
           <div class="vu-label">OUTPUT VU METERS</div>
@@ -770,11 +797,11 @@
   </footer>
 
   <!-- Modular Scripts -->
-  <script src="js/data/presets.js?v=3.0.0"></script>
-  <script src="js/audio/audio-engine.js?v=3.0.0"></script>
-  <script src="js/visual/spatial-canvas.js?v=3.0.0"></script>
-  <script src="js/visual/visualizer.js?v=3.0.0"></script>
-  <script src="js/app.js?v=3.0.0"></script>
+  <script src="js/data/presets.js?v=4.0.0"></script>
+  <script src="js/audio/audio-engine.js?v=4.0.0"></script>
+  <script src="js/visual/spatial-canvas.js?v=4.0.0"></script>
+  <script src="js/visual/visualizer.js?v=4.0.0"></script>
+  <script src="js/app.js?v=4.0.0"></script>
 
   <script>
     if ('serviceWorker' in navigator) {
