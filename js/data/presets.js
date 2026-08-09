@@ -9,9 +9,9 @@ const AUDIO_PRESETS = {
   boat: [
     {
       id: "boat_signature",
-      name: "boAt Signature Sound",
-      desc: "Deep punchy bass + crisp highs tuned for boAt Rockerz & Airdopes",
-      badge: "boAt TUNED",
+      name: "Aura Signature Sound",
+      desc: "Deep punchy bass + crisp highs tuned for Aura Wireless & Earbuds",
+      badge: "AURA TUNED",
       eq: [6.0, 5.5, 3.5, 1.0, 0.0, 1.5, 2.5, 4.0, 4.5, 5.0],
       subBass: 5.0, haasWidth: 65, haasDelay: 18,
       dolbyComp: true, compThreshold: -24, compRatio: 4,
@@ -19,7 +19,7 @@ const AUDIO_PRESETS = {
     },
     {
       id: "boat_bassheads",
-      name: "boAt Bassheads Ultra Boost",
+      name: "Aura Bassheads Ultra Boost",
       desc: "Extreme 30Hz-120Hz sub-woofer rumble & heavy kick impact",
       badge: "EXTRA BASS",
       eq: [10.0, 9.0, 6.5, 3.0, 0.5, -1.0, 0.0, 2.0, 3.0, 3.5],
@@ -29,7 +29,7 @@ const AUDIO_PRESETS = {
     },
     {
       id: "boat_gaming",
-      name: "boAt Beast™ Low-Latency Gaming",
+      name: "Aura Beast™ Low-Latency Gaming",
       desc: "Enhanced footsteps, spatial directional cues & gunshot clarity",
       badge: "GAME MODE",
       eq: [-2.0, -1.0, 1.0, 3.0, 4.5, 5.0, 6.0, 5.5, 4.0, 3.0],
@@ -39,8 +39,8 @@ const AUDIO_PRESETS = {
     },
     {
       id: "boat_stone_bar",
-      name: "boAt Stone Soundbar Mode",
-      desc: "Wide soundstage & room-filling bass for boAt Bluetooth soundbars",
+      name: "Aura Soundbar Mode",
+      desc: "Wide soundstage & room-filling bass for Aura Soundbars",
       badge: "SOUNDBAR",
       eq: [7.5, 6.0, 4.0, 2.0, 1.0, 2.0, 3.5, 5.0, 6.0, 6.5],
       subBass: 6.0, haasWidth: 90, haasDelay: 25,
@@ -49,7 +49,7 @@ const AUDIO_PRESETS = {
     },
     {
       id: "boat_party",
-      name: "boAt Party Blast",
+      name: "Aura Party Blast",
       desc: "Maximum loudness & hypnotic bass pumping for parties",
       badge: "PARTY",
       eq: [9.0, 8.0, 7.0, 4.0, 1.5, 0.0, 2.5, 5.0, 6.0, 7.0],
@@ -59,7 +59,7 @@ const AUDIO_PRESETS = {
     },
     {
       id: "boat_rock",
-      name: "boAt Rock & Metal Crunch",
+      name: "Aura Rock & Metal Crunch",
       desc: "Guitar crunch, drum impact & high-gain distortion clarity",
       badge: "ROCK",
       eq: [5.0, 4.0, 2.0, -1.0, 1.0, 3.5, 5.0, 6.5, 5.5, 4.5],
@@ -69,14 +69,14 @@ const AUDIO_PRESETS = {
     },
     {
       id: "boat_hiphop",
-      name: "boAt Hip-Hop & Trap",
+      name: "Aura Hip-Hop & Trap",
       desc: "Booming 808 bass, snappy snares & spacious hi-hat rolls",
       badge: "HIP-HOP",
       eq: [8.5, 7.5, 5.0, 2.5, -0.5, -1.0, 1.5, 3.0, 3.5, 4.0],
     },
     {
       id: "boat_acoustic",
-      name: "boAt Acoustic & Live",
+      name: "Aura Acoustic & Live",
       desc: "Sparkling string details & live concert presence",
       badge: "ACOUSTIC",
       eq: [2.0, 1.5, 2.5, 3.0, 1.0, 2.0, 4.0, 5.5, 6.0, 5.0],
@@ -86,7 +86,7 @@ const AUDIO_PRESETS = {
     },
     {
       id: "boat_podcast",
-      name: "boAt Podcast & Vocal",
+      name: "Aura Podcast & Vocal",
       desc: "Maximum speech intelligibility and reduced fatigue for long listening",
       badge: "PODCAST",
       eq: [-3.0, -2.0, -1.0, 1.5, 4.5, 5.0, 3.5, 1.5, -1.0, -2.0],
@@ -96,7 +96,7 @@ const AUDIO_PRESETS = {
     },
     {
       id: "boat_workout",
-      name: "boAt Workout Hype",
+      name: "Aura Workout Hype",
       desc: "High energy, adrenaline-pumping bass and piercing highs",
       badge: "WORKOUT",
       eq: [9.5, 8.0, 6.0, 2.0, -1.5, 1.0, 3.0, 5.5, 7.0, 6.5],
@@ -212,7 +212,7 @@ const AUDIO_PRESETS = {
   hometheater: [
     {
       id: "ht_dolby_71",
-      name: "Dolby Atmos 7.1 Virtual Theater",
+      name: "Aura Atmos 7.1 Virtual Theater",
       desc: "Full cinematic dynamic range, center dialogue focus & LFE subwoofer upmix",
       badge: "DOLBY 7.1",
       eq: [8.0, 7.0, 4.5, 1.5, 1.0, 3.0, 4.0, 5.5, 6.5, 7.5],
@@ -222,7 +222,7 @@ const AUDIO_PRESETS = {
     },
     {
       id: "ht_night_mode",
-      name: "Dolby Night Dialogue Protect",
+      name: "Aura Night Dialogue Protect",
       desc: "Compresses loud action while keeping whisper dialogue crystal clear",
       badge: "NIGHT MODE",
       eq: [1.0, 1.0, 2.0, 3.0, 4.5, 5.0, 4.0, 2.5, 1.0, -1.0],
