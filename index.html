@@ -557,6 +557,34 @@
               </div>
             </div>
           </div>
+          
+          <!-- TRANSIENT SHAPER & SUB-HARMONIC SYNTHESIZER -->
+          <div class="enhancer-card" style="background: linear-gradient(135deg, rgba(0, 240, 255, 0.06), rgba(112, 0, 255, 0.06)); border: 1px solid rgba(0, 240, 255, 0.25);">
+            <div class="card-header">
+              <label class="switch">
+                <input type="checkbox" id="transientToggle">
+                <span class="slider round"></span>
+              </label>
+              <div class="card-title-group">
+                <h4 style="color:#00f0ff;">🔮 Transient Punch & Sub-Harmonic Synthesizer</h4>
+                <p>Sharpen attack transients and synthesize sub-octave bass impact</p>
+              </div>
+              <button id="resetTransientBtn" class="sm-btn card-reset-btn">Reset</button>
+            </div>
+            <div class="knob-group-row">
+              <div class="knob-item">
+                <label for="transientAttack">Attack Punch</label>
+                <input type="range" id="transientAttack" min="0" max="100" value="40" step="1">
+                <span id="transientAttackVal">+40%</span>
+              </div>
+              <div class="knob-item">
+                <label for="subOctaveGain">Sub-Octave Synthesizer</label>
+                <input type="range" id="subOctaveGain" min="0" max="12" value="3" step="0.5">
+                <span id="subOctaveGainVal">+3.0 dB</span>
+              </div>
+            </div>
+          </div>
+
           <!-- Lo-Fi Tape Warble -->
           <div class="enhancer-card">
             <div class="card-header">
@@ -671,6 +699,68 @@
           </label>
         </div>
 
+      <!-- 3D BINAURAL HEADSET OPTIMIZER & CROSSTALK MATRIX -->
+      <div class="god-mode-container" style="margin-top: 15px; background: rgba(16, 20, 30, 0.85); border: 1px solid rgba(0, 240, 255, 0.25); border-radius: 14px; padding: 14px;">
+        <h4 style="color:#00f0ff; font-size:0.85rem; margin-bottom:10px; display:flex; align-items:center; gap:6px;">
+          <span>🎧</span> BINAURAL HEADSET & CROSSTALK MATRIX
+        </h4>
+
+        <!-- Head Diameter (ITD Micro-Delay) -->
+        <div class="slider-group" style="margin-bottom:10px;">
+          <div class="slider-header" style="display:flex; justify-content:space-between; font-size:0.75rem;">
+            <label for="headDiameter">Skull Size ITD Delay</label>
+            <span id="headDiameterVal" style="color:#00f0ff; font-family:var(--font-mono);">18.5 cm</span>
+          </div>
+          <input type="range" id="headDiameter" min="12" max="24" value="18.5" step="0.5">
+        </div>
+
+        <!-- Speaker Crosstalk Matrix (Crossfeed) -->
+        <div class="slider-group" style="margin-bottom:10px;">
+          <div class="slider-header" style="display:flex; justify-content:space-between; font-size:0.75rem;">
+            <label for="crosstalkAmount">Acoustic Speaker Crosstalk</label>
+            <span id="crosstalkAmountVal" style="color:#00f0ff; font-family:var(--font-mono);">25%</span>
+          </div>
+          <input type="range" id="crosstalkAmount" min="0" max="80" value="25" step="1">
+        </div>
+      </div>
+
+
+        <div class="god-toggle-row">
+          <label for="godClarityToggle" class="god-label">💎 Crystal Clarity</label>
+          <label class="switch god-switch">
+            <input type="checkbox" id="godClarityToggle">
+            <span class="slider round"></span>
+          </label>
+        </div>
+
+        <div class="god-toggle-row">
+          <label for="godSpatialToggle" class="god-label">🌌 Omnipresent Surround</label>
+          <label class="switch god-switch">
+            <input type="checkbox" id="godSpatialToggle">
+            <span class="slider round"></span>
+          </label>
+        </div>
+
+        <div class="god-toggle-row">
+          <label for="godOttToggle" class="god-label">💥 Aura OTT Dynamics</label>
+          <label class="switch god-switch">
+            <input type="checkbox" id="godOttToggle">
+            <span class="slider round"></span>
+          </label>
+        </div>
+      </div>
+
+    </aside>
+
+  </main>
+
+  <!-- Footer - AuraDSP Pro -->
+  <footer class="app-footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <span class="footer-logo">🎧</span>
+
+
         <div class="god-toggle-row">
           <label for="godClarityToggle" class="god-label">💎 Crystal Clarity</label>
           <label class="switch god-switch">
@@ -717,11 +807,11 @@
   </footer>
 
   <!-- Modular Scripts -->
-  <script src="js/data/presets.js?v=2.5.0"></script>
-  <script src="js/audio/audio-engine.js?v=2.5.0"></script>
-  <script src="js/visual/spatial-canvas.js?v=2.5.0"></script>
-  <script src="js/visual/visualizer.js?v=2.5.0"></script>
-  <script src="js/app.js?v=2.5.0"></script>
+  <script src="js/data/presets.js?v=2.6.0"></script>
+  <script src="js/audio/audio-engine.js?v=2.6.0"></script>
+  <script src="js/visual/spatial-canvas.js?v=2.6.0"></script>
+  <script src="js/visual/visualizer.js?v=2.6.0"></script>
+  <script src="js/app.js?v=2.6.0"></script>
 
   <script>
     if ('serviceWorker' in navigator) {

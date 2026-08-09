@@ -1663,6 +1663,61 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  
+  // --- TRANSIENT & HEADSET CROSSTALK UI BINDINGS ---
+  const transientToggle = document.getElementById('transientToggle');
+  const transientAttack = document.getElementById('transientAttack');
+  const transientAttackVal = document.getElementById('transientAttackVal');
+  const subOctaveGain = document.getElementById('subOctaveGain');
+  const subOctaveGainVal = document.getElementById('subOctaveGainVal');
+  const resetTransientBtn = document.getElementById('resetTransientBtn');
+
+  if (transientToggle && transientAttack && subOctaveGain) {
+    const updateTransient = () => {
+      if (window.audioEngine) {
+        window.audioEngine.setTransientShaper(transientToggle.checked, parseFloat(transientAttack.value), parseFloat(subOctaveGain.value));
+      }
+    };
+    transientToggle.addEventListener('change', updateTransient);
+    transientAttack.addEventListener('input', (e) => {
+      if (transientAttackVal) transientAttackVal.textContent = `+${e.target.value}%`;
+      updateTransient();
+    });
+    subOctaveGain.addEventListener('input', (e) => {
+      if (subOctaveGainVal) subOctaveGainVal.textContent = `+${parseFloat(e.target.value).toFixed(1)} dB`;
+      updateTransient();
+    });
+    if (resetTransientBtn) resetTransientBtn.addEventListener('click', () => {
+      transientToggle.checked = false;
+      transientAttack.value = 40;
+      subOctaveGain.value = 3;
+      if (transientAttackVal) transientAttackVal.textContent = '+40%';
+      if (subOctaveGainVal) subOctaveGainVal.textContent = '+3.0 dB';
+      updateTransient();
+    });
+  }
+
+  const headDiameter = document.getElementById('headDiameter');
+  const headDiameterVal = document.getElementById('headDiameterVal');
+  const crosstalkAmount = document.getElementById('crosstalkAmount');
+  const crosstalkAmountVal = document.getElementById('crosstalkAmountVal');
+
+  if (headDiameter && headDiameterVal) {
+    headDiameter.addEventListener('input', (e) => {
+      const cm = parseFloat(e.target.value).toFixed(1);
+      headDiameterVal.textContent = `${cm} cm`;
+      if (window.audioEngine) window.audioEngine.setHeadDiameter(cm);
+    });
+  }
+
+  if (crosstalkAmount && crosstalkAmountVal) {
+    crosstalkAmount.addEventListener('input', (e) => {
+      const val = e.target.value;
+      crosstalkAmountVal.textContent = `${val}%`;
+      if (window.audioEngine) window.audioEngine.setCrosstalk(val);
+    });
+  }
+
   // --- PRO DSP UI LOGIC ---
   const proBtns = [
     { id: 'godBassToggle', method: 'setGodBass' },

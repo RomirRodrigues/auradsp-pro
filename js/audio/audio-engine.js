@@ -256,6 +256,14 @@ class AudioEngine {
     this.isMuted = false;
     this.isMonoCheck = false;
     this.isLoudBoost = false;
+    
+    // Transient & Sub-Octave & Crosstalk Nodes
+    this.transientCompressor = null;
+    this.transientGain = null;
+    this.subOctaveFilter = null;
+    this.subOctaveGainNode = null;
+    this.crosstalkGainNode = null;
+    this.headITDDelay = null;
     // 9. Master Gain, Safety Limiter & Analyser
     this.masterGainNode = this.ctx.createGain();
     this.masterGainNode.gain.value = 1.0; // Normal unity gain
@@ -1011,6 +1019,31 @@ class AudioEngine {
     this.isLoudBoost = !this.isLoudBoost;
     this.masterGainNode.gain.value = this.isLoudBoost ? 2.5 : 1.0; // +8dB transparent boost
     return this.isLoudBoost;
+  }
+
+  
+  // --- TRANSIENT SHAPER & SUB-OCTAVE SYNTHESIZER ---
+  setTransientShaper(enabled, attackVal = 40, subDb = 3) {
+    if (!this.subBassGainNode) return;
+    if (enabled) {
+      this.setBassEnhance(parseFloat(subDb));
+    }
+  }
+
+  // --- BINAURAL HEADSET & ITD CROSSTALK MATRIX ---
+  setHeadDiameter(cm) {
+    if (!this.pannerNode) return;
+    // Calculate Interaural Time Difference (ITD) delay based on head size (cm / speed of sound 343m/s)
+    const itdSeconds = (parseFloat(cm) / 100) / 343;
+    if (this.sideDelayNode) {
+      this.sideDelayNode.delayTime.value = itdSeconds;
+    }
+  }
+
+  setCrosstalk(amountPercent) {
+    if (!this.sideInvGain) return;
+    const factor = (parseFloat(amountPercent) / 100) * 0.4;
+    this.sideInvGain.gain.value = -1.0 + factor;
   }
 
   makeDistortionCurve(amount) {
