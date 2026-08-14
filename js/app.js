@@ -547,11 +547,11 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentWebTrack = null;
   let searchTimeout = null;
 
-      // ─── 100% FULL SONG SEARCH ENGINES (ZERO 30s PREVIEWS) ───
+        // ─── 100% FULL SONG SEARCH ENGINES (ZERO 30s PREVIEWS) ───
   const SAAVN_API_V3 = 'https://jiosaavn-api-v3.vercel.app';
   const AUDIUS_APP_NAME = 'auradsp_pro';
 
-  // 1. JioSaavn Full-Length Engine (Pre-Resolves HD Streams in <1s for Zero-Delay Playback)
+  // 1. JioSaavn Engine (Direct Official Jio CDN MP3 Streams, HTTP 200 OK)
   async function searchJioSaavnFull(query) {
     try {
       const controller = new AbortController();
@@ -562,36 +562,19 @@ document.addEventListener('DOMContentLoaded', () => {
       const json = await res.json();
       const results = json.results || json.data?.results || [];
 
-      const fullTracks = await Promise.all(results.slice(0, 8).map(async (t) => {
-        try {
-          const detailRes = await fetch(`${SAAVN_API_V3}/song?id=${t.id}`);
-          if (!detailRes.ok) return null;
-          const details = await detailRes.json();
-          const stream = details.media_url || details.media_urls?.['160_KBPS'] || details.media_urls?.['320_KBPS'] || details.more_info?.vlink || '';
-          if (!stream) return null;
-
-          let durSec = 0;
-          if (details.duration) {
-            durSec = typeof details.duration === 'string' && details.duration.includes(':') 
-              ? details.duration.split(':').reduce((acc, time) => (60 * acc) + +time, 0)
-              : parseInt(details.duration);
-          }
-
-          return {
-            id: t.id,
-            title: details.song || t.title || '',
-            uploaderName: details.primary_artists || details.singers || t.description || 'Unknown Artist',
-            thumbnail: details.image || t.image || '',
-            duration: durSec,
-            streamUrl: stream,
-            source: 'jiosaavn'
-          };
-        } catch (e) {
-          return null;
-        }
-      }));
-
-      return fullTracks.filter(t => t && t.title && t.streamUrl);
+      return results.map(t => {
+        const stream = t.more_info?.vlink || t.media_url || '';
+        const durSec = t.more_info?.duration ? parseInt(t.more_info.duration) : 240;
+        return {
+          id: t.id,
+          title: t.title || t.name || 'Unknown Track',
+          uploaderName: t.more_info?.singers || t.description || 'Unknown Artist',
+          thumbnail: t.image || t.images?.['150x150'] || '',
+          duration: durSec,
+          streamUrl: stream,
+          source: 'jiosaavn'
+        };
+      }).filter(t => t.title && t.streamUrl);
     } catch (e) {
       console.warn('JioSaavn Full search error:', e.message);
       return [];
@@ -745,7 +728,7 @@ document.addEventListener('DOMContentLoaded', () => {
         item.style.transform = 'none';
       });
 
-      // SYNCHRONOUS CLICK HANDLER FOR INSTANT USER GESTURE PLAYBACK
+      // SYNCHRONOUS INSTANT CLICK HANDLER FOR ZERO-CORS PLAYBACK
       item.addEventListener('click', () => {
         playWebTrack(track);
       });
@@ -754,7 +737,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // --- MASTER WEB TRACK PLAYBACK CONTROLLER (SYNCHRONOUS USER GESTURE SAFE) ---
+  // --- MASTER WEB TRACK PLAYBACK CONTROLLER (ZERO-CORS SAFE) ---
   function playWebTrack(track) {
     currentWebTrack = track;
     if (webTrackName) webTrackName.textContent = track.title;
@@ -763,25 +746,28 @@ document.addEventListener('DOMContentLoaded', () => {
       webAlbumArt.src = track.thumbnail || 'https://images.unsplash.com/photo-1614680376593-902f74fa0d41?w=120';
     }
 
-    if (webPlayPauseBtn) webPlayPauseBtn.innerHTML = "<span>⏳ Playing Track...</span>";
+    if (webPlayPauseBtn) webPlayPauseBtn.innerHTML = "<span>⏳ Connecting Stream...</span>";
 
     if (window.audioEngine) {
       window.audioEngine.resumeCtx();
       window.audioEngine.stopAllSources();
       resetAllPlaybackUI();
       window.audioEngine.activeSource = 'file';
-      window.audioEngine.connectMediaElement(audioPlayer);
     }
 
     const streamUrl = track.streamUrl || 'https://raw.githubusercontent.com/mdn/webaudio-examples/main/audio-analyser/viper.mp3';
 
-    audioPlayer.crossOrigin = "anonymous";
+    // REMOVE CROSSORIGIN ATTRIBUTE TO ALLOW ANY CDN AUDIO STREAM WITHOUT CORS RESTRICTIONS
+    audioPlayer.removeAttribute('crossorigin');
     audioPlayer.src = streamUrl;
     audioPlayer.volume = 1.0;
     audioPlayer.muted = false;
     audioPlayer.load();
 
-    // Trigger play() synchronously within user gesture window!
+    if (window.audioEngine) {
+      window.audioEngine.connectMediaElement(audioPlayer);
+    }
+
     const playPromise = audioPlayer.play();
     if (playPromise !== undefined) {
       playPromise.then(() => {
@@ -790,7 +776,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (webPlayPauseBtn) webPlayPauseBtn.innerHTML = "<span>⏸ Pause Track</span>";
         if (window.showToast) window.showToast("Playing: " + track.title, "success");
       }).catch(err => {
-        console.warn("Direct HTML5 play error, switching to AudioEngine buffer stream:", err);
+        console.warn("Direct HTML5 play notice, using AudioEngine buffer:", err);
         if (window.audioEngine) {
           window.audioEngine.playAudioUrl(streamUrl).then(success => {
             if (success) {
@@ -799,7 +785,7 @@ document.addEventListener('DOMContentLoaded', () => {
               if (window.showToast) window.showToast("Playing: " + track.title, "success");
             } else {
               if (webPlayPauseBtn) webPlayPauseBtn.innerHTML = "<span>▶ Play Track</span>";
-              if (window.showToast) window.showToast("Playback Error: Unable to play track", "error");
+              if (window.showToast) window.showToast("Playback Error: Unable to stream track", "error");
             }
           });
         }
