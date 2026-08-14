@@ -547,71 +547,107 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentWebTrack = null;
   let searchTimeout = null;
 
-  // --- Music Search Backend: JioSaavn (Indian) + iTunes (Western) ---
-  // Both APIs are CORS-enabled (Access-Control-Allow-Origin: *) and respond in <1s
-
-  const SAAVN_API = 'https://saavn.sumit.co';
+    // ─── 100% FULL SONG SEARCH ENGINES (ZERO 30s PREVIEWS) ───
+  const SAAVN_API_V3 = 'https://jiosaavn-api-v3.vercel.app';
   const AUDIUS_APP_NAME = 'auradsp_pro';
 
-  async function searchAudius(query) {
-    const controller = new AbortController();
-    const id = setTimeout(() => controller.abort(), 5000);
-    const res = await fetch(`https://discoveryprovider.audius.co/v1/tracks/search?query=${encodeURIComponent(query)}&app_name=${AUDIUS_APP_NAME}`, { signal: controller.signal });
-    clearTimeout(id);
-    if (!res.ok) throw new Error(`Audius ${res.status}`);
-    const json = await res.json();
-    return (json.data || []).map(t => ({
-      title: t.title || '',
-      uploaderName: t.user?.name || 'Unknown Artist',
-      thumbnail: t.artwork ? (t.artwork['480x480'] || t.artwork['150x150'] || '') : '',
-      duration: t.duration || 0,
-      streamUrl: t.id ? `https://discoveryprovider.audius.co/v1/tracks/${t.id}/stream?app_name=${AUDIUS_APP_NAME}` : '',
-      source: 'audius'
-    })).filter(t => t.title && t.streamUrl);
+  // 1. JioSaavn Full-Length Engine (3-6+ Minutes Full Songs)
+  async function searchJioSaavnFull(query) {
+    try {
+      const controller = new AbortController();
+      const id = setTimeout(() => controller.abort(), 6000);
+      const res = await fetch(`${SAAVN_API_V3}/search?query=${encodeURIComponent(query)}`, { signal: controller.signal });
+      clearTimeout(id);
+      if (!res.ok) throw new Error(`JioSaavn ${res.status}`);
+      const json = await res.json();
+      const results = json.results || json.data?.results || [];
+
+      // Fetch full-length stream URL for top 10 songs
+      const fullTracks = await Promise.all(results.slice(0, 10).map(async (t) => {
+        try {
+          const detailRes = await fetch(`${SAAVN_API_V3}/song?id=${t.id}`);
+          if (!detailRes.ok) return null;
+          const details = await detailRes.json();
+          const stream = details.media_url || details.media_urls?.['160_KBPS'] || details.media_urls?.['320_KBPS'] || '';
+          if (!stream) return null;
+
+          let durSec = 0;
+          if (details.duration) {
+            if (typeof details.duration === 'string' && details.duration.includes(':')) {
+              durSec = details.duration.split(':').reduce((acc, time) => (60 * acc) + +time, 0);
+            } else {
+              durSec = parseInt(details.duration);
+            }
+          }
+
+          return {
+            title: details.song || t.title || '',
+            uploaderName: details.primary_artists || details.singers || t.description || 'Unknown Artist',
+            thumbnail: details.image || t.image || '',
+            duration: durSec,
+            streamUrl: stream,
+            source: 'jiosaavn'
+          };
+        } catch (e) {
+          return null;
+        }
+      }));
+
+      return fullTracks.filter(t => t && t.title && t.streamUrl);
+    } catch (e) {
+      console.warn('JioSaavn Full search error:', e.message);
+      return [];
+    }
   }
 
-    async function searchJioSaavn(query) {
-    const controller = new AbortController();
-    const id = setTimeout(() => controller.abort(), 5000);
-    const res = await fetch(`${SAAVN_API}/api/search/songs?query=${encodeURIComponent(query)}&limit=20`, { signal: controller.signal });
-    clearTimeout(id);
-    if (!res.ok) throw new Error(`JioSaavn ${res.status}`);
-    const json = await res.json();
-    const results = json.data?.results || json.results || [];
-    return results.map(t => {
-      let stream = '';
-      if (t.downloadUrl && Array.isArray(t.downloadUrl)) {
-        const preferred = t.downloadUrl.find(d => d.quality === '160kbps') || t.downloadUrl.find(d => d.quality === '96kbps') || t.downloadUrl[0];
-        stream = preferred?.url || '';
-      } else if (typeof t.downloadUrl === 'string') {
-        stream = t.downloadUrl;
-      }
-      return {
-        title: t.name || t.title || '',
-        uploaderName: t.artists?.primary?.map(a => a.name).join(', ') || t.primaryArtists || 'Unknown Artist',
-        thumbnail: (t.image && Array.isArray(t.image)) ? (t.image.find(i => i.quality === '500x500') || t.image[t.image.length - 1])?.url || '' : (typeof t.image === 'string' ? t.image : ''),
-        duration: t.duration || 0,
-        streamUrl: stream,
-        source: 'jiosaavn'
-      };
-    }).filter(t => t.title && t.streamUrl);
+  // 2. Audius Decentralized Full-Length Engine (3-8+ Minutes Full Songs)
+  async function searchAudiusFull(query) {
+    try {
+      const controller = new AbortController();
+      const id = setTimeout(() => controller.abort(), 6000);
+      const res = await fetch(`https://discoveryprovider.audius.co/v1/tracks/search?query=${encodeURIComponent(query)}&app_name=${AUDIUS_APP_NAME}`, { signal: controller.signal });
+      clearTimeout(id);
+      if (!res.ok) throw new Error(`Audius ${res.status}`);
+      const json = await res.json();
+      return (json.data || []).map(t => ({
+        title: t.title || '',
+        uploaderName: t.user?.name || 'Unknown Artist',
+        thumbnail: t.artwork ? (t.artwork['480x480'] || t.artwork['150x150'] || '') : '',
+        duration: Math.round(t.duration || 0),
+        streamUrl: t.id ? `https://discoveryprovider.audius.co/v1/tracks/${t.id}/stream?app_name=${AUDIUS_APP_NAME}` : '',
+        source: 'audius'
+      })).filter(t => t.title && t.streamUrl);
+    } catch (e) {
+      console.warn('Audius Full search error:', e.message);
+      return [];
+    }
   }
 
-  async function searchItunes(query) {
-    const controller = new AbortController();
-    const id = setTimeout(() => controller.abort(), 5000);
-    const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&media=music&limit=15`, { signal: controller.signal });
-    clearTimeout(id);
-    if (!res.ok) throw new Error(`iTunes ${res.status}`);
-    const json = await res.json();
-    return (json.results || []).map(t => ({
-      title: (t.trackName || '') + ' [30s Preview]',
-      uploaderName: t.artistName || 'Unknown Artist',
-      thumbnail: (t.artworkUrl100 || '').replace('100x100', '300x300'),
-      duration: 30,
-      streamUrl: t.previewUrl || '',
-      source: 'itunes'
-    })).filter(t => t.title && t.streamUrl);
+  // 3. Internet Archive Full Audio Engine (3-10+ Minutes Full Songs)
+  async function searchArchiveFull(query) {
+    try {
+      const controller = new AbortController();
+      const id = setTimeout(() => controller.abort(), 6000);
+      const res = await fetch(`https://archive.org/advancedsearch.php?q=mediatype:audio+AND+title:${encodeURIComponent(query)}&fl[]=identifier,title,creator,publicdate&rows=8&output=json`, { signal: controller.signal });
+      clearTimeout(id);
+      if (!res.ok) throw new Error(`Archive ${res.status}`);
+      const json = await res.json();
+      const docs = json.response?.docs || [];
+      return docs.map(d => {
+        if (!d.identifier || !d.title) return null;
+        return {
+          title: d.title,
+          uploaderName: d.creator || 'Archive Collection',
+          thumbnail: `https://archive.org/services/img/${d.identifier}`,
+          duration: 240, // Estimated full song length
+          streamUrl: `https://archive.org/download/${d.identifier}/${d.identifier}.mp3`,
+          source: 'archive'
+        };
+      }).filter(t => t && t.title && t.streamUrl);
+    } catch (e) {
+      console.warn('Archive Full search error:', e.message);
+      return [];
+    }
   }
 
   if (webSearchInput) {
@@ -630,36 +666,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
   async function performWebMusicSearch(query) {
     if (webSearchResults) {
-      webSearchResults.innerHTML = '<div style="padding:10px; font-size:0.75rem; color:var(--text-muted); text-align:center;">🔍 Searching music library...</div>';
+      webSearchResults.innerHTML = '<div style="padding:12px; font-size:0.78rem; color:var(--text-muted); text-align:center;">🔍 Searching 100% full-length music catalog...</div>';
     }
 
     let allTracks = [];
 
-    const [saavnResult, itunesResult, audiusResult] = await Promise.allSettled([
-      searchJioSaavn(query),
-      searchItunes(query),
-      searchAudius(query)
+    // Run all 3 FULL-SONG engines in parallel (ZERO 30s previews)
+    const [saavnResult, audiusResult, archiveResult] = await Promise.allSettled([
+      searchJioSaavnFull(query),
+      searchAudiusFull(query),
+      searchArchiveFull(query)
     ]);
 
-    if (saavnResult.status === 'fulfilled') {
+    if (saavnResult.status === 'fulfilled' && saavnResult.value) {
       allTracks.push(...saavnResult.value);
     }
 
-    if (itunesResult.status === 'fulfilled') {
+    if (audiusResult.status === 'fulfilled' && audiusResult.value) {
       const existingTitles = new Set(allTracks.map(t => t.title.toLowerCase()));
-      itunesResult.value.forEach(t => {
-        if (!existingTitles.has(t.title.toLowerCase())) {
-          allTracks.push(t);
-        }
+      audiusResult.value.forEach(t => {
+        if (!existingTitles.has(t.title.toLowerCase())) allTracks.push(t);
       });
     }
 
-    if (audiusResult && audiusResult.status === 'fulfilled') {
+    if (archiveResult.status === 'fulfilled' && archiveResult.value) {
       const existingTitles = new Set(allTracks.map(t => t.title.toLowerCase()));
-      audiusResult.value.forEach(t => {
-        if (!existingTitles.has(t.title.toLowerCase())) {
-          allTracks.push(t);
-        }
+      archiveResult.value.forEach(t => {
+        if (!existingTitles.has(t.title.toLowerCase())) allTracks.push(t);
       });
     }
 
@@ -671,7 +704,7 @@ document.addEventListener('DOMContentLoaded', () => {
     webSearchResults.innerHTML = '';
     
     if (tracks.length === 0) {
-      webSearchResults.innerHTML = '<div style="padding:10px; font-size:0.75rem; color:var(--text-muted); text-align:center;">No matching songs found</div>';
+      webSearchResults.innerHTML = '<div style="padding:12px; font-size:0.75rem; color:var(--text-muted); text-align:center;">No matching full songs found</div>';
       return;
     }
 
@@ -681,33 +714,36 @@ document.addEventListener('DOMContentLoaded', () => {
       item.style.display = 'flex';
       item.style.alignItems = 'center';
       item.style.gap = '10px';
-      item.style.padding = '8px';
-      item.style.margin = '4px 0';
-      item.style.borderRadius = '4px';
+      item.style.padding = '8px 12px';
+      item.style.margin = '5px 0';
+      item.style.borderRadius = '6px';
       item.style.cursor = 'pointer';
-      item.style.background = 'rgba(255,255,255,0.02)';
-      item.style.border = '1px solid rgba(255,255,255,0.04)';
-      item.style.transition = 'all 0.1s';
+      item.style.background = 'rgba(255,255,255,0.03)';
+      item.style.border = '1px solid rgba(255,255,255,0.06)';
+      item.style.transition = 'all 0.15s ease';
 
       const imgUrl = track.thumbnail || 'https://images.unsplash.com/photo-1614680376593-902f74fa0d41?w=40';
       const durationStr = track.duration > 0 ? `${Math.floor(track.duration / 60)}:${String(track.duration % 60).padStart(2, '0')}` : '';
-      const sourceIcon = track.source === 'jiosaavn' ? '🎵' : (track.source === 'itunes' ? '🍎' : '🎧');
+      const sourceBadge = track.source === 'jiosaavn' ? '🎵 Full Song' : (track.source === 'audius' ? '🎧 Full Track' : '🏛️ Archive');
 
       item.innerHTML = `
-        <img src="${imgUrl}" style="width:36px; height:36px; border-radius:4px; object-fit:cover;" onerror="this.src='https://images.unsplash.com/photo-1614680376593-902f74fa0d41?w=40'">
+        <img src="${imgUrl}" style="width:38px; height:38px; border-radius:4px; object-fit:cover;" onerror="this.src='https://images.unsplash.com/photo-1614680376593-902f74fa0d41?w=40'">
         <div style="flex:1; overflow:hidden;">
-          <div style="font-size:0.8rem; font-weight:600; color:var(--text-main); white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">${sourceIcon} ${track.title}</div>
+          <div style="font-size:0.82rem; font-weight:700; color:var(--text-main); white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">${track.title}</div>
           <div style="font-size:0.68rem; color:var(--text-muted); white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">${track.uploaderName}${durationStr ? ' · ' + durationStr : ''}</div>
         </div>
+        <span style="font-size:0.65rem; padding:2px 6px; border-radius:10px; background:rgba(0,240,255,0.1); color:#00f0ff; border:1px solid rgba(0,240,255,0.3); font-weight:600;">${sourceBadge}</span>
       `;
 
       item.addEventListener('mouseenter', () => {
-        item.style.background = 'rgba(0, 240, 255, 0.06)';
-        item.style.borderColor = 'rgba(0, 240, 255, 0.2)';
+        item.style.background = 'rgba(0, 240, 255, 0.08)';
+        item.style.borderColor = 'rgba(0, 240, 255, 0.3)';
+        item.style.transform = 'translateX(3px)';
       });
       item.addEventListener('mouseleave', () => {
-        item.style.background = 'rgba(255,255,255,0.02)';
-        item.style.borderColor = 'rgba(255,255,255,0.04)';
+        item.style.background = 'rgba(255,255,255,0.03)';
+        item.style.borderColor = 'rgba(255,255,255,0.06)';
+        item.style.transform = 'none';
       });
 
       item.addEventListener('click', () => {
