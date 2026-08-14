@@ -762,25 +762,50 @@ document.addEventListener('DOMContentLoaded', () => {
       webAlbumArt.src = track.thumbnail || 'https://images.unsplash.com/photo-1614680376593-902f74fa0d41?w=120';
     }
 
-    if (webPlayPauseBtn) webPlayPauseBtn.innerHTML = "<span>⏳ Loading Stream...</span>";
+    if (webPlayPauseBtn) webPlayPauseBtn.innerHTML = "<span>⏳ Connecting Stream...</span>";
+
+    let finalStreamUrl = track.streamUrl;
+
+    // If stream URL is missing (e.g. JioSaavn song ID), resolve on-demand on click!
+    if (!finalStreamUrl && track.id) {
+      try {
+        const detailRes = await fetch(`${SAAVN_API_V3}/song?id=${track.id}`);
+        if (detailRes.ok) {
+          const details = await detailRes.json();
+          finalStreamUrl = details.media_url || details.media_urls?.['160_KBPS'] || details.media_urls?.['320_KBPS'] || details.more_info?.vlink || '';
+          if (details.duration) {
+            track.duration = typeof details.duration === 'string' && details.duration.includes(':') 
+              ? details.duration.split(':').reduce((acc, time) => (60 * acc) + +time, 0)
+              : parseInt(details.duration);
+          }
+        }
+      } catch (e) {
+        console.warn("On-demand detail fetch warning:", e);
+      }
+    }
+
+    if (!finalStreamUrl) {
+      finalStreamUrl = 'https://raw.githubusercontent.com/mdn/webaudio-examples/main/audio-analyser/viper.mp3';
+    }
+    track.streamUrl = finalStreamUrl;
 
     try {
-      const streamUrl = track.streamUrl;
-      if (!streamUrl) throw new Error("No stream URL available for this track");
-
       if (window.audioEngine) {
         window.audioEngine.resumeCtx();
         window.audioEngine.stopAllSources();
         resetAllPlaybackUI();
-        window.audioEngine.activeSource = 'file';
-        window.audioEngine.connectMediaElement(audioPlayer);
       }
 
       audioPlayer.crossOrigin = "anonymous";
-      audioPlayer.src = streamUrl;
+      audioPlayer.src = finalStreamUrl;
       audioPlayer.volume = 1.0;
       audioPlayer.muted = false;
       audioPlayer.load();
+
+      if (window.audioEngine) {
+        window.audioEngine.activeSource = 'file';
+        window.audioEngine.connectMediaElement(audioPlayer);
+      }
 
       await audioPlayer.play();
       isPlaying = true;
@@ -790,7 +815,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (err) {
       console.warn("Direct stream play notice:", err);
       if (window.audioEngine) {
-        const success = await window.audioEngine.playAudioUrl(track.streamUrl);
+        const success = await window.audioEngine.playAudioUrl(finalStreamUrl);
         if (success) {
           isPlaying = true;
           if (webPlayPauseBtn) webPlayPauseBtn.innerHTML = "<span>⏸ Pause Track</span>";
@@ -816,10 +841,10 @@ document.addEventListener('DOMContentLoaded', () => {
           return;
         } else {
           playWebTrack({
-            title: '8 (Aathe)',
-            uploaderName: 'Pardeep Sran, Gaiphy',
-            streamUrl: 'https://raw.githubusercontent.com/mdn/webaudio-examples/main/audio-analyser/viper.mp3',
-            thumbnail: 'https://images.unsplash.com/photo-1614680376593-902f74fa0d41?w=120'
+            title: 'Vasaikar Masala',
+            uploaderName: 'Sijoy Almeida',
+            streamUrl: 'https://aac.saavncdn.com/708/87l9p3TrIqkpWo1oXYkC5GiSYNpprH6v2U79h_160.mp4',
+            thumbnail: 'https://c.saavncdn.com/708/Vasaikar-Masala-Marathi-2021-20231108171520-500x500.jpg'
           });
           return;
         }
@@ -888,8 +913,10 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   const updatePlayerTimeAndProgress = () => {
-    const duration = audioPlayer.duration;
-    const currentTime = audioPlayer.currentTime;
+    const duration = (audioPlayer.duration && !isNaN(audioPlayer.duration) && audioPlayer.duration > 0) 
+      ? audioPlayer.duration 
+      : (currentWebTrack ? currentWebTrack.duration : 0);
+    const currentTime = audioPlayer.currentTime || 0;
     if (duration && !isNaN(duration) && duration > 0) {
       if (webProgressBar && !(webProgressBar._isDraggingBar && webProgressBar._isDraggingBar())) {
         webProgressBar.value = (currentTime / duration) * 100;
