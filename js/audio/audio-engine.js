@@ -326,7 +326,7 @@ class AudioEngine {
     this.tubeShaperNode.curve = this.makeDistortionCurve(0); // Off by default
 
     this.tapeDelayNode = this.ctx.createDelay(1.0);
-    this.tapeDelayNode.delayTime.value = 0.02; // 20ms base delay
+    this.tapeDelayNode.delayTime.value = 0.0; // 20ms base delay
     this.tapeLfo = this.ctx.createOscillator();
     this.tapeLfo.type = 'sine';
     this.tapeLfo.frequency.value = 2.0; // 2 Hz wobble
@@ -418,9 +418,6 @@ class AudioEngine {
     this.pannerNode.connect(this.spatialGainNode);
     this.spatialGainNode.connect(this.tapeDelayNode);
     this.tapeDelayNode.connect(this.masterGainNode);
-
-    // Direct Fail-Safe Audio Output Path (Guarantees 100% Audible Sound)
-    this.preGainNode.connect(this.masterGainNode);
   
     
     // Stereo Panner Node Initialization
@@ -435,7 +432,6 @@ class AudioEngine {
 
     this.limiterNode.connect(this.analyserNode);
     this.analyserNode.connect(this.ctx.destination);
-    this.masterGainNode.connect(this.ctx.destination);
 
     this.isInitialized = true;
   }
@@ -927,10 +923,10 @@ class AudioEngine {
   // --- Analog Warmth & Tape Modules ---
   
   
-  // --- GLOBAL BYPASS ---
+    // --- GLOBAL DSP ENGINE BYPASS ---
   setGlobalBypass(isBypassed) {
     this.isBypassed = !!isBypassed;
-    if (!this.preGainNode || !this.masterGainNode || !this.eqBands || !this.eqBands[0]) return;
+    if (!this.preGainNode || !this.masterGainNode || !this.subBassFilter) return;
     
     try {
       this.preGainNode.disconnect();
@@ -938,11 +934,14 @@ class AudioEngine {
 
     try {
       if (this.isBypassed) {
-        // Route directly to Master Gain, skipping EQ, Spatial, and FX
+        // DSP OFF / BYPASS: Route preGainNode directly to Master Gain (Pure untouched direct passthrough)
         this.preGainNode.connect(this.masterGainNode);
       } else {
-        // Route back to normal chain (EQ)
-        this.preGainNode.connect(this.eqBands[0]);
+        // DSP ON: Route preGainNode through subBassFilter -> 10-Band EQ -> DSP Pipeline
+        this.preGainNode.connect(this.subBassFilter);
+      }
+      if (this.inputMeterNode) {
+        try { this.preGainNode.connect(this.inputMeterNode); } catch (e) {}
       }
     } catch (e) {
       console.warn("Bypass routing warning:", e);

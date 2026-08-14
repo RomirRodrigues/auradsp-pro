@@ -57,7 +57,10 @@
       </div>
       </div>
       <div class="theme-picker" style="margin-left: 6px;">
-        <button id="globalBypassBtn" class="sm-btn" style="background:#ff3366; color:white; font-weight:bold;">GLOBAL BYPASS: OFF</button>
+        <button id="globalBypassBtn" class="sm-btn dsp-power-btn" title="Toggle Master DSP Engine (ON / BYPASS)">
+          <span class="dsp-power-led"></span>
+          <span id="dspPowerText">⚡ DSP ENGINE: ON</span>
+        </button>
       </div>
       <div class="theme-picker" style="margin-left: 10px;">
         <select id="appFontSelector" title="Change UI Font">
@@ -756,11 +759,11 @@
   </footer>
 
   <!-- Modular Scripts -->
-  <script src="js/data/presets.js?v=19.0.0"></script>
-  <script src="js/audio/audio-engine.js?v=19.0.0"></script>
-  <script src="js/visual/spatial-canvas.js?v=19.0.0"></script>
-  <script src="js/visual/visualizer.js?v=19.0.0"></script>
-  <script src="js/app.js?v=19.0.0"></script>
+  <script src="js/data/presets.js?v=21.0.0"></script>
+  <script src="js/audio/audio-engine.js?v=21.0.0"></script>
+  <script src="js/visual/spatial-canvas.js?v=21.0.0"></script>
+  <script src="js/visual/visualizer.js?v=21.0.0"></script>
+  <script src="js/app.js?v=21.0.0"></script>
 
   <script>
     if ('serviceWorker' in navigator) {

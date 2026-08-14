@@ -1297,21 +1297,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
   
-  // --- GLOBAL BYPASS UI ---
+    // --- MASTER DSP ENGINE POWER SWITCH CONTROLLER ---
   const globalBypassBtn = document.getElementById('globalBypassBtn');
-  let isGlobalBypass = false;
+  const dspPowerText = document.getElementById('dspPowerText');
+  let isGlobalBypass = false; // Default: DSP Engine ON
   
   if (globalBypassBtn) {
     globalBypassBtn.addEventListener('click', () => {
       isGlobalBypass = !isGlobalBypass;
       if (isGlobalBypass) {
-        globalBypassBtn.textContent = 'GLOBAL BYPASS: ON';
-        globalBypassBtn.style.background = '#4cd137'; // Green when active bypass
+        if (dspPowerText) dspPowerText.textContent = '⚡ DSP ENGINE: BYPASS';
+        globalBypassBtn.classList.add('bypassed-active');
         document.body.classList.add('bypassed');
+        if (window.showToast) window.showToast("DSP Engine Bypassed (Pure Direct Passthrough)", "info");
       } else {
-        globalBypassBtn.textContent = 'GLOBAL BYPASS: OFF';
-        globalBypassBtn.style.background = '#ff3366';
+        if (dspPowerText) dspPowerText.textContent = '⚡ DSP ENGINE: ON';
+        globalBypassBtn.classList.remove('bypassed-active');
         document.body.classList.remove('bypassed');
+        if (window.showToast) window.showToast("DSP Engine Active", "success");
       }
       
       if (window.audioEngine) {
@@ -1320,10 +1323,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  
   // --- TOAST NOTIFICATION SYSTEM (Point 25) ---
   window.showToast = function(message, type = 'info') {
-    const container = document.getElementById('toastContainer');
     if (!container) return;
     const toast = document.createElement('div');
     toast.className = `toast toast-${type}`;

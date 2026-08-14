@@ -2812,3 +2812,52 @@ select.cyber-select:focus, input.cyber-input:focus {
   border-color: rgba(0, 240, 255, 0.3) !important;
   box-shadow: 0 0 20px rgba(0, 240, 255, 0.08) !important;
 }
+
+
+/* Master DSP Engine Power Switch Styling */
+.dsp-power-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  background: linear-gradient(135deg, rgba(0, 240, 255, 0.15), rgba(112, 0, 255, 0.25)) !important;
+  border: 1px solid rgba(0, 240, 255, 0.5) !important;
+  color: #00f0ff !important;
+  font-weight: 800 !important;
+  padding: 5px 12px !important;
+  border-radius: 20px !important;
+  box-shadow: 0 0 12px rgba(0, 240, 255, 0.25) !important;
+  transition: all 0.2s ease !important;
+  cursor: pointer !important;
+}
+
+.dsp-power-btn:hover {
+  transform: scale(1.04) !important;
+  box-shadow: 0 0 18px rgba(0, 240, 255, 0.45) !important;
+}
+
+.dsp-power-led {
+  width: 8px !important;
+  height: 8px !important;
+  border-radius: 50% !important;
+  background: #00ffa3 !important;
+  box-shadow: 0 0 8px #00ffa3 !important;
+  animation: ledPulse 2s infinite ease-in-out !important;
+}
+
+@keyframes ledPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(0.85); }
+}
+
+.dsp-power-btn.bypassed-active {
+  background: rgba(255, 170, 0, 0.15) !important;
+  border-color: rgba(255, 170, 0, 0.5) !important;
+  color: #ffaa00 !important;
+  box-shadow: 0 0 10px rgba(255, 170, 0, 0.25) !important;
+}
+
+.dsp-power-btn.bypassed-active .dsp-power-led {
+  background: #ffaa00 !important;
+  box-shadow: 0 0 8px #ffaa00 !important;
+  animation: none !important;
+}
