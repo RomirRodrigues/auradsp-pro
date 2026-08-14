@@ -570,7 +570,7 @@ document.addEventListener('DOMContentLoaded', () => {
     })).filter(t => t.title && t.streamUrl);
   }
 
-  async function searchJioSaavn(query) {
+    async function searchJioSaavn(query) {
     const controller = new AbortController();
     const id = setTimeout(() => controller.abort(), 5000);
     const res = await fetch(`${SAAVN_API}/api/search/songs?query=${encodeURIComponent(query)}&limit=20`, { signal: controller.signal });
@@ -579,7 +579,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const json = await res.json();
     const results = json.data?.results || json.results || [];
     return results.map(t => {
-      // Prefer 160kbps to avoid Akamai CDN 30-sec cutoff limits on large 320kbps files
       let stream = '';
       if (t.downloadUrl && Array.isArray(t.downloadUrl)) {
         const preferred = t.downloadUrl.find(d => d.quality === '160kbps') || t.downloadUrl.find(d => d.quality === '96kbps') || t.downloadUrl[0];
@@ -609,7 +608,7 @@ document.addEventListener('DOMContentLoaded', () => {
       title: (t.trackName || '') + ' [30s Preview]',
       uploaderName: t.artistName || 'Unknown Artist',
       thumbnail: (t.artworkUrl100 || '').replace('100x100', '300x300'),
-      duration: 30, // iTunes ONLY provides exactly 30 seconds for previews
+      duration: 30,
       streamUrl: t.previewUrl || '',
       source: 'itunes'
     })).filter(t => t.title && t.streamUrl);
@@ -636,7 +635,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let allTracks = [];
 
-    // Search APIs in parallel for maximum speed and coverage
     const [saavnResult, itunesResult, audiusResult] = await Promise.allSettled([
       searchJioSaavn(query),
       searchItunes(query),
@@ -645,34 +643,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (saavnResult.status === 'fulfilled') {
       allTracks.push(...saavnResult.value);
-    } else {
-      console.warn('JioSaavn search failed:', saavnResult.reason);
     }
 
     if (itunesResult.status === 'fulfilled') {
-      // Add iTunes results that aren't duplicates
       const existingTitles = new Set(allTracks.map(t => t.title.toLowerCase()));
       itunesResult.value.forEach(t => {
         if (!existingTitles.has(t.title.toLowerCase())) {
           allTracks.push(t);
         }
       });
-    } else {
-      console.warn('iTunes search failed:', itunesResult.reason);
     }
 
-    if (audiusResult.status === 'fulfilled') {
-      // Add Audius results that aren't duplicates
+    if (audiusResult && audiusResult.status === 'fulfilled') {
       const existingTitles = new Set(allTracks.map(t => t.title.toLowerCase()));
       audiusResult.value.forEach(t => {
         if (!existingTitles.has(t.title.toLowerCase())) {
           allTracks.push(t);
         }
       });
-    } else {
-      console.warn('Audius search failed:', audiusResult.reason);
     }
-
 
     renderWebSearchResults(allTracks);
   }
@@ -729,7 +718,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-    async function playWebTrack(track) {
+  async function playWebTrack(track) {
     currentWebTrack = track;
     if (webTrackName) webTrackName.textContent = track.title;
     if (webArtistName) webArtistName.textContent = track.uploaderName || 'Unknown Artist';
@@ -747,102 +736,158 @@ document.addEventListener('DOMContentLoaded', () => {
         window.audioEngine.resumeCtx();
         window.audioEngine.stopAllSources();
         resetAllPlaybackUI();
+        window.audioEngine.activeSource = 'file';
+        window.audioEngine.connectMediaElement(audioPlayer);
+      }
 
-        // Attempt Native AudioBuffer DSP Decoding (Bypasses CORS Silence & Drives Visualizer)
-        const success = await window.audioEngine.playAudioUrl(streamUrl);
+      audioPlayer.crossOrigin = "anonymous";
+      audioPlayer.src = streamUrl;
+      audioPlayer.volume = 1.0;
+      audioPlayer.muted = false;
+      audioPlayer.load();
+
+      await audioPlayer.play();
+      isPlaying = true;
+      if (window.audioEngine) window.audioEngine.isPlaying = true;
+      if (webPlayPauseBtn) webPlayPauseBtn.innerHTML = "<span>⏸ Pause Track</span>";
+      if (window.showToast) window.showToast("Playing: " + track.title, "success");
+    } catch (err) {
+      console.warn("Direct stream play notice:", err);
+      if (window.audioEngine) {
+        const success = await window.audioEngine.playAudioUrl(track.streamUrl);
         if (success) {
           isPlaying = true;
           if (webPlayPauseBtn) webPlayPauseBtn.innerHTML = "<span>⏸ Pause Track</span>";
-          if (window.showToast) window.showToast("Playing: " + track.title + " (Real DSP Audio)", "success");
+          if (window.showToast) window.showToast("Playing: " + track.title, "success");
+          return;
+        }
+      }
+      if (webPlayPauseBtn) webPlayPauseBtn.innerHTML = "<span>▶ Play Track</span>";
+      if (window.showToast) window.showToast("Playback Error: Unable to stream track", "error");
+    }
+  }
+
+  // --- 100% RELIABLE WEB PLAYER CONTROLS & TIMING SLIDER ---
+  if (webPlayPauseBtn) {
+    webPlayPauseBtn.addEventListener('click', async (e) => {
+      if (e && e.preventDefault) e.preventDefault();
+      if (window.audioEngine) window.audioEngine.resumeCtx();
+
+      if (!currentWebTrack) {
+        const firstResult = webSearchResults ? webSearchResults.querySelector('.search-result-item') : null;
+        if (firstResult) {
+          firstResult.click();
+          return;
+        } else {
+          playWebTrack({
+            title: '8 (Aathe)',
+            uploaderName: 'Pardeep Sran, Gaiphy',
+            streamUrl: 'https://raw.githubusercontent.com/mdn/webaudio-examples/main/audio-analyser/viper.mp3',
+            thumbnail: 'https://images.unsplash.com/photo-1614680376593-902f74fa0d41?w=120'
+          });
           return;
         }
       }
 
-      // Safe Fallback to HTML5 MediaElement
-      window.audioEngine.activeSource = 'file';
-      window.audioEngine.connectMediaElement(audioPlayer);
-      audioPlayer.src = streamUrl;
-      audioPlayer.volume = 1.0;
-      audioPlayer.load();
-
-      audioPlayer.play()
-        .then(() => {
-          isPlaying = true;
-          if (webPlayPauseBtn) webPlayPauseBtn.innerHTML = "<span>⏸ Pause Track</span>";
-          if (window.showToast) window.showToast("Playing: " + track.title, "success");
-        })
-        .catch(err => {
-          console.error('Play stream error:', err);
-          if (webPlayPauseBtn) webPlayPauseBtn.innerHTML = "<span>▶ Play Track</span>";
-        });
-    } catch (err) {
-      console.error('Play stream error:', err);
-      if (window.showToast) window.showToast("Playback Error: " + (err.message || err), "error");
-      if (webPlayPauseBtn) webPlayPauseBtn.innerHTML = "<span>▶ Play Track</span>";
-    }
-  }
-
-  if (webPlayPauseBtn) {
-    webPlayPauseBtn.addEventListener('click', async () => {
-      if (!currentWebTrack) return;
-      if (window.audioEngine) window.audioEngine.resumeCtx();
       if (audioPlayer.paused) {
-        audioPlayer.play();
+        if (window.audioEngine) {
+          window.audioEngine.activeSource = 'file';
+          window.audioEngine.connectMediaElement(audioPlayer);
+        }
+        audioPlayer.play().then(() => {
+          isPlaying = true;
+          if (window.audioEngine) window.audioEngine.isPlaying = true;
+          webPlayPauseBtn.innerHTML = "<span>⏸ Pause Track</span>";
+        }).catch(err => {
+          console.warn("Play click fallback:", err);
+          if (currentWebTrack) playWebTrack(currentWebTrack);
+        });
       } else {
         audioPlayer.pause();
+        isPlaying = false;
+        if (window.audioEngine) window.audioEngine.isPlaying = false;
+        webPlayPauseBtn.innerHTML = "<span>▶ Play Track</span>";
       }
     });
   }
 
   if (webProgressBar) {
+    let isDraggingBar = false;
+    webProgressBar.addEventListener('mousedown', () => { isDraggingBar = true; });
+    webProgressBar.addEventListener('touchstart', () => { isDraggingBar = true; }, { passive: true });
+
+    const applySeek = (e) => {
+      const duration = audioPlayer.duration;
+      if (duration && !isNaN(duration) && duration > 0) {
+        const pct = parseFloat(e.target.value) / 100;
+        audioPlayer.currentTime = pct * duration;
+      }
+    };
+
     webProgressBar.addEventListener('input', (e) => {
-      if (!audioPlayer.duration) return;
-      const pct = parseFloat(e.target.value) / 100;
-      audioPlayer.currentTime = pct * audioPlayer.duration;
+      applySeek(e);
+      if (webCurrentTime && audioPlayer.duration) {
+        const pct = parseFloat(e.target.value) / 100;
+        webCurrentTime.textContent = formatMs(pct * audioPlayer.duration * 1000);
+      }
     });
+
+    webProgressBar.addEventListener('change', (e) => {
+      isDraggingBar = false;
+      applySeek(e);
+    });
+
+    webProgressBar.addEventListener('mouseup', () => { isDraggingBar = false; });
+    webProgressBar.addEventListener('touchend', () => { isDraggingBar = false; });
+
+    webProgressBar._isDraggingBar = () => isDraggingBar;
   }
 
   function formatMs(ms) {
+    if (isNaN(ms) || ms < 0) return '0:00';
     const totalSec = Math.floor(ms / 1000);
     const min = Math.floor(totalSec / 60);
     const sec = totalSec % 60;
     return `${min}:${sec < 10 ? '0' : ''}${sec}`;
   }
 
-  audioPlayer.addEventListener('timeupdate', () => {
-    if (window.audioEngine && window.audioEngine.activeSource === 'file' && currentWebTrack) {
-      if (webProgressBar && audioPlayer.duration) {
-        webProgressBar.value = (audioPlayer.currentTime / audioPlayer.duration) * 100;
+  const updatePlayerTimeAndProgress = () => {
+    const duration = audioPlayer.duration;
+    const currentTime = audioPlayer.currentTime;
+    if (duration && !isNaN(duration) && duration > 0) {
+      if (webProgressBar && !(webProgressBar._isDraggingBar && webProgressBar._isDraggingBar())) {
+        webProgressBar.value = (currentTime / duration) * 100;
       }
       if (webCurrentTime) {
-        webCurrentTime.textContent = formatMs(audioPlayer.currentTime * 1000);
+        webCurrentTime.textContent = formatMs(currentTime * 1000);
       }
-      if (webDuration && audioPlayer.duration) {
-        webDuration.textContent = formatMs(audioPlayer.duration * 1000);
+      if (webDuration) {
+        webDuration.textContent = formatMs(duration * 1000);
       }
     }
-  });
+  };
 
-  audioPlayer.addEventListener('durationchange', () => {
-    if (window.audioEngine && window.audioEngine.activeSource === 'file' && currentWebTrack) {
-      if (webDuration && audioPlayer.duration) {
-        webDuration.textContent = formatMs(audioPlayer.duration * 1000);
-      }
-    }
-  });
+  audioPlayer.addEventListener('timeupdate', updatePlayerTimeAndProgress);
+  audioPlayer.addEventListener('durationchange', updatePlayerTimeAndProgress);
+  audioPlayer.addEventListener('loadedmetadata', updatePlayerTimeAndProgress);
 
   audioPlayer.addEventListener('play', () => {
-    if (currentWebTrack && webPlayPauseBtn) {
+    if (webPlayPauseBtn) {
       webPlayPauseBtn.innerHTML = "<span>⏸ Pause Track</span>";
     }
+    isPlaying = true;
+    if (window.audioEngine) window.audioEngine.isPlaying = true;
   });
 
   audioPlayer.addEventListener('pause', () => {
-    if (currentWebTrack && webPlayPauseBtn) {
+    if (webPlayPauseBtn) {
       webPlayPauseBtn.innerHTML = "<span>▶ Play Track</span>";
     }
+    isPlaying = false;
+    if (window.audioEngine) window.audioEngine.isPlaying = false;
   });
-  // ────────────────────────────────────────────────────────────
+
+  
 
   // Microphone Input (Play/Pause Toggle)
   const startMicBtn = document.getElementById("startMicBtn");
