@@ -2861,3 +2861,338 @@ select.cyber-select:focus, input.cyber-input:focus {
   box-shadow: 0 0 8px #ffaa00 !important;
   animation: none !important;
 }
+
+/* ==========================================================================
+   21st.dev & Motion.dev UI/UX Enhancement Layer
+   ========================================================================== */
+
+/* 1. 21st.dev Mouse-Tracking Spotlight Overlay */
+.panel, .source-card, .preset-card, .preset-category-card, .pro-dsp-container, .spotify-sub-card {
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.panel::before, .source-card::before, .preset-card::before, .preset-category-card::before, .pro-dsp-container::before {
+  content: '' !important;
+  position: absolute !important;
+  inset: 0 !important;
+  background: radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(0, 240, 255, 0.12), transparent 40%) !important;
+  opacity: 0 !important;
+  transition: opacity 0.3s ease !important;
+  pointer-events: none !important;
+  z-index: 1 !important;
+}
+
+.panel:hover::before, .source-card:hover::before, .preset-card:hover::before, .preset-category-card:hover::before, .pro-dsp-container:hover::before {
+  opacity: 1 !important;
+}
+
+/* 2. Motion.dev Spring Physics Button Interactions */
+button, .source-btn, .preset-card, .pro-btn, .mpn-btn, .tab-btn {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease, background 0.2s ease, border-color 0.2s ease !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+button:hover, .source-btn:hover, .preset-card:hover, .pro-btn:hover, .tab-btn:hover {
+  transform: translateY(-2px) scale(1.01) !important;
+}
+
+button:active, .source-btn:active, .preset-card:active, .pro-btn:active {
+  transform: scale(0.97) !important;
+}
+
+.motion-press {
+  transform: scale(0.96) !important;
+  transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+}
+
+.motion-ripple {
+  position: absolute !important;
+  border-radius: 50% !important;
+  background: rgba(0, 240, 255, 0.25) !important;
+  transform: scale(0) !important;
+  animation: motionRippleAnim 0.6s ease-out !important;
+  pointer-events: none !important;
+}
+
+@keyframes motionRippleAnim {
+  to {
+    transform: scale(3.5) !important;
+    opacity: 0 !important;
+  }
+}
+
+/* 3. 21st.dev Border Beam Animation for Active Highlights */
+.border-beam-active {
+  position: relative !important;
+}
+
+.border-beam-active::after {
+  content: '' !important;
+  position: absolute !important;
+  inset: -1px !important;
+  border-radius: inherit !important;
+  padding: 1px !important;
+  background: linear-gradient(90deg, #00f0ff, #ff007f, #00ffa3, #00f0ff) !important;
+  background-size: 300% 300% !important;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0) !important;
+  -webkit-mask-composite: xor !important;
+  mask-composite: exclude !important;
+  animation: borderBeamGlow 4s linear infinite !important;
+  pointer-events: none !important;
+}
+
+@keyframes borderBeamGlow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* 4. Motion-Enhanced Dynamic Slider Styling */
+input[type="range"] {
+  height: 6px !important;
+  border-radius: 3px !important;
+  background: linear-gradient(to right, var(--slider-glow, var(--accent-cyan)) var(--slider-progress, 0%), rgba(255, 255, 255, 0.1) var(--slider-progress, 0%)) !important;
+  transition: background 0.1s ease !important;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease !important;
+}
+
+input[type="range"]:hover::-webkit-slider-thumb {
+  transform: scale(1.35) !important;
+  box-shadow: 0 0 14px var(--slider-glow, var(--accent-cyan)) !important;
+}
+
+/* 5. 21st.dev Ambient Aurora Mesh Background */
+body.cyber-dark::before {
+  content: '' !important;
+  position: fixed !important;
+  top: -10% !important;
+  left: -10% !important;
+  width: 120vw !important;
+  height: 120vh !important;
+  background: 
+    radial-gradient(circle at 20% 30%, rgba(0, 240, 255, 0.08) 0%, transparent 40%),
+    radial-gradient(circle at 80% 70%, rgba(255, 0, 127, 0.08) 0%, transparent 40%),
+    radial-gradient(circle at 50% 50%, rgba(112, 0, 255, 0.06) 0%, transparent 50%) !important;
+  pointer-events: none !important;
+  z-index: 0 !important;
+  animation: auroraMeshPulse 12s infinite alternate ease-in-out !important;
+}
+
+@keyframes auroraMeshPulse {
+  0% { transform: scale(1) rotate(0deg); opacity: 0.8; }
+  100% { transform: scale(1.1) rotate(3deg); opacity: 1; }
+}
+
+/* 6. 21st.dev Glassmorphic Floating Quick Control Dock */
+.quick-dock {
+  position: fixed !important;
+  bottom: 20px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  background: rgba(12, 16, 26, 0.85) !important;
+  backdrop-filter: blur(24px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+  border: 1px solid rgba(0, 240, 255, 0.3) !important;
+  border-radius: 30px !important;
+  padding: 8px 20px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 14px !important;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6), 0 0 24px rgba(0, 240, 255, 0.15) !important;
+  z-index: 999 !important;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.quick-dock-label {
+  font-family: var(--font-mono) !important;
+  font-size: 0.75rem !important;
+  color: var(--accent-cyan) !important;
+  font-weight: 700 !important;
+  letter-spacing: 1px !important;
+}
+
+.quick-dock-btn {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  color: #fff !important;
+  padding: 6px 12px !important;
+  border-radius: 16px !important;
+  font-size: 0.75rem !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+}
+
+.quick-dock-btn:hover {
+  background: rgba(0, 240, 255, 0.2) !important;
+  border-color: var(--accent-cyan) !important;
+  color: var(--accent-cyan) !important;
+}
+
+/* ==========================================================================
+   Welcome Animation Splash Overlay (21st.dev + Motion.dev style)
+   ========================================================================== */
+.welcome-splash {
+  position: fixed !important;
+  inset: 0 !important;
+  background: rgba(5, 7, 12, 0.96) !important;
+  backdrop-filter: blur(30px) saturate(200%) !important;
+  -webkit-backdrop-filter: blur(30px) saturate(200%) !important;
+  z-index: 10000 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), filter 0.8s ease !important;
+}
+
+.welcome-splash.hidden-splash {
+  opacity: 0 !important;
+  transform: scale(1.08) !important;
+  filter: blur(12px) !important;
+  pointer-events: none !important;
+}
+
+.welcome-card {
+  background: rgba(15, 20, 32, 0.85) !important;
+  border: 1px solid rgba(0, 240, 255, 0.3) !important;
+  border-radius: 28px !important;
+  padding: 40px 48px !important;
+  text-align: center !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(0, 240, 255, 0.2) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  max-width: 480px !important;
+  width: 90% !important;
+  animation: welcomePop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+}
+
+@keyframes welcomePop {
+  0% { transform: scale(0.85); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.welcome-logo-ring {
+  position: relative !important;
+  width: 72px !important;
+  height: 72px !important;
+  background: linear-gradient(135deg, var(--accent-neon), var(--accent-cyan)) !important;
+  border-radius: 20px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin-bottom: 20px !important;
+  box-shadow: 0 0 30px rgba(0, 240, 255, 0.5) !important;
+}
+
+.welcome-logo-ring svg {
+  width: 36px !important;
+  height: 36px !important;
+  color: #fff !important;
+}
+
+.welcome-pulse {
+  position: absolute !important;
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: 20px !important;
+  border: 2px solid var(--accent-cyan) !important;
+  animation: ringPulse 2s infinite ease-out !important;
+}
+
+.welcome-title {
+  font-size: 2.2rem !important;
+  font-weight: 800 !important;
+  letter-spacing: 3px !important;
+  color: #fff !important;
+  margin-bottom: 8px !important;
+}
+
+.welcome-title span {
+  color: var(--accent-cyan) !important;
+}
+
+.welcome-subtitle {
+  font-size: 0.88rem !important;
+  color: var(--text-muted) !important;
+  margin-bottom: 24px !important;
+}
+
+.welcome-wave-bars {
+  display: flex !important;
+  gap: 6px !important;
+  align-items: flex-end !important;
+  height: 24px !important;
+  margin-bottom: 24px !important;
+}
+
+.welcome-wave-bars span {
+  width: 4px !important;
+  background: var(--accent-cyan) !important;
+  border-radius: 2px !important;
+  animation: welcomeWave 1.2s infinite ease-in-out alternate !important;
+}
+
+.welcome-wave-bars span:nth-child(1) { height: 100%; animation-delay: 0.0s; }
+.welcome-wave-bars span:nth-child(2) { height: 60%; animation-delay: 0.2s; }
+.welcome-wave-bars span:nth-child(3) { height: 90%; animation-delay: 0.4s; }
+.welcome-wave-bars span:nth-child(4) { height: 40%; animation-delay: 0.1s; }
+.welcome-wave-bars span:nth-child(5) { height: 80%; animation-delay: 0.3s; }
+.welcome-wave-bars span:nth-child(6) { height: 50%; animation-delay: 0.5s; }
+
+@keyframes welcomeWave {
+  0% { transform: scaleY(0.2); background: var(--accent-cyan); }
+  100% { transform: scaleY(1); background: var(--accent-pink); }
+}
+
+.welcome-progress-bar {
+  width: 100% !important;
+  height: 6px !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-radius: 3px !important;
+  overflow: hidden !important;
+  margin-bottom: 12px !important;
+}
+
+.welcome-progress-fill {
+  width: 0% !important;
+  height: 100% !important;
+  background: linear-gradient(90deg, var(--accent-cyan), var(--accent-pink), var(--accent-green)) !important;
+  transition: width 0.1s linear !important;
+  box-shadow: 0 0 10px var(--accent-cyan) !important;
+}
+
+.welcome-status {
+  font-family: var(--font-mono) !important;
+  font-size: 0.72rem !important;
+  color: var(--accent-cyan) !important;
+  letter-spacing: 1px !important;
+  margin-bottom: 20px !important;
+}
+
+.welcome-enter-btn {
+  background: linear-gradient(135deg, var(--accent-cyan), #0088ff) !important;
+  color: #000 !important;
+  font-weight: 800 !important;
+  padding: 12px 28px !important;
+  border-radius: 20px !important;
+  border: none !important;
+  cursor: pointer !important;
+  font-size: 0.9rem !important;
+  letter-spacing: 1px !important;
+  box-shadow: 0 4px 20px rgba(0, 240, 255, 0.4) !important;
+  transition: all 0.25s ease !important;
+}
+
+.welcome-enter-btn:hover {
+  transform: scale(1.05) !important;
+  box-shadow: 0 6px 28px rgba(0, 240, 255, 0.6) !important;
+}
+
+

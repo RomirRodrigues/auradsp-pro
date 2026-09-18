@@ -12,6 +12,33 @@
   <link rel="manifest" href="manifest.json">
 </head>
 <body class="cyber-dark">
+  <!-- 21st.dev Welcome Animation Splash Overlay -->
+  <div id="welcomeSplash" class="welcome-splash">
+    <div class="welcome-card">
+      <div class="welcome-logo-ring">
+        <span class="welcome-pulse"></span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2v20M17 5v14M7 5v14M2 9v6M22 9v6"/>
+        </svg>
+      </div>
+      <h1 class="welcome-title">AURA<span>DSP</span> PRO</h1>
+      <p class="welcome-subtitle">3D Spatial Audio Engine & Real-Time DSP Workstation</p>
+      
+      <div class="welcome-wave-bars">
+        <span></span><span></span><span></span><span></span><span></span><span></span>
+      </div>
+
+      <div class="welcome-progress-bar">
+        <div id="welcomeProgressFill" class="welcome-progress-fill"></div>
+      </div>
+      <div id="welcomeStatusText" class="welcome-status">INITIALIZING AUDIO DSP ENGINE...</div>
+
+      <button id="welcomeEnterBtn" class="welcome-enter-btn">
+        <span>⚡ ENTER STUDIO ENGINE</span>
+      </button>
+    </div>
+  </div>
+
   <!-- Toast Notification System -->
   <div id="toastContainer" class="toast-container"></div>
 
@@ -758,11 +785,26 @@
     </div>
   </footer>
 
+  <!-- 21st.dev Floating Quick Control Dock -->
+  <div class="quick-dock" id="floatingQuickDock">
+    <span class="quick-dock-label">✨ AURA DOCK</span>
+    <button class="quick-dock-btn" onclick="document.getElementById('playPauseBtn')?.click()">
+      <span>▶ / ⏸ Play</span>
+    </button>
+    <button class="quick-dock-btn" onclick="document.getElementById('globalBypassBtn')?.click()">
+      <span>⚡ DSP Toggle</span>
+    </button>
+    <button class="quick-dock-btn" onclick="document.getElementById('resetEqBtn')?.click()">
+      <span>🔄 Reset EQ</span>
+    </button>
+  </div>
+
   <!-- Modular Scripts -->
   <script src="js/data/presets.js?v=26.0.0"></script>
   <script src="js/audio/audio-engine.js?v=26.0.0"></script>
   <script src="js/visual/spatial-canvas.js?v=26.0.0"></script>
   <script src="js/visual/visualizer.js?v=26.0.0"></script>
+  <script src="js/ui/motion-ui.js?v=26.0.0"></script>
   <script src="js/app.js?v=26.0.0"></script>
 
   <script>
