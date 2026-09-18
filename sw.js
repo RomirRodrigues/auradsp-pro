@@ -1,9 +1,10 @@
-const CACHE_NAME = 'auradsp-pro-v26.0.0';
+const CACHE_NAME = 'auradsp-pro-v27.0.0';
 const ASSETS = [
   './',
   './index.html',
   './styles.css',
   './js/app.js',
+  './js/ui/motion-ui.js',
   './js/audio/audio-engine.js',
   './js/data/presets.js',
   './js/visual/spatial-canvas.js',
