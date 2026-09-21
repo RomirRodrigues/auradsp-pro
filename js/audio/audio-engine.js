@@ -754,6 +754,8 @@ class AudioEngine {
   }
 
   stopAllSources() {
+    this.isPlaying = false;
+    this.isBufferPlaying = false;
     this.stopBufferAudio();
     this.stopSynthGroove();
     this.stopToneGenerator();
@@ -778,6 +780,14 @@ class AudioEngine {
         this.connectedElement.currentTime = 0;
       } catch (e) {}
       this.connectedElement = null;
+    }
+
+    const domPlayer = document.getElementById('audioPlayer');
+    if (domPlayer) {
+      try {
+        domPlayer.pause();
+        domPlayer.currentTime = 0;
+      } catch (e) {}
     }
 
     if (window.spotifyPlayerInstance) {
@@ -1256,6 +1266,7 @@ class AudioEngine {
       this.bufferSourceNode = null;
     }
     this.isBufferPlaying = false;
+    this.isPlaying = false;
   }
 
   // --- MASTER UNIFIED PLAYBACK CONTROLLER ---

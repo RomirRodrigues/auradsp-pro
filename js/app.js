@@ -16,6 +16,10 @@ document.addEventListener('DOMContentLoaded', () => {
     isPlaying = false;
     isSynthBeatActive = false;
     isToneActive = false;
+    if (window.audioEngine) {
+      window.audioEngine.isPlaying = false;
+      window.audioEngine.isBufferPlaying = false;
+    }
 
     const playText = document.getElementById('playText');
     const playIcon = document.getElementById('playIcon');
@@ -371,10 +375,16 @@ document.addEventListener('DOMContentLoaded', () => {
   playPauseBtn.addEventListener('click', async () => {
     if (window.audioEngine) window.audioEngine.resumeCtx();
 
-    if (isPlaying && !audioPlayer.paused) {
+    const isCurrentPlaying = (!audioPlayer.paused && !audioPlayer.ended) || 
+                            (window.audioEngine && (window.audioEngine.isBufferPlaying || (window.audioEngine.isPlaying && isPlaying)));
+
+    if (isCurrentPlaying) {
       audioPlayer.pause();
+      if (window.audioEngine) {
+        window.audioEngine.stopBufferAudio();
+        window.audioEngine.isPlaying = false;
+      }
       isPlaying = false;
-      if (window.audioEngine) window.audioEngine.isPlaying = false;
       playText.textContent = "Play Selected Track";
       playIcon.textContent = "▶";
       return;
@@ -504,9 +514,19 @@ document.addEventListener('DOMContentLoaded', () => {
           window.audioEngine.activeSource = 'file';
           window.audioEngine.connectMediaElement(audioPlayer);
         }
-        audioPlayer.play();
+        audioPlayer.play().then(() => {
+          isPlaying = true;
+          if (window.audioEngine) window.audioEngine.isPlaying = true;
+          filePlayPauseBtn.innerHTML = "⏸ Pause File";
+        });
       } else {
         audioPlayer.pause();
+        if (window.audioEngine) {
+          window.audioEngine.stopBufferAudio();
+          window.audioEngine.isPlaying = false;
+        }
+        isPlaying = false;
+        filePlayPauseBtn.innerHTML = "▶ Play File";
       }
     });
   }
@@ -587,27 +607,28 @@ document.addEventListener('DOMContentLoaded', () => {
     },
     {
       id: 'feat-4',
-      title: '3D Spatial Space Atmosphere',
-      uploaderName: 'Aura Sound Labs',
+      title: '3D Spatial Concert & Crowd Ambience',
+      uploaderName: 'MDN Audio Studio',
       duration: 195,
       thumbnail: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=150',
-      streamUrl: 'https://actions.google.com/sounds/v1/science_fiction/space_atmosphere.ogg',
+      streamUrl: 'https://raw.githubusercontent.com/mdn/webaudio-examples/main/voice-change-o-matic/audio/concert-crowd.ogg',
       source: 'featured'
     },
     {
       id: 'feat-5',
-      title: 'Electronic Odyssey (Live Beat)',
-      uploaderName: 'Audius HD Music',
-      duration: 240,
+      title: 'Night Owl (Electronic Chill Beat)',
+      uploaderName: 'Broke For Free',
+      duration: 220,
       thumbnail: 'https://images.unsplash.com/photo-1518609878373-06d740f60d8b?w=150',
-      streamUrl: 'https://discoveryprovider.audius.co/v1/tracks/Y96Ry/stream?app_name=auradsp_pro',
-      source: 'audius'
+      streamUrl: 'https://files.freemusicarchive.org/storage-freemusicarchive-org/music/WFMU/Broke_For_Free/Directionless_EP/Broke_For_Free_-_01_-_Night_Owl.mp3',
+      source: 'featured'
     }
   ];
 
   let currentWebTrack = FEATURED_WEB_TRACKS[0];
   let searchTimeout = null;
   const AUDIUS_APP_NAME = 'auradsp_pro';
+  const SAAVN_API_V3 = 'https://jiosaavn-api-v3.vercel.app';
 
   // Pre-populate with featured tracks on startup
   if (webTrackName) webTrackName.textContent = currentWebTrack.title;
@@ -872,30 +893,39 @@ document.addEventListener('DOMContentLoaded', () => {
         currentWebTrack = FEATURED_WEB_TRACKS[0];
       }
 
+      // Check if currently active/playing either in audioPlayer or in buffer
+      const isCurrentlyPlaying = (!audioPlayer.paused && !audioPlayer.ended) ||
+                                 (window.audioEngine && window.audioEngine.isBufferPlaying);
+
+      if (isCurrentlyPlaying) {
+        audioPlayer.pause();
+        if (window.audioEngine) {
+          window.audioEngine.stopBufferAudio();
+          window.audioEngine.isPlaying = false;
+        }
+        isPlaying = false;
+        webPlayPauseBtn.innerHTML = "<span>▶ Play Track</span>";
+        return;
+      }
+
       if (!audioPlayer.src || !audioPlayer.src.includes(currentWebTrack.streamUrl)) {
         playWebTrack(currentWebTrack);
         return;
       }
 
-      if (audioPlayer.paused) {
-        if (window.audioEngine) {
-          window.audioEngine.activeSource = 'file';
-          window.audioEngine.connectMediaElement(audioPlayer);
-        }
-        audioPlayer.play().then(() => {
-          isPlaying = true;
-          if (window.audioEngine) window.audioEngine.isPlaying = true;
-          webPlayPauseBtn.innerHTML = "<span>⏸ Pause Track</span>";
-        }).catch(err => {
-          console.warn("Play click retry:", err);
-          playWebTrack(currentWebTrack);
-        });
-      } else {
-        audioPlayer.pause();
-        isPlaying = false;
-        if (window.audioEngine) window.audioEngine.isPlaying = false;
-        webPlayPauseBtn.innerHTML = "<span>▶ Play Track</span>";
+      if (window.audioEngine) {
+        window.audioEngine.stopBufferAudio();
+        window.audioEngine.activeSource = 'file';
+        window.audioEngine.connectMediaElement(audioPlayer);
       }
+      audioPlayer.play().then(() => {
+        isPlaying = true;
+        if (window.audioEngine) window.audioEngine.isPlaying = true;
+        webPlayPauseBtn.innerHTML = "<span>⏸ Pause Track</span>";
+      }).catch(err => {
+        console.warn("Play click retry:", err);
+        playWebTrack(currentWebTrack);
+      });
     });
   }
 

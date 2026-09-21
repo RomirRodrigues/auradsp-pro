@@ -110,6 +110,22 @@ class AudioVisualizer {
       } else {
         analyser.getByteTimeDomainData(dataArray);
       }
+
+      // True audio energy check: if silence or buffering, keep completely flat
+      let energySum = 0;
+      const testCount = Math.min(bufferLength, 64);
+      for (let i = 0; i < testCount; i++) {
+        if (this.visMode === 'bars') {
+          energySum += dataArray[i];
+        } else {
+          energySum += Math.abs(dataArray[i] - 128);
+        }
+      }
+
+      if (energySum < 3) {
+        isActivelyPlaying = false;
+        dataArray.fill(this.visMode === 'bars' ? 0 : 128);
+      }
     }
 
     if (this.visMode === 'bars') {
