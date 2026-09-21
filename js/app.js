@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
   window.visualizer = new AudioVisualizer();
   window.spatialCanvas = new SpatialCanvas('spatialCanvas');
 
+  const audioPlayer = document.getElementById('audioPlayer');
   let isPlaying = false;
   let isSynthBeatActive = false;
   let isToneActive = false;
@@ -540,13 +541,11 @@ document.addEventListener('DOMContentLoaded', () => {
               playIcon.textContent = "⏸";
               if (window.showToast) window.showToast("Playing HD Audio Track", "success");
             } else {
-              // Guaranteed fail-safe: play live 808 synth groove so music always plays!
-              window.audioEngine.startSynthGroove('bass');
-              isPlaying = true;
-              if (window.audioEngine) window.audioEngine.isPlaying = true;
-              playText.textContent = "Pause Track";
-              playIcon.textContent = "⏸";
-              if (window.showToast) window.showToast("Network stream blocked: Switched to Live 808 DSP Beat.", "info");
+              isPlaying = false;
+              if (window.audioEngine) window.audioEngine.isPlaying = false;
+              playText.textContent = "Play Selected Track";
+              playIcon.textContent = "▶";
+              if (window.showToast) window.showToast("Network audio stream blocked. Please choose another track.", "error");
             }
           });
         }
@@ -580,7 +579,10 @@ document.addEventListener('DOMContentLoaded', () => {
         window.audioEngine.activeSource = sourceMap[btn.id] || 'demo';
       }
 
-      // 2. Reset UI Play states for all sources
+      // 2. Reset UI Play states for all sources & kill any synth groove
+      if (window.audioEngine) {
+        window.audioEngine.stopSynthGroove();
+      }
       resetAllPlaybackUI();
 
       // 3. Switch panel tab active states
@@ -599,7 +601,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // Local File Upload & Playback Controls
   const audioFileInput = document.getElementById('audioFileInput');
   const fileNameDisplay = document.getElementById('fileNameDisplay');
-  const audioPlayer = document.getElementById('audioPlayer');
   const fileControlsRow = document.getElementById('fileControlsRow');
   const filePlayPauseBtn = document.getElementById('filePlayPauseBtn');
   const fileTimeDisplay = document.getElementById('fileTimeDisplay');
@@ -723,12 +724,12 @@ document.addEventListener('DOMContentLoaded', () => {
     },
     {
       id: 'feat-3',
-      title: 'Viper (Vocal & Pop Studio Master)',
-      uploaderName: 'MDN Audio Studio',
-      duration: 182,
+      title: 'Levitating (Pop Dance Vocal Clarity)',
+      uploaderName: 'Dua Lipa',
+      duration: 203,
       thumbnail: 'https://images.unsplash.com/photo-1518609878373-06d740f60d8b?w=300',
-      streamUrl: 'https://raw.githubusercontent.com/mdn/webaudio-examples/main/audio-analyser/viper.mp3',
-      source: 'featured'
+      streamUrl: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/59/dc/4d/59dc4dda-93ff-8f1c-c536-f005f6ea6af5/mzaf_3066686759813252385.plus.aac.p.m4a',
+      source: 'spotify'
     },
     {
       id: 'feat-4',
@@ -746,6 +747,15 @@ document.addEventListener('DOMContentLoaded', () => {
       duration: 268,
       thumbnail: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300',
       streamUrl: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview112/v4/b8/b5/02/b8b50244-a107-74eb-3d5f-9e7faebc8ec8/mzaf_10023447192661555546.plus.aac.p.m4a',
+      source: 'spotify'
+    },
+    {
+      id: 'feat-6',
+      title: 'Shape of You (Acoustic Pop Master)',
+      uploaderName: 'Ed Sheeran',
+      duration: 233,
+      thumbnail: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=300',
+      streamUrl: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/44/c7/4f/44c74f0d-72dc-6143-d4d0-ba14d661ca0d/mzaf_9566898362556366703.plus.aac.p.m4a',
       source: 'spotify'
     }
   ];
@@ -1028,6 +1038,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (window.audioEngine) {
       window.audioEngine.resumeCtx();
+      window.audioEngine.stopSynthGroove();
       window.audioEngine.stopAllSources();
       resetAllPlaybackUI();
       window.audioEngine.activeSource = 'file';

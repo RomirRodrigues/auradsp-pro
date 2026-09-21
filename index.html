@@ -157,12 +157,12 @@
 
         <label for="demoTrackSelect">Select HD Test Track / Live Audio:</label>
         <select id="demoTrackSelect" class="cyber-select">
-          <option value="synth_bass" selected>⚡ 808 Trap & Sub-Bass Master (Instant Live DSP Beat)</option>
+          <option value="https://raw.githubusercontent.com/rafaelreis-hotmart/Audio-Sample-files/master/sample.mp3" selected>🔊 Sub-Bass & Heavy Kick Test (HD Audio Sample)</option>
+          <option value="https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/11/71/d6/1171d6ad-3c96-e027-2af6-58028426588c/mzaf_15137631797407745471.plus.aac.p.m4a">⚡ Starboy - The Weeknd ft. Daft Punk (Studio Master)</option>
+          <option value="synth_bass">🎹 808 Trap Synth Groove (Synthesized Beat)</option>
           <option value="synth_spatial">🌌 3D Binaural Spatial Stage Groove (Live 3D HRTF Soundstage)</option>
           <option value="synth_acoustic">🎸 Acoustic Warmth & Vocal Chords (Live Acoustic Resonance)</option>
           <option value="synth_movie">🎬 Cinematic Movie Hall 3D Dynamic Audio (Deep Sub & Impact)</option>
-          <option value="https://raw.githubusercontent.com/mdn/webaudio-examples/main/audio-analyser/viper.mp3">🎤 Vocal & Pop Clarity Master (MDN HD Audio Song)</option>
-          <option value="https://raw.githubusercontent.com/rafaelreis-hotmart/Audio-Sample-files/master/sample.mp3">🔊 Sub-Bass & Heavy Kick Test (HD Audio Sample)</option>
           <option value="https://actions.google.com/sounds/v1/ambiences/coffee_shop.ogg">☕ Acoustic Ambient Coffeehouse (Google Cloud Audio)</option>
           <option value="https://files.freemusicarchive.org/storage-freemusicarchive-org/music/WFMU/Broke_For_Free/Directionless_EP/Broke_For_Free_-_01_-_Night_Owl.mp3">🦉 Night Owl - Broke For Free (Full Online HD Song)</option>
         </select>
@@ -867,18 +867,21 @@
   </div>
 
   <!-- Modular Scripts -->
-  <script src="js/data/presets.js?v=35.0.0"></script>
-  <script src="js/audio/audio-engine.js?v=35.0.0"></script>
-  <script src="js/visual/spatial-canvas.js?v=35.0.0"></script>
-  <script src="js/visual/visualizer.js?v=35.0.0"></script>
-  <script src="js/ui/motion-ui.js?v=35.0.0"></script>
-  <script src="js/app.js?v=35.0.0"></script>
+  <script src="js/data/presets.js?v=36.0.0"></script>
+  <script src="js/audio/audio-engine.js?v=36.0.0"></script>
+  <script src="js/visual/spatial-canvas.js?v=36.0.0"></script>
+  <script src="js/visual/visualizer.js?v=36.0.0"></script>
+  <script src="js/ui/motion-ui.js?v=36.0.0"></script>
+  <script src="js/app.js?v=36.0.0"></script>
 
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js')
-          .then(reg => console.log('Service Worker Registered'))
+        navigator.serviceWorker.register('sw.js?v=36.0.0')
+          .then(reg => {
+            console.log('Service Worker Registered v36.0.0');
+            reg.update();
+          })
           .catch(err => console.log('Service Worker Error', err));
       });
     }
