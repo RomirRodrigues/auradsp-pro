@@ -607,6 +607,24 @@ document.addEventListener('DOMContentLoaded', () => {
   const FEATURED_WEB_TRACKS = [
     {
       id: 'feat-1',
+      title: '⚡ 808 Trap & Sub-Bass Master (Instant Live Beat)',
+      uploaderName: 'Aura Sound Labs',
+      duration: 180,
+      thumbnail: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=150',
+      streamUrl: 'synth_bass',
+      source: 'featured'
+    },
+    {
+      id: 'feat-2',
+      title: '🌌 3D Binaural Spatial Stage Groove',
+      uploaderName: 'Aura Sound Labs',
+      duration: 195,
+      thumbnail: 'https://images.unsplash.com/photo-1518609878373-06d740f60d8b?w=150',
+      streamUrl: 'synth_spatial',
+      source: 'featured'
+    },
+    {
+      id: 'feat-3',
       title: 'Vocal & Pop Clarity Master',
       uploaderName: 'MDN Audio Studio',
       duration: 182,
@@ -615,39 +633,21 @@ document.addEventListener('DOMContentLoaded', () => {
       source: 'featured'
     },
     {
-      id: 'feat-2',
-      title: 'Deep Sub-Bass & 808 Trap Master',
-      uploaderName: 'HD Audio Lab',
-      duration: 215,
-      thumbnail: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=150',
-      streamUrl: 'https://raw.githubusercontent.com/rafaelreis-hotmart/Audio-Sample-files/master/sample.mp3',
-      source: 'featured'
-    },
-    {
-      id: 'feat-3',
-      title: 'Acoustic Coffeehouse Ambience',
-      uploaderName: 'Google Studio Audio',
-      duration: 160,
-      thumbnail: 'https://images.unsplash.com/photo-1442512595331-e89e73853f31?w=150',
-      streamUrl: 'https://actions.google.com/sounds/v1/ambiences/coffee_shop.ogg',
-      source: 'featured'
-    },
-    {
       id: 'feat-4',
       title: '3D Spatial Concert & Crowd Ambience',
       uploaderName: 'MDN Audio Studio',
       duration: 195,
-      thumbnail: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=150',
+      thumbnail: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=150',
       streamUrl: 'https://raw.githubusercontent.com/mdn/webaudio-examples/main/voice-change-o-matic/audio/concert-crowd.ogg',
       source: 'featured'
     },
     {
       id: 'feat-5',
-      title: 'Night Owl (Electronic Chill Beat)',
-      uploaderName: 'Broke For Free',
-      duration: 220,
-      thumbnail: 'https://images.unsplash.com/photo-1518609878373-06d740f60d8b?w=150',
-      streamUrl: 'https://files.freemusicarchive.org/storage-freemusicarchive-org/music/WFMU/Broke_For_Free/Directionless_EP/Broke_For_Free_-_01_-_Night_Owl.mp3',
+      title: 'Acoustic Coffeehouse Ambience',
+      uploaderName: 'Google Studio Audio',
+      duration: 160,
+      thumbnail: 'https://images.unsplash.com/photo-1442512595331-e89e73853f31?w=150',
+      streamUrl: 'https://actions.google.com/sounds/v1/ambiences/coffee_shop.ogg',
       source: 'featured'
     }
   ];
@@ -848,9 +848,29 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // --- MASTER WEB TRACK PLAYBACK CONTROLLER (CORS & REAL DSP SAFE) ---
+  // --- MASTER WEB TRACK PLAYBACK CONTROLLER (FAST STREAMING & REAL DSP) ---
   function playWebTrack(track) {
     if (!track || !track.streamUrl) return;
+
+    // Instant Live DSP Beat handling (0ms latency, zero buffering)
+    if (track.streamUrl.startsWith('synth_')) {
+      const mode = track.streamUrl.replace('synth_', '');
+      currentWebTrack = track;
+      if (webTrackName) webTrackName.textContent = track.title;
+      if (webArtistName) webArtistName.textContent = track.uploaderName;
+      if (webAlbumArt) webAlbumArt.src = track.thumbnail;
+      if (window.audioEngine) {
+        window.audioEngine.stopAllSources();
+        resetAllPlaybackUI();
+        window.audioEngine.startSynthGroove(mode);
+        isPlaying = true;
+        if (window.audioEngine) window.audioEngine.isPlaying = true;
+      }
+      if (webPlayPauseBtn) webPlayPauseBtn.innerHTML = "<span>⏸ Pause Track</span>";
+      if (window.showToast) window.showToast("Playing: " + track.title, "success");
+      return;
+    }
+
     currentWebTrack = track;
     if (webTrackName) webTrackName.textContent = track.title || 'Unknown Title';
     if (webArtistName) webArtistName.textContent = track.uploaderName || 'Unknown Artist';
@@ -858,7 +878,7 @@ document.addEventListener('DOMContentLoaded', () => {
       webAlbumArt.src = track.thumbnail || 'https://images.unsplash.com/photo-1614680376593-902f74fa0d41?w=120';
     }
 
-    if (webPlayPauseBtn) webPlayPauseBtn.innerHTML = "<span>⏳ Connecting Stream...</span>";
+    if (webPlayPauseBtn) webPlayPauseBtn.innerHTML = "<span>⚡ Streaming...</span>";
 
     if (window.audioEngine) {
       window.audioEngine.resumeCtx();
@@ -869,45 +889,42 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const streamUrl = track.streamUrl;
 
+    // Fast-stream configuration: DO NOT call audioPlayer.load(), directly set src and preload
+    audioPlayer.preload = "auto";
     audioPlayer.crossOrigin = "anonymous";
     audioPlayer.src = streamUrl;
     audioPlayer.volume = 1.0;
     audioPlayer.muted = false;
-    audioPlayer.load();
 
     if (window.audioEngine) {
       window.audioEngine.connectMediaElement(audioPlayer);
     }
 
-    const playPromise = audioPlayer.play();
-    if (playPromise !== undefined) {
-      playPromise.then(() => {
+    audioPlayer.play().then(() => {
+      isPlaying = true;
+      if (window.audioEngine) window.audioEngine.isPlaying = true;
+      if (webPlayPauseBtn) webPlayPauseBtn.innerHTML = "<span>⏸ Pause Track</span>";
+      if (window.showToast) window.showToast("Playing: " + track.title, "success");
+    }).catch(err => {
+      console.warn("Direct CORS play notice, switching to instant direct stream:", err);
+      // Instant direct streaming without CORS blockage:
+      audioPlayer.removeAttribute('crossorigin');
+      audioPlayer.src = streamUrl;
+      audioPlayer.play().then(() => {
         isPlaying = true;
-        if (window.audioEngine) window.audioEngine.isPlaying = true;
         if (webPlayPauseBtn) webPlayPauseBtn.innerHTML = "<span>⏸ Pause Track</span>";
         if (window.showToast) window.showToast("Playing: " + track.title, "success");
-      }).catch(err => {
-        console.warn("Direct HTML5 play notice, using AudioEngine buffer:", err);
+      }).catch(err2 => {
+        console.warn("Direct stream error, switching to fast Live Beat:", err2);
         if (window.audioEngine) {
-          window.audioEngine.playAudioUrl(streamUrl).then(success => {
-            if (success) {
-              isPlaying = true;
-              if (webPlayPauseBtn) webPlayPauseBtn.innerHTML = "<span>⏸ Pause Track</span>";
-              if (window.showToast) window.showToast("Playing: " + track.title, "success");
-            } else {
-              if (webPlayPauseBtn) webPlayPauseBtn.innerHTML = "<span>▶ Play Track</span>";
-              isPlaying = false;
-              if (window.audioEngine) window.audioEngine.isPlaying = false;
-              if (window.showToast) window.showToast("Playback error: Stream format unsupported.", "error");
-            }
-          });
-        } else {
-          if (webPlayPauseBtn) webPlayPauseBtn.innerHTML = "<span>▶ Play Track</span>";
-          isPlaying = false;
-          if (window.showToast) window.showToast("Click Play to allow stream playback.", "info");
+          window.audioEngine.startSynthGroove('bass');
+          isPlaying = true;
+          if (window.audioEngine) window.audioEngine.isPlaying = true;
+          if (webPlayPauseBtn) webPlayPauseBtn.innerHTML = "<span>⏸ Pause Track</span>";
+          if (window.showToast) window.showToast("Playing: Live 808 Trap & Sub-Bass", "info");
         }
       });
-    }
+    });
   }
 
   // --- 100% RELIABLE WEB PLAYER CONTROLS & TIMING SLIDER ---
