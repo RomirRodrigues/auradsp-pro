@@ -102,49 +102,48 @@ document.addEventListener('DOMContentLoaded', () => {
     if (badgeText) badgeText.textContent = "Manual Custom Tuning";
   }
 
-  // 2. Build 10-Band EQ Sliders UI
+  // 2. Build 10-Band Classic Slider Equalizer UI
   const eqGrid = document.getElementById('eqSlidersGrid');
-  eqGrid.innerHTML = '';
+  if (eqGrid) eqGrid.innerHTML = '';
+
+  const toggleEqCurveBtn = document.getElementById('toggleEqCurveBtn');
+  const eqCurveBox = document.getElementById('eqCurveBox');
+  if (toggleEqCurveBtn && eqCurveBox) {
+    toggleEqCurveBtn.addEventListener('click', () => {
+      eqCurveBox.classList.toggle('hidden');
+      const isVisible = !eqCurveBox.classList.contains('hidden');
+      toggleEqCurveBtn.textContent = isVisible ? '📉 Hide Curve' : '📈 View Curve';
+      if (isVisible && window.visualizer) {
+        window.visualizer.drawEqCurve(currentEqGains);
+      }
+    });
+  }
 
   function updateEqBandUI(idx, val) {
-    const numVal = parseFloat(val) || 0;
+    const numVal = Math.round(parseFloat(val) * 10) / 10;
     const slider = document.getElementById(`eqSlider_${idx}`);
-    if (slider) slider.value = numVal;
+    if (slider && Math.abs(parseFloat(slider.value) - numVal) > 0.01) {
+      slider.value = numVal;
+    }
 
     const valText = document.getElementById(`eqVal_${idx}`);
     if (valText) {
       valText.textContent = `${numVal > 0 ? '+' : ''}${numVal.toFixed(1)}dB`;
       if (numVal > 0) {
         valText.style.color = 'var(--accent-pink)';
+        valText.style.borderColor = 'rgba(255, 0, 127, 0.4)';
+        valText.style.background = 'rgba(255, 0, 127, 0.12)';
         valText.style.textShadow = '0 0 8px rgba(255, 0, 127, 0.6)';
       } else if (numVal < 0) {
         valText.style.color = 'var(--accent-purple)';
+        valText.style.borderColor = 'rgba(112, 0, 255, 0.4)';
+        valText.style.background = 'rgba(112, 0, 255, 0.12)';
         valText.style.textShadow = '0 0 8px rgba(112, 0, 255, 0.6)';
       } else {
         valText.style.color = 'var(--accent-cyan)';
+        valText.style.borderColor = 'rgba(0, 240, 255, 0.25)';
+        valText.style.background = 'rgba(0, 240, 255, 0.08)';
         valText.style.textShadow = '0 0 6px rgba(0, 240, 255, 0.4)';
-      }
-    }
-
-    const fill = document.getElementById(`eqFill_${idx}`);
-    const slot = document.getElementById(`eqSlot_${idx}`);
-    if (fill && slot) {
-      const slotHeight = slot.clientHeight || 140;
-      const halfHeight = slotHeight / 2;
-      if (numVal > 0) {
-        const h = Math.min(halfHeight, (numVal / 12) * halfHeight);
-        fill.style.top = `${halfHeight - h}px`;
-        fill.style.height = `${h}px`;
-        fill.style.background = 'linear-gradient(to top, #00f0ff, #ff007f)';
-        fill.style.boxShadow = '0 0 8px rgba(255, 0, 127, 0.7)';
-      } else if (numVal < 0) {
-        const h = Math.min(halfHeight, (Math.abs(numVal) / 12) * halfHeight);
-        fill.style.top = `${halfHeight}px`;
-        fill.style.height = `${h}px`;
-        fill.style.background = 'linear-gradient(to bottom, #00f0ff, #7000ff)';
-        fill.style.boxShadow = '0 0 8px rgba(112, 0, 255, 0.7)';
-      } else {
-        fill.style.height = '0px';
       }
     }
   }
@@ -162,85 +161,50 @@ document.addEventListener('DOMContentLoaded', () => {
     markTuningAsManual();
   }
 
-  FREQ_BANDS.forEach((freq, idx) => {
-    const bandCol = document.createElement('div');
-    bandCol.className = 'eq-band-col';
-    bandCol.dataset.index = idx;
+  if (eqGrid) {
+    FREQ_BANDS.forEach((freq, idx) => {
+      const bandCol = document.createElement('div');
+      bandCol.className = 'eq-band-channel';
+      bandCol.dataset.index = idx;
 
-    const freqLabel = freq >= 1000 ? `${freq / 1000}k` : `${freq}`;
+      const freqLabel = freq >= 1000 ? `${freq / 1000}k` : `${freq}`;
 
-    bandCol.innerHTML = `
-      <span class="band-val" id="eqVal_${idx}">0.0dB</span>
-      <div class="eq-fader-slot" id="eqSlot_${idx}">
-        <div class="eq-center-line"></div>
-        <div class="eq-fader-fill" id="eqFill_${idx}"></div>
-        <input type="range" id="eqSlider_${idx}" class="eq-slider" min="-12" max="12" value="0" step="0.5" orient="vertical" data-index="${idx}">
-      </div>
-      <span class="band-freq">${freqLabel}Hz</span>
-    `;
+      bandCol.innerHTML = `
+        <div class="band-val" id="eqVal_${idx}">0.0dB</div>
+        <div class="eq-slider-well">
+          <div class="eq-zero-detent"></div>
+          <input type="range" class="eq-slider" id="eqSlider_${idx}" min="-12" max="12" value="0" step="0.5" orient="vertical" data-index="${idx}">
+        </div>
+        <div class="band-freq">${freqLabel}Hz</div>
+      `;
 
-    eqGrid.appendChild(bandCol);
+      eqGrid.appendChild(bandCol);
 
-    const slider = bandCol.querySelector(`input.eq-slider`);
-    const slot = bandCol.querySelector('.eq-fader-slot');
+      const slider = bandCol.querySelector(`input.eq-slider`);
 
-    // 1. Native input event (from direct thumb drag or keyboard arrows)
-    slider.addEventListener('input', (e) => {
-      const val = parseFloat(e.target.value);
-      applyBandChange(idx, val);
+      // 1. Direct native vertical slider interaction
+      slider.addEventListener('input', (e) => {
+        const val = parseFloat(e.target.value);
+        applyBandChange(idx, val);
+      });
+
+      // 2. Wheel scroll adjustment (0.5 dB per notch)
+      bandCol.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        const delta = e.deltaY < 0 ? 0.5 : -0.5;
+        let newDb = Math.max(-12, Math.min(12, currentEqGains[idx] + delta));
+        newDb = Math.round(newDb * 2) / 2;
+        slider.value = newDb;
+        applyBandChange(idx, newDb);
+      }, { passive: false });
+
+      // 3. Double-click reset to 0dB flat
+      bandCol.addEventListener('dblclick', () => {
+        slider.value = 0;
+        applyBandChange(idx, 0);
+      });
     });
-
-    // 2. High-precision pointer dragging on entire fader track
-    let isDraggingFader = false;
-
-    const updateFromPointer = (clientY) => {
-      const rect = slot.getBoundingClientRect();
-      const ratio = (rect.bottom - clientY) / rect.height;
-      const clamped = Math.max(0, Math.min(1, ratio));
-      let db = -12 + (clamped * 24);
-      db = Math.round(db * 2) / 2; // snap to 0.5dB step
-      slider.value = db;
-      applyBandChange(idx, db);
-    };
-
-    slot.addEventListener('pointerdown', (e) => {
-      isDraggingFader = true;
-      try { slot.setPointerCapture(e.pointerId); } catch (_) {}
-      updateFromPointer(e.clientY);
-    });
-
-    slot.addEventListener('pointermove', (e) => {
-      if (isDraggingFader) {
-        updateFromPointer(e.clientY);
-      }
-    });
-
-    const stopDragging = (e) => {
-      if (isDraggingFader) {
-        isDraggingFader = false;
-        try { slot.releasePointerCapture(e.pointerId); } catch (_) {}
-      }
-    };
-
-    slot.addEventListener('pointerup', stopDragging);
-    slot.addEventListener('pointercancel', stopDragging);
-
-    // 3. Mouse Wheel adjustment (0.5 dB per notch)
-    slot.addEventListener('wheel', (e) => {
-      e.preventDefault();
-      const delta = e.deltaY < 0 ? 0.5 : -0.5;
-      let newDb = Math.max(-12, Math.min(12, currentEqGains[idx] + delta));
-      newDb = Math.round(newDb * 2) / 2;
-      slider.value = newDb;
-      applyBandChange(idx, newDb);
-    }, { passive: false });
-
-    // 4. Double-click reset to 0dB flat
-    slot.addEventListener('dblclick', () => {
-      slider.value = 0;
-      applyBandChange(idx, 0);
-    });
-  });
+  }
 
   // 3. Render Device Category Presets
   const presetCardsContainer = document.getElementById('presetCardsContainer');
@@ -741,48 +705,48 @@ document.addEventListener('DOMContentLoaded', () => {
   const FEATURED_WEB_TRACKS = [
     {
       id: 'feat-1',
-      title: '⚡ 808 Trap & Sub-Bass Master (Instant Live Beat)',
-      uploaderName: 'Aura Sound Labs',
-      duration: 180,
-      thumbnail: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=150',
-      streamUrl: 'synth_bass',
-      source: 'featured'
+      title: 'Starboy (Pop & Bass Studio Master)',
+      uploaderName: 'The Weeknd ft. Daft Punk',
+      duration: 230,
+      thumbnail: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=300',
+      streamUrl: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/11/71/d6/1171d6ad-3c96-e027-2af6-58028426588c/mzaf_15137631797407745471.plus.aac.p.m4a',
+      source: 'spotify'
     },
     {
       id: 'feat-2',
-      title: '🌌 3D Binaural Spatial Stage Groove',
-      uploaderName: 'Aura Sound Labs',
-      duration: 195,
-      thumbnail: 'https://images.unsplash.com/photo-1518609878373-06d740f60d8b?w=150',
-      streamUrl: 'synth_spatial',
-      source: 'featured'
+      title: 'Blinding Lights (80s Synthpop & Vocal Clarity)',
+      uploaderName: 'The Weeknd',
+      duration: 200,
+      thumbnail: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=300',
+      streamUrl: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/9a/c6/aa/9ac6aada-2cbe-e75c-4eec-66b26ec5fc8a/mzaf_9829283921379564287.plus.aac.p.m4a',
+      source: 'spotify'
     },
     {
       id: 'feat-3',
-      title: 'Vocal & Pop Clarity Master',
+      title: 'Viper (Vocal & Pop Studio Master)',
       uploaderName: 'MDN Audio Studio',
       duration: 182,
-      thumbnail: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=150',
+      thumbnail: 'https://images.unsplash.com/photo-1518609878373-06d740f60d8b?w=300',
       streamUrl: 'https://raw.githubusercontent.com/mdn/webaudio-examples/main/audio-analyser/viper.mp3',
       source: 'featured'
     },
     {
       id: 'feat-4',
-      title: '3D Spatial Concert & Crowd Ambience',
-      uploaderName: 'MDN Audio Studio',
-      duration: 195,
-      thumbnail: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=150',
-      streamUrl: 'https://raw.githubusercontent.com/mdn/webaudio-examples/main/voice-change-o-matic/audio/concert-crowd.ogg',
-      source: 'featured'
+      title: 'Believer (Stadium Bass & Dynamics)',
+      uploaderName: 'Imagine Dragons',
+      duration: 204,
+      thumbnail: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=300',
+      streamUrl: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/7c/49/a0/7c49a087-9bb3-3ba6-e630-3622416f059e/mzaf_17208157748437996328.plus.aac.p.m4a',
+      source: 'spotify'
     },
     {
       id: 'feat-5',
-      title: 'Acoustic Coffeehouse Ambience',
-      uploaderName: 'Google Studio Audio',
-      duration: 160,
-      thumbnail: 'https://images.unsplash.com/photo-1442512595331-e89e73853f31?w=150',
-      streamUrl: 'https://actions.google.com/sounds/v1/ambiences/coffee_shop.ogg',
-      source: 'featured'
+      title: 'Kesariya (Bollywood Melodic Romance)',
+      uploaderName: 'Arijit Singh & Pritam',
+      duration: 268,
+      thumbnail: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300',
+      streamUrl: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview112/v4/b8/b5/02/b8b50244-a107-74eb-3d5f-9e7faebc8ec8/mzaf_10023447192661555546.plus.aac.p.m4a',
+      source: 'spotify'
     }
   ];
 
@@ -1053,25 +1017,6 @@ document.addEventListener('DOMContentLoaded', () => {
   function playWebTrack(track) {
     if (!track || !track.streamUrl) return;
 
-    // Instant Live DSP Beat handling (0ms latency, zero buffering)
-    if (track.streamUrl.startsWith('synth_')) {
-      const mode = track.streamUrl.replace('synth_', '');
-      currentWebTrack = track;
-      if (webTrackName) webTrackName.textContent = track.title;
-      if (webArtistName) webArtistName.textContent = track.uploaderName;
-      if (webAlbumArt) webAlbumArt.src = track.thumbnail;
-      if (window.audioEngine) {
-        window.audioEngine.stopAllSources();
-        resetAllPlaybackUI();
-        window.audioEngine.startSynthGroove(mode);
-        isPlaying = true;
-        if (window.audioEngine) window.audioEngine.isPlaying = true;
-      }
-      if (webPlayPauseBtn) webPlayPauseBtn.innerHTML = "<span>⏸ Pause Track</span>";
-      if (window.showToast) window.showToast("Playing: " + track.title, "success");
-      return;
-    }
-
     currentWebTrack = track;
     if (webTrackName) webTrackName.textContent = track.title || 'Unknown Title';
     if (webArtistName) webArtistName.textContent = track.uploaderName || 'Unknown Artist';
@@ -1090,42 +1035,46 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const streamUrl = track.streamUrl;
 
-    // Fast-stream configuration: DO NOT call audioPlayer.load(), directly set src and preload
-    audioPlayer.preload = "auto";
-    audioPlayer.crossOrigin = "anonymous";
-    audioPlayer.src = streamUrl;
-    audioPlayer.volume = 1.0;
-    audioPlayer.muted = false;
-
-    if (window.audioEngine) {
-      window.audioEngine.connectMediaElement(audioPlayer);
-    }
-
-    audioPlayer.play().then(() => {
-      isPlaying = true;
-      if (window.audioEngine) window.audioEngine.isPlaying = true;
-      if (webPlayPauseBtn) webPlayPauseBtn.innerHTML = "<span>⏸ Pause Track</span>";
-      if (window.showToast) window.showToast("Playing: " + track.title, "success");
-    }).catch(err => {
-      console.warn("Direct CORS play notice, switching to instant direct stream:", err);
-      // Instant direct streaming without CORS blockage:
-      audioPlayer.removeAttribute('crossorigin');
+    try {
+      audioPlayer.pause();
+      audioPlayer.preload = "auto";
+      audioPlayer.crossOrigin = "anonymous";
       audioPlayer.src = streamUrl;
-      audioPlayer.play().then(() => {
+      audioPlayer.volume = 1.0;
+      audioPlayer.muted = false;
+
+      if (window.audioEngine) {
+        window.audioEngine.connectMediaElement(audioPlayer);
+      }
+
+      audioPlayer.load();
+
+      const onPlaySuccess = () => {
         isPlaying = true;
+        if (window.audioEngine) window.audioEngine.isPlaying = true;
         if (webPlayPauseBtn) webPlayPauseBtn.innerHTML = "<span>⏸ Pause Track</span>";
         if (window.showToast) window.showToast("Playing: " + track.title, "success");
-      }).catch(err2 => {
-        console.warn("Direct stream error, switching to fast Live Beat:", err2);
-        if (window.audioEngine) {
-          window.audioEngine.startSynthGroove('bass');
-          isPlaying = true;
-          if (window.audioEngine) window.audioEngine.isPlaying = true;
-          if (webPlayPauseBtn) webPlayPauseBtn.innerHTML = "<span>⏸ Pause Track</span>";
-          if (window.showToast) window.showToast("Playing: Live 808 Trap & Sub-Bass", "info");
-        }
-      });
-    });
+      };
+
+      const playPromise = audioPlayer.play();
+      if (playPromise !== undefined) {
+        playPromise.then(onPlaySuccess).catch(err => {
+          console.warn("Direct CORS play notice, retrying stream:", err);
+          // Try direct audio playback without CORS restrictions
+          audioPlayer.removeAttribute('crossorigin');
+          audioPlayer.src = streamUrl;
+          audioPlayer.load();
+          audioPlayer.play().then(onPlaySuccess).catch(err2 => {
+            console.warn("Audio playback error:", err2);
+            if (webPlayPauseBtn) webPlayPauseBtn.innerHTML = "<span>▶ Play Track</span>";
+            if (window.showToast) window.showToast("Stream loading: Click Play to start", "info");
+          });
+        });
+      }
+    } catch (err) {
+      console.error("playWebTrack unexpected error:", err);
+      if (webPlayPauseBtn) webPlayPauseBtn.innerHTML = "<span>▶ Play Track</span>";
+    }
   }
 
   // --- 100% RELIABLE WEB PLAYER CONTROLS & TIMING SLIDER ---
