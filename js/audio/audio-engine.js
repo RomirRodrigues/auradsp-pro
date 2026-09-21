@@ -482,6 +482,7 @@ class AudioEngine {
     this.resumeCtx();
     this.stopSynthGroove();
     this.isSynthLoopActive = true;
+    this.isPlaying = true;
     this.currentTrackMode = trackMode;
 
     this.synthGain = this.ctx.createGain();
@@ -668,6 +669,10 @@ class AudioEngine {
     if (this.synthLoopTimer) {
       clearInterval(this.synthLoopTimer);
       this.synthLoopTimer = null;
+    }
+    if (this.synthGain) {
+      try { this.synthGain.disconnect(); } catch (e) {}
+      this.synthGain = null;
     }
   }
 

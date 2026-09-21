@@ -390,14 +390,27 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    const selectedUrl = demoTrackSelect ? demoTrackSelect.value : 'https://raw.githubusercontent.com/mdn/webaudio-examples/main/audio-analyser/viper.mp3';
+    const selectedUrl = demoTrackSelect ? demoTrackSelect.value : 'synth_bass';
 
     if (window.audioEngine) {
       window.audioEngine.stopAllSources();
       resetAllPlaybackUI();
-      window.audioEngine.activeSource = 'file';
+      window.audioEngine.activeSource = 'demo';
     }
 
+    // 1. Live Instant DSP Beat Grooves (Zero network, 100% offline, guaranteed instant sound)
+    if (selectedUrl.startsWith('synth_')) {
+      const mode = selectedUrl.replace('synth_', '');
+      window.audioEngine.startSynthGroove(mode);
+      isPlaying = true;
+      if (window.audioEngine) window.audioEngine.isPlaying = true;
+      playText.textContent = "Pause Track";
+      playIcon.textContent = "⏸";
+      if (window.showToast) window.showToast("Playing Live HD DSP Groove (" + mode.toUpperCase() + ")", "success");
+      return;
+    }
+
+    // 2. Real Audio Stream URL with automatic fail-safe fallback
     audioPlayer.crossOrigin = 'anonymous';
     if (!audioPlayer.src || !audioPlayer.src.includes(selectedUrl)) {
       audioPlayer.src = selectedUrl;
@@ -416,15 +429,29 @@ document.addEventListener('DOMContentLoaded', () => {
         if (window.audioEngine) window.audioEngine.isPlaying = true;
         playText.textContent = "Pause Track";
         playIcon.textContent = "⏸";
-        if (window.showToast) window.showToast("Playing Real HD Vocal Track", "success");
+        if (window.showToast) window.showToast("Playing Real HD Audio Track", "success");
       })
       .catch(err => {
-        console.error("Audio track play error:", err);
-        if (playText) playText.textContent = "Play Selected Track";
-        if (playIcon) playIcon.textContent = "▶";
-        isPlaying = false;
-        if (window.audioEngine) window.audioEngine.isPlaying = false;
-        if (window.showToast) window.showToast("Click play to allow audio playback.", "info");
+        console.warn("Direct HTML5 play notice, using AudioEngine buffer:", err);
+        if (window.audioEngine) {
+          window.audioEngine.playAudioUrl(selectedUrl).then(success => {
+            if (success) {
+              isPlaying = true;
+              if (window.audioEngine) window.audioEngine.isPlaying = true;
+              playText.textContent = "Pause Track";
+              playIcon.textContent = "⏸";
+              if (window.showToast) window.showToast("Playing HD Audio Track", "success");
+            } else {
+              // Guaranteed fail-safe: play live 808 synth groove so music always plays!
+              window.audioEngine.startSynthGroove('bass');
+              isPlaying = true;
+              if (window.audioEngine) window.audioEngine.isPlaying = true;
+              playText.textContent = "Pause Track";
+              playIcon.textContent = "⏸";
+              if (window.showToast) window.showToast("Network stream blocked: Switched to Live 808 DSP Beat.", "info");
+            }
+          });
+        }
       });
   });
 
@@ -1008,14 +1035,16 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   audioPlayer.addEventListener('error', () => {
-    console.warn("AudioPlayer stream error:", audioPlayer.error);
+    console.warn("AudioPlayer stream notice:", audioPlayer.error);
+    if (window.audioEngine && (window.audioEngine.isBufferPlaying || window.audioEngine.isSynthLoopActive)) {
+      return;
+    }
     isPlaying = false;
     if (window.audioEngine) window.audioEngine.isPlaying = false;
     if (webPlayPauseBtn) webPlayPauseBtn.innerHTML = "<span>▶ Play Track</span>";
     if (playText) playText.textContent = "Play Selected Track";
     if (playIcon) playIcon.textContent = "▶";
     if (filePlayPauseBtn) filePlayPauseBtn.innerHTML = "▶ Play File";
-    if (window.showToast) window.showToast("Audio stream unavailable. Please select another track.", "error");
   });
 
   
