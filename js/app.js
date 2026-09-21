@@ -20,6 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const playText = document.getElementById('playText');
     const playIcon = document.getElementById('playIcon');
     const filePlayPauseBtn = document.getElementById('filePlayPauseBtn');
+    const webPlayPauseBtn = document.getElementById('webPlayPauseBtn');
     const startMicBtn = document.getElementById('startMicBtn');
     const toggleToneBtn = document.getElementById('toggleToneBtn');
 
@@ -27,6 +28,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (playIcon) playIcon.textContent = "▶";
     if (filePlayPauseBtn) {
       filePlayPauseBtn.innerHTML = "▶ Play File";
+    }
+    if (webPlayPauseBtn) {
+      webPlayPauseBtn.innerHTML = "<span>▶ Play Track</span>";
     }
     if (startMicBtn) {
       startMicBtn.textContent = "▶ Start Live Mic Input";
@@ -370,12 +374,13 @@ document.addEventListener('DOMContentLoaded', () => {
     if (isPlaying && !audioPlayer.paused) {
       audioPlayer.pause();
       isPlaying = false;
+      if (window.audioEngine) window.audioEngine.isPlaying = false;
       playText.textContent = "Play Selected Track";
       playIcon.textContent = "▶";
       return;
     }
 
-    const selectedUrl = demoTrackSelect ? demoTrackSelect.value : 'https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=pop-summer-vocal-112776.mp3';
+    const selectedUrl = demoTrackSelect ? demoTrackSelect.value : 'https://raw.githubusercontent.com/mdn/webaudio-examples/main/audio-analyser/viper.mp3';
 
     if (window.audioEngine) {
       window.audioEngine.stopAllSources();
@@ -383,25 +388,33 @@ document.addEventListener('DOMContentLoaded', () => {
       window.audioEngine.activeSource = 'file';
     }
 
-    audioPlayer.src = selectedUrl;
+    audioPlayer.crossOrigin = 'anonymous';
+    if (!audioPlayer.src || !audioPlayer.src.includes(selectedUrl)) {
+      audioPlayer.src = selectedUrl;
+      audioPlayer.load();
+    }
     audioPlayer.volume = 1.0;
     audioPlayer.muted = false;
+
+    if (window.audioEngine) {
+      window.audioEngine.connectMediaElement(audioPlayer);
+    }
 
     audioPlayer.play()
       .then(() => {
         isPlaying = true;
+        if (window.audioEngine) window.audioEngine.isPlaying = true;
         playText.textContent = "Pause Track";
         playIcon.textContent = "⏸";
         if (window.showToast) window.showToast("Playing Real HD Vocal Track", "success");
       })
       .catch(err => {
         console.error("Audio track play error:", err);
-        if (window.audioEngine) {
-          window.audioEngine.startSynthGroove('bass');
-          isPlaying = true;
-          playText.textContent = "Pause Track";
-          playIcon.textContent = "⏸";
-        }
+        if (playText) playText.textContent = "Play Selected Track";
+        if (playIcon) playIcon.textContent = "▶";
+        isPlaying = false;
+        if (window.audioEngine) window.audioEngine.isPlaying = false;
+        if (window.showToast) window.showToast("Click play to allow audio playback.", "info");
       });
   });
 
@@ -533,7 +546,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-  // ─── Web Music Streamer (Piped API & YouTube Integration) ───
+  // ─── Web Music Streamer (Audius, Archive.org & Curated Streams) ───
   const webSearchInput = document.getElementById('webSearchInput');
   const webSearchResults = document.getElementById('webSearchResults');
   const webPlayPauseBtn = document.getElementById('webPlayPauseBtn');
@@ -544,12 +557,62 @@ document.addEventListener('DOMContentLoaded', () => {
   const webArtistName = document.getElementById('webArtistName');
   const webAlbumArt = document.getElementById('webAlbumArt');
 
-  let currentWebTrack = null;
-  let searchTimeout = null;
+  const FEATURED_WEB_TRACKS = [
+    {
+      id: 'feat-1',
+      title: 'Vocal & Pop Clarity Master',
+      uploaderName: 'MDN Audio Studio',
+      duration: 182,
+      thumbnail: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=150',
+      streamUrl: 'https://raw.githubusercontent.com/mdn/webaudio-examples/main/audio-analyser/viper.mp3',
+      source: 'featured'
+    },
+    {
+      id: 'feat-2',
+      title: 'Deep Sub-Bass & 808 Trap Master',
+      uploaderName: 'HD Audio Lab',
+      duration: 215,
+      thumbnail: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=150',
+      streamUrl: 'https://raw.githubusercontent.com/rafaelreis-hotmart/Audio-Sample-files/master/sample.mp3',
+      source: 'featured'
+    },
+    {
+      id: 'feat-3',
+      title: 'Acoustic Coffeehouse Ambience',
+      uploaderName: 'Google Studio Audio',
+      duration: 160,
+      thumbnail: 'https://images.unsplash.com/photo-1442512595331-e89e73853f31?w=150',
+      streamUrl: 'https://actions.google.com/sounds/v1/ambiences/coffee_shop.ogg',
+      source: 'featured'
+    },
+    {
+      id: 'feat-4',
+      title: '3D Spatial Space Atmosphere',
+      uploaderName: 'Aura Sound Labs',
+      duration: 195,
+      thumbnail: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=150',
+      streamUrl: 'https://actions.google.com/sounds/v1/science_fiction/space_atmosphere.ogg',
+      source: 'featured'
+    },
+    {
+      id: 'feat-5',
+      title: 'Electronic Odyssey (Live Beat)',
+      uploaderName: 'Audius HD Music',
+      duration: 240,
+      thumbnail: 'https://images.unsplash.com/photo-1518609878373-06d740f60d8b?w=150',
+      streamUrl: 'https://discoveryprovider.audius.co/v1/tracks/Y96Ry/stream?app_name=auradsp_pro',
+      source: 'audius'
+    }
+  ];
 
-        // ─── 100% FULL SONG SEARCH ENGINES (ZERO 30s PREVIEWS) ───
-  const SAAVN_API_V3 = 'https://jiosaavn-api-v3.vercel.app';
+  let currentWebTrack = FEATURED_WEB_TRACKS[0];
+  let searchTimeout = null;
   const AUDIUS_APP_NAME = 'auradsp_pro';
+
+  // Pre-populate with featured tracks on startup
+  if (webTrackName) webTrackName.textContent = currentWebTrack.title;
+  if (webArtistName) webArtistName.textContent = currentWebTrack.uploaderName;
+  if (webAlbumArt) webAlbumArt.src = currentWebTrack.thumbnail;
 
   // 1. JioSaavn Engine (Direct Official Jio CDN MP3 Streams, HTTP 200 OK)
   async function searchJioSaavnFull(query) {
@@ -638,7 +701,7 @@ document.addEventListener('DOMContentLoaded', () => {
       clearTimeout(searchTimeout);
       const query = e.target.value.trim();
       if (query.length < 2) {
-        if (webSearchResults) webSearchResults.innerHTML = '';
+        renderWebSearchResults(FEATURED_WEB_TRACKS);
         return;
       }
       searchTimeout = setTimeout(() => {
@@ -737,10 +800,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // --- MASTER WEB TRACK PLAYBACK CONTROLLER (ZERO-CORS SAFE) ---
+  // --- MASTER WEB TRACK PLAYBACK CONTROLLER (CORS & REAL DSP SAFE) ---
   function playWebTrack(track) {
+    if (!track || !track.streamUrl) return;
     currentWebTrack = track;
-    if (webTrackName) webTrackName.textContent = track.title;
+    if (webTrackName) webTrackName.textContent = track.title || 'Unknown Title';
     if (webArtistName) webArtistName.textContent = track.uploaderName || 'Unknown Artist';
     if (webAlbumArt) {
       webAlbumArt.src = track.thumbnail || 'https://images.unsplash.com/photo-1614680376593-902f74fa0d41?w=120';
@@ -755,10 +819,9 @@ document.addEventListener('DOMContentLoaded', () => {
       window.audioEngine.activeSource = 'file';
     }
 
-    const streamUrl = track.streamUrl || 'https://raw.githubusercontent.com/mdn/webaudio-examples/main/audio-analyser/viper.mp3';
+    const streamUrl = track.streamUrl;
 
-    // REMOVE CROSSORIGIN ATTRIBUTE TO ALLOW ANY CDN AUDIO STREAM WITHOUT CORS RESTRICTIONS
-    audioPlayer.removeAttribute('crossorigin');
+    audioPlayer.crossOrigin = "anonymous";
     audioPlayer.src = streamUrl;
     audioPlayer.volume = 1.0;
     audioPlayer.muted = false;
@@ -785,9 +848,15 @@ document.addEventListener('DOMContentLoaded', () => {
               if (window.showToast) window.showToast("Playing: " + track.title, "success");
             } else {
               if (webPlayPauseBtn) webPlayPauseBtn.innerHTML = "<span>▶ Play Track</span>";
-              if (window.showToast) window.showToast("Playback Error: Unable to stream track", "error");
+              isPlaying = false;
+              if (window.audioEngine) window.audioEngine.isPlaying = false;
+              if (window.showToast) window.showToast("Playback error: Stream format unsupported.", "error");
             }
           });
+        } else {
+          if (webPlayPauseBtn) webPlayPauseBtn.innerHTML = "<span>▶ Play Track</span>";
+          isPlaying = false;
+          if (window.showToast) window.showToast("Click Play to allow stream playback.", "info");
         }
       });
     }
@@ -795,24 +864,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // --- 100% RELIABLE WEB PLAYER CONTROLS & TIMING SLIDER ---
   if (webPlayPauseBtn) {
-    webPlayPauseBtn.addEventListener('click', async (e) => {
+    webPlayPauseBtn.addEventListener('click', (e) => {
       if (e && e.preventDefault) e.preventDefault();
       if (window.audioEngine) window.audioEngine.resumeCtx();
 
       if (!currentWebTrack) {
-        const firstResult = webSearchResults ? webSearchResults.querySelector('.search-result-item') : null;
-        if (firstResult) {
-          firstResult.click();
-          return;
-        } else {
-          playWebTrack({
-            title: 'Vasaikar Masala',
-            uploaderName: 'Sijoy Almeida',
-            streamUrl: 'https://aac.saavncdn.com/708/87l9p3TrIqkpWo1oXYkC5GiSYNpprH6v2U79h_160.mp4',
-            thumbnail: 'https://c.saavncdn.com/708/Vasaikar-Masala-Marathi-2021-20231108171520-500x500.jpg'
-          });
-          return;
-        }
+        currentWebTrack = FEATURED_WEB_TRACKS[0];
+      }
+
+      if (!audioPlayer.src || !audioPlayer.src.includes(currentWebTrack.streamUrl)) {
+        playWebTrack(currentWebTrack);
+        return;
       }
 
       if (audioPlayer.paused) {
@@ -825,8 +887,8 @@ document.addEventListener('DOMContentLoaded', () => {
           if (window.audioEngine) window.audioEngine.isPlaying = true;
           webPlayPauseBtn.innerHTML = "<span>⏸ Pause Track</span>";
         }).catch(err => {
-          console.warn("Play click fallback:", err);
-          if (currentWebTrack) playWebTrack(currentWebTrack);
+          console.warn("Play click retry:", err);
+          playWebTrack(currentWebTrack);
         });
       } else {
         audioPlayer.pause();
@@ -913,6 +975,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     isPlaying = false;
     if (window.audioEngine) window.audioEngine.isPlaying = false;
+  });
+
+  audioPlayer.addEventListener('error', () => {
+    console.warn("AudioPlayer stream error:", audioPlayer.error);
+    isPlaying = false;
+    if (window.audioEngine) window.audioEngine.isPlaying = false;
+    if (webPlayPauseBtn) webPlayPauseBtn.innerHTML = "<span>▶ Play Track</span>";
+    if (playText) playText.textContent = "Play Selected Track";
+    if (playIcon) playIcon.textContent = "▶";
+    if (filePlayPauseBtn) filePlayPauseBtn.innerHTML = "▶ Play File";
+    if (window.showToast) window.showToast("Audio stream unavailable. Please select another track.", "error");
   });
 
   

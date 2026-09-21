@@ -79,15 +79,13 @@ class AudioVisualizer {
 
 
     let dataArray;
-    let bufferLength;
-    const isSpotify = window.audioEngine && window.audioEngine.activeSource === 'spotify';
-    const isSpotifyPlaying = isSpotify && window.spotifyPlayerState && !window.spotifyPlayerState.paused;
+    let bufferLength = 64;
 
     // Detect if any audio source is actively producing sound
     let isActivelyPlaying = false;
     const audioEngine = window.audioEngine;
     const player = document.getElementById('audioPlayer');
-    const isPlayerPlaying = player && (!player.paused || (player.currentTime > 0 && !player.ended));
+    const isPlayerPlaying = player && !player.paused && !player.ended && player.currentTime > 0;
 
     if (audioEngine) {
       if (audioEngine.isPlaying || audioEngine.isBufferPlaying || audioEngine.isSynthLoopActive || audioEngine.oscillator || audioEngine.micStream || isPlayerPlaying) {
@@ -95,68 +93,36 @@ class AudioVisualizer {
       }
     }
 
-    const now = Date.now() / 1000;
-
-    if (!isActivelyPlaying) {
-      // ─── 1. STANDBY IDLE STATE: 100% Continuous Flowing Ambient Wave Across ALL 64 Bars ───
+    if (!isActivelyPlaying || !audioEngine || !audioEngine.analyserNode) {
+      // 1. STANDBY / SILENT STATE: Bars sit completely flat at rest, zero phantom motion
       bufferLength = 64;
       dataArray = new Uint8Array(bufferLength);
-      for (let b = 0; b < bufferLength; b++) {
-        const norm = b / bufferLength;
-        const wave1 = Math.sin(norm * Math.PI * 6.0 + now * 3.0) * 0.5 + 0.5;
-        const wave2 = Math.cos(norm * Math.PI * 4.0 - now * 2.0) * 0.5 + 0.5;
-        const wave3 = Math.sin(norm * Math.PI * 8.0 + now * 4.5) * 0.2;
-        const pulse = 0.75 + 0.25 * Math.sin(now * 1.5);
-        
-        // Continuous height across all bars 0..63 with zero blank gaps at edges
-        const val = (wave1 * 0.45 + wave2 * 0.35 + wave3 + 0.2) * pulse * 95 + 35;
-        dataArray[b] = Math.min(255, Math.max(35, val));
+      if (this.visMode !== 'bars') {
+        dataArray.fill(128); // 128 is center/flat line for time domain oscilloscope
       }
     } else {
-      // ─── 2. ACTIVE MUSIC STATE: High-Rise Dynamic Audio Spectrum Across ALL Bars ───
-      if (window.audioEngine && window.audioEngine.analyserNode) {
-        const analyser = window.audioEngine.analyserNode;
-        bufferLength = analyser.frequencyBinCount;
-        dataArray = new Uint8Array(bufferLength);
-        if (this.visMode === 'bars') {
-          analyser.getByteFrequencyData(dataArray);
-        } else {
-          analyser.getByteTimeDomainData(dataArray);
-        }
-
-        // Calculate max sample
-        let maxSample = 0;
-        for (let i = 0; i < dataArray.length; i++) {
-          if (dataArray[i] > maxSample) maxSample = dataArray[i];
-        }
-
-        // Active music fallback wave across all bars
-        if (maxSample < 10) {
-          for (let i = 0; i < dataArray.length; i++) {
-            const norm = i / dataArray.length;
-            const bassPulse = Math.pow(1 - norm * 0.7, 1.2) * 220 * (Math.sin(now * 5.0) * 0.4 + 0.6);
-            const midPulse = Math.sin(now * 9.0 + norm * 14.0) * 140 * (Math.cos(now * 3.5) * 0.3 + 0.7);
-            const treblePulse = Math.sin(now * 16.0 + norm * 28.0) * 90;
-            const rhythm = Math.pow(Math.abs(Math.sin(now * Math.PI * 2.5)), 2) * 0.4 + 0.6;
-
-            dataArray[i] = Math.min(255, Math.max(45, (bassPulse + midPulse + treblePulse) * rhythm));
-          }
-        }
+      // 2. ACTIVE MUSIC STATE: True audio spectrum directly from AnalyserNode
+      const analyser = audioEngine.analyserNode;
+      bufferLength = analyser.frequencyBinCount;
+      dataArray = new Uint8Array(bufferLength);
+      if (this.visMode === 'bars') {
+        analyser.getByteFrequencyData(dataArray);
+      } else {
+        analyser.getByteTimeDomainData(dataArray);
       }
     }
 
     if (this.visMode === 'bars') {
       const numBars = 64;
       const barWidth = (width / numBars) - (2 * dpr);
-      const sampleRate = (window.audioEngine && window.audioEngine.ctx) ? window.audioEngine.ctx.sampleRate : 44100;
+      const sampleRate = (audioEngine && audioEngine.ctx) ? audioEngine.ctx.sampleRate : 44100;
       const minFreq = 20;
       const maxFreq = 20000;
 
       for (let b = 0; b < numBars; b++) {
         let val = 0;
-        if (isSpotify || !isActivelyPlaying) {
-          const idx = Math.floor((b / numBars) * bufferLength);
-          val = dataArray[idx];
+        if (!isActivelyPlaying) {
+          val = 0;
         } else {
           const freq1 = minFreq * Math.pow(maxFreq / minFreq, b / numBars);
           const freq2 = minFreq * Math.pow(maxFreq / minFreq, (b + 1) / numBars);
@@ -218,7 +184,7 @@ class AudioVisualizer {
       ctx.shadowBlur = 0;
     }
 
-    this.updateVUMeters(dataArray);
+    this.updateVUMeters(isActivelyPlaying ? dataArray : null);
   }
 
   // True Peak-RMS Stereophonic VU Meter Engine
@@ -227,7 +193,6 @@ class AudioVisualizer {
     let rawR = 0;
 
     if (dataArray && dataArray.length > 0) {
-      // Peak level calculation across active low/mid frequencies
       let peakSum = 0;
       const activeLength = Math.min(80, dataArray.length);
 
@@ -236,22 +201,19 @@ class AudioVisualizer {
       }
       const rms = Math.sqrt(peakSum / activeLength);
 
-      // Scale RMS (0 to 255) to VU percentage (0% to 100%)
-      let targetPercent = Math.min(100, Math.max(0, Math.pow(rms / 180, 0.85) * 100));
-
-      // Fallback floor if audio is playing but quiet
-      if (rms > 10 && targetPercent < 15) {
-        targetPercent = 15 + (rms / 255) * 40;
+      if (rms > 8) {
+        let targetPercent = Math.min(100, Math.max(0, Math.pow(rms / 180, 0.85) * 100));
+        rawL = Math.min(100, targetPercent * (1.0 + (Math.sin(Date.now() / 100) * 0.08)));
+        rawR = Math.min(100, targetPercent * (0.96 + (Math.cos(Date.now() / 110) * 0.08)));
       }
-
-      // Stereophonic channel micro-offset simulation
-      rawL = Math.min(100, targetPercent * (1.0 + (Math.sin(Date.now() / 100) * 0.08)));
-      rawR = Math.min(100, targetPercent * (0.96 + (Math.cos(Date.now() / 110) * 0.08)));
     }
 
-    // Smooth Ballistic Needle Decay (300 FPS Attack & Decay)
-    this.smoothL += (rawL - this.smoothL) * (rawL > this.smoothL ? 0.6 : 0.15);
-    this.smoothR += (rawR - this.smoothR) * (rawR > this.smoothR ? 0.6 : 0.15);
+    // Smooth Ballistic Needle Decay (Drop to 0 cleanly when paused/stopped)
+    this.smoothL += (rawL - this.smoothL) * (rawL > this.smoothL ? 0.6 : 0.18);
+    this.smoothR += (rawR - this.smoothR) * (rawR > this.smoothR ? 0.6 : 0.18);
+
+    if (this.smoothL < 0.8) this.smoothL = 0;
+    if (this.smoothR < 0.8) this.smoothR = 0;
 
     if (this.vuFillL) this.vuFillL.style.width = `${Math.max(0, parseFloat(this.smoothL.toFixed(1)))}%`;
     if (this.vuFillR) this.vuFillR.style.width = `${Math.max(0, parseFloat(this.smoothR.toFixed(1)))}%`;
