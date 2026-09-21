@@ -988,7 +988,7 @@ class AudioEngine {
   getSnapshot() {
     return {
       masterGain: this.masterGainNode ? this.masterGainNode.gain.value : 1.0,
-      eqBands: this.eqBands ? this.eqBands.map(b => b.gain.value) : [],
+      eqBands: this.eqNodes ? this.eqNodes.map(b => b.gain.value) : [],
       haasWidth: this.haasWidth,
       haasDelay: this.haasDelay,
       vocalBoost: this.vocalBoost,
@@ -1003,9 +1003,9 @@ class AudioEngine {
     if (state.masterGain !== undefined && this.masterGainNode) {
       this.masterGainNode.gain.value = state.masterGain;
     }
-    if (state.eqBands && this.eqBands) {
+    if (state.eqBands && this.eqNodes) {
       state.eqBands.forEach((val, i) => {
-        if (this.eqBands[i]) this.eqBands[i].gain.value = val;
+        if (this.eqNodes[i]) this.eqNodes[i].gain.value = val;
       });
     }
     if (state.haasWidth !== undefined && this.setHaasExpander) {

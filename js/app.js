@@ -1542,12 +1542,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const gainVal = Math.max(-12, Math.min(12, normY * 12));
         
         // Update slider and engine
-        const slider = document.getElementById(`eqBand${selectedBandIdx}`);
-        const valSpan = document.getElementById(`eqVal${selectedBandIdx}`);
+        const slider = document.getElementById(`eqSlider_${selectedBandIdx}`);
+        const valSpan = document.getElementById(`eqVal_${selectedBandIdx}`);
         if (slider) {
           slider.value = gainVal.toFixed(1);
           if (valSpan) valSpan.textContent = `${gainVal > 0 ? '+' : ''}${gainVal.toFixed(1)} dB`;
-          if (window.audioEngine) window.audioEngine.setEqGain(selectedBandIdx, gainVal);
+          currentEqGains[selectedBandIdx] = gainVal;
+          if (window.audioEngine) window.audioEngine.setBandGain(selectedBandIdx, gainVal);
+          if (window.visualizer) window.visualizer.drawEqCurve(currentEqGains);
         }
       }
     };
@@ -1719,12 +1721,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // Animate sliders smoothly to target gains
       targetGains.forEach((targetGain, idx) => {
-        const slider = document.getElementById(`eqBand${idx}`);
-        const valSpan = document.getElementById(`eqVal${idx}`);
+        const slider = document.getElementById(`eqSlider_${idx}`);
+        const valSpan = document.getElementById(`eqVal_${idx}`);
         if (slider) {
           slider.value = targetGain;
           if (valSpan) valSpan.textContent = `${targetGain > 0 ? '+' : ''}${targetGain.toFixed(1)} dB`;
-          if (window.audioEngine) window.audioEngine.setEqGain(idx, targetGain);
+          currentEqGains[idx] = targetGain;
+          if (window.audioEngine) window.audioEngine.setBandGain(idx, targetGain);
         }
       });
 
