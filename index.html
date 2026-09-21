@@ -867,19 +867,19 @@
   </div>
 
   <!-- Modular Scripts -->
-  <script src="js/data/presets.js?v=36.0.0"></script>
-  <script src="js/audio/audio-engine.js?v=36.0.0"></script>
-  <script src="js/visual/spatial-canvas.js?v=36.0.0"></script>
-  <script src="js/visual/visualizer.js?v=36.0.0"></script>
-  <script src="js/ui/motion-ui.js?v=36.0.0"></script>
-  <script src="js/app.js?v=36.0.0"></script>
+  <script src="js/data/presets.js?v=37.0.0"></script>
+  <script src="js/audio/audio-engine.js?v=37.0.0"></script>
+  <script src="js/visual/spatial-canvas.js?v=37.0.0"></script>
+  <script src="js/visual/visualizer.js?v=37.0.0"></script>
+  <script src="js/ui/motion-ui.js?v=37.0.0"></script>
+  <script src="js/app.js?v=37.0.0"></script>
 
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js?v=36.0.0')
+        navigator.serviceWorker.register('sw.js?v=37.0.0')
           .then(reg => {
-            console.log('Service Worker Registered v36.0.0');
+            console.log('Service Worker Registered v37.0.0');
             reg.update();
           })
           .catch(err => console.log('Service Worker Error', err));
