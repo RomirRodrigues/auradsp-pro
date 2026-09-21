@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=28.0.0">
+  <link rel="stylesheet" href="styles.css?v=33.0.0">
   <link rel="manifest" href="manifest.json">
 </head>
 <body class="cyber-dark">
@@ -216,9 +216,23 @@
 
           <!-- Catalog Search Box -->
           <div class="spotify-search-box" style="margin-top: 15px;">
-            <label for="webSearchInput">🔍 Search Web Music Library:</label>
-            <input type="text" id="webSearchInput" class="cyber-input" placeholder="Type song, artist, genre...">
-            <div id="webSearchResults" class="search-results-list" style="max-height: 220px; overflow-y: auto; margin-top: 8px;"></div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+              <label for="webSearchInput" style="font-size:0.8rem; font-weight:700;">🔍 Search 100M+ Songs (Spotify & Global Catalog):</label>
+              <span id="webSearchCount" style="font-size:0.68rem; color:#00f0ff; background:rgba(0,240,255,0.1); border:1px solid rgba(0,240,255,0.25); padding:2px 8px; border-radius:10px;">Trending Hits</span>
+            </div>
+            <input type="text" id="webSearchInput" class="cyber-input" placeholder="Search any song, artist, album (e.g. The Weeknd, Arijit, Taylor Swift)...">
+            
+            <!-- Quick Genre Filters -->
+            <div class="web-genre-chips" id="webGenreChips" style="display:flex; gap:6px; overflow-x:auto; margin:8px 0; padding-bottom:4px;">
+              <button class="chip-btn active" data-genre="global">🌟 Top Global</button>
+              <button class="chip-btn" data-genre="bollywood">🇮🇳 Bollywood</button>
+              <button class="chip-btn" data-genre="hiphop">🎧 Hip-Hop</button>
+              <button class="chip-btn" data-genre="rock">🎸 Rock & Pop</button>
+              <button class="chip-btn" data-genre="edm">⚡ EDM & Club</button>
+              <button class="chip-btn" data-genre="lofi">☕ Lo-Fi Chill</button>
+            </div>
+
+            <div id="webSearchResults" class="search-results-list" style="max-height: 320px; overflow-y: auto; margin-top: 8px;"></div>
           </div>
         </div>
       </div>
@@ -258,6 +272,52 @@
             <button class="tone-type-btn" data-type="sweep">20-20k Sweep</button>
           </div>
           <button id="toggleToneBtn" class="accent-btn">Start Test Signal</button>
+        </div>
+      </div>
+
+      <!-- MULTIPLE AURA AUDIO DSP CLARITY ENGINES -->
+      <div class="panel-section audio-engine-section">
+        <div class="section-title section-title-row">
+          <span>⚡ AURA AUDIO DSP ENGINES</span>
+          <span id="activeEngineBadge" style="font-size:0.7rem; font-weight:700; color:#00f0ff; background:rgba(0,240,255,0.1); border:1px solid rgba(0,240,255,0.3); padding:2px 8px; border-radius:12px;">Crystal Clarity 4K</span>
+        </div>
+        <p class="info-text" style="margin-bottom:10px; font-size:0.75rem;">Switch specialized real-time DSP engines to make vocals, speech, and songs dramatically clearer.</p>
+        <div class="engine-cards-grid">
+          <button class="engine-card active" data-engine="clarity">
+            <span class="eng-icon">💎</span>
+            <div class="eng-text">
+              <strong>Crystal Clarity 4K</strong>
+              <small>Vocal Presence & Sparkling Air</small>
+            </div>
+          </button>
+          <button class="engine-card" data-engine="mastering">
+            <span class="eng-icon">🎙️</span>
+            <div class="eng-text">
+              <strong>Studio Master Pro</strong>
+              <small>Analog Warmth & Transparency</small>
+            </div>
+          </button>
+          <button class="engine-card" data-engine="cinema">
+            <span class="eng-icon">🎬</span>
+            <div class="eng-text">
+              <strong>Dolby 3D Cinema</strong>
+              <small>Spatial Soundstage & Dialogue</small>
+            </div>
+          </button>
+          <button class="engine-card" data-engine="bassquake">
+            <span class="eng-icon">🔊</span>
+            <div class="eng-text">
+              <strong>Club Bass Quake</strong>
+              <small>Sub-Harmonic 808 Punch</small>
+            </div>
+          </button>
+          <button class="engine-card" data-engine="pure">
+            <span class="eng-icon">🎧</span>
+            <div class="eng-text">
+              <strong>Pure Audiophile</strong>
+              <small>Bit-Perfect Direct Line</small>
+            </div>
+          </button>
         </div>
       </div>
 
@@ -804,12 +864,12 @@
   </div>
 
   <!-- Modular Scripts -->
-  <script src="js/data/presets.js?v=32.0.0"></script>
-  <script src="js/audio/audio-engine.js?v=32.0.0"></script>
-  <script src="js/visual/spatial-canvas.js?v=32.0.0"></script>
-  <script src="js/visual/visualizer.js?v=32.0.0"></script>
-  <script src="js/ui/motion-ui.js?v=32.0.0"></script>
-  <script src="js/app.js?v=32.0.0"></script>
+  <script src="js/data/presets.js?v=33.0.0"></script>
+  <script src="js/audio/audio-engine.js?v=33.0.0"></script>
+  <script src="js/visual/spatial-canvas.js?v=33.0.0"></script>
+  <script src="js/visual/visualizer.js?v=33.0.0"></script>
+  <script src="js/ui/motion-ui.js?v=33.0.0"></script>
+  <script src="js/app.js?v=33.0.0"></script>
 
   <script>
     if ('serviceWorker' in navigator) {

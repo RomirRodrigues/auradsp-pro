@@ -375,6 +375,7 @@ class AudioEngine {
     const lastEqNode = this.eqNodes[this.eqNodes.length - 1];
     lastEqNode.connect(this.tubeShaperNode);
     this.tubeShaperNode.connect(this.msSplitter);
+    try { this.tubeShaperNode.connect(this.exciterHPF); } catch(e) {}
 
     // Connect Splitter outputs to Mid/Side Summing networks
     this.msSplitter.connect(this.midGainL, 0); // L input to Mid
@@ -965,6 +966,68 @@ class AudioEngine {
 
 
   
+  // --- MULTIPLE HIGH-DEFINITION AUDIO PROCESSING ENGINES ---
+  setAudioEngineProfile(profileKey) {
+    this.activeEngineProfile = profileKey;
+    switch (profileKey) {
+      case 'clarity': // Ultra-HD 4K Crystal Clarity Engine (Razor-sharp vocals & sparkling air)
+        this.setVocalEnhancer(true, 5.0);       // +5.0 dB Speech & Vocal presence (2.8 kHz)
+        this.setExciter(true, 70, 6500);         // +70% Harmonic Air Exciter (sparkle above 6.5 kHz)
+        this.setDolbyCompressor(true, -16, 2.5); // Transparent vocal compression
+        this.setSubBass(1.0);                    // Clean, tight bass, eliminates low-mid boxiness
+        this.setHaasExpander(true, 70, 14);      // Distinct stereo instrument separation
+        this.setTubeWarmth(false);
+        this.setTapeWarble(false);
+        this.setRoomReverb(false);
+        break;
+
+      case 'mastering': // Studio Reference Mastering Engine (Audiophile precision)
+        this.setVocalEnhancer(true, 2.5);
+        this.setExciter(true, 35, 8000);
+        this.setDolbyCompressor(true, -14, 2.0);
+        this.setTubeWarmth(true, 18);            // Subtle 18% analog tube saturation
+        this.setSubBass(3.0);
+        this.setHaasExpander(true, 55, 12);
+        this.setTapeWarble(false);
+        this.setRoomReverb(false);
+        break;
+
+      case 'cinema': // Dolby 3D Spatial Cinema Engine (Dialogue isolation & wide stage)
+        this.setVocalEnhancer(true, 4.5);        // Dialogue isolation booster
+        this.setExciter(true, 45, 5000);
+        this.setDolbyCompressor(true, -20, 3.5);
+        this.setRoomReverb(true, 'cinema', 30);  // Cinematic hall space
+        this.setHaasExpander(true, 90, 24);      // Expansive 3D soundfield
+        this.setSubBass(6.0);                    // Cinematic low-end rumble
+        this.setTubeWarmth(false);
+        this.setTapeWarble(false);
+        break;
+
+      case 'bassquake': // Club 808 & Bass Quake Engine (Sub-harmonic punch)
+        this.setVocalEnhancer(true, 2.0);
+        this.setExciter(true, 40, 6000);
+        this.setDolbyCompressor(true, -24, 4.5);
+        this.setSubBass(9.0);                    // Max punchy sub-bass
+        this.setTubeWarmth(true, 30);
+        this.setHaasExpander(true, 75, 16);
+        this.setTapeWarble(false);
+        this.setRoomReverb(false);
+        break;
+
+      case 'pure': // Audiophile Pure Direct
+      default:
+        this.setVocalEnhancer(false);
+        this.setExciter(false);
+        this.setDolbyCompressor(false);
+        this.setTubeWarmth(false);
+        this.setTapeWarble(false);
+        this.setRoomReverb(false);
+        this.setHaasExpander(false);
+        this.setSubBass(0);
+        break;
+    }
+  }
+
   // --- HARMONIC EXCITER ---
   setExciter(enabled, drivePercent = 30, freq = 5000) {
     if (!this.exciterGain || !this.exciterHPF) return;

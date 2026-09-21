@@ -3195,4 +3195,109 @@ body.cyber-dark::before {
   box-shadow: 0 6px 28px rgba(0, 240, 255, 0.6) !important;
 }
 
+/* ─── AURA MULTI-ENGINE DSP CARDS ──────────────────────────── */
+.audio-engine-section {
+  margin-bottom: 20px;
+}
+
+.engine-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 8px;
+}
+
+.engine-card {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-md, 8px);
+  padding: 8px 10px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  color: var(--text-main, #f1f5f9);
+}
+
+.engine-card:hover {
+  background: rgba(0, 240, 255, 0.06);
+  border-color: rgba(0, 240, 255, 0.25);
+  transform: translateY(-1px);
+}
+
+.engine-card.active {
+  background: linear-gradient(135deg, rgba(0, 240, 255, 0.12), rgba(112, 0, 255, 0.12));
+  border-color: #00f0ff;
+  box-shadow: 0 0 14px rgba(0, 240, 255, 0.25);
+}
+
+.engine-card .eng-icon {
+  font-size: 1.3rem;
+  flex-shrink: 0;
+}
+
+.engine-card .eng-text {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.engine-card .eng-text strong {
+  font-size: 0.76rem;
+  font-weight: 700;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  color: #fff;
+}
+
+.engine-card .eng-text small {
+  font-size: 0.62rem;
+  color: var(--text-muted, #94a3b8);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.engine-card.active .eng-text strong {
+  color: #00f0ff;
+}
+
+/* ─── WEB STREAMER GENRE CHIPS ────────────────────────────── */
+.web-genre-chips::-webkit-scrollbar {
+  height: 3px;
+}
+.web-genre-chips::-webkit-scrollbar-thumb {
+  background: rgba(0, 240, 255, 0.3);
+  border-radius: 2px;
+}
+
+.chip-btn {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  color: var(--text-muted, #94a3b8);
+  padding: 4px 10px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.chip-btn:hover {
+  background: rgba(0, 240, 255, 0.08);
+  border-color: rgba(0, 240, 255, 0.3);
+  color: #fff;
+}
+
+.chip-btn.active {
+  background: rgba(0, 240, 255, 0.18);
+  border-color: #00f0ff;
+  color: #00f0ff;
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
+}
+
 
