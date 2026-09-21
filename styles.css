@@ -679,7 +679,7 @@ body.cyber-dark {
   font-weight: 600;
 }
 
-input[type="range"] {
+input[type="range"]:not(.eq-slider) {
   -webkit-appearance: none;
   width: 100%;
   height: 6px;
@@ -688,7 +688,7 @@ input[type="range"] {
   outline: none;
 }
 
-input[type="range"]::-webkit-slider-thumb {
+input[type="range"]:not(.eq-slider)::-webkit-slider-thumb {
   -webkit-appearance: none;
   width: 16px;
   height: 16px;
@@ -699,7 +699,7 @@ input[type="range"]::-webkit-slider-thumb {
   transition: transform 0.1s;
 }
 
-input[type="range"]::-webkit-slider-thumb:hover {
+input[type="range"]:not(.eq-slider)::-webkit-slider-thumb:hover {
   transform: scale(1.2);
 }
 
@@ -837,10 +837,15 @@ input[type="range"]::-webkit-slider-thumb:hover {
   grid-template-columns: repeat(10, 1fr);
   gap: 8px;
   align-items: center;
-  height: 200px;
-  background: rgba(0, 0, 0, 0.35);
-  padding: 14px 8px;
+  height: 220px;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 14px 6px 12px 6px;
   border-radius: var(--radius-md);
+  box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.6);
+  position: relative;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .eq-band-col {
@@ -849,28 +854,144 @@ input[type="range"]::-webkit-slider-thumb:hover {
   align-items: center;
   height: 100%;
   justify-content: space-between;
+  position: relative;
+  touch-action: none;
 }
 
 .eq-band-col .band-val {
   font-family: var(--font-mono);
-  font-size: 0.65rem;
+  font-size: 0.68rem;
   color: var(--accent-cyan);
-  font-weight: 600;
+  font-weight: 700;
+  text-shadow: 0 0 6px rgba(0, 240, 255, 0.4);
+  min-height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s ease, text-shadow 0.15s ease;
 }
 
 .eq-band-col .band-freq {
-  font-size: 0.7rem;
+  font-size: 0.72rem;
   font-weight: 600;
   color: var(--text-muted);
+  letter-spacing: 0.3px;
 }
 
-.eq-band-col input[type="range"] {
-  writing-mode: bt-lr;
-  -webkit-appearance: slider-vertical;
-  width: 8px;
-  height: 120px;
-  accent-color: var(--accent-cyan);
-  cursor: pointer;
+/* Studio Fader slot track container */
+.eq-fader-slot {
+  position: relative;
+  width: 32px;
+  height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: ns-resize;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 6px;
+  transition: border-color 0.2s, background 0.2s;
+  touch-action: none;
+}
+
+.eq-fader-slot:hover {
+  border-color: rgba(0, 240, 255, 0.35);
+  background: rgba(0, 240, 255, 0.03);
+}
+
+/* Center 0dB reference tick */
+.eq-center-line {
+  position: absolute;
+  top: 50%;
+  left: 3px;
+  right: 3px;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 0 4px rgba(255, 255, 255, 0.2);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Center slot groove line */
+.eq-fader-slot::before {
+  content: '';
+  position: absolute;
+  top: 10px;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 2px;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.8), 0 0 1px rgba(255, 255, 255, 0.1);
+  pointer-events: none;
+}
+
+/* Dynamic LED Level Fill Bar from Center (0dB) */
+.eq-fader-fill {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  border-radius: 2px;
+  pointer-events: none;
+  z-index: 2;
+  transition: height 0.05s ease, top 0.05s ease;
+}
+
+/* Vertical EQ Range Slider Input */
+.eq-band-col input[type="range"].eq-slider {
+  -webkit-appearance: slider-vertical !important;
+  appearance: slider-vertical !important;
+  writing-mode: vertical-lr !important;
+  direction: rtl !important;
+  width: 32px !important;
+  height: 140px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+  cursor: ns-resize !important;
+  accent-color: var(--accent-cyan) !important;
+  z-index: 4;
+  touch-action: none;
+  opacity: 0.95;
+}
+
+.eq-band-col input[type="range"].eq-slider::-webkit-slider-thumb {
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  width: 26px !important;
+  height: 14px !important;
+  border-radius: 3px !important;
+  background: linear-gradient(180deg, #3a4454 0%, #1a2230 40%, #0d121c 100%) !important;
+  border: 1px solid #00f0ff !important;
+  box-shadow: 0 0 8px rgba(0, 240, 255, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+  cursor: ns-resize !important;
+  margin: 0 !important;
+}
+
+.eq-band-col input[type="range"].eq-slider::-moz-range-thumb {
+  width: 26px !important;
+  height: 14px !important;
+  border-radius: 3px !important;
+  background: linear-gradient(180deg, #3a4454 0%, #1a2230 40%, #0d121c 100%) !important;
+  border: 1px solid #00f0ff !important;
+  box-shadow: 0 0 8px rgba(0, 240, 255, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+  cursor: ns-resize !important;
+}
+
+.eq-band-col input[type="range"].eq-slider::-webkit-slider-runnable-track {
+  background: transparent !important;
+  border: none !important;
+  height: 140px !important;
+  width: 4px !important;
+}
+
+.eq-band-col input[type="range"].eq-slider::-moz-range-track {
+  background: transparent !important;
+  border: none !important;
+  height: 140px !important;
+  width: 4px !important;
 }
 
 /* ENHANCERS RACK */
@@ -2205,20 +2326,20 @@ body.font-roboto {
 }
 
 /* Range Slider Master Styling */
-input[type=range] {
+input[type=range]:not(.eq-slider) {
   -webkit-appearance: none;
   width: 100%;
   background: transparent;
 }
 
-input[type=range]::-webkit-slider-runnable-track {
+input[type=range]:not(.eq-slider)::-webkit-slider-runnable-track {
   height: 6px;
   background: rgba(255, 255, 255, 0.1);
   border-radius: 3px;
   border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-input[type=range]::-webkit-slider-thumb {
+input[type=range]:not(.eq-slider)::-webkit-slider-thumb {
   -webkit-appearance: none;
   height: 18px;
   width: 18px;
@@ -2230,7 +2351,7 @@ input[type=range]::-webkit-slider-thumb {
   transition: transform 0.1s ease, background-color 0.1s ease;
 }
 
-input[type=range]::-webkit-slider-thumb:hover {
+input[type=range]:not(.eq-slider)::-webkit-slider-thumb:hover {
   transform: scale(1.2);
   background: #ff007f;
   box-shadow: 0 0 16px #ff007f;
@@ -2390,7 +2511,7 @@ body.cyber-dark {
 }
 
 /* 5. Range Slider Thumb Pulse on Drag */
-input[type=range]:active::-webkit-slider-thumb {
+input[type=range]:not(.eq-slider):active::-webkit-slider-thumb {
   animation: thumbPulse 0.6s ease-in-out infinite alternate;
 }
 
@@ -2614,13 +2735,13 @@ button, input[type=range], .preset-card, .sf-node {
 }
 
 /* 4. Glowing Neon Sliders & Knobs */
-input[type=range]::-webkit-slider-runnable-track {
+input[type=range]:not(.eq-slider)::-webkit-slider-runnable-track {
   height: 6px !important;
   background: linear-gradient(90deg, rgba(0, 240, 255, 0.2), rgba(112, 0, 255, 0.3)) !important;
   border-radius: 4px !important;
 }
 
-input[type=range]::-webkit-slider-thumb {
+input[type=range]:not(.eq-slider)::-webkit-slider-thumb {
   height: 20px !important;
   width: 20px !important;
   background: radial-gradient(circle, #ffffff 30%, #00f0ff 100%) !important;
@@ -2628,7 +2749,7 @@ input[type=range]::-webkit-slider-thumb {
   border: 1px solid #00f0ff !important;
 }
 
-input[type=range]::-webkit-slider-thumb:hover {
+input[type=range]:not(.eq-slider)::-webkit-slider-thumb:hover {
   transform: scale(1.25) !important;
   background: radial-gradient(circle, #ffffff 30%, #ff007f 100%) !important;
   box-shadow: 0 0 20px #ff007f !important;
@@ -2950,18 +3071,18 @@ button:active, .source-btn:active, .preset-card:active, .pro-btn:active {
 }
 
 /* 4. Motion-Enhanced Dynamic Slider Styling */
-input[type="range"] {
+input[type="range"]:not(.eq-slider) {
   height: 6px !important;
   border-radius: 3px !important;
   background: linear-gradient(to right, var(--slider-glow, var(--accent-cyan)) var(--slider-progress, 0%), rgba(255, 255, 255, 0.1) var(--slider-progress, 0%)) !important;
   transition: background 0.1s ease !important;
 }
 
-input[type="range"]::-webkit-slider-thumb {
+input[type="range"]:not(.eq-slider)::-webkit-slider-thumb {
   transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease !important;
 }
 
-input[type="range"]:hover::-webkit-slider-thumb {
+input[type="range"]:not(.eq-slider):hover::-webkit-slider-thumb {
   transform: scale(1.35) !important;
   box-shadow: 0 0 14px var(--slider-glow, var(--accent-cyan)) !important;
 }

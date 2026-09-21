@@ -98,7 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 4. Dynamic Slider Track Fill & Tooltip Halos
   const updateSliderVisuals = () => {
-    const rangeInputs = document.querySelectorAll('input[type="range"]');
+    const rangeInputs = document.querySelectorAll('input[type="range"]:not(.eq-slider)');
     rangeInputs.forEach(input => {
       const update = () => {
         const min = parseFloat(input.min) || 0;
@@ -107,10 +107,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const percentage = ((val - min) / (max - min)) * 100;
 
         let accentGlow = 'var(--accent-cyan)';
-        if (input.id.startsWith('eqSlider_')) {
-          if (val > 0) accentGlow = 'var(--accent-pink)';
-          else if (val < 0) accentGlow = 'var(--accent-purple)';
-        }
         input.style.setProperty('--slider-progress', `${percentage}%`);
         input.style.setProperty('--slider-glow', accentGlow);
       };

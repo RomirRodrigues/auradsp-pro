@@ -106,32 +106,139 @@ document.addEventListener('DOMContentLoaded', () => {
   const eqGrid = document.getElementById('eqSlidersGrid');
   eqGrid.innerHTML = '';
 
+  function updateEqBandUI(idx, val) {
+    const numVal = parseFloat(val) || 0;
+    const slider = document.getElementById(`eqSlider_${idx}`);
+    if (slider) slider.value = numVal;
+
+    const valText = document.getElementById(`eqVal_${idx}`);
+    if (valText) {
+      valText.textContent = `${numVal > 0 ? '+' : ''}${numVal.toFixed(1)}dB`;
+      if (numVal > 0) {
+        valText.style.color = 'var(--accent-pink)';
+        valText.style.textShadow = '0 0 8px rgba(255, 0, 127, 0.6)';
+      } else if (numVal < 0) {
+        valText.style.color = 'var(--accent-purple)';
+        valText.style.textShadow = '0 0 8px rgba(112, 0, 255, 0.6)';
+      } else {
+        valText.style.color = 'var(--accent-cyan)';
+        valText.style.textShadow = '0 0 6px rgba(0, 240, 255, 0.4)';
+      }
+    }
+
+    const fill = document.getElementById(`eqFill_${idx}`);
+    const slot = document.getElementById(`eqSlot_${idx}`);
+    if (fill && slot) {
+      const slotHeight = slot.clientHeight || 140;
+      const halfHeight = slotHeight / 2;
+      if (numVal > 0) {
+        const h = Math.min(halfHeight, (numVal / 12) * halfHeight);
+        fill.style.top = `${halfHeight - h}px`;
+        fill.style.height = `${h}px`;
+        fill.style.background = 'linear-gradient(to top, #00f0ff, #ff007f)';
+        fill.style.boxShadow = '0 0 8px rgba(255, 0, 127, 0.7)';
+      } else if (numVal < 0) {
+        const h = Math.min(halfHeight, (Math.abs(numVal) / 12) * halfHeight);
+        fill.style.top = `${halfHeight}px`;
+        fill.style.height = `${h}px`;
+        fill.style.background = 'linear-gradient(to bottom, #00f0ff, #7000ff)';
+        fill.style.boxShadow = '0 0 8px rgba(112, 0, 255, 0.7)';
+      } else {
+        fill.style.height = '0px';
+      }
+    }
+  }
+
+  function applyBandChange(idx, val) {
+    const numVal = Math.round(parseFloat(val) * 2) / 2;
+    updateEqBandUI(idx, numVal);
+    currentEqGains[idx] = numVal;
+    if (window.audioEngine) {
+      window.audioEngine.setBandGain(idx, numVal);
+    }
+    if (window.visualizer) {
+      window.visualizer.drawEqCurve(currentEqGains);
+    }
+    markTuningAsManual();
+  }
+
   FREQ_BANDS.forEach((freq, idx) => {
     const bandCol = document.createElement('div');
     bandCol.className = 'eq-band-col';
+    bandCol.dataset.index = idx;
 
     const freqLabel = freq >= 1000 ? `${freq / 1000}k` : `${freq}`;
 
     bandCol.innerHTML = `
-      <span class="band-val" id="eqVal_${idx}">0dB</span>
-      <input type="range" id="eqSlider_${idx}" min="-12" max="12" value="0" step="0.5" data-index="${idx}">
+      <span class="band-val" id="eqVal_${idx}">0.0dB</span>
+      <div class="eq-fader-slot" id="eqSlot_${idx}">
+        <div class="eq-center-line"></div>
+        <div class="eq-fader-fill" id="eqFill_${idx}"></div>
+        <input type="range" id="eqSlider_${idx}" class="eq-slider" min="-12" max="12" value="0" step="0.5" orient="vertical" data-index="${idx}">
+      </div>
       <span class="band-freq">${freqLabel}Hz</span>
     `;
 
     eqGrid.appendChild(bandCol);
 
-    const slider = bandCol.querySelector(`input`);
+    const slider = bandCol.querySelector(`input.eq-slider`);
+    const slot = bandCol.querySelector('.eq-fader-slot');
+
+    // 1. Native input event (from direct thumb drag or keyboard arrows)
     slider.addEventListener('input', (e) => {
       const val = parseFloat(e.target.value);
-      const valText = document.getElementById(`eqVal_${idx}`);
-      if (valText) valText.textContent = `${val > 0 ? '+' : ''}${val}dB`;
+      applyBandChange(idx, val);
+    });
 
-      currentEqGains[idx] = val;
-      if (window.audioEngine) {
-        window.audioEngine.setBandGain(idx, val);
+    // 2. High-precision pointer dragging on entire fader track
+    let isDraggingFader = false;
+
+    const updateFromPointer = (clientY) => {
+      const rect = slot.getBoundingClientRect();
+      const ratio = (rect.bottom - clientY) / rect.height;
+      const clamped = Math.max(0, Math.min(1, ratio));
+      let db = -12 + (clamped * 24);
+      db = Math.round(db * 2) / 2; // snap to 0.5dB step
+      slider.value = db;
+      applyBandChange(idx, db);
+    };
+
+    slot.addEventListener('pointerdown', (e) => {
+      isDraggingFader = true;
+      try { slot.setPointerCapture(e.pointerId); } catch (_) {}
+      updateFromPointer(e.clientY);
+    });
+
+    slot.addEventListener('pointermove', (e) => {
+      if (isDraggingFader) {
+        updateFromPointer(e.clientY);
       }
-      window.visualizer.drawEqCurve(currentEqGains);
-      markTuningAsManual();
+    });
+
+    const stopDragging = (e) => {
+      if (isDraggingFader) {
+        isDraggingFader = false;
+        try { slot.releasePointerCapture(e.pointerId); } catch (_) {}
+      }
+    };
+
+    slot.addEventListener('pointerup', stopDragging);
+    slot.addEventListener('pointercancel', stopDragging);
+
+    // 3. Mouse Wheel adjustment (0.5 dB per notch)
+    slot.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      const delta = e.deltaY < 0 ? 0.5 : -0.5;
+      let newDb = Math.max(-12, Math.min(12, currentEqGains[idx] + delta));
+      newDb = Math.round(newDb * 2) / 2;
+      slider.value = newDb;
+      applyBandChange(idx, newDb);
+    }, { passive: false });
+
+    // 4. Double-click reset to 0dB flat
+    slot.addEventListener('dblclick', () => {
+      slider.value = 0;
+      applyBandChange(idx, 0);
     });
   });
 
@@ -286,10 +393,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     currentEqGains = [...preset.eq];
     preset.eq.forEach((gain, i) => {
-      const slider = document.getElementById(`eqSlider_${i}`);
-      const valText = document.getElementById(`eqVal_${i}`);
-      if (slider) slider.value = gain;
-      if (valText) valText.textContent = `${gain > 0 ? '+' : ''}${gain}dB`;
+      updateEqBandUI(i, gain);
       if (window.audioEngine) window.audioEngine.setBandGain(i, gain);
     });
 
@@ -1266,10 +1370,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (resetEqBtn) resetEqBtn.addEventListener('click', () => {
     currentEqGains = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
     FREQ_BANDS.forEach((_, i) => {
-      const slider = document.getElementById(`eqSlider_${i}`);
-      const valText = document.getElementById(`eqVal_${i}`);
-      if (slider) slider.value = 0;
-      if (valText) valText.textContent = "0dB";
+      updateEqBandUI(i, 0);
       if (window.audioEngine) window.audioEngine.setBandGain(i, 0);
     });
     window.visualizer.drawEqCurve(currentEqGains);
@@ -1715,15 +1816,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const gainVal = Math.max(-12, Math.min(12, normY * 12));
         
         // Update slider and engine
-        const slider = document.getElementById(`eqSlider_${selectedBandIdx}`);
-        const valSpan = document.getElementById(`eqVal_${selectedBandIdx}`);
-        if (slider) {
-          slider.value = gainVal.toFixed(1);
-          if (valSpan) valSpan.textContent = `${gainVal > 0 ? '+' : ''}${gainVal.toFixed(1)} dB`;
-          currentEqGains[selectedBandIdx] = gainVal;
-          if (window.audioEngine) window.audioEngine.setBandGain(selectedBandIdx, gainVal);
-          if (window.visualizer) window.visualizer.drawEqCurve(currentEqGains);
-        }
+        updateEqBandUI(selectedBandIdx, gainVal);
+        currentEqGains[selectedBandIdx] = gainVal;
+        if (window.audioEngine) window.audioEngine.setBandGain(selectedBandIdx, gainVal);
+        if (window.visualizer) window.visualizer.drawEqCurve(currentEqGains);
       }
     };
 
@@ -1894,14 +1990,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // Animate sliders smoothly to target gains
       targetGains.forEach((targetGain, idx) => {
-        const slider = document.getElementById(`eqSlider_${idx}`);
-        const valSpan = document.getElementById(`eqVal_${idx}`);
-        if (slider) {
-          slider.value = targetGain;
-          if (valSpan) valSpan.textContent = `${targetGain > 0 ? '+' : ''}${targetGain.toFixed(1)} dB`;
-          currentEqGains[idx] = targetGain;
-          if (window.audioEngine) window.audioEngine.setBandGain(idx, targetGain);
-        }
+        updateEqBandUI(idx, targetGain);
+        currentEqGains[idx] = targetGain;
+        if (window.audioEngine) window.audioEngine.setBandGain(idx, targetGain);
       });
 
       // Update Visualizer curve
