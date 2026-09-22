@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=39.0.0">
+  <link rel="stylesheet" href="styles.css?v=40.0.0">
   <link rel="manifest" href="manifest.json">
 </head>
 <body class="cyber-dark">
@@ -882,19 +882,19 @@
   </div>
 
   <!-- Modular Scripts -->
-  <script src="js/data/presets.js?v=39.0.0"></script>
-  <script src="js/audio/audio-engine.js?v=39.0.0"></script>
-  <script src="js/visual/spatial-canvas.js?v=39.0.0"></script>
-  <script src="js/visual/visualizer.js?v=39.0.0"></script>
-  <script src="js/ui/motion-ui.js?v=39.0.0"></script>
-  <script src="js/app.js?v=39.0.0"></script>
+  <script src="js/data/presets.js?v=40.0.0"></script>
+  <script src="js/audio/audio-engine.js?v=40.0.0"></script>
+  <script src="js/visual/spatial-canvas.js?v=40.0.0"></script>
+  <script src="js/visual/visualizer.js?v=40.0.0"></script>
+  <script src="js/ui/motion-ui.js?v=40.0.0"></script>
+  <script src="js/app.js?v=40.0.0"></script>
 
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js?v=39.0.0')
+        navigator.serviceWorker.register('sw.js?v=40.0.0')
           .then(reg => {
-            console.log('Service Worker Registered v39.0.0');
+            console.log('Service Worker Registered v40.0.0');
             reg.update();
           })
           .catch(err => console.log('Service Worker Error', err));
