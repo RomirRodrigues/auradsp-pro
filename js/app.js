@@ -436,6 +436,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // ─── MULTIPLE AURA AUDIO DSP CLARITY ENGINES ─────────────────
   const engineCards = document.querySelectorAll('.engine-card');
   const activeEngineBadge = document.getElementById('activeEngineBadge');
+  const webEngineBtns = document.querySelectorAll('.web-engine-btn');
+  const webActiveEngineName = document.getElementById('webActiveEngineName');
 
   const engineLabels = {
     clarity: 'Crystal Clarity 4K',
@@ -445,21 +447,46 @@ document.addEventListener('DOMContentLoaded', () => {
     pure: 'Pure Audiophile'
   };
 
+  function applyAudioEngine(engineKey) {
+    if (activeEngineBadge) {
+      activeEngineBadge.textContent = engineLabels[engineKey] || 'Crystal Clarity';
+    }
+    if (webActiveEngineName) {
+      webActiveEngineName.textContent = engineLabels[engineKey] || 'Crystal Clarity';
+    }
+    engineCards.forEach(c => {
+      c.classList.toggle('active', c.dataset.engine === engineKey);
+    });
+    webEngineBtns.forEach(b => {
+      const isActive = b.dataset.engine === engineKey;
+      b.classList.toggle('active', isActive);
+      b.style.borderColor = isActive ? 'rgba(0,240,255,0.5)' : 'rgba(255,255,255,0.1)';
+      b.style.background = isActive ? 'rgba(0,240,255,0.2)' : 'rgba(255,255,255,0.03)';
+      b.style.color = isActive ? '#fff' : 'var(--text-muted)';
+    });
+
+    if (window.audioEngine) {
+      window.audioEngine.resumeCtx();
+      window.audioEngine.setAudioEngineProfile(engineKey);
+    }
+    if (window.showToast) {
+      try {
+        window.showToast("Engine: " + (engineLabels[engineKey] || engineKey), "success");
+      } catch (e) {}
+    }
+  }
+
   engineCards.forEach(card => {
     card.addEventListener('click', () => {
-      engineCards.forEach(c => c.classList.remove('active'));
-      card.classList.add('active');
       const engineKey = card.dataset.engine || 'clarity';
-      if (activeEngineBadge) {
-        activeEngineBadge.textContent = engineLabels[engineKey] || 'Crystal Clarity';
-      }
-      if (window.audioEngine) {
-        window.audioEngine.resumeCtx();
-        window.audioEngine.setAudioEngineProfile(engineKey);
-      }
-      if (window.showToast) {
-        window.showToast("Engine: " + (engineLabels[engineKey] || engineKey), "success");
-      }
+      applyAudioEngine(engineKey);
+    });
+  });
+
+  webEngineBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const engineKey = btn.dataset.engine || 'clarity';
+      applyAudioEngine(engineKey);
     });
   });
 
@@ -715,29 +742,29 @@ document.addEventListener('DOMContentLoaded', () => {
     },
     {
       id: 'feat-2',
-      title: 'Golden (Club Tech House Radio Edit)',
-      uploaderName: 'Tony Metric',
-      duration: 155,
-      thumbnail: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=300',
-      streamUrl: 'https://discoveryprovider.audius.co/v1/tracks/YZMm1rW/stream?app_name=auradsp_pro',
-      source: 'audius'
-    },
-    {
-      id: 'feat-3',
       title: 'Live It Up (Original Studio Mix)',
       uploaderName: 'GORDO DJ (BR)',
       duration: 244,
       thumbnail: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=300',
-      streamUrl: 'https://discoveryprovider.audius.co/v1/tracks/3EZbQxZ/stream?app_name=auradsp_pro',
+      streamUrl: 'https://discoveryprovider.audius.co/v1/tracks/1287355467/stream?app_name=auradsp_pro',
       source: 'audius'
     },
     {
-      id: 'feat-4',
+      id: 'feat-3',
       title: 'Nature (Deep House Vocal Flow)',
       uploaderName: 'Jazcardan',
       duration: 175,
       thumbnail: 'https://images.unsplash.com/photo-1518609878373-06d740f60d8b?w=300',
-      streamUrl: 'https://discoveryprovider.audius.co/v1/tracks/xPJGkO3/stream?app_name=auradsp_pro',
+      streamUrl: 'https://discoveryprovider.audius.co/v1/tracks/1579831031/stream?app_name=auradsp_pro',
+      source: 'audius'
+    },
+    {
+      id: 'feat-4',
+      title: 'Bby WOW (Javier Tejeda Club Edit)',
+      uploaderName: 'Karol G / Javier Tejeda',
+      duration: 180,
+      thumbnail: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=300',
+      streamUrl: 'https://discoveryprovider.audius.co/v1/tracks/1108852572/stream?app_name=auradsp_pro',
       source: 'audius'
     },
     {
@@ -763,7 +790,6 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentWebTrack = FEATURED_WEB_TRACKS[0];
   let searchTimeout = null;
   const AUDIUS_APP_NAME = 'auradsp_pro';
-  const SAAVN_API_V3 = 'https://jiosaavn-api-v3.vercel.app';
 
   // Pre-populate with featured tracks on startup
   if (webTrackName) webTrackName.textContent = currentWebTrack.title;
@@ -771,20 +797,20 @@ document.addEventListener('DOMContentLoaded', () => {
   if (webAlbumArt) webAlbumArt.src = currentWebTrack.thumbnail;
 
   // 1. Global 100M+ Audius Music Streaming Engine (Direct Official MP3 Streams, 100% CORS compliant)
-  async function searchGlobalCatalog(query) {
+  async function searchGlobalCatalog(query, limit = 25) {
     try {
       const controller = new AbortController();
       const id = setTimeout(() => controller.abort(), 6000);
-      const res = await fetch(`https://discoveryprovider.audius.co/v1/tracks/search?query=${encodeURIComponent(query)}&app_name=${AUDIUS_APP_NAME}`, { signal: controller.signal });
+      const res = await fetch(`https://discoveryprovider.audius.co/v1/tracks/search?query=${encodeURIComponent(query)}&limit=${limit}&app_name=${AUDIUS_APP_NAME}`, { signal: controller.signal });
       clearTimeout(id);
       if (!res.ok) throw new Error(`Audius search ${res.status}`);
       const json = await res.json();
       const tracks = json.data || [];
       return tracks.map(t => {
-        const stream = `https://discoveryprovider.audius.co/v1/tracks/${t.id}/stream?app_name=${AUDIUS_APP_NAME}`;
+        const stream = t.stream?.url || (t.track_id ? `https://discoveryprovider.audius.co/v1/tracks/${t.track_id}/stream?app_name=${AUDIUS_APP_NAME}` : `https://discoveryprovider.audius.co/v1/tracks/${t.id}/stream?app_name=${AUDIUS_APP_NAME}`);
         const art = t.artwork ? (t.artwork['480x480'] || t.artwork['150x150'] || t.artwork['1000x1000']) : '';
         return {
-          id: 'audius-' + t.id,
+          id: 'audius-' + (t.track_id || t.id),
           title: t.title || 'Unknown Track',
           uploaderName: (t.user && t.user.name) ? t.user.name : 'Independent Artist',
           thumbnail: art || 'https://images.unsplash.com/photo-1614680376593-902f74fa0d41?w=120',
@@ -799,80 +825,98 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // 2. JioSaavn Engine (Direct Official Jio CDN MP3 Streams, HTTP 200 OK)
-  async function searchJioSaavnFull(query) {
-    try {
-      const controller = new AbortController();
-      const id = setTimeout(() => controller.abort(), 6000);
-      const res = await fetch(`${SAAVN_API_V3}/search?query=${encodeURIComponent(query)}`, { signal: controller.signal });
-      clearTimeout(id);
-      if (!res.ok) throw new Error(`JioSaavn ${res.status}`);
-      const json = await res.json();
-      const results = json.results || json.data?.results || [];
-
-      return results.map(t => {
-        const stream = t.more_info?.vlink || t.media_url || '';
-        const durSec = t.more_info?.duration ? parseInt(t.more_info.duration) : 240;
-        return {
-          id: t.id,
-          title: t.title || t.name || 'Unknown Track',
-          uploaderName: t.more_info?.singers || t.description || 'Unknown Artist',
-          thumbnail: t.image || t.images?.['150x150'] || '',
-          duration: durSec,
-          streamUrl: stream,
-          source: 'jiosaavn'
-        };
-      }).filter(t => t.title && t.streamUrl);
-    } catch (e) {
-      console.warn('JioSaavn Full search error:', e.message);
-      return [];
-    }
-  }
-
-  // 3. Internet Archive Full Audio Engine
+  // 2. Internet Archive Full Audio Engine (With verified CORS metadata MP3 resolution)
   async function searchArchiveFull(query) {
     try {
       const controller = new AbortController();
-      const id = setTimeout(() => controller.abort(), 6000);
-      const res = await fetch(`https://archive.org/advancedsearch.php?q=mediatype:audio+AND+title:${encodeURIComponent(query)}&fl[]=identifier,title,creator,publicdate&rows=8&output=json`, { signal: controller.signal });
+      const id = setTimeout(() => controller.abort(), 5000);
+      const res = await fetch(`https://archive.org/advancedsearch.php?q=mediatype:audio+AND+title:${encodeURIComponent(query)}&fl[]=identifier,title,creator,publicdate&rows=3&output=json`, { signal: controller.signal });
       clearTimeout(id);
       if (!res.ok) throw new Error(`Archive ${res.status}`);
       const json = await res.json();
       const docs = json.response?.docs || [];
-      return docs.map(d => {
+
+      const resolvedTracks = await Promise.all(docs.map(async d => {
         if (!d.identifier || !d.title) return null;
-        return {
-          id: d.identifier,
-          title: d.title,
-          uploaderName: d.creator || 'Archive Collection',
-          thumbnail: `https://archive.org/services/img/${d.identifier}`,
-          duration: 240,
-          streamUrl: `https://archive.org/download/${d.identifier}/${d.identifier}.mp3`,
-          source: 'archive'
-        };
-      }).filter(t => t && t.title && t.streamUrl);
+        try {
+          const mRes = await fetch(`https://archive.org/metadata/${d.identifier}`);
+          if (!mRes.ok) return null;
+          const meta = await mRes.json();
+          const mp3 = meta.files?.find(f => (f.name && f.name.endsWith('.mp3')) || f.format === 'VBR MP3' || f.format === 'MP3');
+          if (!mp3 || !mp3.name) return null;
+          return {
+            id: d.identifier,
+            title: d.title,
+            uploaderName: d.creator || 'Archive Collection',
+            thumbnail: `https://archive.org/services/img/${d.identifier}`,
+            duration: 240,
+            streamUrl: `https://archive.org/download/${d.identifier}/${encodeURIComponent(mp3.name)}`,
+            source: 'archive'
+          };
+        } catch (e) {
+          return null;
+        }
+      }));
+
+      return resolvedTracks.filter(t => t && t.title && t.streamUrl);
     } catch (e) {
       console.warn('Archive Full search error:', e.message);
       return [];
     }
   }
 
-  // Curated genre queries for quick switching
-  const GENRE_QUERIES = {
-    global: 'electronic dance house',
-    bollywood: 'bollywood acoustic',
-    hiphop: 'hiphop rap trap beat',
-    rock: 'rock metal alternative',
-    edm: 'house club edm dance',
-    lofi: 'lofi chill beats relax'
-  };
-
+  // Curated genre queries and trending streams
   async function fetchGenrePlaylist(genreKey) {
     if (webSearchResults) {
       webSearchResults.innerHTML = '<div style="padding:16px; font-size:0.78rem; color:var(--text-muted); text-align:center;">⏳ Loading top trending songs...</div>';
     }
-    const query = GENRE_QUERIES[genreKey] || 'top hits 2024 billboard';
-    const tracks = await searchGlobalCatalog(query);
+
+    let tracks = [];
+    try {
+      const controller = new AbortController();
+      const id = setTimeout(() => controller.abort(), 5000);
+
+      let url = '';
+      if (genreKey === 'global') {
+        url = `https://discoveryprovider.audius.co/v1/tracks/trending?app_name=${AUDIUS_APP_NAME}&limit=25`;
+      } else if (genreKey === 'edm') {
+        url = `https://discoveryprovider.audius.co/v1/tracks/trending?genre=Electronic&app_name=${AUDIUS_APP_NAME}&limit=25`;
+      } else if (genreKey === 'hiphop') {
+        url = `https://discoveryprovider.audius.co/v1/tracks/trending?genre=${encodeURIComponent('Hip-Hop/Rap')}&app_name=${AUDIUS_APP_NAME}&limit=25`;
+      } else if (genreKey === 'rock') {
+        url = `https://discoveryprovider.audius.co/v1/tracks/trending?genre=Rock&app_name=${AUDIUS_APP_NAME}&limit=25`;
+      } else if (genreKey === 'lofi') {
+        url = `https://discoveryprovider.audius.co/v1/tracks/trending?genre=Ambient&app_name=${AUDIUS_APP_NAME}&limit=25`;
+      }
+
+      if (url) {
+        const res = await fetch(url, { signal: controller.signal });
+        clearTimeout(id);
+        if (res.ok) {
+          const json = await res.json();
+          const items = json.data || [];
+          tracks = items.map(t => {
+            const stream = t.stream?.url || (t.track_id ? `https://discoveryprovider.audius.co/v1/tracks/${t.track_id}/stream?app_name=${AUDIUS_APP_NAME}` : `https://discoveryprovider.audius.co/v1/tracks/${t.id}/stream?app_name=${AUDIUS_APP_NAME}`);
+            const art = t.artwork ? (t.artwork['480x480'] || t.artwork['150x150'] || t.artwork['1000x1000']) : '';
+            return {
+              id: 'audius-' + (t.track_id || t.id),
+              title: t.title || 'Unknown Track',
+              uploaderName: (t.user && t.user.name) ? t.user.name : 'Independent Artist',
+              thumbnail: art || 'https://images.unsplash.com/photo-1614680376593-902f74fa0d41?w=120',
+              duration: t.duration || 180,
+              streamUrl: stream,
+              source: 'audius'
+            };
+          }).filter(t => t.title && t.streamUrl);
+        }
+      } else {
+        // Bollywood or other custom genre
+        tracks = await searchGlobalCatalog('bollywood hits', 25);
+      }
+    } catch (err) {
+      console.warn('Genre fetch notice:', err.message);
+    }
+
     if (tracks && tracks.length > 0) {
       renderWebSearchResults(tracks);
     } else {
@@ -894,7 +938,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Initial load: fetch global hits so user has plenty of songs visible immediately
+  // Initial load: fetch global hits so user has 25 songs visible immediately
   fetchGenrePlaylist('global');
 
   if (webSearchInput) {
@@ -923,21 +967,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let allTracks = [];
 
-    const [globalResult, saavnResult, archiveResult] = await Promise.allSettled([
-      searchGlobalCatalog(query),
-      searchJioSaavnFull(query),
+    const [globalResult, archiveResult] = await Promise.allSettled([
+      searchGlobalCatalog(query, 25),
       searchArchiveFull(query)
     ]);
 
     if (globalResult.status === 'fulfilled' && globalResult.value) {
       allTracks.push(...globalResult.value);
-    }
-
-    if (saavnResult.status === 'fulfilled' && saavnResult.value) {
-      const existingTitles = new Set(allTracks.map(t => t.title.toLowerCase()));
-      saavnResult.value.forEach(t => {
-        if (!existingTitles.has(t.title.toLowerCase())) allTracks.push(t);
-      });
     }
 
     if (archiveResult.status === 'fulfilled' && archiveResult.value) {
@@ -1068,20 +1104,21 @@ document.addEventListener('DOMContentLoaded', () => {
         isPlaying = true;
         if (window.audioEngine) window.audioEngine.isPlaying = true;
         if (webPlayPauseBtn) webPlayPauseBtn.innerHTML = "<span>⏸ Pause Track</span>";
-        if (window.showToast) window.showToast("Playing: " + track.title, "success");
+        try {
+          if (window.showToast) window.showToast("Playing: " + track.title, "success");
+        } catch (e) {
+          console.warn("Toast error ignored:", e);
+        }
       };
 
       const playPromise = audioPlayer.play();
       if (playPromise !== undefined) {
         playPromise.then(onPlaySuccess).catch(err => {
-          console.warn("Direct CORS play notice, retrying stream:", err);
-          audioPlayer.removeAttribute('crossorigin');
-          audioPlayer.src = streamUrl;
-          audioPlayer.play().then(onPlaySuccess).catch(err2 => {
-            console.warn("Audio playback error:", err2);
-            if (webPlayPauseBtn) webPlayPauseBtn.innerHTML = "<span>▶ Play Track</span>";
+          console.warn("Audio play promise notice:", err);
+          if (webPlayPauseBtn) webPlayPauseBtn.innerHTML = "<span>▶ Play Track</span>";
+          try {
             if (window.showToast) window.showToast("Click Play to start stream", "info");
-          });
+          } catch (e) {}
         });
       }
     } catch (err) {
@@ -1707,16 +1744,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // --- TOAST NOTIFICATION SYSTEM (Point 25) ---
   window.showToast = function(message, type = 'info') {
-    if (!container) return;
-    const toast = document.createElement('div');
-    toast.className = `toast toast-${type}`;
-    toast.innerHTML = `<span>${type === 'error' ? '⚠️' : '✓'}</span> <span>${message}</span>`;
-    container.appendChild(toast);
-    setTimeout(() => {
-      toast.style.opacity = '0';
-      toast.style.transform = 'translateX(50px)';
-      setTimeout(() => toast.remove(), 300);
-    }, 3000);
+    try {
+      const container = document.getElementById('toastContainer');
+      if (!container) return;
+      const toast = document.createElement('div');
+      toast.className = `toast toast-${type}`;
+      toast.innerHTML = `<span>${type === 'error' ? '⚠️' : '✓'}</span> <span>${message}</span>`;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(50px)';
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    } catch (err) {
+      console.warn('Toast display notice:', err);
+    }
   };
 
   // Toast welcome

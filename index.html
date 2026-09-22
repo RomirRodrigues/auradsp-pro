@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=35.0.0">
+  <link rel="stylesheet" href="styles.css?v=38.0.0">
   <link rel="manifest" href="manifest.json">
 </head>
 <body class="cyber-dark">
@@ -212,6 +212,21 @@
               <span id="webDuration" class="time-label">0:00</span>
             </div>
             <input type="range" id="webProgressBar" min="0" max="100" value="0">
+          </div>
+
+          <!-- Audio Clarity Engine Quick-Selector -->
+          <div class="web-engine-selector" style="margin: 12px 0; padding: 10px 12px; background: rgba(0, 240, 255, 0.04); border: 1px solid rgba(0, 240, 255, 0.18); border-radius: 8px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <span style="font-size:0.75rem; font-weight:700; color:var(--accent-cyan); display:flex; align-items:center; gap:5px;">✨ Audio Clarity Engine:</span>
+              <span id="webActiveEngineName" style="font-size:0.7rem; color:#fff; font-weight:600; background:rgba(0,240,255,0.15); border:1px solid rgba(0,240,255,0.3); padding:1px 8px; border-radius:10px;">Crystal Clarity 4K</span>
+            </div>
+            <div class="web-engine-buttons" style="display:grid; grid-template-columns: repeat(5, 1fr); gap: 5px;">
+              <button class="web-engine-btn active" data-engine="clarity" style="padding:6px 2px; font-size:0.68rem; font-weight:600; border-radius:5px; border:1px solid rgba(0,240,255,0.5); background:rgba(0,240,255,0.2); color:#fff; cursor:pointer;">Clarity 4K</button>
+              <button class="web-engine-btn" data-engine="mastering" style="padding:6px 2px; font-size:0.68rem; font-weight:600; border-radius:5px; border:1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.03); color:var(--text-muted); cursor:pointer;">Mastering</button>
+              <button class="web-engine-btn" data-engine="cinema" style="padding:6px 2px; font-size:0.68rem; font-weight:600; border-radius:5px; border:1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.03); color:var(--text-muted); cursor:pointer;">Cinema 3D</button>
+              <button class="web-engine-btn" data-engine="bassquake" style="padding:6px 2px; font-size:0.68rem; font-weight:600; border-radius:5px; border:1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.03); color:var(--text-muted); cursor:pointer;">Bass Quake</button>
+              <button class="web-engine-btn" data-engine="pure" style="padding:6px 2px; font-size:0.68rem; font-weight:600; border-radius:5px; border:1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.03); color:var(--text-muted); cursor:pointer;">Audiophile</button>
+            </div>
           </div>
 
           <!-- Catalog Search Box -->
@@ -867,19 +882,19 @@
   </div>
 
   <!-- Modular Scripts -->
-  <script src="js/data/presets.js?v=37.0.0"></script>
-  <script src="js/audio/audio-engine.js?v=37.0.0"></script>
-  <script src="js/visual/spatial-canvas.js?v=37.0.0"></script>
-  <script src="js/visual/visualizer.js?v=37.0.0"></script>
-  <script src="js/ui/motion-ui.js?v=37.0.0"></script>
-  <script src="js/app.js?v=37.0.0"></script>
+  <script src="js/data/presets.js?v=38.0.0"></script>
+  <script src="js/audio/audio-engine.js?v=38.0.0"></script>
+  <script src="js/visual/spatial-canvas.js?v=38.0.0"></script>
+  <script src="js/visual/visualizer.js?v=38.0.0"></script>
+  <script src="js/ui/motion-ui.js?v=38.0.0"></script>
+  <script src="js/app.js?v=38.0.0"></script>
 
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js?v=37.0.0')
+        navigator.serviceWorker.register('sw.js?v=38.0.0')
           .then(reg => {
-            console.log('Service Worker Registered v37.0.0');
+            console.log('Service Worker Registered v38.0.0');
             reg.update();
           })
           .catch(err => console.log('Service Worker Error', err));
