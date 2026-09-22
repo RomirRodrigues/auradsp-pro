@@ -1088,6 +1088,7 @@ input[type="range"]:not(.eq-slider)::-webkit-slider-thumb:hover {
   appearance: none !important;
   width: 16px !important;
   height: 28px !important;
+  margin-top: -11px !important; /* Centers the 28px thumb on the 6px track when rotated -90deg */
   border-radius: 4px !important;
   background: linear-gradient(180deg, #3f3f46 0%, #27272a 50%, #18181b 100%) !important;
   border: 1.5px solid var(--accent-cyan) !important;
@@ -1972,10 +1973,15 @@ input:checked + .slider:before {
   .eq-sliders-grid {
     gap: 6px;
   }
-  .eq-band-col {
+  .eq-band-col, .eq-band-channel {
     gap: 6px;
   }
-  .eq-band-col input[type="range"] {
+  .eq-band-col input[type="range"].eq-slider,
+  .eq-band-channel input[type="range"].eq-slider {
+    width: 120px !important;
+    height: 6px !important;
+  }
+  .eq-slider-well {
     height: 130px;
   }
   .band-val { font-size: 0.62rem; }
