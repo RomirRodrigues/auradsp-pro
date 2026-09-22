@@ -825,7 +825,49 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // 2. Internet Archive Full Audio Engine (With verified CORS metadata MP3 resolution)
+  function decodeHtmlEntities(str) {
+    if (!str) return '';
+    const txt = document.createElement('textarea');
+    txt.innerHTML = str;
+    return txt.value;
+  }
+
+  // 2. High-Fidelity JioSaavn Music Engine (Direct 320kbps AAC/MP4 Streams, 100% CORS compliant)
+  async function searchSaavnMusic(query) {
+    try {
+      const controller = new AbortController();
+      const id = setTimeout(() => controller.abort(), 6000);
+      const res = await fetch(`https://saavn.sumit.co/api/search/songs?query=${encodeURIComponent(query)}&limit=25`, { signal: controller.signal });
+      clearTimeout(id);
+      if (!res.ok) throw new Error(`Saavn search ${res.status}`);
+      const json = await res.json();
+      const songs = json.data?.results || [];
+
+      return songs.map(t => {
+        const stream = t.downloadUrl?.find(d => d.quality === '320kbps')?.url ||
+                       t.downloadUrl?.find(d => d.quality === '160kbps')?.url ||
+                       t.downloadUrl?.[t.downloadUrl.length - 1]?.url;
+        const art = t.image?.find(i => i.quality === '500x500')?.url ||
+                    t.image?.find(i => i.quality === '150x150')?.url || '';
+        const artist = t.artists?.primary?.[0]?.name || t.artists?.all?.[0]?.name || 'Artist';
+
+        return {
+          id: 'saavn-' + t.id,
+          title: decodeHtmlEntities(t.name),
+          uploaderName: decodeHtmlEntities(artist),
+          thumbnail: art || 'https://images.unsplash.com/photo-1614680376593-902f74fa0d41?w=120',
+          duration: t.duration || 240,
+          streamUrl: stream,
+          source: 'jiosaavn'
+        };
+      }).filter(t => t.title && t.streamUrl);
+    } catch (e) {
+      console.warn('Saavn search notice:', e.message);
+      return [];
+    }
+  }
+
+  // 3. Internet Archive Full Audio Engine (With verified CORS metadata MP3 resolution)
   async function searchArchiveFull(query) {
     try {
       const controller = new AbortController();
@@ -910,8 +952,11 @@ document.addEventListener('DOMContentLoaded', () => {
           }).filter(t => t.title && t.streamUrl);
         }
       } else {
-        // Bollywood or other custom genre
-        tracks = await searchGlobalCatalog('bollywood hits', 25);
+        // Bollywood: query Saavn for top Bollywood hits
+        tracks = await searchSaavnMusic('bollywood hits 2024');
+        if (!tracks || tracks.length === 0) {
+          tracks = await searchGlobalCatalog('bollywood hits', 25);
+        }
       }
     } catch (err) {
       console.warn('Genre fetch notice:', err.message);
@@ -967,15 +1012,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let allTracks = [];
 
-    const [globalResult, archiveResult] = await Promise.allSettled([
+    const [saavnResult, globalResult, archiveResult] = await Promise.allSettled([
+      searchSaavnMusic(query),
       searchGlobalCatalog(query, 25),
       searchArchiveFull(query)
     ]);
 
-    if (globalResult.status === 'fulfilled' && globalResult.value) {
-      allTracks.push(...globalResult.value);
+    // Priority 1: Saavn results (exact matching for regional, Bollywood, and mainstream songs)
+    if (saavnResult.status === 'fulfilled' && saavnResult.value) {
+      allTracks.push(...saavnResult.value);
     }
 
+    // Priority 2: Audius results (global dance, electronic, indie, remix)
+    if (globalResult.status === 'fulfilled' && globalResult.value) {
+      const existingTitles = new Set(allTracks.map(t => t.title.toLowerCase()));
+      globalResult.value.forEach(t => {
+        if (!existingTitles.has(t.title.toLowerCase())) allTracks.push(t);
+      });
+    }
+
+    // Priority 3: Archive results
     if (archiveResult.status === 'fulfilled' && archiveResult.value) {
       const existingTitles = new Set(allTracks.map(t => t.title.toLowerCase()));
       archiveResult.value.forEach(t => {
