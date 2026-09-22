@@ -1034,62 +1034,51 @@ input[type="range"]:not(.eq-slider)::-webkit-slider-thumb:hover {
 /* Fader / Slider slot track container */
 .eq-fader-slot, .eq-slider-well {
   position: relative;
-  width: 34px;
+  width: 36px;
   height: 160px;
   display: flex;
   align-items: center;
   justify-content: center;
   background: rgba(255, 255, 255, 0.02);
   border-radius: var(--radius-sm);
+  cursor: pointer;
+  touch-action: none;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5);
 }
 
 /* Center 0dB reference detent line */
 .eq-center-line, .eq-zero-detent {
   position: absolute;
   top: 50%;
-  left: 1px;
-  right: 1px;
-  height: 2px;
-  background: rgba(255, 255, 255, 0.25);
-  box-shadow: 0 0 4px rgba(255, 255, 255, 0.2);
+  left: 4px;
+  right: 4px;
+  height: 1.5px;
+  background: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 3px rgba(255, 255, 255, 0.15);
   pointer-events: none;
   z-index: 1;
 }
 
-/* Recessed vertical track groove */
-.eq-fader-slot::before, .eq-slider-well::before {
-  content: '';
-  position: absolute;
-  top: 8px;
-  bottom: 8px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 6px;
-  background: #09090b;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 3px;
-  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.9);
-  pointer-events: none;
-}
-
-/* Vertical EQ Range Slider Input */
+/* Vertical EQ Range Slider Input (Rotated with pixel-perfect center alignment) */
 .eq-band-col input[type="range"].eq-slider,
 .eq-band-channel input[type="range"].eq-slider {
-  -webkit-appearance: slider-vertical !important;
-  appearance: slider-vertical !important;
-  writing-mode: vertical-lr !important;
-  direction: rtl !important;
-  width: 34px !important;
-  height: 160px !important;
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  writing-mode: horizontal-tb !important;
+  direction: ltr !important;
+  width: 144px !important;
+  height: 6px !important;
+  background: #09090b !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 3px !important;
+  outline: none !important;
+  transform: rotate(-90deg) !important;
+  cursor: pointer !important;
   margin: 0 !important;
   padding: 0 !important;
-  background: transparent !important;
-  cursor: pointer !important;
-  accent-color: var(--accent-cyan) !important;
-  z-index: 4;
-  touch-action: none;
-  opacity: 1 !important;
-  outline: none !important;
+  z-index: 2;
+  pointer-events: none; /* Smooth vertical dragging handled by .eq-slider-well */
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.8) !important;
 }
 
 /* Distinct tactile hardware equalizer slider thumb (knob) */
@@ -1097,29 +1086,27 @@ input[type="range"]:not(.eq-slider)::-webkit-slider-thumb:hover {
 .eq-band-channel input[type="range"].eq-slider::-webkit-slider-thumb {
   -webkit-appearance: none !important;
   appearance: none !important;
-  width: 30px !important;
-  height: 18px !important;
-  border-radius: var(--radius-sm) !important;
+  width: 16px !important;
+  height: 28px !important;
+  border-radius: 4px !important;
   background: linear-gradient(180deg, #3f3f46 0%, #27272a 50%, #18181b 100%) !important;
   border: 1.5px solid var(--accent-cyan) !important;
   box-shadow: 0 0 10px rgba(0, 240, 255, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
   cursor: pointer !important;
-  margin: 0 !important;
-  transition: transform 0.1s ease, border-color 0.1s ease, box-shadow 0.1s ease !important;
+  transition: border-color 0.1s ease, box-shadow 0.1s ease !important;
 }
 
 .eq-band-col input[type="range"].eq-slider::-webkit-slider-thumb:hover,
 .eq-band-channel input[type="range"].eq-slider::-webkit-slider-thumb:hover {
   border-color: #00f0ff !important;
   box-shadow: 0 0 14px rgba(0, 240, 255, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.6) !important;
-  transform: scale(1.06) !important;
 }
 
 .eq-band-col input[type="range"].eq-slider::-moz-range-thumb,
 .eq-band-channel input[type="range"].eq-slider::-moz-range-thumb {
-  width: 30px !important;
-  height: 18px !important;
-  border-radius: var(--radius-sm) !important;
+  width: 16px !important;
+  height: 28px !important;
+  border-radius: 4px !important;
   background: linear-gradient(180deg, #3f3f46 0%, #27272a 50%, #18181b 100%) !important;
   border: 1.5px solid var(--accent-cyan) !important;
   box-shadow: 0 0 10px rgba(0, 240, 255, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
@@ -1130,16 +1117,14 @@ input[type="range"]:not(.eq-slider)::-webkit-slider-thumb:hover {
 .eq-band-channel input[type="range"].eq-slider::-webkit-slider-runnable-track {
   background: transparent !important;
   border: none !important;
-  height: 160px !important;
-  width: 6px !important;
+  height: 6px !important;
 }
 
 .eq-band-col input[type="range"].eq-slider::-moz-range-track,
 .eq-band-channel input[type="range"].eq-slider::-moz-range-track {
   background: transparent !important;
   border: none !important;
-  height: 160px !important;
-  width: 6px !important;
+  height: 6px !important;
 }
 
 .eq-band-col .band-freq, .eq-band-channel .band-freq {

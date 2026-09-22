@@ -174,22 +174,55 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="band-val" id="eqVal_${idx}">0.0dB</div>
         <div class="eq-slider-well">
           <div class="eq-zero-detent"></div>
-          <input type="range" class="eq-slider" id="eqSlider_${idx}" min="-12" max="12" value="0" step="0.5" orient="vertical" data-index="${idx}">
+          <input type="range" class="eq-slider" id="eqSlider_${idx}" min="-12" max="12" value="0" step="0.5" data-index="${idx}">
         </div>
         <div class="band-freq">${freqLabel}Hz</div>
       `;
 
       eqGrid.appendChild(bandCol);
 
+      const well = bandCol.querySelector('.eq-slider-well');
       const slider = bandCol.querySelector(`input.eq-slider`);
 
-      // 1. Direct native vertical slider interaction
+      // 1. Smooth vertical pointer dragging (touch & mouse)
+      function updateFromPointer(clientY) {
+        const rect = well.getBoundingClientRect();
+        const pad = 12;
+        const usableHeight = rect.height - pad * 2;
+        const relY = Math.max(0, Math.min(usableHeight, clientY - (rect.top + pad)));
+        const frac = 1 - (relY / usableHeight);
+        let val = -12 + frac * 24;
+        val = Math.round(val * 2) / 2;
+        val = Math.max(-12, Math.min(12, val));
+        slider.value = val;
+        applyBandChange(idx, val);
+      }
+
+      let isDragging = false;
+      well.addEventListener('pointerdown', (e) => {
+        isDragging = true;
+        well.setPointerCapture(e.pointerId);
+        updateFromPointer(e.clientY);
+      });
+      well.addEventListener('pointermove', (e) => {
+        if (isDragging) updateFromPointer(e.clientY);
+      });
+      const endDrag = (e) => {
+        if (isDragging) {
+          isDragging = false;
+          try { well.releasePointerCapture(e.pointerId); } catch (_) {}
+        }
+      };
+      well.addEventListener('pointerup', endDrag);
+      well.addEventListener('pointercancel', endDrag);
+
+      // 2. Direct native slider interaction (keyboard / programmatic)
       slider.addEventListener('input', (e) => {
         const val = parseFloat(e.target.value);
         applyBandChange(idx, val);
       });
 
-      // 2. Wheel scroll adjustment (0.5 dB per notch)
+      // 3. Wheel scroll adjustment (0.5 dB per notch)
       bandCol.addEventListener('wheel', (e) => {
         e.preventDefault();
         const delta = e.deltaY < 0 ? 0.5 : -0.5;
@@ -199,7 +232,7 @@ document.addEventListener('DOMContentLoaded', () => {
         applyBandChange(idx, newDb);
       }, { passive: false });
 
-      // 3. Double-click reset to 0dB flat
+      // 4. Double-click reset to 0dB flat
       bandCol.addEventListener('dblclick', () => {
         slider.value = 0;
         applyBandChange(idx, 0);
