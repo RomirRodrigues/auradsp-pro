@@ -149,6 +149,10 @@
           <span class="src-icon">⚡</span>
           <span class="src-label">Tone Generator</span>
         </button>
+        <button class="source-btn" id="srcLinkBtn">
+          <span class="src-icon">🔗</span>
+          <span class="src-label">Link Player</span>
+        </button>
       </div>
 
       <!-- Live Beat & Demo Selector Panel -->
@@ -289,6 +293,103 @@
             <button class="tone-type-btn" data-type="sweep">20-20k Sweep</button>
           </div>
           <button id="toggleToneBtn" class="accent-btn">Start Test Signal</button>
+        </div>
+      </div>
+
+      <!-- Link Player Panel (Universal URL Streamer) -->
+      <div class="source-card hidden" id="cardLink">
+        <div class="link-player-header" style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; padding-bottom:10px; border-bottom:1px solid rgba(255,255,255,0.06);">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="font-size:1.2rem; filter:drop-shadow(0 0 8px #00f0ff);">🔗</span>
+            <div>
+              <h4 style="margin:0; font-size:0.85rem; font-weight:700; color:var(--text-main);">Universal Link Player</h4>
+              <p style="margin:2px 0 0; font-size:0.7rem; color:var(--text-muted);">Stream any audio from any web link, platform, or live radio through real DSP & EQ</p>
+            </div>
+          </div>
+          <span id="linkStreamStatus" class="status-pill" style="font-size:0.65rem; padding:2px 8px; border-radius:10px; background:rgba(0,240,255,0.1); color:#00f0ff; border:1px solid rgba(0,240,255,0.25); font-weight:600;">Ready</span>
+        </div>
+
+        <!-- Input Bar with Paste & Load -->
+        <div style="margin-bottom:12px;">
+          <label for="linkUrlInput" style="font-size:0.75rem; font-weight:600; color:var(--text-muted); display:block; margin-bottom:6px;">Paste Audio Link or Stream URL:</label>
+          <div style="display:flex; gap:6px;">
+            <input type="url" id="linkUrlInput" class="cyber-input" style="flex:1;" placeholder="https://... (MP3, AAC, Apple Music, JioSaavn, Radio, Cloud file)">
+            <button id="linkPasteBtn" type="button" class="secondary-btn" style="padding:0 12px; font-size:0.75rem; display:flex; align-items:center; gap:4px; white-space:nowrap; border-radius:6px; cursor:pointer;" title="Paste from Clipboard">
+              📋 Paste
+            </button>
+            <button id="linkLoadPlayBtn" type="button" class="primary-btn glowing-btn" style="padding:0 14px; font-size:0.75rem; display:flex; align-items:center; gap:4px; white-space:nowrap; border-radius:6px; font-weight:700; cursor:pointer;">
+              ⚡ Play Stream
+            </button>
+          </div>
+        </div>
+
+        <!-- Now Playing Card for Link Stream -->
+        <div class="spotify-sub-card" style="margin-bottom:12px;">
+          <div class="spotify-now-playing">
+            <div class="album-art-wrap">
+              <div id="linkArtPlaceholder" style="width:48px; height:48px; border-radius:6px; background:linear-gradient(135deg, rgba(0,240,255,0.2), rgba(181,55,242,0.2)); border:1px solid rgba(0,240,255,0.3); display:flex; align-items:center; justify-content:center; font-size:1.3rem;">
+                🔗
+              </div>
+            </div>
+            <div class="track-details" style="overflow:hidden;">
+              <div id="linkTrackTitle" class="spotify-track-title" style="font-size:0.85rem; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">No Stream Loaded</div>
+              <div id="linkTrackMeta" class="spotify-track-artist" style="font-size:0.7rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Paste any URL above or choose a preset stream below</div>
+            </div>
+            <span id="linkBadge" style="font-size:0.65rem; padding:2px 8px; border-radius:10px; background:rgba(255,255,255,0.05); color:var(--text-muted); border:1px solid rgba(255,255,255,0.1); font-weight:600; white-space:nowrap;">Link Player</span>
+          </div>
+
+          <!-- Controls Row -->
+          <div style="display:flex; gap:8px; margin-top:10px;">
+            <button id="linkPlayPauseBtn" class="primary-btn glowing-btn play-pause-ctrl" style="flex:1; border-radius:6px; min-height:36px; cursor:pointer;">
+              <span>▶ Play Stream</span>
+            </button>
+            <button id="linkStopBtn" class="secondary-btn" style="padding:0 14px; border-radius:6px; font-size:0.75rem; cursor:pointer;" title="Stop Stream">
+              ⏹ Stop
+            </button>
+          </div>
+
+          <!-- Time & Seek / Live Indicator -->
+          <div class="slider-group" style="margin-top:10px;">
+            <div class="slider-header" style="display:flex; justify-content:space-between; font-size:0.7rem; margin-bottom:4px;">
+              <span id="linkCurrentTime" class="time-label">0:00</span>
+              <span id="linkStreamTypeLabel" style="color:var(--accent-cyan); font-weight:600;">Custom Stream</span>
+              <span id="linkDuration" class="time-label">0:00</span>
+            </div>
+            <input type="range" id="linkProgressBar" min="0" max="100" value="0">
+          </div>
+        </div>
+
+        <!-- Quick One-Click Stream Presets -->
+        <div style="margin-top:10px;">
+          <div style="font-size:0.72rem; font-weight:700; color:var(--text-muted); margin-bottom:6px; display:flex; align-items:center; gap:5px;">
+            ⚡ Quick Test Streams (One-Click Launch):
+          </div>
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); gap:6px;">
+            <button type="button" class="link-preset-btn" data-url="https://puma.streemlion.com:4130/stream" data-title="Bollywood Hits 24/7 (Live Radio)" data-meta="Live HD Radio Stream" data-badge="📻 Live Radio" style="padding:6px 8px; font-size:0.68rem; text-align:left; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:var(--text-main); cursor:pointer;">
+              📻 Bollywood Radio
+            </button>
+            <button type="button" class="link-preset-btn" data-url="https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview122/v4/fc/bd/41/fcbd41f6-6166-832b-8e87-2d715335b1db/mzaf_3702577433559914767.plus.aac.p.m4a" data-title="Vasaikar Masala - Sijoy Almeida" data-meta="Apple Music 256k AAC Master" data-badge="🍎 Apple Music" style="padding:6px 8px; font-size:0.68rem; text-align:left; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:var(--text-main); cursor:pointer;">
+              🌊 Vasaikar Masala
+            </button>
+            <button type="button" class="link-preset-btn" data-url="https://actions.google.com/sounds/v1/ambiences/coffee_shop.ogg" data-title="Acoustic Lo-Fi Coffeehouse" data-meta="High-Res Ambient Soundstage" data-badge="☕ Lo-Fi Ambient" style="padding:6px 8px; font-size:0.68rem; text-align:left; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:var(--text-main); cursor:pointer;">
+              ☕ Lo-Fi Coffeehouse
+            </button>
+            <button type="button" class="link-preset-btn" data-url="https://files.freemusicarchive.org/storage-freemusicarchive-org/music/WFMU/Broke_For_Free/Directionless_EP/Broke_For_Free_-_01_-_Night_Owl.mp3" data-title="Night Owl - Broke For Free" data-meta="Full Electronic Studio Master" data-badge="⚡ Studio Master" style="padding:6px 8px; font-size:0.68rem; text-align:left; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:var(--text-main); cursor:pointer;">
+              🦉 Night Owl (HD Master)
+            </button>
+          </div>
+        </div>
+
+        <!-- Supported Platforms Help Pill -->
+        <div style="margin-top:10px; padding:8px 10px; background:rgba(0,240,255,0.03); border:1px solid rgba(0,240,255,0.12); border-radius:6px; display:flex; flex-wrap:wrap; gap:6px; align-items:center; font-size:0.64rem; color:var(--text-muted);">
+          <span style="color:#00f0ff; font-weight:700;">Supported:</span>
+          <span>✓ Direct MP3/AAC/WAV/FLAC</span>
+          <span>✓ Live Radio Streams</span>
+          <span>✓ Apple Music Links</span>
+          <span>✓ JioSaavn Links</span>
+          <span>✓ Audius Links</span>
+          <span>✓ Archive.org Links</span>
+          <span>✓ Dropbox / Google Drive / GitHub</span>
         </div>
       </div>
 
@@ -890,19 +991,19 @@
   </div>
 
   <!-- Modular Scripts -->
-  <script src="js/data/presets.js?v=44.0.0"></script>
-  <script src="js/audio/audio-engine.js?v=44.0.0"></script>
-  <script src="js/visual/spatial-canvas.js?v=44.0.0"></script>
-  <script src="js/visual/visualizer.js?v=44.0.0"></script>
-  <script src="js/ui/motion-ui.js?v=44.0.0"></script>
-  <script src="js/app.js?v=44.0.0"></script>
+  <script src="js/data/presets.js?v=45.0.0"></script>
+  <script src="js/audio/audio-engine.js?v=45.0.0"></script>
+  <script src="js/visual/spatial-canvas.js?v=45.0.0"></script>
+  <script src="js/visual/visualizer.js?v=45.0.0"></script>
+  <script src="js/ui/motion-ui.js?v=45.0.0"></script>
+  <script src="js/app.js?v=45.0.0"></script>
 
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js?v=44.0.0')
+        navigator.serviceWorker.register('sw.js?v=45.0.0')
           .then(reg => {
-            console.log('Service Worker Registered v44.0.0');
+            console.log('Service Worker Registered v45.0.0');
             reg.update();
           })
           .catch(err => console.log('Service Worker Error', err));

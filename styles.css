@@ -3669,4 +3669,16 @@ body.cyber-dark::before {
   box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
 }
 
+/* Link Player Preset Buttons */
+.link-preset-btn {
+  transition: all 0.15s ease !important;
+}
+
+.link-preset-btn:hover {
+  background: rgba(0, 240, 255, 0.08) !important;
+  border-color: rgba(0, 240, 255, 0.35) !important;
+  color: #fff !important;
+  transform: translateY(-1px);
+}
+
 

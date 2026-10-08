@@ -28,6 +28,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const webPlayPauseBtn = document.getElementById('webPlayPauseBtn');
     const startMicBtn = document.getElementById('startMicBtn');
     const toggleToneBtn = document.getElementById('toggleToneBtn');
+    const linkPlayPauseBtn = document.getElementById('linkPlayPauseBtn');
+    const linkStreamStatus = document.getElementById('linkStreamStatus');
 
     if (playText) playText.textContent = "Play Selected Track";
     if (playIcon) playIcon.textContent = "▶";
@@ -36,6 +38,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     if (webPlayPauseBtn) {
       webPlayPauseBtn.innerHTML = "<span>▶ Play Track</span>";
+    }
+    if (linkPlayPauseBtn) {
+      linkPlayPauseBtn.innerHTML = "<span>▶ Play Stream</span>";
+    }
+    if (linkStreamStatus && linkStreamStatus.textContent.includes('Playing')) {
+      linkStreamStatus.textContent = "Paused";
     }
     if (startMicBtn) {
       startMicBtn.textContent = "▶ Start Live Mic Input";
@@ -619,7 +627,8 @@ document.addEventListener('DOMContentLoaded', () => {
     srcSpotifyBtn: 'cardSpotify',
     srcFileBtn: 'cardFile',
     srcMicBtn: 'cardMic',
-    srcToneBtn: 'cardTone'
+    srcToneBtn: 'cardTone',
+    srcLinkBtn: 'cardLink'
   };
 
   sourceBtns.forEach(btn => {
@@ -634,7 +643,8 @@ document.addEventListener('DOMContentLoaded', () => {
           srcSpotifyBtn: 'spotify',
           srcFileBtn: 'file',
           srcMicBtn: 'mic',
-          srcToneBtn: 'tone'
+          srcToneBtn: 'tone',
+          srcLinkBtn: 'link'
         };
         window.audioEngine.activeSource = sourceMap[btn.id] || 'demo';
       }
@@ -1664,6 +1674,433 @@ document.addEventListener('DOMContentLoaded', () => {
       toggleToneBtn.classList.add('primary-btn');
     }
   });
+
+  // -------------------------------------------------------------
+  // UNIVERSAL LINK PLAYER (STREAM ANY LINK / PLATFORM WITH REAL DSP)
+  // -------------------------------------------------------------
+  const linkUrlInput = document.getElementById('linkUrlInput');
+  const linkPasteBtn = document.getElementById('linkPasteBtn');
+  const linkLoadPlayBtn = document.getElementById('linkLoadPlayBtn');
+  const linkPlayPauseBtn = document.getElementById('linkPlayPauseBtn');
+  const linkStopBtn = document.getElementById('linkStopBtn');
+  const linkTrackTitle = document.getElementById('linkTrackTitle');
+  const linkTrackMeta = document.getElementById('linkTrackMeta');
+  const linkBadge = document.getElementById('linkBadge');
+  const linkStreamStatus = document.getElementById('linkStreamStatus');
+  const linkProgressBar = document.getElementById('linkProgressBar');
+  const linkCurrentTime = document.getElementById('linkCurrentTime');
+  const linkDuration = document.getElementById('linkDuration');
+  const linkStreamTypeLabel = document.getElementById('linkStreamTypeLabel');
+  const linkArtPlaceholder = document.getElementById('linkArtPlaceholder');
+
+  let currentLinkStreamUrl = '';
+  let isLinkPlaying = false;
+
+  // Intelligent URL Resolver across platforms and direct feeds
+  async function resolveAudioStreamUrl(rawUrl) {
+    if (!rawUrl) return null;
+    let url = rawUrl.trim();
+
+    // 1. Dropbox link conversion (make direct streaming raw)
+    if (url.includes('dropbox.com')) {
+      url = url.replace('www.dropbox.com', 'dl.dropboxusercontent.com');
+      url = url.replace(/[?&]dl=0/, '');
+      url = url.replace(/[?&]raw=0/, '');
+      url += (url.includes('?') ? '&' : '?') + 'raw=1';
+      return {
+        url,
+        title: decodeURIComponent(url.split('/').pop().split('?')[0]) || 'Dropbox Audio Stream',
+        meta: 'Dropbox Cloud Stream',
+        badge: '☁️ Dropbox',
+        art: '☁️'
+      };
+    }
+
+    // 2. Google Drive direct stream
+    if (url.includes('drive.google.com')) {
+      const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/) || url.match(/id=([a-zA-Z0-9_-]+)/);
+      if (match && match[1]) {
+        const direct = `https://docs.google.com/uc?export=download&id=${match[1]}`;
+        return {
+          url: direct,
+          title: 'Google Drive Stream',
+          meta: 'Google Cloud Audio Feed',
+          badge: '📁 G-Drive',
+          art: '📁'
+        };
+      }
+    }
+
+    // 3. GitHub raw blob conversion
+    if (url.includes('github.com') && url.includes('/blob/')) {
+      url = url.replace('github.com', 'raw.githubusercontent.com').replace('/blob/', '/');
+      return {
+        url,
+        title: decodeURIComponent(url.split('/').pop()) || 'GitHub Raw Audio',
+        meta: 'GitHub Audio Repository',
+        badge: '🐙 GitHub',
+        art: '🐙'
+      };
+    }
+
+    // 4. Apple Music / iTunes link resolution
+    if (url.includes('music.apple.com')) {
+      try {
+        const idMatch = url.match(/[?&]i=(\d+)/) || url.match(/\/(\d+)(?:\?|$)/);
+        if (idMatch && idMatch[1]) {
+          const res = await fetch(`https://itunes.apple.com/lookup?id=${idMatch[1]}`);
+          if (res.ok) {
+            const data = await res.json();
+            const track = data.results?.[0];
+            if (track && track.previewUrl) {
+              return {
+                url: track.previewUrl,
+                title: track.trackName || 'Apple Music Track',
+                meta: (track.artistName || 'Apple Music') + ' · 256k AAC Master',
+                badge: '🍎 Apple Music',
+                art: (track.artworkUrl100 || '').replace('100x100bb', '600x600bb')
+              };
+            }
+          }
+        }
+      } catch (e) {
+        console.warn('Apple link lookup notice:', e);
+      }
+    }
+
+    // 5. JioSaavn link resolution
+    if (url.includes('jiosaavn.com/song/')) {
+      try {
+        const parts = url.split('jiosaavn.com/song/')[1]?.split('/')[0];
+        const searchName = parts ? decodeURIComponent(parts).replace(/-/g, ' ') : '';
+        if (searchName) {
+          const res = await searchSaavnMusic(searchName, 5);
+          if (res && res.length > 0) {
+            return {
+              url: res[0].streamUrl,
+              title: res[0].title,
+              meta: res[0].uploaderName + ' · 320k Studio Master',
+              badge: '🎵 JioSaavn HD',
+              art: res[0].thumbnail
+            };
+          }
+        }
+      } catch (e) {
+        console.warn('Saavn link lookup notice:', e);
+      }
+    }
+
+    // 6. Audius link resolution
+    if (url.includes('audius.co/')) {
+      try {
+        const parts = url.replace(/^https?:\/\/(www\.)?audius\.co\//, '').split('/');
+        const trackSlug = parts[1] || parts[0];
+        if (trackSlug) {
+          const res = await searchGlobalCatalog(trackSlug.replace(/-/g, ' '), 5);
+          if (res && res.length > 0) {
+            return {
+              url: res[0].streamUrl,
+              title: res[0].title,
+              meta: res[0].uploaderName + ' · Audius 320k',
+              badge: '🌐 Audius 320k',
+              art: res[0].thumbnail
+            };
+          }
+        }
+      } catch (e) {
+        console.warn('Audius link lookup notice:', e);
+      }
+    }
+
+    // 7. Internet Archive link resolution
+    if (url.includes('archive.org/details/')) {
+      try {
+        const id = url.split('archive.org/details/')[1]?.split('/')[0]?.split('?')[0];
+        if (id) {
+          const metaRes = await fetch(`https://archive.org/metadata/${id}`);
+          if (metaRes.ok) {
+            const meta = await metaRes.json();
+            const mp3 = meta.files?.find(f => (f.name && f.name.endsWith('.mp3')) || f.format === 'VBR MP3' || f.format === 'MP3');
+            if (mp3 && mp3.name) {
+              return {
+                url: `https://archive.org/download/${id}/${encodeURIComponent(mp3.name)}`,
+                title: meta.metadata?.title || id,
+                meta: (meta.metadata?.creator || 'Archive Vault') + ' · Archive Master',
+                badge: '🏛️ Archive Vault',
+                art: `https://archive.org/services/img/${id}`
+              };
+            }
+          }
+        }
+      } catch (e) {
+        console.warn('Archive link lookup notice:', e);
+      }
+    }
+
+    // 8. Direct Audio URL / Radio / Icecast / Stream Link
+    let cleanTitle = 'Direct Audio Stream';
+    try {
+      const parsed = new URL(url);
+      const filename = parsed.pathname.split('/').pop();
+      if (filename && filename.length > 2 && !filename.includes('stream')) {
+        cleanTitle = decodeURIComponent(filename).replace(/[-_]/g, ' ').replace(/\.[a-z0-9]+$/i, '');
+      } else if (parsed.hostname) {
+        cleanTitle = `${parsed.hostname} Live Audio`;
+      }
+    } catch (e) {}
+
+    const isRadio = url.includes(':8000') || url.includes(':4130') || url.includes('/stream') || url.includes('/live') || url.includes('icecast') || url.includes('shoutcast');
+
+    return {
+      url,
+      title: cleanTitle,
+      meta: isRadio ? 'Live Web Radio Stream' : 'Universal Stream Feed',
+      badge: isRadio ? '📻 Live Radio' : '🔗 Web Stream',
+      art: isRadio ? '📻' : '🔗'
+    };
+  }
+
+  // Play resolved link stream through Web Audio DSP
+  async function playLinkStream(rawUrl, customTitle, customMeta, customBadge, customArt) {
+    if (!rawUrl || !rawUrl.trim()) {
+      if (window.showToast) window.showToast('Please paste or enter an audio stream URL', 'info');
+      return;
+    }
+
+    if (linkStreamStatus) {
+      linkStreamStatus.textContent = 'Resolving...';
+      linkStreamStatus.style.borderColor = '#00f0ff';
+      linkStreamStatus.style.color = '#00f0ff';
+    }
+
+    const resolved = await resolveAudioStreamUrl(rawUrl);
+    if (!resolved || !resolved.url) {
+      if (linkStreamStatus) linkStreamStatus.textContent = 'Invalid URL';
+      if (window.showToast) window.showToast('Could not resolve playable audio from link', 'error');
+      return;
+    }
+
+    currentLinkStreamUrl = resolved.url;
+    const finalTitle = customTitle || resolved.title;
+    const finalMeta = customMeta || resolved.meta;
+    const finalBadge = customBadge || resolved.badge;
+    const finalArt = customArt || resolved.art;
+
+    if (linkTrackTitle) linkTrackTitle.textContent = finalTitle;
+    if (linkTrackMeta) linkTrackMeta.textContent = finalMeta;
+    if (linkBadge) linkBadge.textContent = finalBadge;
+    if (linkStreamStatus) linkStreamStatus.textContent = 'Buffering...';
+
+    if (linkArtPlaceholder) {
+      if (finalArt && (finalArt.startsWith('http://') || finalArt.startsWith('https://'))) {
+        linkArtPlaceholder.innerHTML = `<img src="${finalArt}" style="width:100%; height:100%; object-fit:cover; border-radius:5px;" onerror="this.parentNode.innerHTML='🔗'">`;
+      } else {
+        linkArtPlaceholder.textContent = finalArt || '🔗';
+      }
+    }
+
+    // Route audio directly through DSP and visualizer
+    if (window.audioEngine) {
+      window.audioEngine.stopAllSources();
+      window.audioEngine.resumeCtx();
+      window.audioEngine.activeSource = 'file';
+    }
+
+    try {
+      audioPlayer.crossOrigin = "anonymous";
+      audioPlayer.src = resolved.url;
+      audioPlayer.volume = 1.0;
+      audioPlayer.muted = false;
+
+      if (window.audioEngine) {
+        window.audioEngine.connectMediaElement(audioPlayer);
+      }
+
+      audioPlayer.play().then(() => {
+        isLinkPlaying = true;
+        isPlaying = true;
+        if (window.audioEngine) window.audioEngine.isPlaying = true;
+        if (linkPlayPauseBtn) linkPlayPauseBtn.innerHTML = "<span>⏸ Pause Stream</span>";
+        if (linkStreamStatus) {
+          linkStreamStatus.textContent = "Live / Playing";
+          linkStreamStatus.style.borderColor = "#00ff88";
+          linkStreamStatus.style.color = "#00ff88";
+        }
+        if (window.showToast) window.showToast("Streaming: " + finalTitle, "success");
+      }).catch(err => {
+        console.warn("Direct stream play notice, attempting proxy fallback:", err);
+        // If direct stream fails (often due to missing CORS headers on custom server), try via open CORS proxy
+        if (!resolved.url.includes('allorigins.win')) {
+          const proxiedUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(resolved.url)}`;
+          audioPlayer.src = proxiedUrl;
+          audioPlayer.play().then(() => {
+            isLinkPlaying = true;
+            isPlaying = true;
+            if (window.audioEngine) window.audioEngine.isPlaying = true;
+            if (linkPlayPauseBtn) linkPlayPauseBtn.innerHTML = "<span>⏸ Pause Stream</span>";
+            if (linkStreamStatus) {
+              linkStreamStatus.textContent = "Proxied Stream";
+              linkStreamStatus.style.borderColor = "#ff9900";
+              linkStreamStatus.style.color = "#ff9900";
+            }
+            if (window.showToast) window.showToast("Streaming via proxy: " + finalTitle, "success");
+          }).catch(proxyErr => {
+            console.error("Link stream failed completely:", proxyErr);
+            if (linkStreamStatus) {
+              linkStreamStatus.textContent = "Play Failed";
+              linkStreamStatus.style.borderColor = "#ff0055";
+              linkStreamStatus.style.color = "#ff0055";
+            }
+            if (linkPlayPauseBtn) linkPlayPauseBtn.innerHTML = "<span>▶ Play Stream</span>";
+            if (window.showToast) window.showToast("Cannot stream URL. Host may block audio cross-origin.", "error");
+          });
+        }
+      });
+    } catch (e) {
+      console.error("playLinkStream error:", e);
+      if (linkStreamStatus) linkStreamStatus.textContent = "Error";
+    }
+  }
+
+  // Load & Play button
+  if (linkLoadPlayBtn && linkUrlInput) {
+    linkLoadPlayBtn.addEventListener('click', () => {
+      const url = linkUrlInput.value.trim();
+      playLinkStream(url);
+    });
+    linkUrlInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        playLinkStream(linkUrlInput.value.trim());
+      }
+    });
+  }
+
+  // Clipboard Paste button
+  if (linkPasteBtn && linkUrlInput) {
+    linkPasteBtn.addEventListener('click', async () => {
+      try {
+        if (navigator.clipboard && navigator.clipboard.readText) {
+          const text = await navigator.clipboard.readText();
+          if (text) {
+            linkUrlInput.value = text.trim();
+            if (window.showToast) window.showToast("Pasted from clipboard!", "success");
+            playLinkStream(linkUrlInput.value.trim());
+            return;
+          }
+        }
+      } catch (e) {
+        console.warn("Clipboard read permission:", e);
+      }
+      linkUrlInput.focus();
+      linkUrlInput.select();
+      if (window.showToast) window.showToast("Press Ctrl+V to paste URL", "info");
+    });
+  }
+
+  // Play / Pause toggle
+  if (linkPlayPauseBtn) {
+    linkPlayPauseBtn.addEventListener('click', () => {
+      if (!audioPlayer.src || !currentLinkStreamUrl) {
+        const url = linkUrlInput ? linkUrlInput.value.trim() : '';
+        if (url) playLinkStream(url);
+        else if (window.showToast) window.showToast("Paste a link first", "info");
+        return;
+      }
+
+      if (!audioPlayer.paused && !audioPlayer.ended) {
+        audioPlayer.pause();
+        isLinkPlaying = false;
+        isPlaying = false;
+        if (window.audioEngine) window.audioEngine.isPlaying = false;
+        linkPlayPauseBtn.innerHTML = "<span>▶ Play Stream</span>";
+        if (linkStreamStatus) linkStreamStatus.textContent = "Paused";
+      } else {
+        if (window.audioEngine) {
+          window.audioEngine.resumeCtx();
+          window.audioEngine.stopAllSources();
+          window.audioEngine.activeSource = 'file';
+          window.audioEngine.connectMediaElement(audioPlayer);
+        }
+        audioPlayer.play().then(() => {
+          isLinkPlaying = true;
+          isPlaying = true;
+          if (window.audioEngine) window.audioEngine.isPlaying = true;
+          linkPlayPauseBtn.innerHTML = "<span>⏸ Pause Stream</span>";
+          if (linkStreamStatus) linkStreamStatus.textContent = "Live / Playing";
+        });
+      }
+    });
+  }
+
+  // Stop button
+  if (linkStopBtn) {
+    linkStopBtn.addEventListener('click', () => {
+      audioPlayer.pause();
+      audioPlayer.currentTime = 0;
+      isLinkPlaying = false;
+      isPlaying = false;
+      if (window.audioEngine) window.audioEngine.isPlaying = false;
+      if (linkPlayPauseBtn) linkPlayPauseBtn.innerHTML = "<span>▶ Play Stream</span>";
+      if (linkStreamStatus) linkStreamStatus.textContent = "Stopped";
+      if (linkProgressBar) linkProgressBar.value = 0;
+      if (linkCurrentTime) linkCurrentTime.textContent = "0:00";
+    });
+  }
+
+  // Preset stream buttons
+  document.querySelectorAll('.link-preset-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const url = btn.dataset.url;
+      const title = btn.dataset.title;
+      const meta = btn.dataset.meta;
+      const badge = btn.dataset.badge;
+      if (linkUrlInput) linkUrlInput.value = url;
+      playLinkStream(url, title, meta, badge);
+    });
+  });
+
+  // Track progress update for Link Player
+  const updateLinkProgress = () => {
+    if (!currentLinkStreamUrl) return;
+    const dur = audioPlayer.duration;
+    const cur = audioPlayer.currentTime || 0;
+
+    if (dur && !isNaN(dur) && isFinite(dur) && dur > 0) {
+      if (linkProgressBar && !(linkProgressBar._isDragging && linkProgressBar._isDragging())) {
+        linkProgressBar.value = (cur / dur) * 100;
+      }
+      if (linkCurrentTime) linkCurrentTime.textContent = formatMs(cur * 1000);
+      if (linkDuration) linkDuration.textContent = formatMs(dur * 1000);
+      if (linkStreamTypeLabel) linkStreamTypeLabel.textContent = "Direct Audio";
+    } else {
+      // Live radio or infinite stream
+      if (linkCurrentTime) linkCurrentTime.textContent = formatMs(cur * 1000);
+      if (linkDuration) linkDuration.textContent = "LIVE";
+      if (linkStreamTypeLabel) linkStreamTypeLabel.textContent = "🔴 LIVE RADIO";
+    }
+  };
+
+  audioPlayer.addEventListener('timeupdate', updateLinkProgress);
+
+  // Scrubber dragging
+  if (linkProgressBar) {
+    let isDragging = false;
+    linkProgressBar._isDragging = () => isDragging;
+    linkProgressBar.addEventListener('mousedown', () => { isDragging = true; });
+    linkProgressBar.addEventListener('touchstart', () => { isDragging = true; }, { passive: true });
+    linkProgressBar.addEventListener('input', (e) => {
+      const dur = audioPlayer.duration;
+      if (dur && !isNaN(dur) && isFinite(dur) && dur > 0) {
+        const pct = parseFloat(e.target.value) / 100;
+        audioPlayer.currentTime = pct * dur;
+        if (linkCurrentTime) linkCurrentTime.textContent = formatMs(pct * dur * 1000);
+      }
+    });
+    linkProgressBar.addEventListener('change', () => { isDragging = false; });
+    linkProgressBar.addEventListener('mouseup', () => { isDragging = false; });
+    linkProgressBar.addEventListener('touchend', () => { isDragging = false; });
+  }
 
   // 6. Master Controls
   const masterGain = document.getElementById('masterGain');
