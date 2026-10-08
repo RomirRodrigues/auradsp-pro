@@ -232,19 +232,21 @@
           <!-- Catalog Search Box -->
           <div class="spotify-search-box" style="margin-top: 15px;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-              <label for="webSearchInput" style="font-size:0.8rem; font-weight:700;">🔍 Search 100M+ Songs (Spotify & Global Catalog):</label>
+              <label for="webSearchInput" style="font-size:0.8rem; font-weight:700;">🔍 Universal Global Search (7 Multi-Engine Clusters · 100M+ Songs · 1:1 World Coverage):</label>
               <span id="webSearchCount" style="font-size:0.68rem; color:#00f0ff; background:rgba(0,240,255,0.1); border:1px solid rgba(0,240,255,0.25); padding:2px 8px; border-radius:10px;">Trending Hits</span>
             </div>
-            <input type="text" id="webSearchInput" class="cyber-input" placeholder="Search any song, artist, album (e.g. The Weeknd, Arijit, Taylor Swift)...">
+            <input type="text" id="webSearchInput" class="cyber-input" placeholder="Search literally every song, artist, album (e.g. Vasaikar, Arijit, The Weeknd, Taylor Swift, Believer, Diljit)...">
             
             <!-- Quick Genre Filters -->
             <div class="web-genre-chips" id="webGenreChips" style="display:flex; gap:6px; overflow-x:auto; margin:8px 0; padding-bottom:4px;">
               <button class="chip-btn active" data-genre="global">🌟 Top Global</button>
               <button class="chip-btn" data-genre="bollywood">🇮🇳 Bollywood</button>
+              <button class="chip-btn" data-genre="vasaikar">🌊 Vasaikar / Marathi</button>
               <button class="chip-btn" data-genre="hiphop">🎧 Hip-Hop</button>
               <button class="chip-btn" data-genre="rock">🎸 Rock & Pop</button>
               <button class="chip-btn" data-genre="edm">⚡ EDM & Club</button>
               <button class="chip-btn" data-genre="lofi">☕ Lo-Fi Chill</button>
+              <button class="chip-btn" data-genre="radio">📻 Live Radio</button>
             </div>
 
             <div id="webSearchResults" class="search-results-list" style="max-height: 320px; overflow-y: auto; margin-top: 8px;"></div>
@@ -888,19 +890,19 @@
   </div>
 
   <!-- Modular Scripts -->
-  <script src="js/data/presets.js?v=43.0.0"></script>
-  <script src="js/audio/audio-engine.js?v=43.0.0"></script>
-  <script src="js/visual/spatial-canvas.js?v=43.0.0"></script>
-  <script src="js/visual/visualizer.js?v=43.0.0"></script>
-  <script src="js/ui/motion-ui.js?v=43.0.0"></script>
-  <script src="js/app.js?v=43.0.0"></script>
+  <script src="js/data/presets.js?v=44.0.0"></script>
+  <script src="js/audio/audio-engine.js?v=44.0.0"></script>
+  <script src="js/visual/spatial-canvas.js?v=44.0.0"></script>
+  <script src="js/visual/visualizer.js?v=44.0.0"></script>
+  <script src="js/ui/motion-ui.js?v=44.0.0"></script>
+  <script src="js/app.js?v=44.0.0"></script>
 
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js?v=43.0.0')
+        navigator.serviceWorker.register('sw.js?v=44.0.0')
           .then(reg => {
-            console.log('Service Worker Registered v43.0.0');
+            console.log('Service Worker Registered v44.0.0');
             reg.update();
           })
           .catch(err => console.log('Service Worker Error', err));
