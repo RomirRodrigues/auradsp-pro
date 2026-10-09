@@ -97,24 +97,16 @@ class AuraDevMenu {
 
   // --- 5-CLICK TRIGGER DETECTION ---
   bindBrandClickTriggers() {
-    // Primary trigger: AuraDSP Pro brand title in header and footer
-    const brandElements = document.querySelectorAll('.animated-brand-text, .footer-title, #brandTitleHeader, #footerBrandTitle');
+    // Only triggers on the brand logo image / icon and brand title shown in header/footer
+    const brandElements = document.querySelectorAll(
+      '#brandLogoIcon, .logo-icon, #brandTitleHeader, .animated-brand-text, #footerBrandTitle, .footer-title'
+    );
     brandElements.forEach(el => {
       el.style.cursor = 'pointer';
-      el.setAttribute('title', 'AuraDSP Pro Studio Core (Click 5 times for Developer Console)');
       
       el.addEventListener('click', (e) => {
         e.preventDefault();
-        this.handleBrandClick(el);
-      });
-    });
-
-    // Also keep creator name as alternate trigger
-    const creatorElements = document.querySelectorAll('.animated-creator-name');
-    creatorElements.forEach(el => {
-      el.style.cursor = 'pointer';
-      el.addEventListener('click', (e) => {
-        e.preventDefault();
+        e.stopPropagation();
         this.handleBrandClick(el);
       });
     });
