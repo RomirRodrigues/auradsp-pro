@@ -1701,7 +1701,139 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!rawUrl) return null;
     let url = rawUrl.trim();
 
-    // 1. Dropbox link conversion (make direct streaming raw)
+    // 0. SPOTIFY LINK RESOLUTION (open.spotify.com / spotify.link / spotify:track / spotify:album)
+    if (url.includes('spotify.com') || url.includes('spotify.link') || url.startsWith('spotify:')) {
+      try {
+        let cleanUrl = url;
+        if (cleanUrl.startsWith('spotify:track:')) {
+          cleanUrl = `https://open.spotify.com/track/${cleanUrl.split(':')[2]}`;
+        }
+        // Extract canonical track/album/playlist ID if present to ensure clean oEmbed URL
+        const trackMatch = cleanUrl.match(/track[/:]([a-zA-Z0-9]{15,30})/);
+        const albumMatch = cleanUrl.match(/album[/:]([a-zA-Z0-9]{15,30})/);
+        const playlistMatch = cleanUrl.match(/playlist[/:]([a-zA-Z0-9]{15,30})/);
+
+        if (trackMatch) {
+          cleanUrl = `https://open.spotify.com/track/${trackMatch[1]}`;
+        } else if (albumMatch) {
+          cleanUrl = `https://open.spotify.com/album/${albumMatch[1]}`;
+        } else if (playlistMatch) {
+          cleanUrl = `https://open.spotify.com/playlist/${playlistMatch[1]}`;
+        } else {
+          cleanUrl = cleanUrl.replace(/\/intl-[a-z0-9_-]+\//i, '/').split('?')[0];
+        }
+
+        // Fetch official Spotify oEmbed metadata (100% CORS compliant)
+        let trackTitle = '';
+        let albumArt = '';
+        try {
+          const oembedRes = await fetchWithTimeout(`https://open.spotify.com/oembed?url=${encodeURIComponent(cleanUrl)}`, 4000);
+          if (oembedRes.ok) {
+            const oembedData = await oembedRes.json();
+            trackTitle = oembedData.title || '';
+            albumArt = oembedData.thumbnail_url || '';
+          }
+        } catch (oe) {}
+
+        // Fallback: extract title or ID from URL
+        if (!trackTitle) {
+          trackTitle = trackMatch ? `Spotify Track ${trackMatch[1]}` : 'Spotify Song';
+        }
+
+        // Query our master audio engines for exact high-fidelity stream
+        const [saavnRes, appleRes, audiusRes] = await Promise.allSettled([
+          searchSaavnMusic(trackTitle, 6),
+          searchAppleMusic(trackTitle, 6),
+          searchGlobalCatalog(trackTitle, 6)
+        ]);
+
+        const saavnTrack = (saavnRes.status === 'fulfilled' && saavnRes.value?.length > 0) ? saavnRes.value[0] : null;
+        const appleTrack = (appleRes.status === 'fulfilled' && appleRes.value?.length > 0) ? appleRes.value[0] : null;
+        const audiusTrack = (audiusRes.status === 'fulfilled' && audiusRes.value?.length > 0) ? audiusRes.value[0] : null;
+
+        const bestMatch = saavnTrack || appleTrack || audiusTrack;
+
+        if (bestMatch && bestMatch.streamUrl) {
+          return {
+            url: bestMatch.streamUrl,
+            title: trackTitle || bestMatch.title,
+            meta: (bestMatch.uploaderName ? `${bestMatch.uploaderName} · ` : '') + 'Spotify Master Audio',
+            badge: '🟢 Spotify Track',
+            art: albumArt || bestMatch.thumbnail || '🟢'
+          };
+        }
+      } catch (e) {
+        console.warn('Spotify link resolution error:', e);
+      }
+    }
+
+    // 1. YOUTUBE & YOUTUBE MUSIC RESOLUTION (youtube.com / youtu.be / music.youtube.com)
+    if (url.includes('youtube.com') || url.includes('youtu.be')) {
+      try {
+        let cleanUrl = url.replace('music.youtube.com', 'www.youtube.com');
+        const ytRes = await fetchWithTimeout(`https://www.youtube.com/oembed?url=${encodeURIComponent(cleanUrl)}&format=json`, 4000);
+        if (ytRes.ok) {
+          const ytData = await ytRes.json();
+          const rawTitle = ytData.title || '';
+          const cleanSongName = rawTitle
+            .replace(/\((?:official|music|video|audio|lyrics|hd|4k|remaster|explicit)[^)]*\)/gi, '')
+            .replace(/\[(?:official|music|video|audio|lyrics|hd|4k|remaster|explicit)[^\]]*\]/gi, '')
+            .replace(/ft\..*$/i, '')
+            .replace(/feat\..*$/i, '')
+            .trim();
+
+          const [saavnRes, appleRes] = await Promise.allSettled([
+            searchSaavnMusic(cleanSongName || rawTitle, 5),
+            searchAppleMusic(cleanSongName || rawTitle, 5)
+          ]);
+
+          const match = (saavnRes.status === 'fulfilled' && saavnRes.value?.[0]) || (appleRes.status === 'fulfilled' && appleRes.value?.[0]);
+          if (match && match.streamUrl) {
+            return {
+              url: match.streamUrl,
+              title: match.title || cleanSongName,
+              meta: (match.uploaderName ? `${match.uploaderName} · ` : '') + 'YouTube Music Master',
+              badge: '🔴 YouTube Music',
+              art: ytData.thumbnail_url || match.thumbnail || '🔴'
+            };
+          }
+        }
+      } catch (e) {
+        console.warn('YouTube resolution error:', e);
+      }
+    }
+
+    // 2. SOUNDCLOUD RESOLUTION (soundcloud.com)
+    if (url.includes('soundcloud.com')) {
+      try {
+        const scRes = await fetchWithTimeout(`https://soundcloud.com/oembed?url=${encodeURIComponent(url)}&format=json`, 4000);
+        if (scRes.ok) {
+          const scData = await scRes.json();
+          let title = scData.title || '';
+          if (title.includes(' by ')) {
+            title = title.split(' by ')[0].trim();
+          }
+          const [saavnRes, appleRes] = await Promise.allSettled([
+            searchSaavnMusic(title, 5),
+            searchAppleMusic(title, 5)
+          ]);
+          const match = (saavnRes.status === 'fulfilled' && saavnRes.value?.[0]) || (appleRes.status === 'fulfilled' && appleRes.value?.[0]);
+          if (match && match.streamUrl) {
+            return {
+              url: match.streamUrl,
+              title: scData.title || match.title,
+              meta: (match.uploaderName ? `${match.uploaderName} · ` : '') + 'SoundCloud Audio Stream',
+              badge: '🟠 SoundCloud',
+              art: scData.thumbnail_url || match.thumbnail || '🟠'
+            };
+          }
+        }
+      } catch (e) {
+        console.warn('SoundCloud resolution error:', e);
+      }
+    }
+
+    // 3. Dropbox link conversion (make direct streaming raw)
     if (url.includes('dropbox.com')) {
       url = url.replace('www.dropbox.com', 'dl.dropboxusercontent.com');
       url = url.replace(/[?&]dl=0/, '');
@@ -1716,7 +1848,7 @@ document.addEventListener('DOMContentLoaded', () => {
       };
     }
 
-    // 2. Google Drive direct stream
+    // 4. Google Drive direct stream
     if (url.includes('drive.google.com')) {
       const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/) || url.match(/id=([a-zA-Z0-9_-]+)/);
       if (match && match[1]) {
@@ -1731,7 +1863,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    // 3. GitHub raw blob conversion
+    // 5. GitHub raw blob conversion
     if (url.includes('github.com') && url.includes('/blob/')) {
       url = url.replace('github.com', 'raw.githubusercontent.com').replace('/blob/', '/');
       return {
@@ -1743,7 +1875,7 @@ document.addEventListener('DOMContentLoaded', () => {
       };
     }
 
-    // 4. Apple Music / iTunes link resolution
+    // 6. Apple Music / iTunes link resolution
     if (url.includes('music.apple.com')) {
       try {
         const idMatch = url.match(/[?&]i=(\d+)/) || url.match(/\/(\d+)(?:\?|$)/);
@@ -1768,7 +1900,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    // 5. JioSaavn link resolution
+    // 7. JioSaavn link resolution
     if (url.includes('jiosaavn.com/song/')) {
       try {
         const parts = url.split('jiosaavn.com/song/')[1]?.split('/')[0];
@@ -1790,7 +1922,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    // 6. Audius link resolution
+    // 8. Audius link resolution
     if (url.includes('audius.co/')) {
       try {
         const parts = url.replace(/^https?:\/\/(www\.)?audius\.co\//, '').split('/');
@@ -1812,7 +1944,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    // 7. Internet Archive link resolution
+    // 9. Internet Archive link resolution
     if (url.includes('archive.org/details/')) {
       try {
         const id = url.split('archive.org/details/')[1]?.split('/')[0]?.split('?')[0];
@@ -1837,7 +1969,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    // 8. Direct Audio URL / Radio / Icecast / Stream Link
+    // 10. Direct Audio URL / Radio / Icecast / Stream Link
     let cleanTitle = 'Direct Audio Stream';
     try {
       const parsed = new URL(url);
@@ -1868,14 +2000,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (linkStreamStatus) {
-      linkStreamStatus.textContent = 'Resolving...';
+      if (rawUrl.includes('spotify.com') || rawUrl.startsWith('spotify:')) {
+        linkStreamStatus.textContent = 'Resolving Spotify Track...';
+      } else if (rawUrl.includes('youtube.com') || rawUrl.includes('youtu.be')) {
+        linkStreamStatus.textContent = 'Resolving YouTube Music...';
+      } else {
+        linkStreamStatus.textContent = 'Resolving Stream...';
+      }
       linkStreamStatus.style.borderColor = '#00f0ff';
       linkStreamStatus.style.color = '#00f0ff';
     }
 
     const resolved = await resolveAudioStreamUrl(rawUrl);
     if (!resolved || !resolved.url) {
-      if (linkStreamStatus) linkStreamStatus.textContent = 'Invalid URL';
+      if (linkStreamStatus) linkStreamStatus.textContent = 'Stream Unreachable';
       if (window.showToast) window.showToast('Could not resolve playable audio from link', 'error');
       return;
     }
@@ -1888,7 +2026,43 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (linkTrackTitle) linkTrackTitle.textContent = finalTitle;
     if (linkTrackMeta) linkTrackMeta.textContent = finalMeta;
-    if (linkBadge) linkBadge.textContent = finalBadge;
+    if (linkBadge) {
+      linkBadge.textContent = finalBadge;
+      if (finalBadge.includes('Spotify')) {
+        linkBadge.style.color = '#1ed760';
+        linkBadge.style.background = 'rgba(29, 185, 84, 0.16)';
+        linkBadge.style.borderColor = 'rgba(29, 185, 84, 0.4)';
+      } else if (finalBadge.includes('YouTube')) {
+        linkBadge.style.color = '#ff4e4e';
+        linkBadge.style.background = 'rgba(255, 0, 0, 0.16)';
+        linkBadge.style.borderColor = 'rgba(255, 0, 0, 0.4)';
+      } else if (finalBadge.includes('Apple')) {
+        linkBadge.style.color = '#ff2d55';
+        linkBadge.style.background = 'rgba(255, 45, 85, 0.16)';
+        linkBadge.style.borderColor = 'rgba(255, 45, 85, 0.4)';
+      } else if (finalBadge.includes('JioSaavn')) {
+        linkBadge.style.color = '#2bc5b4';
+        linkBadge.style.background = 'rgba(43, 197, 180, 0.16)';
+        linkBadge.style.borderColor = 'rgba(43, 197, 180, 0.4)';
+      } else if (finalBadge.includes('Audius')) {
+        linkBadge.style.color = '#b537f2';
+        linkBadge.style.background = 'rgba(181, 55, 242, 0.16)';
+        linkBadge.style.borderColor = 'rgba(181, 55, 242, 0.4)';
+      } else if (finalBadge.includes('SoundCloud')) {
+        linkBadge.style.color = '#ff7700';
+        linkBadge.style.background = 'rgba(255, 119, 0, 0.16)';
+        linkBadge.style.borderColor = 'rgba(255, 119, 0, 0.4)';
+      } else if (finalBadge.includes('Radio')) {
+        linkBadge.style.color = '#ff9900';
+        linkBadge.style.background = 'rgba(255, 153, 0, 0.16)';
+        linkBadge.style.borderColor = 'rgba(255, 153, 0, 0.4)';
+      } else {
+        linkBadge.style.color = 'var(--text-muted)';
+        linkBadge.style.background = 'rgba(255,255,255,0.05)';
+        linkBadge.style.borderColor = 'rgba(255,255,255,0.1)';
+      }
+    }
+
     if (linkStreamStatus) linkStreamStatus.textContent = 'Buffering...';
 
     if (linkArtPlaceholder) {

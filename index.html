@@ -383,12 +383,14 @@
         <!-- Supported Platforms Help Pill -->
         <div style="margin-top:10px; padding:8px 10px; background:rgba(0,240,255,0.03); border:1px solid rgba(0,240,255,0.12); border-radius:6px; display:flex; flex-wrap:wrap; gap:6px; align-items:center; font-size:0.64rem; color:var(--text-muted);">
           <span style="color:#00f0ff; font-weight:700;">Supported:</span>
+          <span style="color:#1ed760; font-weight:600;">🟢 Spotify (Tracks & Albums)</span>
+          <span style="color:#ff4e4e; font-weight:600;">🔴 YouTube Music</span>
+          <span>🍎 Apple Music</span>
+          <span>🎵 JioSaavn</span>
+          <span>🌐 Audius</span>
+          <span>🟠 SoundCloud</span>
+          <span>📻 Live Radio Streams</span>
           <span>✓ Direct MP3/AAC/WAV/FLAC</span>
-          <span>✓ Live Radio Streams</span>
-          <span>✓ Apple Music Links</span>
-          <span>✓ JioSaavn Links</span>
-          <span>✓ Audius Links</span>
-          <span>✓ Archive.org Links</span>
           <span>✓ Dropbox / Google Drive / GitHub</span>
         </div>
       </div>
@@ -991,19 +993,19 @@
   </div>
 
   <!-- Modular Scripts -->
-  <script src="js/data/presets.js?v=45.0.0"></script>
-  <script src="js/audio/audio-engine.js?v=45.0.0"></script>
-  <script src="js/visual/spatial-canvas.js?v=45.0.0"></script>
-  <script src="js/visual/visualizer.js?v=45.0.0"></script>
-  <script src="js/ui/motion-ui.js?v=45.0.0"></script>
-  <script src="js/app.js?v=45.0.0"></script>
+  <script src="js/data/presets.js?v=46.0.0"></script>
+  <script src="js/audio/audio-engine.js?v=46.0.0"></script>
+  <script src="js/visual/spatial-canvas.js?v=46.0.0"></script>
+  <script src="js/visual/visualizer.js?v=46.0.0"></script>
+  <script src="js/ui/motion-ui.js?v=46.0.0"></script>
+  <script src="js/app.js?v=46.0.0"></script>
 
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js?v=45.0.0')
+        navigator.serviceWorker.register('sw.js?v=46.0.0')
           .then(reg => {
-            console.log('Service Worker Registered v45.0.0');
+            console.log('Service Worker Registered v46.0.0');
             reg.update();
           })
           .catch(err => console.log('Service Worker Error', err));
