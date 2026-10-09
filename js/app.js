@@ -3390,10 +3390,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // --- SPATIAL AUTOMATION PATTERN SELECTOR (Point 9) ---
   const spatialPatternSelect = document.getElementById('spatialPatternSelect');
-  if (spatialPatternSelect && window.spatialCanvas) {
+  if (spatialPatternSelect) {
+    const patternNames = {
+      orbit: 'Circular Orbit',
+      figure8: 'Figure-8 Pattern',
+      sweep: 'Left-Right Sweep',
+      frontback: 'Front-Back Flyby (Depth)',
+      spiral: 'Spiral Vortex (In & Out)',
+      clover: '4-Leaf Clover (Quad Rose)',
+      pendulum: 'Pendulum Horizon Arc',
+      lissajous: 'Lissajous 3D Knot',
+      random: 'Random Motion'
+    };
     spatialPatternSelect.addEventListener('change', (e) => {
-      window.spatialCanvas.autoPattern = e.target.value;
-      window.showToast(`Spatial Pattern: ${e.target.value.toUpperCase()}`, 'info');
+      const p = e.target.value;
+      if (window.spatialCanvas) {
+        window.spatialCanvas.autoPattern = p;
+      }
+      const label = patternNames[p] || p.toUpperCase();
+      if (window.showToast) window.showToast(`3D Spatial Pattern: ${label}`, 'info');
     });
   }
 

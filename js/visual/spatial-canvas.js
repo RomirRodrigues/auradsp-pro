@@ -271,6 +271,24 @@ class SpatialCanvas {
       } else if (this.autoPattern === 'sweep') {
         this.sourceX = Math.sin(this.orbitAngle) * rad;
         this.sourceY = 0;
+      } else if (this.autoPattern === 'frontback') {
+        this.sourceX = Math.sin(this.orbitAngle * 0.5) * rad * 0.2;
+        this.sourceY = -Math.cos(this.orbitAngle) * rad;
+      } else if (this.autoPattern === 'spiral') {
+        const spiralFactor = 0.3 + 0.7 * (0.5 + 0.5 * Math.sin(this.orbitAngle * 0.2));
+        this.sourceX = Math.sin(this.orbitAngle) * rad * spiralFactor;
+        this.sourceY = -Math.cos(this.orbitAngle) * rad * spiralFactor;
+      } else if (this.autoPattern === 'clover') {
+        const cloverR = rad * (0.35 + 0.65 * Math.abs(Math.sin(this.orbitAngle * 2)));
+        this.sourceX = Math.sin(this.orbitAngle) * cloverR;
+        this.sourceY = -Math.cos(this.orbitAngle) * cloverR;
+      } else if (this.autoPattern === 'pendulum') {
+        const swingRad = Math.sin(this.orbitAngle) * (Math.PI * 0.42);
+        this.sourceX = Math.sin(swingRad) * rad;
+        this.sourceY = -Math.cos(swingRad) * rad;
+      } else if (this.autoPattern === 'lissajous') {
+        this.sourceX = Math.sin(this.orbitAngle * 1.5) * rad * 0.95;
+        this.sourceY = Math.cos(this.orbitAngle) * rad * 0.85;
       } else if (this.autoPattern === 'random') {
         this.sourceX = (Math.sin(this.orbitAngle * 1.3) + Math.cos(this.orbitAngle * 0.7)) * rad * 0.5;
         this.sourceY = (Math.cos(this.orbitAngle * 1.1) - Math.sin(this.orbitAngle * 0.5)) * rad * 0.5;
