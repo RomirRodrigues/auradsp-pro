@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=47.0.0">
+  <link rel="stylesheet" href="styles.css?v=48.0.0">
   <link rel="manifest" href="manifest.json">
 </head>
 <body class="cyber-dark">
@@ -291,8 +291,8 @@
           <div style="display:flex; align-items:center; gap:8px;">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px; height:18px; color:var(--accent-cyan);"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
             <div>
-              <h4 style="margin:0; font-size:0.85rem; font-weight:700; color:var(--text-main); letter-spacing:0.02em;">Universal Link Player</h4>
-              <p style="margin:2px 0 0; font-size:0.7rem; color:var(--text-muted);">Stream audio from Spotify, YouTube Music, Apple Music, or direct feeds through DSP</p>
+              <h4 style="margin:0; font-size:0.85rem; font-weight:700; color:var(--text-main); letter-spacing:0.02em;">Universal Link & Stream Player</h4>
+              <p style="margin:2px 0 0; font-size:0.7rem; color:var(--text-muted);">Stream from YouTube, Spotify, WhatsApp shared audio, Amazon Music, Apple Music, or direct links</p>
             </div>
           </div>
           <span id="linkStreamStatus" class="status-pill" style="font-size:0.65rem; padding:2px 8px; border-radius:10px; background:rgba(0,240,255,0.1); color:#00f0ff; border:1px solid rgba(0,240,255,0.25); font-weight:600; text-transform:uppercase;">Ready</span>
@@ -300,9 +300,9 @@
 
         <!-- Input Bar with Paste & Load -->
         <div style="margin-bottom:12px;">
-          <label for="linkUrlInput" style="font-size:0.75rem; font-weight:600; color:var(--text-muted); display:block; margin-bottom:6px;">Paste Audio Link or Stream URL:</label>
+          <label for="linkUrlInput" style="font-size:0.75rem; font-weight:600; color:var(--text-muted); display:block; margin-bottom:6px;">Paste Audio Link, Social Share or Song Name:</label>
           <div style="display:flex; gap:6px;">
-            <input type="url" id="linkUrlInput" class="cyber-input" style="flex:1;" placeholder="https://... (Spotify, YouTube Music, Apple Music, SoundCloud, Radio, Cloud file)">
+            <input type="text" id="linkUrlInput" class="cyber-input" style="flex:1;" placeholder="Paste link or song name: YouTube, Spotify, WhatsApp audio, Amazon Music, SoundCloud, direct link...">
             <button id="linkPasteBtn" type="button" class="secondary-btn" style="padding:0 12px; font-size:0.75rem; font-weight:600; display:flex; align-items:center; gap:4px; white-space:nowrap; border-radius:6px; cursor:pointer;" title="Paste from Clipboard">
               PASTE
             </button>
@@ -322,7 +322,7 @@
             </div>
             <div class="track-details" style="overflow:hidden;">
               <div id="linkTrackTitle" class="spotify-track-title" style="font-size:0.85rem; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">No Stream Loaded</div>
-              <div id="linkTrackMeta" class="spotify-track-artist" style="font-size:0.7rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Paste any audio or track link above to stream live</div>
+              <div id="linkTrackMeta" class="spotify-track-artist" style="font-size:0.7rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Paste any audio, track link or song name above to stream live</div>
             </div>
             <span id="linkBadge" style="font-size:0.65rem; padding:2px 8px; border-radius:10px; background:rgba(255,255,255,0.05); color:var(--text-muted); border:1px solid rgba(255,255,255,0.1); font-weight:600; white-space:nowrap;">Link Player</span>
           </div>
@@ -351,21 +351,25 @@
         <!-- Supported Stream Formats & Protocols -->
         <div style="margin-top:12px; padding:10px 12px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:8px; display:flex; flex-wrap:wrap; gap:8px; align-items:center; font-size:0.68rem; color:var(--text-muted);">
           <span style="color:var(--text-main); font-weight:700; text-transform:uppercase; letter-spacing:0.06em;">Supported Sources:</span>
-          <span>Spotify (Tracks & Albums)</span>
+          <span>YouTube & YT Music</span>
           <span style="color:rgba(255,255,255,0.2);">·</span>
-          <span>YouTube Music</span>
+          <span>Spotify</span>
+          <span style="color:rgba(255,255,255,0.2);">·</span>
+          <span>WhatsApp Shared Audio</span>
+          <span style="color:rgba(255,255,255,0.2);">·</span>
+          <span>Amazon Music</span>
           <span style="color:rgba(255,255,255,0.2);">·</span>
           <span>Apple Music</span>
           <span style="color:rgba(255,255,255,0.2);">·</span>
           <span>JioSaavn HD</span>
           <span style="color:rgba(255,255,255,0.2);">·</span>
-          <span>Audius Master</span>
-          <span style="color:rgba(255,255,255,0.2);">·</span>
           <span>SoundCloud</span>
+          <span style="color:rgba(255,255,255,0.2);">·</span>
+          <span>Audius Master</span>
           <span style="color:rgba(255,255,255,0.2);">·</span>
           <span>Live Radio / Icecast</span>
           <span style="color:rgba(255,255,255,0.2);">·</span>
-          <span>Lossless Direct / Cloud (FLAC, WAV, MP3, AAC)</span>
+          <span>Direct Audio (MP3, FLAC, WAV, AAC, OPUS, MP4)</span>
         </div>
       </div>
 
@@ -959,19 +963,19 @@
   </div>
 
   <!-- Modular Scripts -->
-  <script src="js/data/presets.js?v=47.0.0"></script>
-  <script src="js/audio/audio-engine.js?v=47.0.0"></script>
-  <script src="js/visual/spatial-canvas.js?v=47.0.0"></script>
-  <script src="js/visual/visualizer.js?v=47.0.0"></script>
-  <script src="js/ui/motion-ui.js?v=47.0.0"></script>
-  <script src="js/app.js?v=47.0.0"></script>
+  <script src="js/data/presets.js?v=48.0.0"></script>
+  <script src="js/audio/audio-engine.js?v=48.0.0"></script>
+  <script src="js/visual/spatial-canvas.js?v=48.0.0"></script>
+  <script src="js/visual/visualizer.js?v=48.0.0"></script>
+  <script src="js/ui/motion-ui.js?v=48.0.0"></script>
+  <script src="js/app.js?v=48.0.0"></script>
 
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js?v=47.0.0')
+        navigator.serviceWorker.register('sw.js?v=48.0.0')
           .then(reg => {
-            console.log('Service Worker Registered v47.0.0');
+            console.log('Service Worker Registered v48.0.0');
             reg.update();
           })
           .catch(err => console.log('Service Worker Error', err));

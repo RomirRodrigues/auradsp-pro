@@ -1696,19 +1696,167 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentLinkStreamUrl = '';
   let isLinkPlaying = false;
 
-  // Intelligent URL Resolver across platforms and direct feeds
-  async function resolveAudioStreamUrl(rawUrl) {
-    if (!rawUrl) return null;
-    let url = rawUrl.trim();
+  // Intelligent Universal URL & Platform Resolver
+  async function resolveAudioStreamUrl(rawInput) {
+    if (!rawInput) return null;
+    const input = rawInput.trim();
+    if (!input) return null;
 
-    // 0. SPOTIFY LINK RESOLUTION (open.spotify.com / spotify.link / spotify:track / spotify:album)
+    // 0. SMART EXTRACTION FOR WHATSAPP, MESSENGER, SOCIAL SHARES & PLAIN TEXT
+    const urlMatch = input.match(/https?:\/\/[^\s<>"']+/i);
+    const foundUrl = urlMatch ? urlMatch[0] : null;
+
+    // Extract any accompanying contextual text (e.g. WhatsApp shared messages)
+    // Examples: "Listen to Kesariya by Pritam on Amazon Music: https://..." or 'Watch "Never Gonna Give You Up" on YouTube: https://...'
+    let extractedSharedText = '';
+    if (foundUrl) {
+      const textWithoutUrl = input.replace(foundUrl, '').trim();
+      if (textWithoutUrl.length > 2) {
+        const cleanShared = textWithoutUrl
+          .replace(/^(?:Listen to|Check out|Watch|Hear|Now playing|Song:)\s+/i, '')
+          .replace(/\s+on\s+(?:Amazon\s+Music|Spotify|YouTube(?:\s+Music)?|Apple\s+Music|JioSaavn|SoundCloud|Deezer|Tidal|WhatsApp).*$/i, '')
+          .replace(/["“”'']/g, '')
+          .replace(/[:·|-]\s*$/g, '')
+          .trim();
+        if (cleanShared.length > 2) {
+          extractedSharedText = cleanShared;
+        }
+      }
+    }
+
+    // CASE A: Plain Text Input (User entered or pasted song title/artist instead of a URL)
+    if (!foundUrl) {
+      // Check if user pasted a WhatsApp group/contact link without https protocol
+      if (input.includes('wa.me/') || input.includes('chat.whatsapp.com/')) {
+        if (window.showToast) window.showToast('WhatsApp chat invite detected. Paste a song title or audio file!', 'info');
+        return null;
+      }
+
+      // Execute instant concurrent search across our master audio engines
+      const [saavnRes, appleRes, audiusRes] = await Promise.allSettled([
+        searchSaavnMusic(input, 5),
+        searchAppleMusic(input, 5),
+        searchGlobalCatalog(input, 5)
+      ]);
+
+      const saavnTrack = (saavnRes.status === 'fulfilled' && saavnRes.value?.length > 0) ? saavnRes.value[0] : null;
+      const appleTrack = (appleRes.status === 'fulfilled' && appleRes.value?.length > 0) ? appleRes.value[0] : null;
+      const audiusTrack = (audiusRes.status === 'fulfilled' && audiusRes.value?.length > 0) ? audiusRes.value[0] : null;
+      const match = saavnTrack || appleTrack || audiusTrack;
+
+      if (match && match.streamUrl) {
+        return {
+          url: match.streamUrl,
+          title: match.title,
+          meta: (match.uploaderName ? `${match.uploaderName} · ` : '') + 'Master Audio Catalog',
+          badge: 'Universal Catalog',
+          art: match.thumbnail || ''
+        };
+      }
+      return null;
+    }
+
+    let url = foundUrl;
+
+    // CASE B: WHATSAPP WEB MEDIA BLOBS & AUDIO
+    if (url.startsWith('blob:') || url.includes('whatsapp.com')) {
+      if (url.includes('chat.whatsapp.com') || url.includes('wa.me')) {
+        if (window.showToast) window.showToast('WhatsApp chat invite detected. Paste an audio link or song name!', 'info');
+        return null;
+      }
+      if (url.startsWith('blob:')) {
+        return {
+          url,
+          title: extractedSharedText || 'WhatsApp Audio Message',
+          meta: 'WhatsApp Web Voice / Audio Stream',
+          badge: 'WhatsApp Audio',
+          art: ''
+        };
+      }
+    }
+
+    // CASE C: YOUTUBE & YOUTUBE MUSIC (youtube.com / youtu.be / music.youtube.com / shorts / embed)
+    const ytMatch = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|v\/|embed\/|shorts\/))([a-zA-Z0-9_-]{11})/i);
+    if (ytMatch || url.includes('youtube.com') || url.includes('youtu.be')) {
+      const videoId = ytMatch ? ytMatch[1] : null;
+      let trackTitle = extractedSharedText || '';
+      let authorName = '';
+      let thumbnail = videoId ? `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg` : '';
+
+      // 1. Fetch metadata via Noembed (tested, 100% open CORS in browsers)
+      if (videoId) {
+        try {
+          const noembedRes = await fetchWithTimeout(`https://noembed.com/embed?url=https://www.youtube.com/watch?v=${videoId}`, 3500);
+          if (noembedRes.ok) {
+            const noembedData = await noembedRes.json();
+            if (noembedData.title) trackTitle = noembedData.title;
+            if (noembedData.author_name) authorName = noembedData.author_name;
+            if (noembedData.thumbnail_url) thumbnail = noembedData.thumbnail_url;
+          }
+        } catch (e) {
+          console.warn('YouTube noembed lookup notice:', e);
+        }
+
+        // 2. Secondary fallback via open CORS proxy if needed
+        if (!trackTitle) {
+          try {
+            const proxyRes = await fetchWithTimeout(`https://api.allorigins.win/get?url=${encodeURIComponent('https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=' + videoId + '&format=json')}`, 3500);
+            if (proxyRes.ok) {
+              const proxyData = await proxyRes.json();
+              if (proxyData.contents) {
+                const parsed = JSON.parse(proxyData.contents);
+                if (parsed.title) trackTitle = parsed.title;
+                if (parsed.author_name) authorName = parsed.author_name;
+              }
+            }
+          } catch (pe) {}
+        }
+      }
+
+      if (!trackTitle && extractedSharedText) {
+        trackTitle = extractedSharedText;
+      }
+
+      if (trackTitle) {
+        // Strip YouTube video clutter tags
+        const cleanSongName = trackTitle
+          .replace(/\((?:official|music|video|audio|lyrics|hd|4k|remaster|explicit|visualizer|live)[^)]*\)/gi, '')
+          .replace(/\[(?:official|music|video|audio|lyrics|hd|4k|remaster|explicit|visualizer|live)[^\]]*\]/gi, '')
+          .replace(/ft\..*$/i, '')
+          .replace(/feat\..*$/i, '')
+          .replace(/\|\s*.*$/g, '')
+          .trim();
+
+        const [saavnRes, appleRes, audiusRes] = await Promise.allSettled([
+          searchSaavnMusic(cleanSongName || trackTitle, 6),
+          searchAppleMusic(cleanSongName || trackTitle, 6),
+          searchGlobalCatalog(cleanSongName || trackTitle, 6)
+        ]);
+
+        const saavnTrack = (saavnRes.status === 'fulfilled' && saavnRes.value?.length > 0) ? saavnRes.value[0] : null;
+        const appleTrack = (appleRes.status === 'fulfilled' && appleRes.value?.length > 0) ? appleRes.value[0] : null;
+        const audiusTrack = (audiusRes.status === 'fulfilled' && audiusRes.value?.length > 0) ? audiusRes.value[0] : null;
+
+        const match = saavnTrack || appleTrack || audiusTrack;
+        if (match && match.streamUrl) {
+          return {
+            url: match.streamUrl,
+            title: match.title || cleanSongName,
+            meta: (match.uploaderName || authorName ? `${match.uploaderName || authorName} · ` : '') + 'YouTube Music Master',
+            badge: 'YouTube Music',
+            art: thumbnail || match.thumbnail || ''
+          };
+        }
+      }
+    }
+
+    // CASE D: SPOTIFY LINK (open.spotify.com / spotify.link / spotify:track / spotify:album)
     if (url.includes('spotify.com') || url.includes('spotify.link') || url.startsWith('spotify:')) {
       try {
         let cleanUrl = url;
         if (cleanUrl.startsWith('spotify:track:')) {
           cleanUrl = `https://open.spotify.com/track/${cleanUrl.split(':')[2]}`;
         }
-        // Extract canonical track/album/playlist ID if present to ensure clean oEmbed URL
         const trackMatch = cleanUrl.match(/track[/:]([a-zA-Z0-9]{15,30})/);
         const albumMatch = cleanUrl.match(/album[/:]([a-zA-Z0-9]{15,30})/);
         const playlistMatch = cleanUrl.match(/playlist[/:]([a-zA-Z0-9]{15,30})/);
@@ -1723,24 +1871,24 @@ document.addEventListener('DOMContentLoaded', () => {
           cleanUrl = cleanUrl.replace(/\/intl-[a-z0-9_-]+\//i, '/').split('?')[0];
         }
 
-        // Fetch official Spotify oEmbed metadata (100% CORS compliant)
-        let trackTitle = '';
+        let trackTitle = extractedSharedText || '';
         let albumArt = '';
-        try {
-          const oembedRes = await fetchWithTimeout(`https://open.spotify.com/oembed?url=${encodeURIComponent(cleanUrl)}`, 4000);
-          if (oembedRes.ok) {
-            const oembedData = await oembedRes.json();
-            trackTitle = oembedData.title || '';
-            albumArt = oembedData.thumbnail_url || '';
-          }
-        } catch (oe) {}
 
-        // Fallback: extract title or ID from URL
-        if (!trackTitle) {
-          trackTitle = trackMatch ? `Spotify Track ${trackMatch[1]}` : 'Spotify Song';
+        if (cleanUrl.includes('open.spotify.com')) {
+          try {
+            const oembedRes = await fetchWithTimeout(`https://open.spotify.com/oembed?url=${encodeURIComponent(cleanUrl)}`, 4000);
+            if (oembedRes.ok) {
+              const oembedData = await oembedRes.json();
+              trackTitle = oembedData.title || trackTitle;
+              albumArt = oembedData.thumbnail_url || '';
+            }
+          } catch (oe) {}
         }
 
-        // Query our master audio engines for exact high-fidelity stream
+        if (!trackTitle) {
+          trackTitle = trackMatch ? `Spotify Track ${trackMatch[1]}` : (extractedSharedText || 'Spotify Song');
+        }
+
         const [saavnRes, appleRes, audiusRes] = await Promise.allSettled([
           searchSaavnMusic(trackTitle, 6),
           searchAppleMusic(trackTitle, 6),
@@ -1752,7 +1900,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const audiusTrack = (audiusRes.status === 'fulfilled' && audiusRes.value?.length > 0) ? audiusRes.value[0] : null;
 
         const bestMatch = saavnTrack || appleTrack || audiusTrack;
-
         if (bestMatch && bestMatch.streamUrl) {
           return {
             url: bestMatch.streamUrl,
@@ -1767,43 +1914,53 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    // 1. YOUTUBE & YOUTUBE MUSIC RESOLUTION (youtube.com / youtu.be / music.youtube.com)
-    if (url.includes('youtube.com') || url.includes('youtu.be')) {
+    // CASE E: AMAZON MUSIC (music.amazon.com / music.amazon.in / amazon.com/music)
+    if (url.includes('music.amazon.') || url.includes('amazon.com/music')) {
       try {
-        let cleanUrl = url.replace('music.youtube.com', 'www.youtube.com');
-        const ytRes = await fetchWithTimeout(`https://www.youtube.com/oembed?url=${encodeURIComponent(cleanUrl)}&format=json`, 4000);
-        if (ytRes.ok) {
-          const ytData = await ytRes.json();
-          const rawTitle = ytData.title || '';
-          const cleanSongName = rawTitle
-            .replace(/\((?:official|music|video|audio|lyrics|hd|4k|remaster|explicit)[^)]*\)/gi, '')
-            .replace(/\[(?:official|music|video|audio|lyrics|hd|4k|remaster|explicit)[^\]]*\]/gi, '')
-            .replace(/ft\..*$/i, '')
-            .replace(/feat\..*$/i, '')
-            .trim();
+        let searchTitle = extractedSharedText || '';
+        if (!searchTitle) {
+          const slugMatch = url.match(/(?:albums|tracks)\/[A-Z0-9]+[/-]([a-zA-Z0-9-_]+)/i);
+          if (slugMatch && slugMatch[1]) {
+            searchTitle = slugMatch[1].replace(/[-_]/g, ' ');
+          }
+        }
+        if (!searchTitle) {
+          try {
+            const parsed = new URL(url);
+            searchTitle = parsed.searchParams.get('keywords') || parsed.searchParams.get('k') || '';
+          } catch (e) {}
+        }
 
-          const [saavnRes, appleRes] = await Promise.allSettled([
-            searchSaavnMusic(cleanSongName || rawTitle, 5),
-            searchAppleMusic(cleanSongName || rawTitle, 5)
+        if (searchTitle) {
+          const [saavnRes, appleRes, audiusRes] = await Promise.allSettled([
+            searchSaavnMusic(searchTitle, 6),
+            searchAppleMusic(searchTitle, 6),
+            searchGlobalCatalog(searchTitle, 6)
           ]);
 
-          const match = (saavnRes.status === 'fulfilled' && saavnRes.value?.[0]) || (appleRes.status === 'fulfilled' && appleRes.value?.[0]);
+          const saavnTrack = (saavnRes.status === 'fulfilled' && saavnRes.value?.length > 0) ? saavnRes.value[0] : null;
+          const appleTrack = (appleRes.status === 'fulfilled' && appleRes.value?.length > 0) ? appleRes.value[0] : null;
+          const audiusTrack = (audiusRes.status === 'fulfilled' && audiusRes.value?.length > 0) ? audiusRes.value[0] : null;
+
+          const match = saavnTrack || appleTrack || audiusTrack;
           if (match && match.streamUrl) {
             return {
               url: match.streamUrl,
-              title: match.title || cleanSongName,
-              meta: (match.uploaderName ? `${match.uploaderName} · ` : '') + 'YouTube Music Master',
-              badge: 'YouTube Music',
-              art: ytData.thumbnail_url || match.thumbnail || ''
+              title: match.title || searchTitle,
+              meta: (match.uploaderName ? `${match.uploaderName} · ` : '') + 'Amazon Music HD Master',
+              badge: 'Amazon Music',
+              art: match.thumbnail || ''
             };
           }
+        } else {
+          if (window.showToast) window.showToast('Amazon Music link received. Enter or share song title for 1:1 playback!', 'info');
         }
       } catch (e) {
-        console.warn('YouTube resolution error:', e);
+        console.warn('Amazon Music lookup error:', e);
       }
     }
 
-    // 2. SOUNDCLOUD RESOLUTION (soundcloud.com)
+    // CASE F: SOUNDCLOUD RESOLUTION (soundcloud.com)
     if (url.includes('soundcloud.com')) {
       try {
         const scRes = await fetchWithTimeout(`https://soundcloud.com/oembed?url=${encodeURIComponent(url)}&format=json`, 4000);
@@ -1833,7 +1990,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    // 3. Dropbox link conversion (make direct streaming raw)
+    // CASE G: DROPBOX (direct streaming raw conversion)
     if (url.includes('dropbox.com')) {
       url = url.replace('www.dropbox.com', 'dl.dropboxusercontent.com');
       url = url.replace(/[?&]dl=0/, '');
@@ -1848,7 +2005,7 @@ document.addEventListener('DOMContentLoaded', () => {
       };
     }
 
-    // 4. Google Drive direct stream
+    // CASE H: GOOGLE DRIVE (direct streaming conversion)
     if (url.includes('drive.google.com')) {
       const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/) || url.match(/id=([a-zA-Z0-9_-]+)/);
       if (match && match[1]) {
@@ -1863,7 +2020,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    // 5. GitHub raw blob conversion
+    // CASE I: GITHUB RAW BLOBS
     if (url.includes('github.com') && url.includes('/blob/')) {
       url = url.replace('github.com', 'raw.githubusercontent.com').replace('/blob/', '/');
       return {
@@ -1875,7 +2032,7 @@ document.addEventListener('DOMContentLoaded', () => {
       };
     }
 
-    // 6. Apple Music / iTunes link resolution
+    // CASE J: APPLE MUSIC / ITUNES LINK RESOLUTION
     if (url.includes('music.apple.com')) {
       try {
         const idMatch = url.match(/[?&]i=(\d+)/) || url.match(/\/(\d+)(?:\?|$)/);
@@ -1900,7 +2057,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    // 7. JioSaavn link resolution
+    // CASE K: JIOSAAVN LINK RESOLUTION
     if (url.includes('jiosaavn.com/song/')) {
       try {
         const parts = url.split('jiosaavn.com/song/')[1]?.split('/')[0];
@@ -1922,7 +2079,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    // 8. Audius link resolution
+    // CASE L: AUDIUS LINK RESOLUTION
     if (url.includes('audius.co/')) {
       try {
         const parts = url.replace(/^https?:\/\/(www\.)?audius\.co\//, '').split('/');
@@ -1944,7 +2101,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    // 9. Internet Archive link resolution
+    // CASE M: INTERNET ARCHIVE RESOLUTION
     if (url.includes('archive.org/details/')) {
       try {
         const id = url.split('archive.org/details/')[1]?.split('/')[0]?.split('?')[0];
@@ -1969,7 +2126,26 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    // 10. Direct Audio URL / Radio / Icecast / Stream Link
+    // CASE N: DEEZER / TIDAL / BANDCAMP LINK RESOLUTION
+    if (url.includes('deezer.com') || url.includes('tidal.com') || url.includes('bandcamp.com')) {
+      try {
+        let slug = url.split('/').filter(Boolean).pop()?.split('?')[0]?.replace(/[-_]/g, ' ') || '';
+        if (slug) {
+          const res = await searchSaavnMusic(slug, 3);
+          if (res && res.length > 0) {
+            return {
+              url: res[0].streamUrl,
+              title: res[0].title,
+              meta: res[0].uploaderName + ' · Master Stream',
+              badge: url.includes('deezer') ? 'Deezer Master' : (url.includes('tidal') ? 'Tidal Master' : 'Bandcamp Master'),
+              art: res[0].thumbnail
+            };
+          }
+        }
+      } catch (e) {}
+    }
+
+    // CASE O: DIRECT AUDIO URL / RADIO / ICECAST / CLOUD AUDIO STREAM
     let cleanTitle = 'Direct Audio Stream';
     try {
       const parsed = new URL(url);
@@ -1986,8 +2162,8 @@ document.addEventListener('DOMContentLoaded', () => {
     return {
       url,
       title: cleanTitle,
-      meta: isRadio ? 'Live Web Radio Stream' : 'Universal Stream Feed',
-      badge: isRadio ? 'Live Radio' : 'Web Stream',
+      meta: isRadio ? 'Live Web Radio Stream' : 'Direct Audio Master Stream',
+      badge: isRadio ? 'Live Radio' : 'Direct Audio',
       art: ''
     };
   }
@@ -2000,10 +2176,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (linkStreamStatus) {
-      if (rawUrl.includes('spotify.com') || rawUrl.startsWith('spotify:')) {
+      if (rawUrl.includes('spotify.com') || rawUrl.includes('spotify.link') || rawUrl.startsWith('spotify:')) {
         linkStreamStatus.textContent = 'Resolving Spotify Track...';
       } else if (rawUrl.includes('youtube.com') || rawUrl.includes('youtu.be')) {
         linkStreamStatus.textContent = 'Resolving YouTube Music...';
+      } else if (rawUrl.includes('music.amazon.') || rawUrl.includes('amazon.com/music')) {
+        linkStreamStatus.textContent = 'Resolving Amazon Music...';
+      } else if (rawUrl.includes('whatsapp') || rawUrl.startsWith('blob:')) {
+        linkStreamStatus.textContent = 'Resolving WhatsApp Audio...';
+      } else if (rawUrl.includes('soundcloud.com')) {
+        linkStreamStatus.textContent = 'Resolving SoundCloud...';
       } else {
         linkStreamStatus.textContent = 'Resolving Stream...';
       }
@@ -2014,7 +2196,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const resolved = await resolveAudioStreamUrl(rawUrl);
     if (!resolved || !resolved.url) {
       if (linkStreamStatus) linkStreamStatus.textContent = 'Stream Unreachable';
-      if (window.showToast) window.showToast('Could not resolve playable audio from link', 'error');
+      if (window.showToast) window.showToast('Could not resolve audio. Paste song name or check link!', 'error');
       return;
     }
 
@@ -2036,6 +2218,14 @@ document.addEventListener('DOMContentLoaded', () => {
         linkBadge.style.color = '#ff4e4e';
         linkBadge.style.background = 'rgba(255, 0, 0, 0.16)';
         linkBadge.style.borderColor = 'rgba(255, 0, 0, 0.4)';
+      } else if (finalBadge.includes('Amazon')) {
+        linkBadge.style.color = '#ff9900';
+        linkBadge.style.background = 'rgba(255, 153, 0, 0.16)';
+        linkBadge.style.borderColor = 'rgba(255, 153, 0, 0.4)';
+      } else if (finalBadge.includes('WhatsApp')) {
+        linkBadge.style.color = '#25d366';
+        linkBadge.style.background = 'rgba(37, 211, 102, 0.16)';
+        linkBadge.style.borderColor = 'rgba(37, 211, 102, 0.4)';
       } else if (finalBadge.includes('Apple')) {
         linkBadge.style.color = '#ff2d55';
         linkBadge.style.background = 'rgba(255, 45, 85, 0.16)';
@@ -2057,9 +2247,9 @@ document.addEventListener('DOMContentLoaded', () => {
         linkBadge.style.background = 'rgba(255, 153, 0, 0.16)';
         linkBadge.style.borderColor = 'rgba(255, 153, 0, 0.4)';
       } else {
-        linkBadge.style.color = 'var(--text-muted)';
-        linkBadge.style.background = 'rgba(255,255,255,0.05)';
-        linkBadge.style.borderColor = 'rgba(255,255,255,0.1)';
+        linkBadge.style.color = 'var(--accent-cyan)';
+        linkBadge.style.background = 'rgba(0, 210, 235, 0.1)';
+        linkBadge.style.borderColor = 'rgba(0, 210, 235, 0.3)';
       }
     }
 
@@ -2095,7 +2285,7 @@ document.addEventListener('DOMContentLoaded', () => {
         isLinkPlaying = true;
         isPlaying = true;
         if (window.audioEngine) window.audioEngine.isPlaying = true;
-        if (linkPlayPauseBtn) linkPlayPauseBtn.innerHTML = "<span>⏸ Pause Stream</span>";
+        if (linkPlayPauseBtn) linkPlayPauseBtn.innerHTML = "<span>PAUSE STREAM</span>";
         if (linkStreamStatus) {
           linkStreamStatus.textContent = "Live / Playing";
           linkStreamStatus.style.borderColor = "#00ff88";
@@ -2112,7 +2302,7 @@ document.addEventListener('DOMContentLoaded', () => {
             isLinkPlaying = true;
             isPlaying = true;
             if (window.audioEngine) window.audioEngine.isPlaying = true;
-            if (linkPlayPauseBtn) linkPlayPauseBtn.innerHTML = "<span>⏸ Pause Stream</span>";
+            if (linkPlayPauseBtn) linkPlayPauseBtn.innerHTML = "<span>PAUSE STREAM</span>";
             if (linkStreamStatus) {
               linkStreamStatus.textContent = "Proxied Stream";
               linkStreamStatus.style.borderColor = "#ff9900";
@@ -2126,7 +2316,7 @@ document.addEventListener('DOMContentLoaded', () => {
               linkStreamStatus.style.borderColor = "#ff0055";
               linkStreamStatus.style.color = "#ff0055";
             }
-            if (linkPlayPauseBtn) linkPlayPauseBtn.innerHTML = "<span>▶ Play Stream</span>";
+            if (linkPlayPauseBtn) linkPlayPauseBtn.innerHTML = "<span>PLAY STREAM</span>";
             if (window.showToast) window.showToast("Cannot stream URL. Host may block audio cross-origin.", "error");
           });
         }
@@ -2166,10 +2356,18 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       } catch (e) {
         console.warn("Clipboard read permission:", e);
+        try {
+          const manual = window.prompt("Paste audio link, social share or song name:");
+          if (manual && manual.trim()) {
+            linkUrlInput.value = manual.trim();
+            playLinkStream(manual.trim());
+            return;
+          }
+        } catch (pe) {}
       }
       linkUrlInput.focus();
       linkUrlInput.select();
-      if (window.showToast) window.showToast("Press Ctrl+V to paste URL", "info");
+      if (window.showToast) window.showToast("Press Ctrl+V to paste link or song name", "info");
     });
   }
 
