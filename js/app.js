@@ -3920,5 +3920,223 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // --- STUDIO USER MANUAL & FEATURE GUIDE CONTROLLER ---
+  const openManualBtn = document.getElementById('openManualBtn');
+  const footerManualLink = document.getElementById('footerManualLink');
+  const manualModalBackdrop = document.getElementById('manualModalBackdrop');
+  const closeManualBtn = document.getElementById('closeManualBtn');
+  const manualSearchInput = document.getElementById('manualSearchInput');
+  const manualTabsRow = document.getElementById('manualTabsRow');
+  const manualModalBody = document.getElementById('manualModalBody');
+
+  let currentManualTab = 'all';
+
+  const renderManualContent = (activeTab = 'all', filterTerm = '') => {
+    if (!manualModalBody) return;
+    const term = (filterTerm || '').trim().toLowerCase();
+    const quickSteps = (typeof MANUAL_QUICK_START !== 'undefined' && Array.isArray(MANUAL_QUICK_START))
+      ? MANUAL_QUICK_START
+      : ((typeof window !== 'undefined' && Array.isArray(window.MANUAL_QUICK_START)) ? window.MANUAL_QUICK_START : []);
+    const featureList = (typeof MANUAL_FEATURES !== 'undefined' && Array.isArray(MANUAL_FEATURES))
+      ? MANUAL_FEATURES
+      : ((typeof window !== 'undefined' && Array.isArray(window.MANUAL_FEATURES)) ? window.MANUAL_FEATURES : []);
+
+    let outputHtml = '';
+
+    // Quick Start Flow Section (show if tab is 'all' or 'quickstart', and matches search term if any)
+    const showQuickStart = (activeTab === 'all' || activeTab === 'quickstart');
+    const filteredSteps = quickSteps.filter(s => {
+      if (!term) return true;
+      return (s.title || '').toLowerCase().includes(term) ||
+             (s.desc || '').toLowerCase().includes(term) ||
+             (s.badge || '').toLowerCase().includes(term);
+    });
+
+    if (showQuickStart && filteredSteps.length > 0) {
+      outputHtml += `
+        <div class="manual-quickstart-section">
+          <div class="manual-qs-header">
+            <div class="manual-qs-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px; height:18px; color:var(--accent-cyan);"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              <span>Quick Start: How To Master Audio in 5 Steps</span>
+            </div>
+            <span class="manual-badge">Workstation Workflow</span>
+          </div>
+          <div class="manual-qs-grid">
+            ${filteredSteps.map(step => `
+              <div class="manual-qs-card">
+                <div class="manual-qs-top">
+                  <span class="manual-step-pill">STEP 0${step.step}</span>
+                  <div style="width:20px; height:20px; color:var(--accent-cyan); display:flex; align-items:center;">
+                    ${step.icon || ''}
+                  </div>
+                </div>
+                <h4>${escapeChangelogHtml(step.title)}</h4>
+                <p>${escapeChangelogHtml(step.desc)}</p>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    // Filter Features by tab & search query
+    const filteredFeatures = featureList.filter(f => {
+      // Tab filter
+      if (activeTab !== 'all' && activeTab !== 'quickstart') {
+        if (f.category !== activeTab) return false;
+      }
+      if (activeTab === 'quickstart') return false; // only show quickstart section when quickstart tab selected
+
+      // Search filter
+      if (!term) return true;
+      const tMatch = (f.title || '').toLowerCase().includes(term);
+      const sMatch = (f.summary || '').toLowerCase().includes(term);
+      const wMatch = (f.working || '').toLowerCase().includes(term);
+      const yMatch = (f.whyToUse || '').toLowerCase().includes(term);
+      const pMatch = (f.proTip || '').toLowerCase().includes(term);
+      const bMatch = (f.badge || '').toLowerCase().includes(term);
+      return tMatch || sMatch || wMatch || yMatch || pMatch || bMatch;
+    });
+
+    if (filteredFeatures.length > 0) {
+      outputHtml += filteredFeatures.map(feat => `
+        <div class="manual-feature-card" id="manual_feat_${escapeChangelogHtml(feat.id)}">
+          <div class="manual-feature-header">
+            <div class="manual-feature-title-wrap">
+              <h4 class="manual-feature-title">${escapeChangelogHtml(feat.title)}</h4>
+            </div>
+            <span class="manual-badge">${escapeChangelogHtml(feat.badge || 'PRO DSP')}</span>
+          </div>
+          <p class="manual-feature-summary">${escapeChangelogHtml(feat.summary)}</p>
+
+          <!-- SVG Visual Diagram / Image Mockup -->
+          <div class="manual-diagram-container">
+            ${feat.svgDiagram || ''}
+          </div>
+
+          <!-- Working & Why To Use Grid -->
+          <div class="manual-details-grid">
+            <div class="manual-detail-box working">
+              <div class="manual-detail-header">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px; height:14px;"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                <span>HOW IT WORKS (ENGINEERING PRINCIPLE)</span>
+              </div>
+              <p class="manual-detail-text">${escapeChangelogHtml(feat.working)}</p>
+            </div>
+
+            <div class="manual-detail-box why">
+              <div class="manual-detail-header">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px; height:14px;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                <span>WHY TO USE IT (SONIC BENEFITS)</span>
+              </div>
+              <p class="manual-detail-text">${escapeChangelogHtml(feat.whyToUse)}</p>
+            </div>
+          </div>
+
+          <!-- Pro Tip Box -->
+          ${feat.proTip ? `
+            <div class="manual-protip-box">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px; height:16px; color:#c084fc; flex-shrink:0; margin-top:2px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+              <p class="manual-protip-text"><strong>PRO TIP:</strong> ${escapeChangelogHtml(feat.proTip)}</p>
+            </div>
+          ` : ''}
+        </div>
+      `).join('');
+    }
+
+    if (!outputHtml) {
+      outputHtml = `
+        <div style="text-align:center; padding:50px 16px; color:var(--text-muted); font-size:0.85rem;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:32px; height:32px; opacity:0.4; margin:0 auto 10px auto; display:block;"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <p style="margin:0 0 4px 0;">No manual modules matching "<strong>${escapeChangelogHtml(term)}</strong>"</p>
+          <span style="font-size:0.75rem; opacity:0.7;">Try searching for AI EQ, 3D Spatial, Spotify, Haas, or Limiter</span>
+        </div>
+      `;
+    }
+
+    manualModalBody.innerHTML = outputHtml;
+  };
+
+  const openManualModal = (tab = 'all') => {
+    if (!manualModalBackdrop) return;
+    currentManualTab = tab;
+    if (manualTabsRow) {
+      const tabBtns = manualTabsRow.querySelectorAll('.manual-tab-btn');
+      tabBtns.forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-tab') === tab);
+      });
+    }
+    renderManualContent(currentManualTab, manualSearchInput ? manualSearchInput.value : '');
+    manualModalBackdrop.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    if (manualSearchInput) {
+      setTimeout(() => manualSearchInput.focus(), 80);
+    }
+  };
+
+  const closeManualModal = () => {
+    if (!manualModalBackdrop) return;
+    manualModalBackdrop.classList.remove('open');
+    document.body.style.overflow = '';
+  };
+
+  if (openManualBtn) {
+    openManualBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      openManualModal('all');
+    });
+  }
+
+  if (footerManualLink) {
+    footerManualLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      openManualModal('all');
+    });
+  }
+
+  if (closeManualBtn) {
+    closeManualBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      closeManualModal();
+    });
+  }
+
+  if (manualModalBackdrop) {
+    manualModalBackdrop.addEventListener('click', (e) => {
+      if (e.target === manualModalBackdrop) {
+        closeManualModal();
+      }
+    });
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && manualModalBackdrop && manualModalBackdrop.classList.contains('open')) {
+      closeManualModal();
+    }
+  });
+
+  if (manualTabsRow) {
+    manualTabsRow.addEventListener('click', (e) => {
+      const btn = e.target.closest('.manual-tab-btn');
+      if (!btn) return;
+      const tab = btn.getAttribute('data-tab');
+      if (tab) {
+        currentManualTab = tab;
+        const tabBtns = manualTabsRow.querySelectorAll('.manual-tab-btn');
+        tabBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        renderManualContent(currentManualTab, manualSearchInput ? manualSearchInput.value : '');
+      }
+    });
+  }
+
+  if (manualSearchInput) {
+    manualSearchInput.addEventListener('input', (e) => {
+      renderManualContent(currentManualTab, e.target.value);
+    });
+  }
+
 });
+
 

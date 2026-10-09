@@ -8,6 +8,7 @@ const ASSETS = [
   './js/audio/audio-engine.js',
   './js/data/presets.js',
   './js/data/changelog.js',
+  './js/data/manual.js',
   './js/visual/spatial-canvas.js',
   './js/visual/visualizer.js',
   './js/dsp/meter-worklet.js'
