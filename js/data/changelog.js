@@ -5,10 +5,24 @@
 
 const CHANGELOG_DATA = [
   {
-    version: 'v52.1.0',
-    title: 'Studio Pro Measurement & Spatial Calibration Suite',
+    version: 'v53.0.0',
+    title: 'DTS:X 7.1 Surround Up-Mixer & MaxxBass Sub-Bass Synthesizer',
     tag: 'Latest',
     date: 'Current Release',
+    items: [
+      'Feature 3 - DTS:X / 5.1 & 7.1 Real-Time Surround Up-Mixer: Decodes 2-channel stereo into virtual 5.1 Cinema, 7.1 DTS:X, and 9.1.4 Neural:X multi-channel surround with Center dialogue focus, 24dB/oct LFE subwoofer extraction, Haas side delays, and rear ear-shadow filtering.',
+      'Live 8-Channel Surround Decoder Activity Matrix: Real-time visual activity meters for FL, C, FR, LFE, SL, SR, RL, and RR channels.',
+      'Instant A/B Surround Audition: One-click comparison button to switch between Direct Stereo and DTS:X immersive surround soundstage.',
+      'Feature 5 - MaxxBass Psychoacoustic "Missing Fundamental" Synthesizer: Generates 2nd and 3rd harmonic overtones (Waves MaxxBass tech) allowing earphones and small speakers to perceive deep 20Hz-50Hz bass without driver distortion.',
+      'Earbud Sub-Distortion Guard: Infrasonic high-pass filter cutting sub-45Hz rumble while synthetic harmonics retain massive perceived sub-bass.',
+      'Unlimited Continuous AI Auto EQ: Upgraded adaptive equalizing engine with zero dropouts, self-healing watchdog, and background tab immunity.'
+    ]
+  },
+  {
+    version: 'v52.1.0',
+    title: 'Studio Pro Measurement & Spatial Calibration Suite',
+    tag: 'Major',
+    date: 'Milestone Release',
     items: [
       'Feature 4 - Fullscreen Party / Cinema Visualizer: Immersive 300 FPS cinema display with floating track metadata, live DR metrics, and F key shortcut.',
       'Feature 8 - Virtual 7.1.4 Dolby Atmos Speaker Matrix: Interactive 12-speaker spatial audio layout across ceiling heights (.4) and bed (7.1) with binaural pink noise engine.',

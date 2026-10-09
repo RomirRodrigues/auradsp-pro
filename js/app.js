@@ -3615,10 +3615,218 @@ document.addEventListener('DOMContentLoaded', () => {
       if (subOctaveGainVal) subOctaveGainVal.textContent = '+3.0 dB';
       updateTransient();
     });
+  }  // =========================================================================
+  // FEATURE 3: DTS:X & 7.1 REAL-TIME SURROUND UP-MIXER UI CONTROLLERS
+  // =========================================================================
+  const dtsxToggle = document.getElementById('dtsxToggle');
+  const dtsxAuditionBtn = document.getElementById('dtsxAuditionBtn');
+  const dtsxModeBtns = document.querySelectorAll('.dtsx-mode-btn');
+  const dtsxActiveModeTag = document.getElementById('dtsxActiveModeTag');
+  const dtsxImmersion = document.getElementById('dtsxImmersion');
+  const dtsxImmersionVal = document.getElementById('dtsxImmersionVal');
+  const dtsxDialogue = document.getElementById('dtsxDialogue');
+  const dtsxDialogueVal = document.getElementById('dtsxDialogueVal');
+  const dtsxRoomDelay = document.getElementById('dtsxRoomDelay');
+  const dtsxRoomDelayVal = document.getElementById('dtsxRoomDelayVal');
+
+  let isDtsxAuditioningDirect = false;
+  let preAuditionDtsxMode = '7.1';
+
+  if (dtsxToggle) {
+    dtsxToggle.addEventListener('change', (e) => {
+      const enabled = e.target.checked;
+      if (window.audioEngine) window.audioEngine.setDtsxEnabled(enabled);
+      if (dtsxActiveModeTag) {
+        dtsxActiveModeTag.textContent = enabled ? '7.1 DISCRETE ACTIVE' : 'SURROUND BYPASS';
+      }
+      if (window.showToast) {
+        window.showToast(enabled ? '🎚️ DTS:X 7.1 Surround Up-Mixer Activated' : 'DTS:X Surround Bypassed', enabled ? 'success' : 'info');
+      }
+    });
   }
 
+  if (dtsxModeBtns) {
+    dtsxModeBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        dtsxModeBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const mode = btn.getAttribute('data-mode');
+        if (window.audioEngine) window.audioEngine.setDtsxMode(mode);
 
-  
+        if (dtsxActiveModeTag) {
+          if (mode === 'stereo') dtsxActiveModeTag.textContent = 'DIRECT STEREO (BYPASS)';
+          else if (mode === '5.1') dtsxActiveModeTag.textContent = '5.1 CINEMA MATRIX ACTIVE';
+          else if (mode === '7.1') dtsxActiveModeTag.textContent = '7.1 DTS:X MASTER ACTIVE';
+          else if (mode === '9.1.4') dtsxActiveModeTag.textContent = '9.1.4 NEURAL:X 3D ACTIVE';
+        }
+
+        if (window.showToast) {
+          const names = {
+            'stereo': 'Direct Stereo (Pure Passthrough)',
+            '5.1': '5.1 Cinema Surround (FL, C, FR, LFE, SL, SR)',
+            '7.1': '7.1 DTS:X Master Immersive Surround',
+            '9.1.4': '9.1.4 DTS:X Neural:X 3D (Overhead Heights)'
+          };
+          window.showToast(`🎚️ Mode: ${names[mode] || mode}`, 'info');
+        }
+      });
+    });
+  }
+
+  if (dtsxAuditionBtn) {
+    dtsxAuditionBtn.addEventListener('click', () => {
+      isDtsxAuditioningDirect = !isDtsxAuditioningDirect;
+      if (isDtsxAuditioningDirect) {
+        const activeBtn = document.querySelector('.dtsx-mode-btn.active');
+        if (activeBtn) preAuditionDtsxMode = activeBtn.getAttribute('data-mode') || '7.1';
+        if (window.audioEngine) window.audioEngine.setDtsxMode('stereo');
+        dtsxAuditionBtn.style.background = 'rgba(236, 72, 153, 0.2)';
+        dtsxAuditionBtn.style.borderColor = '#ec4899';
+        dtsxAuditionBtn.style.color = '#ec4899';
+        dtsxAuditionBtn.textContent = 'Direct Stereo (Flat)';
+        if (dtsxActiveModeTag) dtsxActiveModeTag.textContent = 'A/B: DIRECT STEREO';
+        if (window.showToast) window.showToast('Hearing DIRECT STEREO (Flat comparison)', 'warning');
+      } else {
+        if (window.audioEngine) window.audioEngine.setDtsxMode(preAuditionDtsxMode);
+        dtsxAuditionBtn.style.background = '';
+        dtsxAuditionBtn.style.borderColor = '';
+        dtsxAuditionBtn.style.color = '';
+        dtsxAuditionBtn.textContent = 'A/B Compare';
+        if (dtsxActiveModeTag) dtsxActiveModeTag.textContent = `${preAuditionDtsxMode.toUpperCase()} SURROUND RESTORED`;
+        if (window.showToast) window.showToast(`Restored ${preAuditionDtsxMode.toUpperCase()} Surround Soundstage`, 'success');
+      }
+    });
+  }
+
+  if (dtsxImmersion) {
+    dtsxImmersion.addEventListener('input', (e) => {
+      const val = e.target.value;
+      if (dtsxImmersionVal) dtsxImmersionVal.textContent = `${val}%`;
+      if (window.audioEngine) window.audioEngine.setDtsxImmersion(val);
+    });
+  }
+
+  if (dtsxDialogue) {
+    dtsxDialogue.addEventListener('input', (e) => {
+      const val = parseFloat(e.target.value);
+      if (dtsxDialogueVal) dtsxDialogueVal.textContent = `${val >= 0 ? '+' : ''}${val.toFixed(1)} dB`;
+      if (window.audioEngine) window.audioEngine.setDtsxDialogueFocus(val);
+    });
+  }
+
+  if (dtsxRoomDelay) {
+    dtsxRoomDelay.addEventListener('input', (e) => {
+      const val = e.target.value;
+      if (dtsxRoomDelayVal) dtsxRoomDelayVal.textContent = `${val} ms`;
+      if (window.audioEngine) window.audioEngine.setDtsxRoomDelay(val);
+    });
+  }
+
+  // Real-time animation loop for DTS:X 8-channel radar meters
+  const dtsxChEls = {
+    fl: document.querySelector('#dtsxChFL .dtsx-ch-fill'),
+    c: document.querySelector('#dtsxChC .dtsx-ch-fill'),
+    fr: document.querySelector('#dtsxChFR .dtsx-ch-fill'),
+    lfe: document.querySelector('#dtsxChLFE .dtsx-ch-fill'),
+    sl: document.querySelector('#dtsxChSL .dtsx-ch-fill'),
+    sr: document.querySelector('#dtsxChSR .dtsx-ch-fill'),
+    rl: document.querySelector('#dtsxChRL .dtsx-ch-fill'),
+    rr: document.querySelector('#dtsxChRR .dtsx-ch-fill')
+  };
+
+  function updateDtsxMetersLoop() {
+    if (window.audioEngine && typeof window.audioEngine.getDtsxChannelLevels === 'function') {
+      const levels = window.audioEngine.getDtsxChannelLevels();
+      for (const ch in dtsxChEls) {
+        if (dtsxChEls[ch]) {
+          const pct = levels[ch] || 0;
+          dtsxChEls[ch].style.height = `${pct}%`;
+          const parentItem = dtsxChEls[ch].closest('.dtsx-ch-item');
+          if (parentItem) {
+            if (pct > 15) parentItem.classList.add('active');
+            else parentItem.classList.remove('active');
+          }
+        }
+      }
+    }
+    requestAnimationFrame(updateDtsxMetersLoop);
+  }
+  requestAnimationFrame(updateDtsxMetersLoop);
+
+  // =========================================================================
+  // FEATURE 5: MAXXBASS PSYCHOACOUSTIC SUB-BASS SYNTHESIZER UI CONTROLLERS
+  // =========================================================================
+  const maxxbassToggle = document.getElementById('maxxbassToggle');
+  const resetMaxxbassBtn = document.getElementById('resetMaxxbassBtn');
+  const maxxbassIntensity = document.getElementById('maxxbassIntensity');
+  const maxxbassIntensityVal = document.getElementById('maxxbassIntensityVal');
+  const maxxbassCutoff = document.getElementById('maxxbassCutoff');
+  const maxxbassProtectToggle = document.getElementById('maxxbassProtectToggle');
+  const maxxbassMeterFill = document.getElementById('maxxbassMeterFill');
+
+  if (maxxbassToggle) {
+    maxxbassToggle.addEventListener('change', (e) => {
+      const enabled = e.target.checked;
+      if (window.audioEngine) window.audioEngine.setMaxxbassEnabled(enabled);
+      if (window.showToast) {
+        window.showToast(enabled ? '🔊 MaxxBass Sub-Bass Synthesizer ON' : 'MaxxBass Sub Synthesizer OFF', enabled ? 'success' : 'info');
+      }
+    });
+  }
+
+  if (maxxbassIntensity) {
+    maxxbassIntensity.addEventListener('input', (e) => {
+      const val = e.target.value;
+      if (maxxbassIntensityVal) maxxbassIntensityVal.textContent = `${val}%`;
+      if (window.audioEngine) window.audioEngine.setMaxxbassIntensity(val);
+    });
+  }
+
+  if (maxxbassCutoff) {
+    maxxbassCutoff.addEventListener('change', (e) => {
+      const val = e.target.value;
+      if (window.audioEngine) window.audioEngine.setMaxxbassCutoff(val);
+      if (window.showToast) window.showToast(`MaxxBass Sub Focus: ${val} Hz`, 'info');
+    });
+  }
+
+  if (maxxbassProtectToggle) {
+    maxxbassProtectToggle.addEventListener('change', (e) => {
+      const protect = e.target.checked;
+      if (window.audioEngine) window.audioEngine.setMaxxbassProtect(protect);
+      if (window.showToast) {
+        window.showToast(protect ? '🛡️ Earbud Sub-Distortion Guard Active (Cut <45Hz)' : 'Sub-Bass Guard Disabled (Full Spectrum)', protect ? 'success' : 'info');
+      }
+    });
+  }
+
+  if (resetMaxxbassBtn) {
+    resetMaxxbassBtn.addEventListener('click', () => {
+      if (maxxbassToggle) maxxbassToggle.checked = true;
+      if (maxxbassIntensity) maxxbassIntensity.value = 50;
+      if (maxxbassIntensityVal) maxxbassIntensityVal.textContent = '50%';
+      if (maxxbassCutoff) maxxbassCutoff.value = '60';
+      if (maxxbassProtectToggle) maxxbassProtectToggle.checked = false;
+      if (window.audioEngine) {
+        window.audioEngine.setMaxxbassEnabled(true);
+        window.audioEngine.setMaxxbassIntensity(50);
+        window.audioEngine.setMaxxbassCutoff(60);
+        window.audioEngine.setMaxxbassProtect(false);
+      }
+      if (window.showToast) window.showToast('MaxxBass Synthesizer Reset to Defaults (60Hz, 50%)', 'info');
+    });
+  }
+
+  // Real-time animation loop for MaxxBass synthesis harmonic meter
+  function updateMaxxbassMeterLoop() {
+    if (maxxbassMeterFill && window.audioEngine && typeof window.audioEngine.getMaxxbassHarmonicLevel === 'function') {
+      const level = window.audioEngine.getMaxxbassHarmonicLevel();
+      maxxbassMeterFill.style.width = `${level}%`;
+    }
+    requestAnimationFrame(updateMaxxbassMeterLoop);
+  }
+  requestAnimationFrame(updateMaxxbassMeterLoop);
+
   // --- ACCESSIBILITY KEYBOARD SHORTCUTS ---
   window.addEventListener('keydown', (e) => {
     // Ignore keypress if typing inside input or select

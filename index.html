@@ -910,6 +910,53 @@
             </div>
           </div>
 
+          <!-- FEATURE 5: PSYCHOACOUSTIC "MISSING FUNDAMENTAL" SUB-BASS (MAXXBASS TECH) -->
+          <div class="enhancer-card maxxbass-card" id="maxxbassWidget">
+            <div class="card-header">
+              <label class="switch">
+                <input type="checkbox" id="maxxbassToggle" checked>
+                <span class="slider round"></span>
+              </label>
+              <div class="card-title-group">
+                <div style="display:flex; align-items:center; gap:6px;">
+                  <h4 style="color:#00f0ff;">MaxxBass Psychoacoustic Synthesizer</h4>
+                  <span class="status-pill" style="font-size:0.6rem; padding:1px 6px; background:rgba(0, 240, 255, 0.15); border:1px solid #00f0ff; color:#00f0ff; border-radius:4px;">MAXXBASS</span>
+                </div>
+                <p>Synthesizes 2nd & 3rd harmonic overtones so earbuds perceive massive 20Hz-50Hz bass without driver rattle</p>
+              </div>
+              <button id="resetMaxxbassBtn" class="sm-btn card-reset-btn">Reset</button>
+            </div>
+
+            <div class="knob-group-row">
+              <div class="knob-item">
+                <label for="maxxbassIntensity">Harmonic Intensity</label>
+                <input type="range" id="maxxbassIntensity" min="0" max="100" value="50" step="1">
+                <span id="maxxbassIntensityVal">50%</span>
+              </div>
+              <div class="knob-item">
+                <label for="maxxbassCutoff">Sub Detection Focus</label>
+                <select id="maxxbassCutoff" class="cyber-select-sm">
+                  <option value="40">40 Hz (Deep Sub)</option>
+                  <option value="60" selected>60 Hz (Standard Bass)</option>
+                  <option value="80">80 Hz (Punchy Bass)</option>
+                  <option value="100">100 Hz (Compact Earbuds)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="maxxbass-footer-row">
+              <label class="maxxbass-mode-switch" title="Cuts subsonic rumble from earbuds to prevent rattle/distortion while keeping rich perceived bass">
+                <input type="checkbox" id="maxxbassProtectToggle">
+                <span class="cyber-check"></span>
+                <span>Earbud Sub-Distortion Guard (Cut &lt;45Hz rumble)</span>
+              </label>
+              <div class="maxxbass-meter" title="Synthesized harmonic energy activity">
+                <span class="maxxbass-meter-label">SYNTHESIS</span>
+                <div class="maxxbass-meter-track"><div id="maxxbassMeterFill" class="maxxbass-meter-fill"></div></div>
+              </div>
+            </div>
+          </div>
+
           <!-- Lo-Fi Tape Warble -->
           <div class="enhancer-card">
             <div class="card-header">
@@ -997,6 +1044,75 @@
                 <div id="vuFillR" class="vu-fill"></div>
               </div>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FEATURE 3: DTS:X / 5.1 & 7.1 REAL-TIME SURROUND UP-MIXER -->
+      <div class="dtsx-surround-container" id="dtsxSurroundWidget">
+        <div class="dtsx-header">
+          <div class="dtsx-title-badge">
+            <span class="dtsx-logo-icon">🎚️</span>
+            <div>
+              <div class="dtsx-title">DTS:X 7.1 SURROUND UP-MIXER</div>
+              <div class="dtsx-sub">Real-Time Cinema Multi-Channel Matrix</div>
+            </div>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <button id="dtsxAuditionBtn" class="sm-btn dtsx-audition-btn" title="Instant A/B switch between Direct Stereo and DTS:X Surround">A/B Compare</button>
+            <label class="switch">
+              <input type="checkbox" id="dtsxToggle" checked>
+              <span class="slider round"></span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Mode Buttons Grid -->
+        <div class="dtsx-mode-selector">
+          <button class="dtsx-mode-btn" data-mode="stereo" title="Pure Direct Stereo Passthrough">Direct Stereo</button>
+          <button class="dtsx-mode-btn" data-mode="5.1" title="5.1 Cinema Surround (FL, C, FR, LFE, SL, SR)">5.1 Cinema</button>
+          <button class="dtsx-mode-btn active" data-mode="7.1" title="7.1 DTS:X Master Surround (FL, C, FR, LFE, SL, SR, RL, RR)">7.1 DTS:X</button>
+          <button class="dtsx-mode-btn" data-mode="9.1.4" title="9.1.4 Neural:X 3D Immersive with Overhead Height Elevators">9.1.4 Neural:X</button>
+        </div>
+
+        <!-- Live 8-Channel Activity Radar & LED Meters -->
+        <div class="dtsx-matrix-header">
+          <span>CHANNEL DECODER ACTIVITY</span>
+          <span id="dtsxActiveModeTag" class="dtsx-badge-active">7.1 DISCRETE ACTIVE</span>
+        </div>
+        <div class="dtsx-channels-matrix" id="dtsxChannelsMatrix">
+          <div class="dtsx-ch-item" id="dtsxChFL" title="Front Left"><span class="dtsx-ch-label">FL</span><div class="dtsx-ch-bar"><div class="dtsx-ch-fill"></div></div></div>
+          <div class="dtsx-ch-item" id="dtsxChC" title="Center (Dialogue &amp; Vocals)"><span class="dtsx-ch-label">C</span><div class="dtsx-ch-bar"><div class="dtsx-ch-fill"></div></div></div>
+          <div class="dtsx-ch-item" id="dtsxChFR" title="Front Right"><span class="dtsx-ch-label">FR</span><div class="dtsx-ch-bar"><div class="dtsx-ch-fill"></div></div></div>
+          <div class="dtsx-ch-item" id="dtsxChLFE" title="Low Frequency Effects (Subwoofer)"><span class="dtsx-ch-label">LFE</span><div class="dtsx-ch-bar"><div class="dtsx-ch-fill"></div></div></div>
+          <div class="dtsx-ch-item" id="dtsxChSL" title="Side Surround Left"><span class="dtsx-ch-label">SL</span><div class="dtsx-ch-bar"><div class="dtsx-ch-fill"></div></div></div>
+          <div class="dtsx-ch-item" id="dtsxChSR" title="Side Surround Right"><span class="dtsx-ch-label">SR</span><div class="dtsx-ch-bar"><div class="dtsx-ch-fill"></div></div></div>
+          <div class="dtsx-ch-item" id="dtsxChRL" title="Rear Surround Left"><span class="dtsx-ch-label">RL</span><div class="dtsx-ch-bar"><div class="dtsx-ch-fill"></div></div></div>
+          <div class="dtsx-ch-item" id="dtsxChRR" title="Rear Surround Right"><span class="dtsx-ch-label">RR</span><div class="dtsx-ch-bar"><div class="dtsx-ch-fill"></div></div></div>
+        </div>
+
+        <!-- Controls Grid -->
+        <div class="dtsx-controls-grid">
+          <div class="dtsx-control-item">
+            <div class="dtsx-ctrl-header">
+              <label for="dtsxImmersion">Surround Immersion</label>
+              <span id="dtsxImmersionVal">75%</span>
+            </div>
+            <input type="range" id="dtsxImmersion" min="0" max="100" value="75" step="1">
+          </div>
+          <div class="dtsx-control-item">
+            <div class="dtsx-ctrl-header">
+              <label for="dtsxDialogue">Center Dialogue Focus</label>
+              <span id="dtsxDialogueVal">+2.0 dB</span>
+            </div>
+            <input type="range" id="dtsxDialogue" min="-6" max="6" value="2" step="0.5">
+          </div>
+          <div class="dtsx-control-item">
+            <div class="dtsx-ctrl-header">
+              <label for="dtsxRoomDelay">Surround Room Delay</label>
+              <span id="dtsxRoomDelayVal">24 ms</span>
+            </div>
+            <input type="range" id="dtsxRoomDelay" min="10" max="45" value="24" step="1">
           </div>
         </div>
       </div>

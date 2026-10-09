@@ -96,6 +96,56 @@ class AudioEngine {
     this.godOttComp1 = null;
     this.godOttComp2 = null;
 
+    // --- FEATURE 3: DTS:X & 7.1 SURROUND UP-MIXER NODES ---
+    this.isDtsxEnabled = true;
+    this.dtsxMode = '7.1'; // 'stereo', '5.1', '7.1', '9.1.4'
+    this.dtsxImmersion = 0.75;
+    this.dtsxDialogueDb = 2.0;
+    this.dtsxRoomDelayMs = 24.0;
+    this.dtsxInput = null;
+    this.dtsxDirectGain = null;
+    this.dtsxWetGain = null;
+    this.dtsxSplitter = null;
+    this.dtsxCenterGainL = null;
+    this.dtsxCenterGainR = null;
+    this.dtsxCenterSum = null;
+    this.dtsxCenterBPF = null;
+    this.dtsxLfeSum = null;
+    this.dtsxLfeLPF1 = null;
+    this.dtsxLfeLPF2 = null;
+    this.dtsxLfeGain = null;
+    this.dtsxFrontL = null;
+    this.dtsxFrontR = null;
+    this.dtsxSideDiffL = null;
+    this.dtsxSideDiffR = null;
+    this.dtsxSideSum = null;
+    this.dtsxSideDelayL = null;
+    this.dtsxSideDelayR = null;
+    this.dtsxSideGain = null;
+    this.dtsxRearDelay = null;
+    this.dtsxRearFilter = null;
+    this.dtsxRearGain = null;
+    this.dtsxHeightDelay = null;
+    this.dtsxHeightFilter = null;
+    this.dtsxHeightGain = null;
+    this.dtsxSurroundL = null;
+    this.dtsxSurroundR = null;
+    this.dtsxMerger = null;
+    this.dtsxOutput = null;
+
+    // --- FEATURE 5: MAXXBASS PSYCHOACOUSTIC SUB-BASS SYNTHESIZER NODES ---
+    this.isMaxxbassEnabled = true;
+    this.maxxbassIntensity = 0.50;
+    this.maxxbassCutoffHz = 60;
+    this.maxxbassProtectEarbuds = false;
+    this.maxxbassInput = null;
+    this.maxxbassPreLPF1 = null;
+    this.maxxbassPreLPF2 = null;
+    this.maxxbassShaper = null;
+    this.maxxbassPostBPF = null;
+    this.maxxbassHarmonicGain = null;
+    this.maxxbassAnalyser = null;
+
     // Parameters State
     this.subBassAmount = 0.0;
     this.haasWidth = 0;
@@ -374,6 +424,183 @@ class AudioEngine {
     this.godOttGain = this.ctx.createGain();
     this.godOttGain.gain.value = 1.0;
 
+    // --- FEATURE 3: DTS:X & 7.1 REAL-TIME SURROUND UP-MIXER NODES ---
+    this.dtsxInput = this.ctx.createGain();
+    this.dtsxDirectGain = this.ctx.createGain();
+    this.dtsxDirectGain.gain.value = 0.0; // In 7.1 mode by default
+
+    this.dtsxWetGain = this.ctx.createGain();
+    this.dtsxWetGain.gain.value = 0.75; // 75% default immersion
+
+    this.dtsxSplitter = this.ctx.createChannelSplitter(2);
+
+    // Center Vocal & Dialogue Extractor
+    this.dtsxCenterGainL = this.ctx.createGain();
+    this.dtsxCenterGainL.gain.value = 0.5;
+    this.dtsxCenterGainR = this.ctx.createGain();
+    this.dtsxCenterGainR.gain.value = 0.5;
+    this.dtsxCenterSum = this.ctx.createGain();
+
+    this.dtsxCenterBPF = this.ctx.createBiquadFilter();
+    this.dtsxCenterBPF.type = 'peaking';
+    this.dtsxCenterBPF.frequency.value = 1800; // Human vocal core
+    this.dtsxCenterBPF.Q.value = 0.8;
+    this.dtsxCenterBPF.gain.value = 2.0; // +2 dB dialogue focus default
+
+    // LFE Subwoofer (.1) Extractor (24dB/oct steep Linkwitz-Riley lowpass)
+    this.dtsxLfeSum = this.ctx.createGain();
+    this.dtsxLfeLPF1 = this.ctx.createBiquadFilter();
+    this.dtsxLfeLPF1.type = 'lowpass';
+    this.dtsxLfeLPF1.frequency.value = 85;
+    this.dtsxLfeLPF2 = this.ctx.createBiquadFilter();
+    this.dtsxLfeLPF2.type = 'lowpass';
+    this.dtsxLfeLPF2.frequency.value = 85;
+    this.dtsxLfeGain = this.ctx.createGain();
+    this.dtsxLfeGain.gain.value = 1.35; // Dedicated LFE sub boost
+
+    // Front Channels (L / R with center subtraction to widen front stage)
+    this.dtsxFrontL = this.ctx.createGain();
+    this.dtsxFrontR = this.ctx.createGain();
+
+    // Side & Rear Diff Matrix
+    this.dtsxSideDiffL = this.ctx.createGain();
+    this.dtsxSideDiffL.gain.value = 0.5;
+    this.dtsxSideDiffR = this.ctx.createGain();
+    this.dtsxSideDiffR.gain.value = -0.5;
+    this.dtsxSideSum = this.ctx.createGain();
+
+    this.dtsxSideDelayL = this.ctx.createDelay(0.1);
+    this.dtsxSideDelayL.delayTime.value = 0.016; // 16ms
+    this.dtsxSideDelayR = this.ctx.createDelay(0.1);
+    this.dtsxSideDelayR.delayTime.value = 0.020; // 20ms
+    this.dtsxSideGain = this.ctx.createGain();
+    this.dtsxSideGain.gain.value = 0.8;
+
+    this.dtsxRearDelay = this.ctx.createDelay(0.1);
+    this.dtsxRearDelay.delayTime.value = 0.028; // 28ms
+    this.dtsxRearFilter = this.ctx.createBiquadFilter();
+    this.dtsxRearFilter.type = 'lowpass';
+    this.dtsxRearFilter.frequency.value = 6000; // Ear-shadow rear absorption
+    this.dtsxRearGain = this.ctx.createGain();
+    this.dtsxRearGain.gain.value = 0.75;
+
+    // Height Elevators (.4 layer in 9.1.4)
+    this.dtsxHeightDelay = this.ctx.createDelay(0.1);
+    this.dtsxHeightDelay.delayTime.value = 0.012; // 12ms
+    this.dtsxHeightFilter = this.ctx.createBiquadFilter();
+    this.dtsxHeightFilter.type = 'peaking';
+    this.dtsxHeightFilter.frequency.value = 7200;
+    this.dtsxHeightFilter.Q.value = 1.4;
+    this.dtsxHeightFilter.gain.value = -3.0; // Pinna notch elevation perception
+    this.dtsxHeightGain = this.ctx.createGain();
+    this.dtsxHeightGain.gain.value = 0.0; // Off in 7.1, active in 9.1.4
+
+    // Binaural Virtual Fold-down Bus (Left / Right)
+    this.dtsxSurroundL = this.ctx.createGain();
+    this.dtsxSurroundR = this.ctx.createGain();
+    this.dtsxMerger = this.ctx.createChannelMerger(2);
+    this.dtsxOutput = this.ctx.createGain();
+
+    // Wire up DTS:X internal graph
+    this.dtsxInput.connect(this.dtsxDirectGain);
+    this.dtsxDirectGain.connect(this.dtsxOutput);
+
+    this.dtsxInput.connect(this.dtsxSplitter);
+
+    // Center Extraction
+    this.dtsxSplitter.connect(this.dtsxCenterGainL, 0);
+    this.dtsxSplitter.connect(this.dtsxCenterGainR, 1);
+    this.dtsxCenterGainL.connect(this.dtsxCenterSum);
+    this.dtsxCenterGainR.connect(this.dtsxCenterSum);
+    this.dtsxCenterSum.connect(this.dtsxCenterBPF);
+
+    // LFE Extraction
+    this.dtsxSplitter.connect(this.dtsxLfeSum, 0);
+    this.dtsxSplitter.connect(this.dtsxLfeSum, 1);
+    this.dtsxLfeSum.connect(this.dtsxLfeLPF1);
+    this.dtsxLfeLPF1.connect(this.dtsxLfeLPF2);
+    this.dtsxLfeLPF2.connect(this.dtsxLfeGain);
+
+    // Front Channels
+    this.dtsxSplitter.connect(this.dtsxFrontL, 0);
+    this.dtsxSplitter.connect(this.dtsxFrontR, 1);
+
+    // Side & Rear Diff
+    this.dtsxSplitter.connect(this.dtsxSideDiffL, 0);
+    this.dtsxSplitter.connect(this.dtsxSideDiffR, 1);
+    this.dtsxSideDiffL.connect(this.dtsxSideSum);
+    this.dtsxSideDiffR.connect(this.dtsxSideSum);
+
+    // Sides
+    this.dtsxSideSum.connect(this.dtsxSideDelayL);
+    this.dtsxSideSum.connect(this.dtsxSideDelayR);
+    this.dtsxSideDelayL.connect(this.dtsxSideGain);
+    this.dtsxSideDelayR.connect(this.dtsxSideGain);
+
+    // Rears
+    this.dtsxSideSum.connect(this.dtsxRearDelay);
+    this.dtsxRearDelay.connect(this.dtsxRearFilter);
+    this.dtsxRearFilter.connect(this.dtsxRearGain);
+
+    // Heights
+    this.dtsxSideSum.connect(this.dtsxHeightDelay);
+    this.dtsxHeightDelay.connect(this.dtsxHeightFilter);
+    this.dtsxHeightFilter.connect(this.dtsxHeightGain);
+
+    // Fold-Down into Surround L and Surround R
+    this.dtsxFrontL.connect(this.dtsxSurroundL);
+    this.dtsxCenterBPF.connect(this.dtsxSurroundL);
+    this.dtsxLfeGain.connect(this.dtsxSurroundL);
+    this.dtsxSideGain.connect(this.dtsxSurroundL);
+    this.dtsxRearGain.connect(this.dtsxSurroundL);
+    this.dtsxHeightGain.connect(this.dtsxSurroundL);
+
+    this.dtsxFrontR.connect(this.dtsxSurroundR);
+    this.dtsxCenterBPF.connect(this.dtsxSurroundR);
+    this.dtsxLfeGain.connect(this.dtsxSurroundR);
+    this.dtsxSideGain.connect(this.dtsxSurroundR);
+    this.dtsxRearGain.connect(this.dtsxSurroundR);
+    this.dtsxHeightGain.connect(this.dtsxSurroundR);
+
+    this.dtsxSurroundL.connect(this.dtsxMerger, 0, 0);
+    this.dtsxSurroundR.connect(this.dtsxMerger, 0, 1);
+
+    this.dtsxMerger.connect(this.dtsxWetGain);
+    this.dtsxWetGain.connect(this.dtsxOutput);
+
+    // --- FEATURE 5: MAXXBASS PSYCHOACOUSTIC SUB-BASS SYNTHESIZER NODES ---
+    this.maxxbassInput = this.ctx.createGain();
+    this.maxxbassPreLPF1 = this.ctx.createBiquadFilter();
+    this.maxxbassPreLPF1.type = 'lowpass';
+    this.maxxbassPreLPF1.frequency.value = 60;
+
+    this.maxxbassPreLPF2 = this.ctx.createBiquadFilter();
+    this.maxxbassPreLPF2.type = 'lowpass';
+    this.maxxbassPreLPF2.frequency.value = 60;
+
+    this.maxxbassShaper = this.ctx.createWaveShaper();
+    this.maxxbassShaper.oversample = '4x';
+    this.maxxbassShaper.curve = this.generateMaxxbassHarmonicCurve();
+
+    this.maxxbassPostBPF = this.ctx.createBiquadFilter();
+    this.maxxbassPostBPF.type = 'bandpass';
+    this.maxxbassPostBPF.frequency.value = 95;
+    this.maxxbassPostBPF.Q.value = 0.7;
+
+    this.maxxbassHarmonicGain = this.ctx.createGain();
+    this.maxxbassHarmonicGain.gain.value = 0.8; // 50% default
+
+    this.maxxbassAnalyser = this.ctx.createAnalyser();
+    this.maxxbassAnalyser.fftSize = 64;
+
+    // Connect MaxxBass internal chain
+    this.maxxbassInput.connect(this.maxxbassPreLPF1);
+    this.maxxbassPreLPF1.connect(this.maxxbassPreLPF2);
+    this.maxxbassPreLPF2.connect(this.maxxbassShaper);
+    this.maxxbassShaper.connect(this.maxxbassPostBPF);
+    this.maxxbassPostBPF.connect(this.maxxbassHarmonicGain);
+    this.maxxbassHarmonicGain.connect(this.maxxbassAnalyser);
+
     // --- Build Signal Pipeline ---
     // PreGain -> SubBass -> 10-Band EQ -> Tube -> Mid/Side Splitting Matrix
     this.preGainNode.connect(this.subBassFilter);
@@ -381,6 +608,11 @@ class AudioEngine {
 
     const lastEqNode = this.eqNodes[this.eqNodes.length - 1];
     lastEqNode.connect(this.tubeShaperNode);
+
+    // Parallel MaxxBass harmonic synthesis tap
+    lastEqNode.connect(this.maxxbassInput);
+    this.maxxbassHarmonicGain.connect(this.tubeShaperNode);
+
     this.tubeShaperNode.connect(this.msSplitter);
     try { this.tubeShaperNode.connect(this.exciterHPF); } catch(e) {}
 
@@ -416,9 +648,12 @@ class AudioEngine {
     this.outL.connect(this.msMerger, 0, 0);
     this.outR.connect(this.msMerger, 0, 1);
 
-    // Route stereo stream to Panner and Room Reverb
-    this.msMerger.connect(this.pannerNode);
-    this.msMerger.connect(this.convolverNode);
+    // Route reconstructed stereo stream into DTS:X Surround Up-Mixer
+    this.msMerger.connect(this.dtsxInput);
+
+    // Route DTS:X Surround Output to Panner and Room Reverb
+    this.dtsxOutput.connect(this.pannerNode);
+    this.dtsxOutput.connect(this.convolverNode);
     this.convolverNode.connect(this.reverbGainNode);
     this.reverbGainNode.connect(this.pannerNode);
 
@@ -1341,29 +1576,160 @@ class AudioEngine {
     }
   }
 
-  makeDistortionCurve(amount) {
-    if (amount === 0) return null;
-    const k = typeof amount === 'number' ? amount : 50;
-    const n_samples = 44100;
-    const curve = new Float32Array(n_samples);
-    const deg = Math.PI / 180;
-    for (let i = 0; i < n_samples; ++i) {
-      const x = i * 2 / n_samples - 1;
-      // Soft saturation formula
-      curve[i] = (3 + k) * x * 20 * deg / (Math.PI + k * Math.abs(x));
+  // --- FEATURE 3: DTS:X & 7.1 REAL-TIME SURROUND UP-MIXER CONTROLS ---
+  setDtsxEnabled(enabled) {
+    this.isDtsxEnabled = !!enabled;
+    this.updateDtsxRouting();
+  }
+
+  setDtsxMode(mode) {
+    this.dtsxMode = mode; // 'stereo', '5.1', '7.1', '9.1.4'
+    this.updateDtsxRouting();
+  }
+
+  setDtsxImmersion(percent) {
+    this.dtsxImmersion = Math.max(0, Math.min(100, parseFloat(percent))) / 100;
+    this.updateDtsxRouting();
+  }
+
+  setDtsxDialogueFocus(gainDb) {
+    this.dtsxDialogueDb = parseFloat(gainDb);
+    if (this.dtsxCenterBPF) {
+      this.dtsxCenterBPF.gain.value = this.dtsxDialogueDb;
+    }
+  }
+
+  setDtsxRoomDelay(ms) {
+    this.dtsxRoomDelayMs = Math.max(10, Math.min(45, parseFloat(ms)));
+    if (this.dtsxSideDelayL && this.dtsxSideDelayR && this.dtsxRearDelay) {
+      this.dtsxSideDelayL.delayTime.value = (this.dtsxRoomDelayMs * 0.6) / 1000;
+      this.dtsxSideDelayR.delayTime.value = (this.dtsxRoomDelayMs * 0.75) / 1000;
+      this.dtsxRearDelay.delayTime.value = this.dtsxRoomDelayMs / 1000;
+    }
+  }
+
+  updateDtsxRouting() {
+    if (!this.dtsxDirectGain || !this.dtsxWetGain) return;
+    if (!this.isDtsxEnabled || this.dtsxMode === 'stereo') {
+      this.dtsxDirectGain.gain.value = 1.0;
+      this.dtsxWetGain.gain.value = 0.0;
+    } else {
+      this.dtsxDirectGain.gain.value = 0.0;
+      this.dtsxWetGain.gain.value = Math.max(0.1, this.dtsxImmersion * 1.15);
+
+      if (this.dtsxMode === '5.1') {
+        if (this.dtsxRearGain) this.dtsxRearGain.gain.value = 0.0;
+        if (this.dtsxHeightGain) this.dtsxHeightGain.gain.value = 0.0;
+        if (this.dtsxSideGain) this.dtsxSideGain.gain.value = 0.85;
+      } else if (this.dtsxMode === '7.1') {
+        if (this.dtsxSideGain) this.dtsxSideGain.gain.value = 0.8;
+        if (this.dtsxRearGain) this.dtsxRearGain.gain.value = 0.75;
+        if (this.dtsxHeightGain) this.dtsxHeightGain.gain.value = 0.0;
+      } else if (this.dtsxMode === '9.1.4') {
+        if (this.dtsxSideGain) this.dtsxSideGain.gain.value = 0.85;
+        if (this.dtsxRearGain) this.dtsxRearGain.gain.value = 0.8;
+        if (this.dtsxHeightGain) this.dtsxHeightGain.gain.value = 0.65;
+      }
+    }
+  }
+
+  getDtsxChannelLevels() {
+    if (!this.isDtsxEnabled || this.dtsxMode === 'stereo' || !this.isActivelyProducingSound()) {
+      return { fl: 0, c: 0, fr: 0, lfe: 0, sl: 0, sr: 0, rl: 0, rr: 0 };
+    }
+    const spec = this.getAiSpectrumData();
+    if (!spec || !spec.buffer) {
+      return { fl: 0, c: 0, fr: 0, lfe: 0, sl: 0, sr: 0, rl: 0, rr: 0 };
+    }
+    const buf = spec.buffer;
+    let bass = 0, mids = 0, highs = 0;
+    const len = Math.min(64, buf.length);
+    for (let i = 0; i < len; i++) {
+      const v = buf[i] / 255;
+      if (i < 8) bass += v;
+      else if (i < 32) mids += v;
+      else highs += v;
+    }
+    bass = (bass / 8) * 100;
+    mids = (mids / 24) * 100;
+    highs = (highs / 32) * 100;
+    const im = Math.max(0.3, this.dtsxImmersion);
+
+    return {
+      fl: Math.min(100, Math.round((mids * 0.92 + highs * 0.8) * 1.15)),
+      c: Math.min(100, Math.round(mids * (1 + this.dtsxDialogueDb * 0.08) * 1.25)),
+      fr: Math.min(100, Math.round((mids * 0.90 + highs * 0.85) * 1.15)),
+      lfe: Math.min(100, Math.round(bass * 1.4)),
+      sl: Math.min(100, Math.round((highs * 0.95 + mids * 0.7) * im * 1.15)),
+      sr: Math.min(100, Math.round((highs * 0.92 + mids * 0.72) * im * 1.15)),
+      rl: this.dtsxMode === '5.1' ? 0 : Math.min(100, Math.round((mids * 0.65 + highs * 0.6) * im * 1.15)),
+      rr: this.dtsxMode === '5.1' ? 0 : Math.min(100, Math.round((mids * 0.68 + highs * 0.58) * im * 1.15))
+    };
+  }
+
+  // --- FEATURE 5: MAXXBASS PSYCHOACOUSTIC SUB-BASS SYNTHESIZER CONTROLS ---
+  generateMaxxbassHarmonicCurve(samples = 2048) {
+    const curve = new Float32Array(samples);
+    for (let i = 0; i < samples; i++) {
+      const x = (i * 2) / samples - 1; // -1 to +1
+      // Chebyshev T2 (2nd harmonic frequency doubler): 2*x^2 - 1
+      // Chebyshev T3 (3rd harmonic frequency tripler): 4*x^3 - 3*x
+      const t2 = 2 * x * x - 1;
+      const t3 = 4 * Math.pow(x, 3) - 3 * x;
+      const combined = 0.65 * t2 + 0.35 * t3;
+      curve[i] = Math.tanh(combined * 1.25);
     }
     return curve;
   }
 
-  setTubeWarmth(enabled, drivePercent = 30) {
-    if (!this.tubeShaperNode) return;
-    if (enabled) {
-      // Map 0-100 slider to 0-400 distortion amount
-      const amount = (parseFloat(drivePercent) / 100) * 400;
-      this.tubeShaperNode.curve = this.makeDistortionCurve(amount);
-    } else {
-      this.tubeShaperNode.curve = null; // Bypass shaper
+  setMaxxbassEnabled(enabled) {
+    this.isMaxxbassEnabled = !!enabled;
+    this.updateMaxxbassRouting();
+  }
+
+  setMaxxbassIntensity(percent) {
+    this.maxxbassIntensity = Math.max(0, Math.min(100, parseFloat(percent))) / 100;
+    this.updateMaxxbassRouting();
+  }
+
+  setMaxxbassCutoff(freqHz) {
+    this.maxxbassCutoffHz = parseFloat(freqHz) || 60;
+    if (this.maxxbassPreLPF1 && this.maxxbassPreLPF2) {
+      this.maxxbassPreLPF1.frequency.value = this.maxxbassCutoffHz;
+      this.maxxbassPreLPF2.frequency.value = this.maxxbassCutoffHz;
     }
+    if (this.maxxbassPostBPF) {
+      this.maxxbassPostBPF.frequency.value = Math.min(220, this.maxxbassCutoffHz * 1.6);
+    }
+  }
+
+  setMaxxbassProtect(enabled) {
+    this.maxxbassProtectEarbuds = !!enabled;
+    if (this.subBassFilter) {
+      if (this.maxxbassProtectEarbuds) {
+        this.subBassFilter.type = 'highpass';
+        this.subBassFilter.frequency.value = 45; // Guard against small driver rattle
+      } else {
+        this.subBassFilter.type = 'lowshelf';
+        this.subBassFilter.frequency.value = 60;
+        this.subBassFilter.gain.value = this.subBassAmount || 3.0;
+      }
+    }
+  }
+
+  updateMaxxbassRouting() {
+    if (this.maxxbassHarmonicGain) {
+      this.maxxbassHarmonicGain.gain.value = this.isMaxxbassEnabled ? this.maxxbassIntensity * 1.6 : 0.0;
+    }
+  }
+
+  getMaxxbassHarmonicLevel() {
+    if (!this.isMaxxbassEnabled || !this.maxxbassAnalyser || !this.isActivelyProducingSound()) return 0;
+    const test = new Uint8Array(16);
+    this.maxxbassAnalyser.getByteFrequencyData(test);
+    let sum = 0;
+    for (let i = 0; i < 16; i++) sum += test[i];
+    return Math.min(100, Math.round((sum / (16 * 255)) * 140 * this.maxxbassIntensity));
   }
 
   setTapeWarble(enabled, depthPercent = 40) {

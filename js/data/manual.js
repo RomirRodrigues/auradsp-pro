@@ -80,6 +80,72 @@ const MANUAL_FEATURES = [
     proTip: "Toggle [✨ AI Auto EQ] ON for everyday background listening or diverse playlists. If you want to customize a specific band, simply move any slider and the AI will gracefully yield to your manual touch."
   },
   {
+    id: "dtsx_surround",
+    category: "spatial",
+    title: "DTS:X / 5.1 & 7.1 Real-Time Surround Up-Mixer",
+    badge: "Cinema 3D",
+    summary: "Decodes 2-channel stereo tracks into an immersive 5.1 Cinema, 7.1 DTS:X, and 9.1.4 Neural:X discrete surround soundstage with real-time channel decoding meters.",
+    svgDiagram: `
+      <svg viewBox="0 0 520 140" class="manual-diagram-svg">
+        <rect width="520" height="140" rx="10" fill="#0d1117" stroke="#21262d" stroke-width="1.5"/>
+        <text x="24" y="24" fill="#00f0ff" font-family="monospace" font-size="11" font-weight="700">DTS:X MULTI-CHANNEL DISCRETE DECODER (5.1 / 7.1 / 9.1.4)</text>
+        <circle cx="260" cy="80" r="14" fill="#1f2937" stroke="#00f0ff" stroke-width="1.5"/>
+        <text x="252" y="84" fill="#00f0ff" font-family="sans-serif" font-size="9" font-weight="700">YOU</text>
+        <!-- Speaker nodes -->
+        <circle cx="160" cy="45" r="8" fill="#10b981"/><text x="154" y="48" fill="#fff" font-size="8">FL</text>
+        <circle cx="260" cy="38" r="9" fill="#00f0ff"/><text x="256" y="41" fill="#000" font-size="8" font-weight="bold">C</text>
+        <circle cx="360" cy="45" r="8" fill="#10b981"/><text x="354" y="48" fill="#fff" font-size="8">FR</text>
+        <circle cx="300" cy="42" r="7" fill="#ef4444"/><text x="293" y="45" fill="#fff" font-size="7">.1</text>
+        <circle cx="120" cy="80" r="8" fill="#a855f7"/><text x="114" y="83" fill="#fff" font-size="8">SL</text>
+        <circle cx="400" cy="80" r="8" fill="#a855f7"/><text x="394" y="83" fill="#fff" font-size="8">SR</text>
+        <circle cx="160" cy="115" r="8" fill="#6366f1"/><text x="154" y="118" fill="#fff" font-size="8">RL</text>
+        <circle cx="360" cy="115" r="8" fill="#6366f1"/><text x="354" y="118" fill="#fff" font-size="8">RR</text>
+        <!-- Sound waves -->
+        <path d="M 175 55 Q 215 70, 245 78" stroke="rgba(16, 185, 129, 0.4)" stroke-width="1.5" fill="none" stroke-dasharray="3 2"/>
+        <path d="M 260 50 L 260 65" stroke="rgba(0, 240, 255, 0.6)" stroke-width="1.5" fill="none"/>
+        <path d="M 345 55 Q 305 70, 275 78" stroke="rgba(16, 185, 129, 0.4)" stroke-width="1.5" fill="none" stroke-dasharray="3 2"/>
+      </svg>
+    `,
+    working: "Uses matrix mathematical decomposition on incoming 2-channel audio: (1) Center Channel extracts in-phase spectral energy (lead vocals & dialogue) via peaking filter at 1.8kHz; (2) Subwoofer LFE extracts low frequencies via steep 24dB/oct Linkwitz-Riley low-pass filter at 85Hz; (3) Side and Rear Surrounds extract out-of-phase reverberant difference signals (L - R) with psychoacoustic Haas micro-delays (16ms to 28ms) and ear-shadow head absorption filters (6kHz lowpass); (4) Neural:X height elevators inject elevated pinna notch reflections simulating sound overhead.",
+    whyToUse: "Transforms ordinary stereo YouTube music, Spotify tracks, and movie streams into an expansive 360-degree cinema room soundstage. Vocals become clear and anchored directly in front of you while background instruments, ambient reverbs, and movie action wrap naturally around your sides and back.",
+    proTip: "Use the [A/B Compare] button to instantly hear the difference between flat stereo and DTS:X. In movies or podcasts, increase 'Center Dialogue Focus' to make quiet speech razor-sharp over loud background sound effects."
+  },
+  {
+    id: "maxxbass_synth",
+    category: "enhancers",
+    title: "MaxxBass Psychoacoustic 'Missing Fundamental' Sub-Bass Synthesizer",
+    badge: "Bass Physics",
+    summary: "Synthesizes mathematical 2nd and 3rd harmonic overtones (Waves MaxxBass tech) allowing earphones and small speakers to perceive massive 20Hz-50Hz bass.",
+    svgDiagram: `
+      <svg viewBox="0 0 520 140" class="manual-diagram-svg">
+        <rect width="520" height="140" rx="10" fill="#0d1117" stroke="#21262d" stroke-width="1.5"/>
+        <text x="24" y="24" fill="#00f0ff" font-family="monospace" font-size="11" font-weight="700">PSYCHOACOUSTIC HARMONIC OVERTONE SYNTHESIS</text>
+        <!-- Missing fundamental bar -->
+        <rect x="40" y="55" width="40" height="55" fill="rgba(239, 68, 68, 0.2)" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="3 2"/>
+        <text x="46" y="85" fill="#fca5a5" font-size="9" font-family="monospace">f₀ (35Hz)</text>
+        <text x="36" y="122" fill="#ef4444" font-size="8">Physical Limit</text>
+        <!-- Arrow -->
+        <path d="M 95 82 L 130 82" stroke="#a855f7" stroke-width="2" fill="none"/>
+        <text x="96" y="75" fill="#c084fc" font-size="8">x² + x³</text>
+        <!-- Synthesized 2nd and 3rd harmonics -->
+        <rect x="145" y="45" width="45" height="65" fill="rgba(0, 240, 255, 0.25)" stroke="#00f0ff" stroke-width="2"/>
+        <text x="148" y="80" fill="#00f0ff" font-size="9" font-family="monospace">2f₀ (70Hz)</text>
+        <text x="142" y="122" fill="#00f0ff" font-size="8">2nd Harmonic</text>
+        <rect x="205" y="60" width="45" height="50" fill="rgba(168, 85, 247, 0.25)" stroke="#a855f7" stroke-width="2"/>
+        <text x="207" y="85" fill="#d8b4fe" font-size="9" font-family="monospace">3f₀ (105Hz)</text>
+        <text x="202" y="122" fill="#c084fc" font-size="8">3rd Harmonic</text>
+        <!-- Brain box -->
+        <rect x="290" y="45" width="200" height="65" rx="6" fill="#161b22" stroke="#00f0ff" stroke-width="1.5"/>
+        <text x="302" y="66" fill="#10b981" font-size="10" font-weight="700">HUMAN AUDITORY CORTEX</text>
+        <text x="302" y="84" fill="#8892b0" font-size="8.5">Brain decodes GCD of 70Hz & 105Hz:</text>
+        <text x="302" y="100" fill="#00f0ff" font-size="9" font-weight="700">Perceives massive 35Hz Sub-Bass!</text>
+      </svg>
+    `,
+    working: "Sub-bass frequencies below 50Hz cannot physically be reproduced by small 10mm earbud drivers or laptop speakers without severe distortion and rattling. MaxxBass isolates deep sub-bass frequencies below a selectable cutoff (40Hz to 100Hz) and processes them through a custom Chebyshev non-linear polynomial WaveShaperNode. This mathematically synthesizes the 2nd harmonic (2f₀, frequency doubler) and 3rd harmonic (3f₀) overtones. When these harmonics enter your ear, the brain's auditory cortex calculates the missing fundamental frequency and naturally perceives visceral sub-bass that the physical speaker cannot produce.",
+    whyToUse: "Gives compact earbuds, AirPods, phone speakers, and small desktop monitors the earth-shaking sub-bass impact of a 12-inch dedicated subwoofer without blowing out small speaker diaphragms or causing muddy clipping distortion.",
+    proTip: "Turn on 'Earbud Sub-Distortion Guard' when using earbuds. This cuts subsonic frequencies under 45Hz that drivers can't move anyway, eliminating mechanical rattle while keeping massive synthetic punch."
+  },
+  {
     id: "hardware_eq",
     category: "eq",
     title: "10-Band Parametric Hardware Studio Equalizer",
