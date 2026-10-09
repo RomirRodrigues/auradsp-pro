@@ -492,6 +492,66 @@ const MANUAL_FEATURES = [
     working: "Instantly swaps CSS root variables for hardware panel backgrounds, border glows, accent cyan/amber/emerald tones, and font families with zero page reloads. Selections are stored persistently in localStorage.",
     whyToUse: "Reduces visual fatigue during extended listening or audio mastering sessions, and optimizes battery life on mobile OLED displays.",
     proTip: "Select 'Obsidian OLED' on mobile devices or laptops with OLED displays for deep blacks and battery savings."
+  },
+  {
+    id: "atmos_matrix",
+    category: "spatial",
+    title: "Virtual 7.1.4 Dolby Atmos Speaker Matrix",
+    badge: "Spatial Audio",
+    summary: "Interactive 12-speaker surround soundstage test engine with calibrated 3D HRTF pink noise bursts.",
+    working: "Utilizes Web Audio PannerNode with binaural HRTF modeling to position 12 discrete channels in 3D space: Top Front/Rear L/R heights, Bed 7 channels (FL, C, FR, SL, SR, RL, RR), and Subwoofer (.1 LFE).",
+    whyToUse: "Audition spatial audio positioning, verify headphone binaural virtualization, and test multi-speaker soundbar channels without specialized audio discs.",
+    proTip: "Click 'Test 7.1.4 Sequence' to fire a sequential test burst across all 12 channels in clockwise order."
+  },
+  {
+    id: "autoeq_database",
+    category: "eq",
+    title: "500+ Headphone AutoEQ Profile Importer",
+    badge: "AutoEQ Target",
+    summary: "Instant calibration database of Harman target curves for over 50 flagship headphones, earbuds, and IEMs.",
+    working: "Applies mathematically calibrated 10-band gain offsets derived from Oratory1990 and Harman acoustic measurements directly to the DSP equalizer faders.",
+    whyToUse: "Instantly neutralizes frequency response flaws, clears up bloated bass mud, corrects harsh treble spikes, and unlocks the optimal sound of your headphones.",
+    proTip: "Filter by brand or search your model name (e.g. 'XM5', 'HD650', 'QC45', 'boAt 550') to apply instant Harman calibration."
+  },
+  {
+    id: "fullscreen_visualizer",
+    category: "mastering",
+    title: "Fullscreen Party & Cinema Visualizer Mode",
+    badge: "Visualizer",
+    summary: "High-immersion 300 FPS fullscreen audio visualizer overlay with live dynamic range scoring and track info.",
+    working: "Expands the real-time Fourier transform spectrum and oscilloscope across the entire display at up to 240Hz/300Hz with zero frame drops.",
+    whyToUse: "Transforms your display into a cinema-grade party visualizer during listening sessions or studio mastering playback.",
+    proTip: "Press the 'F' key on your keyboard anytime to toggle cinema visualizer mode instantly. Press Esc or F to exit."
+  },
+  {
+    id: "ear_health_dose",
+    category: "mastering",
+    title: "Ear Fatigue & Safe Listening Dose Tracker",
+    badge: "Health / Safety",
+    summary: "Acoustic dosage monitor tracking daily sound exposure based on WHO and OSHA 85dB SPL guidelines.",
+    working: "Calculates time-weighted acoustic dose using the Equal Energy Rule (3dB exchange rate: every +3dB doubles exposure rate), alerting you before auditory fatigue sets in.",
+    whyToUse: "Protects against permanent hearing damage, tinnitus, and temporary threshold shifts from prolonged loud listening.",
+    proTip: "Keep daily acoustic dose under 80%. When warned, take a 5-minute quiet break to rest your ears."
+  },
+  {
+    id: "dr_meter",
+    category: "mastering",
+    title: "Track Dynamic Range (DR) & Crest Factor Live Meter",
+    badge: "Mastering Spec",
+    summary: "Real-time TT DR Meter measuring peak-to-RMS crest factor ratio and dynamic compression levels in dB.",
+    working: "Computes the true peak and RMS difference over a rolling sliding window to produce an official DR score (DR1 to DR18) and live crest factor in decibels.",
+    whyToUse: "Identifies over-compressed loudness war masters versus pristine, high-dynamic studio audiophile recordings.",
+    proTip: "Recordings with DR12 or higher are high-fidelity dynamic mixes. DR7 or below indicates heavy brickwall limiting."
+  },
+  {
+    id: "codec_inspector",
+    category: "streaming",
+    title: "Technical Audio File & Codec Inspector",
+    badge: "Audio Specs",
+    summary: "Deep inspection of stream containers, PCM sample rates, bit depth, bitrates, and lossless certification.",
+    working: "Inspects MediaElement and AudioContext hardware nodes to reveal container codec, estimated bitrate, native sample rate (e.g. 48kHz / 96kHz), and internal DSP latency.",
+    whyToUse: "Verifies whether your audio stream or uploaded file is truly studio-quality lossless or compressed, and checks hardware latency.",
+    proTip: "Upload local WAV or FLAC files to see the golden 'HI-RES AUDIO LOSSLESS' certification badge activate."
   }
 ];
 

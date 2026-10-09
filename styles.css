@@ -4460,5 +4460,1008 @@ select.cyber-select:focus, select.cyber-select-sm:focus, input.cyber-input:focus
   }
 }
 
+/* ==========================================================================
+   AuraDSP Pro Suite - Features 4, 8, 10, 13, 19, 20 Styles
+   ========================================================================== */
+
+/* --- 1. FULLSCREEN PARTY / CINEMA VISUALIZER (Feature 4) --- */
+.vis-fullscreen-trigger {
+  background: rgba(0, 240, 255, 0.12) !important;
+  border-color: rgba(0, 240, 255, 0.4) !important;
+  color: #00f0ff !important;
+}
+
+.fullscreen-vis-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+  background: radial-gradient(circle at center, #0a0f1d 0%, #030508 100%);
+  display: flex;
+  flex-direction: column;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+.fullscreen-vis-overlay.hidden {
+  display: none !important;
+  opacity: 0;
+}
+
+.fvis-top-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  background: linear-gradient(180deg, rgba(5, 7, 12, 0.9) 0%, rgba(5, 7, 12, 0) 100%);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 10;
+}
+
+.fvis-track-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.fvis-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 0.02em;
+}
+
+.fvis-meta {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  margin-left: 6px;
+}
+
+.fvis-metrics-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0, 240, 255, 0.06);
+  border: 1px solid rgba(0, 240, 255, 0.2);
+  padding: 6px 14px;
+  border-radius: 20px;
+}
+
+.fvis-metric-item {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #00f0ff;
+}
+
+.fvis-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.fvis-btn {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.fvis-btn:hover {
+  background: rgba(0, 240, 255, 0.15);
+  border-color: #00f0ff;
+  color: #00f0ff;
+}
+
+.fvis-exit-btn {
+  background: rgba(255, 51, 102, 0.15);
+  border-color: rgba(255, 51, 102, 0.4);
+  color: #ff3366;
+}
+
+.fvis-exit-btn:hover {
+  background: rgba(255, 51, 102, 0.3);
+  border-color: #ff3366;
+  color: #ffffff;
+}
+
+#fullscreenSpectrumCanvas {
+  width: 100vw;
+  height: 100vh;
+  display: block;
+}
+
+.fvis-bottom-glow {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 80px;
+  background: linear-gradient(0deg, rgba(0, 240, 255, 0.08) 0%, rgba(0, 240, 255, 0) 100%);
+  pointer-events: none;
+}
+
+/* --- 2. VIRTUAL 7.1.4 DOLBY ATMOS SPEAKER MATRIX (Feature 8) --- */
+.atmos-matrix-card {
+  margin-top: 14px;
+  background: rgba(14, 18, 26, 0.95);
+  border: 1px solid rgba(0, 240, 255, 0.25);
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.atmos-status-pill {
+  background: rgba(0, 240, 255, 0.1);
+  border: 1px solid rgba(0, 240, 255, 0.3);
+  color: #00f0ff;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 12px;
+  letter-spacing: 0.05em;
+}
+
+.atmos-cycle-btn {
+  background: linear-gradient(135deg, rgba(0, 240, 255, 0.2), rgba(181, 55, 242, 0.2)) !important;
+  border: 1px solid rgba(0, 240, 255, 0.4) !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+}
+
+.atmos-cycle-btn:hover {
+  background: linear-gradient(135deg, rgba(0, 240, 255, 0.35), rgba(181, 55, 242, 0.35)) !important;
+  box-shadow: 0 0 12px rgba(0, 240, 255, 0.3) !important;
+}
+
+.atmos-layout-container {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 12px;
+}
+
+.atmos-plane-section {
+  background: rgba(8, 11, 16, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  padding: 12px;
+  position: relative;
+}
+
+.atmos-plane-badge {
+  font-size: 0.68rem;
+  font-weight: 800;
+  font-family: var(--font-mono);
+  color: var(--accent-cyan);
+  letter-spacing: 0.08em;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.atmos-node-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.atmos-spk-node {
+  background: rgba(22, 28, 40, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 10px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.atmos-spk-node:hover {
+  background: rgba(0, 240, 255, 0.12);
+  border-color: rgba(0, 240, 255, 0.5);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 240, 255, 0.2);
+}
+
+.atmos-spk-node .spk-indicator {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transition: all 0.2s ease;
+}
+
+.atmos-spk-node:hover .spk-indicator {
+  background: #00f0ff;
+  box-shadow: 0 0 6px #00f0ff;
+}
+
+.atmos-spk-node.firing {
+  background: rgba(0, 240, 255, 0.3) !important;
+  border-color: #00f0ff !important;
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.7), inset 0 0 10px rgba(0, 240, 255, 0.4) !important;
+  transform: scale(1.04) !important;
+}
+
+.atmos-spk-node.firing .spk-indicator {
+  background: #00f0ff !important;
+  box-shadow: 0 0 10px #00f0ff !important;
+}
+
+.atmos-spk-node .spk-id {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.atmos-spk-node .spk-sub {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.atmos-bed-chamber {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.chamber-row.front-chamber {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.chamber-row.mid-chamber {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr 1fr;
+  gap: 10px;
+  align-items: center;
+}
+
+.chamber-row.rear-chamber {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.atmos-listener-core {
+  background: radial-gradient(circle, rgba(0, 240, 255, 0.15) 0%, rgba(13, 17, 23, 0.8) 70%);
+  border: 1px dashed rgba(0, 240, 255, 0.35);
+  border-radius: 8px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.sweet-spot-pulse {
+  width: 8px;
+  height: 8px;
+  background: #00f0ff;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #00f0ff;
+  animation: pulseBeacon 2s infinite ease-in-out;
+}
+
+.sweet-spot-label {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: #00f0ff;
+  letter-spacing: 0.06em;
+}
+
+.atmos-spk-node.sub-node {
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
+.atmos-spk-node.sub-node:hover {
+  border-color: #f59e0b;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+}
+
+.atmos-spk-node.sub-node.firing {
+  background: rgba(245, 158, 11, 0.3) !important;
+  border-color: #f59e0b !important;
+  box-shadow: 0 0 20px rgba(245, 158, 11, 0.7) !important;
+}
+
+.atmos-spk-node .sub-indicator {
+  background: #f59e0b;
+}
+
+/* --- 3. AUTOEQ HEADPHONE PROFILE IMPORTER (Feature 10) --- */
+.autoeq-trigger-btn {
+  background: rgba(0, 240, 255, 0.08) !important;
+  border-color: rgba(0, 240, 255, 0.3) !important;
+  color: #00f0ff !important;
+  font-weight: 700 !important;
+}
+
+.autoeq-trigger-btn:hover {
+  background: rgba(0, 240, 255, 0.2) !important;
+  border-color: #00f0ff !important;
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.25) !important;
+}
+
+.studio-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 7, 10, 0.88);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  z-index: 100000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.studio-modal-backdrop.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.studio-modal {
+  width: 100%;
+  max-width: 860px;
+  max-height: 88vh;
+  background: #0d1117;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.9), 0 0 35px rgba(0, 240, 255, 0.15);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transform: scale(0.96) translateY(10px);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.studio-modal-backdrop.open .studio-modal {
+  transform: scale(1) translateY(0);
+}
+
+.studio-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 18px 24px;
+  background: rgba(22, 27, 34, 0.6);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.studio-modal-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.studio-modal-close-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.6rem;
+  line-height: 1;
+  padding: 0 4px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: color 0.15s ease;
+}
+
+.studio-modal-close-btn:hover {
+  color: #ff3366;
+}
+
+.autoeq-toolbar {
+  padding: 14px 24px;
+  background: rgba(13, 17, 23, 0.95);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.autoeq-search-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+
+.autoeq-search-box input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 0.85rem;
+  width: 100%;
+}
+
+.autoeq-brand-chips {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.autoeq-chip {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.autoeq-chip:hover {
+  background: rgba(0, 240, 255, 0.1);
+  color: #ffffff;
+}
+
+.autoeq-chip.active {
+  background: rgba(0, 240, 255, 0.18);
+  border-color: rgba(0, 240, 255, 0.5);
+  color: #00f0ff;
+  font-weight: 700;
+}
+
+.autoeq-list-container {
+  padding: 16px 24px;
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 12px;
+  max-height: 60vh;
+}
+
+.autoeq-card {
+  background: rgba(22, 27, 34, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+
+.autoeq-card:hover {
+  background: rgba(30, 38, 50, 0.8);
+  border-color: rgba(0, 240, 255, 0.3);
+  transform: translateY(-2px);
+}
+
+.autoeq-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.autoeq-brand-tag {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: var(--accent-cyan);
+  font-family: var(--font-mono);
+  letter-spacing: 0.05em;
+}
+
+.autoeq-model-name {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 2px 0 0;
+}
+
+.autoeq-type-badge {
+  font-size: 0.65rem;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-muted);
+  padding: 2px 6px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.autoeq-desc {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+  margin: 0;
+}
+
+.autoeq-mini-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 24px;
+  padding: 4px 6px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
+}
+
+.autoeq-mini-bar {
+  flex: 1;
+  background: var(--accent-cyan);
+  border-radius: 1px;
+  min-height: 3px;
+}
+
+.autoeq-apply-btn {
+  background: linear-gradient(135deg, rgba(0, 240, 255, 0.15), rgba(0, 240, 255, 0.05));
+  border: 1px solid rgba(0, 240, 255, 0.4);
+  color: #00f0ff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 7px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+  margin-top: 4px;
+}
+
+.autoeq-apply-btn:hover {
+  background: #00f0ff;
+  color: #000000;
+  box-shadow: 0 0 14px rgba(0, 240, 255, 0.4);
+}
+
+/* --- 4. EAR FATIGUE & SAFE LISTENING DOSE TRACKER (Feature 13) --- */
+.ear-dose-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: #10b981;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.ear-dose-badge:hover {
+  background: rgba(16, 185, 129, 0.18);
+  border-color: #10b981;
+}
+
+.ear-health-body {
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.ear-dose-gauge-card {
+  background: rgba(22, 27, 34, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dose-gauge-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dose-gauge-label {
+  font-size: 0.75rem;
+  font-weight: 800;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+}
+
+.dose-gauge-percent {
+  font-size: 1.4rem;
+  font-weight: 800;
+  font-family: var(--font-mono);
+  color: #10b981;
+}
+
+.dose-progress-track {
+  height: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.dose-progress-fill {
+  height: 100%;
+  background: #10b981;
+  transition: width 0.4s ease, background 0.4s ease;
+}
+
+.dose-scale-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+
+.ear-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.ear-metric-box {
+  background: rgba(22, 27, 34, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ear-m-title {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+}
+
+.ear-m-val {
+  font-size: 1.05rem;
+  font-weight: 800;
+  font-family: var(--font-mono);
+  color: #ffffff;
+}
+
+.ear-m-sub {
+  font-size: 0.62rem;
+  color: var(--text-muted);
+}
+
+.ear-guidelines-box {
+  background: rgba(0, 240, 255, 0.03);
+  border: 1px solid rgba(0, 240, 255, 0.15);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.ear-reset-btn {
+  background: rgba(255, 51, 102, 0.15) !important;
+  border-color: rgba(255, 51, 102, 0.4) !important;
+  color: #ff3366 !important;
+  font-weight: 700 !important;
+  width: 100%;
+  padding: 10px !important;
+}
+
+.ear-reset-btn:hover {
+  background: #ff3366 !important;
+  color: #ffffff !important;
+}
+
+/* --- 5. DYNAMIC RANGE & CREST FACTOR METER (Feature 19) --- */
+.dr-meter-card {
+  margin-top: 10px;
+  background: rgba(14, 18, 26, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dr-meter-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dr-title-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.dr-title {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: #ffffff;
+}
+
+.dr-spec-tag {
+  font-size: 0.6rem;
+  background: rgba(255, 255, 255, 0.06);
+  padding: 1px 5px;
+  border-radius: 3px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+
+.dr-rating-text {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #10b981;
+}
+
+.dr-meter-display {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.dr-metric-box {
+  background: rgba(8, 11, 16, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+  padding: 6px 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dr-metric-label {
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.dr-metric-val {
+  font-family: var(--font-mono);
+  font-weight: 800;
+  font-size: 0.85rem;
+}
+
+.dr-metric-val.dr-score {
+  color: #10b981;
+}
+
+.dr-metric-val.crest-val {
+  color: #00f0ff;
+}
+
+.dr-bar-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.dr-bar-track {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.dr-bar-fill {
+  height: 100%;
+  background: #10b981;
+  transition: width 0.3s ease, background 0.3s ease;
+}
+
+.dr-scale-marks {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.58rem;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+}
+
+/* Stereo VU Needle Level Meters */
+.stereo-vu-container {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 4px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.vu-channel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.vu-label {
+  font-size: 0.62rem;
+  font-family: var(--font-mono);
+  font-weight: 800;
+  color: var(--text-muted);
+  width: 10px;
+}
+
+.vu-meter-bar {
+  flex: 1;
+  height: 6px;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 2px;
+  overflow: hidden;
+  position: relative;
+}
+
+.vu-fill {
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(90deg, #10b981 0%, #00f0ff 70%, #ff3366 95%);
+  transform-origin: left center;
+  transform: scaleX(0);
+  transition: transform 0.04s linear;
+}
+
+/* --- 6. AUDIO CODEC & STREAM METADATA INSPECTOR (Feature 20) --- */
+.codec-badge-btn {
+  background: rgba(245, 158, 11, 0.1) !important;
+  border: 1px solid rgba(245, 158, 11, 0.3) !important;
+  color: #fbbf24 !important;
+  font-weight: 700 !important;
+  font-size: 0.7rem !important;
+  padding: 4px 10px !important;
+}
+
+.codec-badge-btn:hover {
+  background: rgba(245, 158, 11, 0.2) !important;
+  border-color: #f59e0b !important;
+}
+
+.codec-modal-body {
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.codec-hero-card {
+  background: linear-gradient(135deg, rgba(22, 27, 34, 0.9), rgba(13, 17, 23, 0.9));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.codec-stream-tag {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: var(--accent-cyan);
+  font-family: var(--font-mono);
+  letter-spacing: 0.06em;
+}
+
+.codec-stream-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 4px 0 2px;
+}
+
+.codec-stream-desc {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.lossless-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: #000000;
+  padding: 6px 12px;
+  border-radius: 6px;
+  box-shadow: 0 0 16px rgba(245, 158, 11, 0.4);
+}
+
+.lossless-badge .badge-icon {
+  font-size: 0.9rem;
+}
+
+.lossless-badge .badge-text {
+  font-size: 0.62rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+}
+
+.codec-specs-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.codec-spec-item {
+  background: rgba(22, 27, 34, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.codec-spec-item .spec-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+}
+
+.codec-spec-item .spec-value {
+  font-size: 0.85rem;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.codec-actions button {
+  width: 100%;
+  padding: 10px;
+  font-weight: 700;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .atmos-node-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .chamber-row.front-chamber {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .chamber-row.mid-chamber {
+    grid-template-columns: 1fr;
+  }
+  .chamber-row.rear-chamber {
+    grid-template-columns: 1fr;
+  }
+  .ear-metrics-grid {
+    grid-template-columns: 1fr;
+  }
+  .codec-specs-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 
 

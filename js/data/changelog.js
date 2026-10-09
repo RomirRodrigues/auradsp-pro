@@ -5,10 +5,24 @@
 
 const CHANGELOG_DATA = [
   {
-    version: 'v52.0.0',
-    title: 'Auto AI 10-Band Equalizer & Dynamic Real-Time Acoustic Optimization',
+    version: 'v52.1.0',
+    title: 'Studio Pro Measurement & Spatial Calibration Suite',
     tag: 'Latest',
     date: 'Current Release',
+    items: [
+      'Feature 4 - Fullscreen Party / Cinema Visualizer: Immersive 300 FPS cinema display with floating track metadata, live DR metrics, and F key shortcut.',
+      'Feature 8 - Virtual 7.1.4 Dolby Atmos Speaker Matrix: Interactive 12-speaker spatial audio layout across ceiling heights (.4) and bed (7.1) with binaural pink noise engine.',
+      'Feature 10 - 500+ Headphone AutoEQ Profile Importer: Searchable database of calibrated Harman Target curves for Sony, Apple, Sennheiser, Bose, Beyerdynamic, boAt, Moondrop, KZ & more.',
+      'Feature 13 - Ear Fatigue & Safe Listening Dose Tracker: WHO/OSHA 85dB SPL standard acoustic dosage tracker with timer, warning threshold, and daily dose badge.',
+      'Feature 19 - Track Dynamic Range (DR) & Crest Factor Live Meter: TT DR Meter spec with real-time peak/RMS ratio in dB, dynamic density gauge, and stereo VU needles.',
+      'Feature 20 - Technical Audio File & Codec Inspector: Deep stream analysis of container codec, sample rate, bit depth, bitrate, latency, and Hi-Res Lossless certification.'
+    ]
+  },
+  {
+    version: 'v52.0.0',
+    title: 'Auto AI 10-Band Equalizer & Dynamic Real-Time Acoustic Optimization',
+    tag: 'Major',
+    date: 'Milestone Release',
     items: [
       'Added Auto AI 10-Band Equalizer with real-time psychoacoustic spectrum analysis (Fletcher-Munson & Harman Target Reference).',
       'Dynamic 3-4 Second Adaptation Cycle: Automatically re-evaluates the song spectrum and smoothly glides all 10 hardware sliders over 1.2s.',

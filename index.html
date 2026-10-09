@@ -30,7 +30,7 @@
       <div>
         <div class="brand-title">
           <span class="animated-brand-text">AURA<span class="brand-dsp-badge">DSP</span> PRO</span>
-          <span class="version-tag" id="appVersionTag" title="Click to view full Changelog & Version History">v52.0</span>
+          <span class="version-tag" id="appVersionTag" title="Click to view full Changelog & Version History">v52.1</span>
         </div>
         <p class="subtitle">Reference Studio Audio Workstation &middot; by <span class="animated-creator-name">Romir Rodrigues</span></p>
       </div>
@@ -62,6 +62,13 @@
         <span class="dot"></span>
         <span id="fpsCountText">144 FPS</span>
       </div>
+      <div class="ear-dose-badge" id="earDoseBadge" title="Safe Listening Exposure Dose (WHO 85dB Standard). Click for Details.">
+        <span class="dose-icon">👂</span>
+        <span id="earDoseText">DOSE: 0% · 0m</span>
+      </div>
+      <button id="openCodecInspectorBtn" class="sm-btn codec-badge-btn" title="Inspect Audio File Codec, Sample Rate & Bit Depth">
+        <span>🔍 CODEC</span>
+      </button>
 
       <div class="header-tools-group">
         <button id="globalBypassBtn" class="sm-btn dsp-power-btn" title="Toggle Master DSP Engine (ON / BYPASS)">
@@ -565,6 +572,112 @@
         </div>
       </div>
 
+      <!-- VIRTUAL 7.1.4 DOLBY ATMOS SPEAKER MATRIX -->
+      <div class="spatial-stage-card atmos-matrix-card" id="atmosMatrixCard">
+        <div class="panel-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px; height:18px; color:var(--accent-cyan);"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/></svg>
+            <h2 style="font-size:0.95rem; margin:0;">VIRTUAL 7.1.4 DOLBY ATMOS SPEAKER MATRIX</h2>
+          </div>
+          <div style="display:flex; gap:8px; align-items:center;">
+            <span class="status-pill atmos-status-pill">12-CH BINAURAL HRTF</span>
+            <button id="cycleAtmosSpeakersBtn" class="sm-btn atmos-cycle-btn" title="Sequentially fire test bursts through all 12 Atmos channels">🔊 Test 7.1.4 Sequence</button>
+          </div>
+        </div>
+        <p class="info-text">Hardware-calibrated 3D Spatial Pink Noise Engine. Click any speaker node to audition its binaural HRTF position in space.</p>
+        
+        <div class="atmos-layout-container">
+          <!-- Height / Overhead Layer -->
+          <div class="atmos-plane-section height-plane">
+            <div class="atmos-plane-badge">TOP HEIGHT LAYER (.4)</div>
+            <div class="atmos-node-row">
+              <button class="atmos-spk-node" data-speaker="TFL" title="Top Front Left Channel">
+                <span class="spk-indicator"></span>
+                <span class="spk-id">TFL</span>
+                <span class="spk-sub">Top Front L</span>
+              </button>
+              <button class="atmos-spk-node" data-speaker="TFR" title="Top Front Right Channel">
+                <span class="spk-indicator"></span>
+                <span class="spk-id">TFR</span>
+                <span class="spk-sub">Top Front R</span>
+              </button>
+              <button class="atmos-spk-node" data-speaker="TRL" title="Top Rear Left Channel">
+                <span class="spk-indicator"></span>
+                <span class="spk-id">TRL</span>
+                <span class="spk-sub">Top Rear L</span>
+              </button>
+              <button class="atmos-spk-node" data-speaker="TRR" title="Top Rear Right Channel">
+                <span class="spk-indicator"></span>
+                <span class="spk-id">TRR</span>
+                <span class="spk-sub">Top Rear R</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Ear-Level Bed & Subwoofer Layer -->
+          <div class="atmos-plane-section bed-plane">
+            <div class="atmos-plane-badge">LISTENER BED &amp; LFE LAYER (7.1)</div>
+            <div class="atmos-bed-chamber">
+              <!-- Front Bed -->
+              <div class="chamber-row front-chamber">
+                <button class="atmos-spk-node" data-speaker="FL" title="Front Left">
+                  <span class="spk-indicator"></span>
+                  <span class="spk-id">FL</span>
+                  <span class="spk-sub">Front L</span>
+                </button>
+                <button class="atmos-spk-node center-node" data-speaker="C" title="Center Channel">
+                  <span class="spk-indicator"></span>
+                  <span class="spk-id">C</span>
+                  <span class="spk-sub">Center</span>
+                </button>
+                <button class="atmos-spk-node" data-speaker="FR" title="Front Right">
+                  <span class="spk-indicator"></span>
+                  <span class="spk-id">FR</span>
+                  <span class="spk-sub">Front R</span>
+                </button>
+                <button class="atmos-spk-node sub-node" data-speaker="SUB" title="Subwoofer LFE Channel">
+                  <span class="spk-indicator sub-indicator"></span>
+                  <span class="spk-id">SUB</span>
+                  <span class="spk-sub">.1 LFE Bass</span>
+                </button>
+              </div>
+
+              <!-- Surrounds & Listener Sweet Spot -->
+              <div class="chamber-row mid-chamber">
+                <button class="atmos-spk-node" data-speaker="SL" title="Side Surround Left">
+                  <span class="spk-indicator"></span>
+                  <span class="spk-id">SL</span>
+                  <span class="spk-sub">Surround L</span>
+                </button>
+                <div class="atmos-listener-core" title="Acoustic Sweet Spot Center">
+                  <div class="sweet-spot-pulse"></div>
+                  <span class="sweet-spot-label">SWEET SPOT</span>
+                </div>
+                <button class="atmos-spk-node" data-speaker="SR" title="Side Surround Right">
+                  <span class="spk-indicator"></span>
+                  <span class="spk-id">SR</span>
+                  <span class="spk-sub">Surround R</span>
+                </button>
+              </div>
+
+              <!-- Rear Surrounds -->
+              <div class="chamber-row rear-chamber">
+                <button class="atmos-spk-node" data-speaker="RL" title="Rear Surround Left">
+                  <span class="spk-indicator"></span>
+                  <span class="spk-id">RL</span>
+                  <span class="spk-sub">Rear L</span>
+                </button>
+                <button class="atmos-spk-node" data-speaker="RR" title="Rear Surround Right">
+                  <span class="spk-indicator"></span>
+                  <span class="spk-id">RR</span>
+                  <span class="spk-sub">Rear R</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- 10-BAND PARAMETRIC EQUALIZER -->
       <div class="eq-container">
         <div class="panel-header" style="flex-wrap:wrap; gap:10px;">
@@ -573,6 +686,9 @@
             <h2>10-BAND PARAMETRIC EQUALIZER (REAL DSP)</h2>
           </div>
           <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+            <button id="openAutoEqBtn" class="sm-btn autoeq-trigger-btn" title="Open 500+ Headphone AutoEQ Profile Calibrator">
+              <span>🎧 AutoEQ</span>
+            </button>
             <button id="aiAutoEqBtn" class="sm-btn ai-eq-btn active" title="AI Auto-Tuning EQ: dynamically optimizes 10-band sliders every 3-4s for best sound quality">
               <span class="ai-sparkle">✨</span>
               <span id="aiAutoEqLabel">AI Auto EQ: ON</span>
@@ -834,9 +950,55 @@
           <div class="vis-mode-toggle">
             <button class="vis-btn active" id="visModeBars">Spectrum</button>
             <button class="vis-btn" id="visModeWave">Oscilloscope</button>
+            <button class="vis-btn vis-fullscreen-trigger" id="visFullscreenBtn" title="Fullscreen Party & Cinema Visualizer (Shortcut: F)">⛶ Cinema</button>
           </div>
         </div>
         <canvas id="spectrumCanvas" width="320" height="160"></canvas>
+
+        <!-- DYNAMIC RANGE & CREST FACTOR LIVE METER (TT DR METER SPEC) -->
+        <div class="dr-meter-card" id="drMeterWidget">
+          <div class="dr-meter-header">
+            <div class="dr-title-group">
+              <span class="dr-title">DYNAMIC RANGE &amp; CREST FACTOR</span>
+              <span class="dr-spec-tag">TT DR / EBU</span>
+            </div>
+            <div id="drRatingText" class="dr-rating-text">High Dynamic Range</div>
+          </div>
+          <div class="dr-meter-display">
+            <div class="dr-metric-box">
+              <span class="dr-metric-label">DYNAMIC RANGE</span>
+              <span id="drScoreVal" class="dr-metric-val dr-score">DR12</span>
+            </div>
+            <div class="dr-metric-box">
+              <span class="dr-metric-label">CREST FACTOR</span>
+              <span id="crestFactorVal" class="dr-metric-val crest-val">+14.0 dB</span>
+            </div>
+          </div>
+          <div class="dr-bar-wrapper">
+            <div class="dr-bar-track">
+              <div id="drDensityBar" class="dr-bar-fill" style="width: 75%;"></div>
+            </div>
+            <div class="dr-scale-marks">
+              <span>DR4</span><span>DR8</span><span>DR12</span><span>DR16+</span>
+            </div>
+          </div>
+
+          <!-- Stereo VU Ballistic Level Meters -->
+          <div class="stereo-vu-container">
+            <div class="vu-channel">
+              <span class="vu-label">L</span>
+              <div class="vu-meter-bar">
+                <div id="vuFillL" class="vu-fill"></div>
+              </div>
+            </div>
+            <div class="vu-channel">
+              <span class="vu-label">R</span>
+              <div class="vu-meter-bar">
+                <div id="vuFillR" class="vu-fill"></div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- 3D BINAURAL HEADSET OPTIMIZER & CROSSTALK MATRIX -->
@@ -885,7 +1047,7 @@
         &copy; 2026 <strong class="animated-creator-name">Romir Rodrigues</strong>. All rights reserved.
       </div>
       <div class="footer-note">
-        AuraDSP Pro Workstation &nbsp;·&nbsp; Real-Time Web Audio DSP &nbsp;·&nbsp; 3D HRTF Spatial Soundstage &nbsp;·&nbsp; <a href="#" id="footerChangelogLink" style="color:var(--accent-cyan); text-decoration:none; border-bottom:1px dashed rgba(0,240,255,0.4); padding-bottom:1px;" title="View full release notes & version history">v52.0 Release Notes</a> &nbsp;·&nbsp; <a href="#" id="footerManualLink" style="color:var(--accent-cyan); text-decoration:none; border-bottom:1px dashed rgba(0,240,255,0.4); padding-bottom:1px; margin-left:6px;" title="Open Studio User Manual & Feature Guide">📖 Studio Manual &amp; Guide</a>
+        AuraDSP Pro Workstation &nbsp;·&nbsp; Real-Time Web Audio DSP &nbsp;·&nbsp; 3D HRTF Spatial Soundstage &nbsp;·&nbsp; <a href="#" id="footerChangelogLink" style="color:var(--accent-cyan); text-decoration:none; border-bottom:1px dashed rgba(0,240,255,0.4); padding-bottom:1px;" title="View full release notes & version history">v52.1 Release Notes</a> &nbsp;·&nbsp; <a href="#" id="footerManualLink" style="color:var(--accent-cyan); text-decoration:none; border-bottom:1px dashed rgba(0,240,255,0.4); padding-bottom:1px; margin-left:6px;" title="Open Studio User Manual & Feature Guide">📖 Studio Manual &amp; Guide</a>
       </div>
     </div>
   </footer>
@@ -957,11 +1119,221 @@
     </div>
   </div>
 
+  <!-- Fullscreen Party & Cinema Visualizer Overlay (Feature 4) -->
+  <div id="fullscreenVisualizerOverlay" class="fullscreen-vis-overlay hidden">
+    <div class="fvis-top-bar">
+      <div class="fvis-track-info">
+        <span class="live-dot"></span>
+        <span id="fvisTrackTitle" class="fvis-title">AuraDSP Pro Cinema Stage</span>
+        <span id="fvisTrackMeta" class="fvis-meta">300 FPS · 32-Bit Real-Time DSP</span>
+      </div>
+      <div class="fvis-metrics-pill">
+        <span id="fvisDrScore" class="fvis-metric-item">DR12</span>
+        <span id="fvisCrestFactor" class="fvis-metric-item">+14.0 dB</span>
+        <span id="fvisFps" class="fvis-metric-item">144 FPS</span>
+      </div>
+      <div class="fvis-actions">
+        <button id="fvisModeToggle" class="fvis-btn" title="Toggle Spectrum Bars / Oscilloscope">Mode: Spectrum</button>
+        <button id="fvisExitBtn" class="fvis-btn fvis-exit-btn" title="Exit Fullscreen (Esc or F)">✕ Exit (Esc)</button>
+      </div>
+    </div>
+    <canvas id="fullscreenSpectrumCanvas"></canvas>
+    <div class="fvis-bottom-glow"></div>
+  </div>
+
+  <!-- AutoEQ Headphone Profile Importer Modal (Feature 10) -->
+  <div id="autoEqModalBackdrop" class="studio-modal-backdrop autoeq-modal-backdrop">
+    <div class="studio-modal autoeq-modal" role="dialog" aria-modal="true" aria-labelledby="autoEqTitle">
+      <div class="studio-modal-header">
+        <div class="studio-modal-header-left">
+          <div class="studio-modal-title-row">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px; height:20px; color:var(--accent-cyan);"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>
+            <h3 id="autoEqTitle" style="margin:0; font-size:1.05rem; font-weight:800; color:#fff; letter-spacing:0.02em;">500+ Headphone AutoEQ Profile Importer</h3>
+          </div>
+          <p style="margin:4px 0 0; font-size:0.75rem; color:var(--text-muted);">Calibrated 10-band Harman Target curves for Sony, Apple, Sennheiser, Bose, boAt, Beyerdynamic, Moondrop, KZ &amp; more</p>
+        </div>
+        <button id="closeAutoEqBtn" class="studio-modal-close-btn" title="Close AutoEQ (Esc)">&times;</button>
+      </div>
+
+      <div class="autoeq-toolbar">
+        <div class="autoeq-search-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px; height:14px; color:var(--text-muted);"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input type="text" id="autoEqSearchInput" placeholder="Search headphone model (e.g. Sony XM5, AirPods Pro 2, HD650, QC45, boAt 550, DT 770, Aria)...">
+        </div>
+        <div class="autoeq-brand-chips" id="autoEqBrandChips">
+          <button class="autoeq-chip active" data-brand="all">All Brands</button>
+          <button class="autoeq-chip" data-brand="Sony">Sony</button>
+          <button class="autoeq-chip" data-brand="Apple">Apple</button>
+          <button class="autoeq-chip" data-brand="Sennheiser">Sennheiser</button>
+          <button class="autoeq-chip" data-brand="Bose">Bose</button>
+          <button class="autoeq-chip" data-brand="Beyerdynamic">Beyerdynamic</button>
+          <button class="autoeq-chip" data-brand="boAt">boAt</button>
+          <button class="autoeq-chip" data-brand="Audio-Technica">Audio-Technica</button>
+          <button class="autoeq-chip" data-brand="JBL">JBL</button>
+          <button class="autoeq-chip" data-brand="Samsung">Samsung</button>
+          <button class="autoeq-chip" data-brand="Moondrop">Moondrop</button>
+          <button class="autoeq-chip" data-brand="KZ">KZ</button>
+          <button class="autoeq-chip" data-brand="Nothing">Nothing</button>
+          <button class="autoeq-chip" data-brand="OnePlus">OnePlus</button>
+          <button class="autoeq-chip" data-brand="AKG">AKG</button>
+          <button class="autoeq-chip" data-brand="Focal">Focal</button>
+          <button class="autoeq-chip" data-brand="Bowers & Wilkins">B&amp;W</button>
+          <button class="autoeq-chip" data-brand="HIFIMAN">HIFIMAN</button>
+          <button class="autoeq-chip" data-brand="Shure">Shure</button>
+        </div>
+      </div>
+
+      <div class="autoeq-list-container" id="autoEqListContainer">
+        <!-- Rendered dynamically by app.js -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Ear Fatigue & Safe Listening Dose Modal (Feature 13) -->
+  <div id="earHealthModalBackdrop" class="studio-modal-backdrop ear-health-modal-backdrop">
+    <div class="studio-modal ear-health-modal" role="dialog" aria-modal="true" aria-labelledby="earHealthTitle">
+      <div class="studio-modal-header">
+        <div class="studio-modal-header-left">
+          <div class="studio-modal-title-row">
+            <span style="font-size:1.2rem;">👂</span>
+            <h3 id="earHealthTitle" style="margin:0; font-size:1.05rem; font-weight:800; color:#fff; letter-spacing:0.02em;">Ear Fatigue & Safe Volume Exposure Dose Tracker</h3>
+          </div>
+          <p style="margin:4px 0 0; font-size:0.75rem; color:var(--text-muted);">Real-time acoustic dosage monitoring based on WHO &amp; OSHA 85dB SPL Safe Listening Standards</p>
+        </div>
+        <button id="closeEarHealthBtn" class="studio-modal-close-btn" title="Close (Esc)">&times;</button>
+      </div>
+
+      <div class="ear-health-body">
+        <!-- Dose Big Gauge -->
+        <div class="ear-dose-gauge-card">
+          <div class="dose-gauge-header">
+            <span class="dose-gauge-label">DAILY ACOUSTIC DOSAGE (85dB REF)</span>
+            <span id="modalDosePct" class="dose-gauge-percent">0%</span>
+          </div>
+          <div class="dose-progress-track">
+            <div id="modalDoseBar" class="dose-progress-fill" style="width: 0%;"></div>
+          </div>
+          <div class="dose-scale-labels">
+            <span>0% (Safe)</span>
+            <span>50% (Moderate)</span>
+            <span>80% (Warning)</span>
+            <span>100% (Daily Limit)</span>
+          </div>
+        </div>
+
+        <!-- Metrics Row -->
+        <div class="ear-metrics-grid">
+          <div class="ear-metric-box">
+            <span class="ear-m-title">LISTENING TIME TODAY</span>
+            <span id="modalDurationText" class="ear-m-val">0 minutes</span>
+            <span class="ear-m-sub">Active playback time tracked</span>
+          </div>
+          <div class="ear-metric-box">
+            <span class="ear-m-title">SAFE TIME REMAINING</span>
+            <span id="modalRemainingTime" class="ear-m-val">~8.0 Hours</span>
+            <span class="ear-m-sub">At current volume level</span>
+          </div>
+          <div class="ear-metric-box">
+            <span class="ear-m-title">ESTIMATED INTENSITY</span>
+            <span id="modalSplEstimate" class="ear-m-val">~80 dB SPL</span>
+            <span class="ear-m-sub">Calibrated to master fader</span>
+          </div>
+        </div>
+
+        <!-- WHO Guidelines Notice -->
+        <div class="ear-guidelines-box">
+          <h4 style="margin:0 0 6px; font-size:0.8rem; color:var(--accent-cyan);">WHO / OSHA Equal Energy Rule (3dB Exchange Rate):</h4>
+          <p style="margin:0; font-size:0.75rem; color:var(--text-muted); line-height:1.5;">
+            At 85 dB SPL, human hearing safely tolerates up to 8 hours per day. Every +3 dB increase doubles acoustic energy and cuts safe listening time in half (88 dB = 4 hours, 91 dB = 2 hours, 94 dB = 1 hour). Take regular 5-minute quiet breaks to preserve cilia hair cells.
+          </p>
+        </div>
+
+        <!-- Actions -->
+        <div class="ear-modal-actions">
+          <button id="resetEarDoseBtn" class="sm-btn ear-reset-btn">Reset Daily Dose &amp; Timer</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Audio File Codec & Stream Metadata Inspector Modal (Feature 20) -->
+  <div id="codecInspectorModalBackdrop" class="studio-modal-backdrop codec-modal-backdrop">
+    <div class="studio-modal codec-modal" role="dialog" aria-modal="true" aria-labelledby="codecTitle">
+      <div class="studio-modal-header">
+        <div class="studio-modal-header-left">
+          <div class="studio-modal-title-row">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px; height:20px; color:var(--accent-cyan);"><polygon points="12 2 2 7 12 12 22 7 12 2"/></svg>
+            <h3 id="codecTitle" style="margin:0; font-size:1.05rem; font-weight:800; color:#fff; letter-spacing:0.02em;">Technical Audio File & Codec Inspector</h3>
+          </div>
+          <p style="margin:4px 0 0; font-size:0.75rem; color:var(--text-muted);">Real-time stream container, bit depth, PCM sample rate, DSP latency &amp; lossless certification</p>
+        </div>
+        <button id="closeCodecBtn" class="studio-modal-close-btn" title="Close (Esc)">&times;</button>
+      </div>
+
+      <div class="codec-modal-body">
+        <!-- Lossless Certification Banner -->
+        <div class="codec-hero-card">
+          <div class="codec-hero-info">
+            <span class="codec-stream-tag">ACTIVE AUDIO STREAM</span>
+            <h4 id="inspectorFileName" class="codec-stream-title">Sub-Bass & Heavy Kick Calibration [Reference]</h4>
+            <p id="inspectorTrackMeta" class="codec-stream-desc">Web Audio Pipeline · 32-Bit Floating Point DSP</p>
+          </div>
+          <div id="inspectorLosslessBadge" class="lossless-badge">
+            <span class="badge-icon">★</span>
+            <span class="badge-text">HI-RES AUDIO</span>
+          </div>
+        </div>
+
+        <!-- Technical Specification Grid -->
+        <div class="codec-specs-grid">
+          <div class="codec-spec-item">
+            <span class="spec-label">ENCODING / CODEC</span>
+            <span id="inspectorCodec" class="spec-value">MP3 Audio</span>
+          </div>
+          <div class="codec-spec-item">
+            <span class="spec-label">BITRATE RESOLUTION</span>
+            <span id="inspectorBitrate" class="spec-value">320 kbps (High Fidelity)</span>
+          </div>
+          <div class="codec-spec-item">
+            <span class="spec-label">SAMPLE RATE</span>
+            <span id="inspectorSampleRate" class="spec-value">48.0 kHz (48000 Hz)</span>
+          </div>
+          <div class="codec-spec-item">
+            <span class="spec-label">BIT DEPTH PRECISION</span>
+            <span id="inspectorBitDepth" class="spec-value">32-Bit Float Internal DSP</span>
+          </div>
+          <div class="codec-spec-item">
+            <span class="spec-label">AUDIO CHANNELS</span>
+            <span id="inspectorChannels" class="spec-value">2.0 Stereo (Interleaved L/R)</span>
+          </div>
+          <div class="codec-spec-item">
+            <span class="spec-label">TRACK DURATION</span>
+            <span id="inspectorDuration" class="spec-value">3:42</span>
+          </div>
+          <div class="codec-spec-item">
+            <span class="spec-label">DSP PROCESSING LATENCY</span>
+            <span id="inspectorLatency" class="spec-value">5.3 ms (Ultra Low-Latency)</span>
+          </div>
+          <div class="codec-spec-item">
+            <span class="spec-label">AUDIO CONTEXT STATE</span>
+            <span id="inspectorState" class="spec-value" style="color:#10b981;">Running (Hardware Sync)</span>
+          </div>
+        </div>
+
+        <div class="codec-actions">
+          <button id="refreshCodecBtn" class="sm-btn">Re-Inspect Active Stream</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Modular Scripts -->
   <script src="js/data/presets.js?v=52.0.0"></script>
+  <script src="js/data/autoeq-database.js?v=52.0.0"></script>
   <script src="js/data/changelog.js?v=52.0.0"></script>
   <script src="js/data/manual.js?v=52.0.0"></script>
   <script src="js/audio/audio-engine.js?v=52.0.0"></script>
+  <script src="js/dsp/audio-pro-tools.js?v=52.0.0"></script>
   <script src="js/visual/spatial-canvas.js?v=52.0.0"></script>
   <script src="js/visual/visualizer.js?v=52.0.0"></script>
   <script src="js/ui/motion-ui.js?v=52.0.0"></script>

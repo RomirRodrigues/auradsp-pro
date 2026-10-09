@@ -18,6 +18,15 @@ class AudioVisualizer {
 
     this.visMode = 'bars';
 
+    // Fullscreen Cinema Visualizer Elements
+    this.fullOverlay = document.getElementById('fullscreenVisualizerOverlay');
+    this.fullCanvas = document.getElementById('fullscreenSpectrumCanvas');
+    this.fullCtx = this.fullCanvas ? this.fullCanvas.getContext('2d', { alpha: true }) : null;
+    this.isFullscreenActive = false;
+    this.fullW = 0;
+    this.fullH = 0;
+    this.fullBarGradient = null;
+
     this.vuFillL = document.getElementById('vuFillL');
     this.vuFillR = document.getElementById('vuFillR');
     if (this.vuFillL) this.vuFillL.style.width = '100%';
@@ -41,11 +50,89 @@ class AudioVisualizer {
     // Cached elements
     this.player = document.getElementById('audioPlayer');
     this.fpsCountText = document.getElementById('fpsCountText');
+    this.fvisFpsText = document.getElementById('fvisFps');
     this.brandLogoIcon = document.getElementById('brandLogoIcon');
     this._lastLogoPlaying = null;
 
+    this.initFullscreenListeners();
     this.initResizeHandling();
     this.startLoop();
+  }
+
+  initFullscreenListeners() {
+    const triggerBtn = document.getElementById('visFullscreenBtn');
+    const exitBtn = document.getElementById('fvisExitBtn');
+    const modeBtn = document.getElementById('fvisModeToggle');
+
+    if (triggerBtn) {
+      triggerBtn.addEventListener('click', () => this.toggleFullscreen());
+    }
+    if (exitBtn) {
+      exitBtn.addEventListener('click', () => this.exitFullscreen());
+    }
+    if (modeBtn) {
+      modeBtn.addEventListener('click', () => {
+        this.setVisMode(this.visMode === 'bars' ? 'wave' : 'bars');
+        modeBtn.textContent = `Mode: ${this.visMode === 'bars' ? 'Spectrum' : 'Oscilloscope'}`;
+      });
+    }
+
+    document.addEventListener('keydown', (e) => {
+      // Don't trigger if user is typing in an input field
+      const activeTag = document.activeElement ? document.activeElement.tagName.toLowerCase() : '';
+      if (activeTag === 'input' || activeTag === 'textarea' || activeTag === 'select') return;
+
+      if (e.key === 'f' || e.key === 'F') {
+        e.preventDefault();
+        this.toggleFullscreen();
+      } else if (e.key === 'Escape' && this.isFullscreenActive) {
+        this.exitFullscreen();
+      }
+    });
+  }
+
+  openFullscreen() {
+    if (!this.fullOverlay) return;
+    this.isFullscreenActive = true;
+    this.fullOverlay.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    this.handleResize();
+
+    // Sync current active track title into cinema header
+    const trackTitleEl = document.getElementById('fvisTrackTitle');
+    const webTitle = document.getElementById('webTrackName');
+    const linkTitle = document.getElementById('linkTrackTitle');
+    const demoSelect = document.getElementById('demoTrackSelect');
+
+    let currentTitle = "AuraDSP Pro Studio Cinema";
+    if (webTitle && webTitle.textContent && webTitle.textContent !== 'Not Playing') {
+      currentTitle = webTitle.textContent;
+    } else if (linkTitle && linkTitle.textContent && linkTitle.textContent !== 'No Stream Loaded') {
+      currentTitle = linkTitle.textContent;
+    } else if (demoSelect && demoSelect.options[demoSelect.selectedIndex]) {
+      currentTitle = demoSelect.options[demoSelect.selectedIndex].text;
+    }
+    if (trackTitleEl) trackTitleEl.textContent = currentTitle;
+
+    // Try standard fullscreen API for maximum immersion
+    if (this.fullOverlay.requestFullscreen && !document.fullscreenElement) {
+      this.fullOverlay.requestFullscreen().catch(() => {});
+    }
+    if (window.showToast) window.showToast("Entered Cinema Visualizer (Press F or Esc to exit)", "info");
+  }
+
+  exitFullscreen() {
+    this.isFullscreenActive = false;
+    if (this.fullOverlay) this.fullOverlay.classList.add('hidden');
+    document.body.style.overflow = '';
+    if (document.fullscreenElement && document.exitFullscreen) {
+      document.exitFullscreen().catch(() => {});
+    }
+  }
+
+  toggleFullscreen() {
+    if (this.isFullscreenActive) this.exitFullscreen();
+    else this.openFullscreen();
   }
 
   initResizeHandling() {
@@ -77,6 +164,24 @@ class AudioVisualizer {
             this.eqCanvas.height = th;
             this.eqW = tw;
             this.eqH = th;
+          }
+        }
+      }
+
+      if (this.fullCanvas) {
+        const fw = Math.round(window.innerWidth * this.dpr);
+        const fh = Math.round(window.innerHeight * this.dpr);
+        if (this.fullCanvas.width !== fw || this.fullCanvas.height !== fh) {
+          this.fullCanvas.width = fw;
+          this.fullCanvas.height = fh;
+          this.fullW = fw;
+          this.fullH = fh;
+          if (this.fullCtx) {
+            this.fullBarGradient = this.fullCtx.createLinearGradient(0, fh, 0, 0);
+            this.fullBarGradient.addColorStop(0, '#00f0ff');
+            this.fullBarGradient.addColorStop(0.5, '#7928ca');
+            this.fullBarGradient.addColorStop(0.85, '#ff0080');
+            this.fullBarGradient.addColorStop(1, '#ff3366');
           }
         }
       }
@@ -267,6 +372,75 @@ class AudioVisualizer {
       ctx.stroke();
     }
 
+    // 3b. Render Fullscreen Cinema Visualizer if Active
+    if (this.isFullscreenActive && this.fullCtx && this.fullW > 0 && this.fullH > 0) {
+      const fCtx = this.fullCtx;
+      const fW = this.fullW;
+      const fH = this.fullH;
+      fCtx.clearRect(0, 0, fW, fH);
+
+      if (this.visMode === 'bars') {
+        const numBars = 96;
+        const gap = 3 * dpr;
+        const barWidth = (fW / numBars) - gap;
+        const sampleRate = (audioEngine && audioEngine.ctx) ? audioEngine.ctx.sampleRate : 48000;
+        const minFreq = 20;
+        const maxFreq = 20000;
+        const logRatio = maxFreq / minFreq;
+        const nyquist = sampleRate / 2;
+
+        fCtx.fillStyle = this.fullBarGradient || '#00f0ff';
+
+        for (let b = 0; b < numBars; b++) {
+          let val = 0;
+          if (isActivelyPlaying) {
+            const freq1 = minFreq * Math.pow(logRatio, b / numBars);
+            const freq2 = minFreq * Math.pow(logRatio, (b + 1) / numBars);
+            const idx1 = Math.floor((freq1 / nyquist) * bufferLength);
+            const idx2 = Math.min(bufferLength - 1, Math.ceil((freq2 / nyquist) * bufferLength));
+            
+            let maxVal = 0;
+            for (let i = idx1; i <= idx2; i++) {
+              if (dataArray[i] > maxVal) maxVal = dataArray[i];
+            }
+            const boost = 1 + (b / numBars) * 1.5;
+            val = Math.min(255, maxVal * boost);
+          }
+
+          const barHeight = (val / 255) * (fH - 60 * dpr);
+          const bx = b * (barWidth + gap);
+          const by = fH - barHeight;
+
+          if (barHeight > 4 * dpr) {
+            fCtx.fillRect(bx, by, barWidth, barHeight);
+            fCtx.fillStyle = '#ffffff';
+            fCtx.fillRect(bx, by - 2 * dpr, barWidth, 2 * dpr);
+            fCtx.fillStyle = this.fullBarGradient || '#00f0ff';
+          } else {
+            fCtx.fillStyle = 'rgba(255, 255, 255, 0.05)';
+            fCtx.fillRect(bx, fH - 3 * dpr, barWidth, 3 * dpr);
+            fCtx.fillStyle = this.fullBarGradient || '#00f0ff';
+          }
+        }
+      } else {
+        // High-definition Fullscreen Oscilloscope
+        fCtx.lineWidth = 3 * dpr;
+        fCtx.strokeStyle = '#00f0ff';
+        fCtx.beginPath();
+        const sliceWidth = fW / bufferLength;
+        let bx = 0;
+        for (let i = 0; i < bufferLength; i++) {
+          const v = dataArray[i] / 128.0;
+          const by = (v * fH) / 2;
+          if (i === 0) fCtx.moveTo(bx, by);
+          else fCtx.lineTo(bx, by);
+          bx += sliceWidth;
+        }
+        fCtx.lineTo(fW, fH / 2);
+        fCtx.stroke();
+      }
+    }
+
     // 4. Update Stereophonic VU Meters (Zero reflow, Delta-time smoothed)
     this.updateVUMeters(isActivelyPlaying ? dataArray : null, dt);
   }
@@ -302,6 +476,11 @@ class AudioVisualizer {
 
     if (this.smoothL < 0.5) this.smoothL = 0;
     if (this.smoothR < 0.5) this.smoothR = 0;
+
+    // Feed live metrics into AudioProTools suite (DR & Crest Factor)
+    if (window.audioProTools) {
+      window.audioProTools.updateMetricsFromAudio(Math.max(rawL, rawR) / 100, (this.smoothL + this.smoothR) / 200);
+    }
 
     // GPU Transform scaleX (Zero layout reflow)
     const scaleL = Math.max(0, Math.min(1, this.smoothL / 100));
@@ -428,6 +607,9 @@ class AudioVisualizer {
         const measuredFps = Math.round((frameCount * 1000) / (now - fpsTimer));
         if (this.fpsCountText) {
           this.fpsCountText.textContent = `${measuredFps} FPS`;
+        }
+        if (this.fvisFpsText) {
+          this.fvisFpsText.textContent = `${measuredFps} FPS`;
         }
         frameCount = 0;
         fpsTimer = now;

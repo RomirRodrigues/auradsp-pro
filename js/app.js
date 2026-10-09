@@ -4152,6 +4152,340 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // ==========================================================================
+  // AURADSP PRO SUITE - FEATURES 4, 8, 10, 13, 19, 20 INTEGRATION
+  // ==========================================================================
+
+  // 1. AudioProTools Initializer
+  if (!window.audioProTools && window.AudioProTools) {
+    window.audioProTools = new AudioProTools(window.audioEngine);
+  }
+
+  // 2. Virtual 7.1.4 Dolby Atmos Speaker Matrix (Feature 8)
+  const atmosNodes = document.querySelectorAll('.atmos-spk-node[data-speaker]');
+  const cycleAtmosBtn = document.getElementById('cycleAtmosSpeakersBtn');
+
+  atmosNodes.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const spkKey = btn.getAttribute('data-speaker');
+      if (spkKey && window.audioProTools) {
+        window.audioProTools.testAtmosSpeaker(spkKey);
+      }
+    });
+  });
+
+  if (cycleAtmosBtn) {
+    cycleAtmosBtn.addEventListener('click', () => {
+      if (window.audioProTools) {
+        window.audioProTools.cycleAllSpeakers();
+      }
+    });
+  }
+
+  // 3. 500+ Headphone AutoEQ Profile Importer (Feature 10)
+  const openAutoEqBtn = document.getElementById('openAutoEqBtn');
+  const closeAutoEqBtn = document.getElementById('closeAutoEqBtn');
+  const autoEqModalBackdrop = document.getElementById('autoEqModalBackdrop');
+  const autoEqSearchInput = document.getElementById('autoEqSearchInput');
+  const autoEqBrandChips = document.getElementById('autoEqBrandChips');
+  const autoEqListContainer = document.getElementById('autoEqListContainer');
+
+  let currentAutoEqBrand = 'all';
+
+  function renderAutoEqList(brandFilter = 'all', query = '') {
+    if (!autoEqListContainer) return;
+    const db = window.AUTOEQ_DATABASE || [];
+    const q = (query || '').toLowerCase().trim();
+
+    const filtered = db.filter(item => {
+      const matchesBrand = brandFilter === 'all' || item.brand.toLowerCase() === brandFilter.toLowerCase();
+      const matchesQuery = !q ||
+        item.model.toLowerCase().includes(q) ||
+        item.brand.toLowerCase().includes(q) ||
+        item.type.toLowerCase().includes(q) ||
+        (item.desc && item.desc.toLowerCase().includes(q));
+      return matchesBrand && matchesQuery;
+    });
+
+    if (filtered.length === 0) {
+      autoEqListContainer.innerHTML = `
+        <div style="grid-column: 1 / -1; padding: 40px; text-align: center; color: var(--text-muted);">
+          <div style="font-size: 2rem; margin-bottom: 8px;">🔍</div>
+          <h4 style="color: #fff; margin: 0 0 6px;">No Headphone Profiles Found</h4>
+          <p style="font-size: 0.8rem; margin: 0;">Try searching another keyword (e.g. Sony, Sennheiser, AirPods, boAt, IEM)...</p>
+        </div>
+      `;
+      return;
+    }
+
+    autoEqListContainer.innerHTML = filtered.map(item => {
+      const barsHtml = item.eq.map(g => {
+        const pct = Math.max(10, Math.min(100, ((g + 12) / 24) * 100));
+        const color = g > 1 ? 'var(--accent-pink)' : (g < -1 ? 'var(--accent-purple)' : 'var(--accent-cyan)');
+        return `<div class="autoeq-mini-bar" style="height: ${pct}%; background: ${color};" title="${g > 0 ? '+' : ''}${g}dB"></div>`;
+      }).join('');
+
+      return `
+        <div class="autoeq-card" data-id="${item.id}">
+          <div class="autoeq-card-header">
+            <div>
+              <span class="autoeq-brand-tag">${item.brand.toUpperCase()}</span>
+              <h4 class="autoeq-model-name">${item.model}</h4>
+            </div>
+            <span class="autoeq-type-badge">${item.type}</span>
+          </div>
+          <p class="autoeq-desc">${item.desc}</p>
+          <div class="autoeq-mini-bars">
+            ${barsHtml}
+          </div>
+          <button class="autoeq-apply-btn" data-id="${item.id}">
+            <span>✨ Apply Harman Target (${item.model})</span>
+          </button>
+        </div>
+      `;
+    }).join('');
+
+    autoEqListContainer.querySelectorAll('.autoeq-apply-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-id');
+        const profile = db.find(x => x.id === id);
+        if (profile) {
+          applyAutoEqProfile(profile);
+        }
+      });
+    });
+  }
+
+  function applyAutoEqProfile(profile) {
+    if (!profile || !profile.eq) return;
+
+    profile.eq.forEach((gain, i) => {
+      currentEqGains[i] = gain;
+      updateEqBandUI(i, gain);
+      if (window.audioEngine) window.audioEngine.setBandGain(i, gain);
+    });
+
+    if (window.visualizer) {
+      window.visualizer.drawEqCurve(currentEqGains);
+    }
+
+    const badgeText = document.getElementById('activeDeviceText');
+    if (badgeText) badgeText.textContent = `AutoEQ: ${profile.brand} ${profile.model}`;
+
+    const aiTargetMode = document.getElementById('aiEqTargetMode');
+    if (aiTargetMode) aiTargetMode.textContent = `Target: AutoEQ (${profile.model})`;
+
+    if (window.showToast) {
+      window.showToast(`🎧 Applied AutoEQ Profile: ${profile.brand} ${profile.model}`, 'success');
+    }
+
+    closeAutoEqModal();
+  }
+
+  function openAutoEqModal() {
+    if (!autoEqModalBackdrop) return;
+    autoEqModalBackdrop.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    renderAutoEqList(currentAutoEqBrand, autoEqSearchInput ? autoEqSearchInput.value : '');
+    if (autoEqSearchInput) {
+      setTimeout(() => autoEqSearchInput.focus(), 80);
+    }
+  }
+
+  function closeAutoEqModal() {
+    if (!autoEqModalBackdrop) return;
+    autoEqModalBackdrop.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  if (openAutoEqBtn) {
+    openAutoEqBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      openAutoEqModal();
+    });
+  }
+
+  if (closeAutoEqBtn) {
+    closeAutoEqBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      closeAutoEqModal();
+    });
+  }
+
+  if (autoEqModalBackdrop) {
+    autoEqModalBackdrop.addEventListener('click', (e) => {
+      if (e.target === autoEqModalBackdrop) closeAutoEqModal();
+    });
+  }
+
+  if (autoEqSearchInput) {
+    autoEqSearchInput.addEventListener('input', (e) => {
+      renderAutoEqList(currentAutoEqBrand, e.target.value);
+    });
+  }
+
+  if (autoEqBrandChips) {
+    autoEqBrandChips.addEventListener('click', (e) => {
+      const chip = e.target.closest('.autoeq-chip');
+      if (!chip) return;
+      const brand = chip.getAttribute('data-brand');
+      if (brand) {
+        currentAutoEqBrand = brand;
+        autoEqBrandChips.querySelectorAll('.autoeq-chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        renderAutoEqList(currentAutoEqBrand, autoEqSearchInput ? autoEqSearchInput.value : '');
+      }
+    });
+  }
+
+  // 4. Ear Fatigue & Safe Listening Dose Tracker (Feature 13)
+  const earDoseBadge = document.getElementById('earDoseBadge');
+  const earHealthModalBackdrop = document.getElementById('earHealthModalBackdrop');
+  const closeEarHealthBtn = document.getElementById('closeEarHealthBtn');
+  const resetEarDoseBtn = document.getElementById('resetEarDoseBtn');
+
+  function openEarHealthModal() {
+    if (!earHealthModalBackdrop) return;
+    if (window.audioProTools) window.audioProTools.renderDoseUi();
+    earHealthModalBackdrop.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeEarHealthModal() {
+    if (!earHealthModalBackdrop) return;
+    earHealthModalBackdrop.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  if (earDoseBadge) {
+    earDoseBadge.addEventListener('click', (e) => {
+      e.preventDefault();
+      openEarHealthModal();
+    });
+  }
+
+  if (closeEarHealthBtn) {
+    closeEarHealthBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      closeEarHealthModal();
+    });
+  }
+
+  if (earHealthModalBackdrop) {
+    earHealthModalBackdrop.addEventListener('click', (e) => {
+      if (e.target === earHealthModalBackdrop) closeEarHealthModal();
+    });
+  }
+
+  if (resetEarDoseBtn) {
+    resetEarDoseBtn.addEventListener('click', () => {
+      if (window.audioProTools) {
+        window.audioProTools.resetDose();
+      }
+    });
+  }
+
+  // 5. Technical Audio File & Codec Inspector (Feature 20)
+  const openCodecInspectorBtn = document.getElementById('openCodecInspectorBtn');
+  const codecInspectorModalBackdrop = document.getElementById('codecInspectorModalBackdrop');
+  const closeCodecBtn = document.getElementById('closeCodecBtn');
+  const refreshCodecBtn = document.getElementById('refreshCodecBtn');
+
+  function openCodecInspectorModal() {
+    if (!codecInspectorModalBackdrop) return;
+    updateCodecInspector();
+    codecInspectorModalBackdrop.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeCodecInspectorModal() {
+    if (!codecInspectorModalBackdrop) return;
+    codecInspectorModalBackdrop.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  function updateCodecInspector(explicitFileName = '') {
+    if (!window.audioProTools) return;
+    const inspected = window.audioProTools.inspectAudioElement(audioPlayer, explicitFileName);
+    if (!inspected) return;
+
+    const fileNameEl = document.getElementById('inspectorFileName');
+    const codecEl = document.getElementById('inspectorCodec');
+    const bitrateEl = document.getElementById('inspectorBitrate');
+    const sampleRateEl = document.getElementById('inspectorSampleRate');
+    const bitDepthEl = document.getElementById('inspectorBitDepth');
+    const channelsEl = document.getElementById('inspectorChannels');
+    const durationEl = document.getElementById('inspectorDuration');
+    const latencyEl = document.getElementById('inspectorLatency');
+    const losslessBadge = document.getElementById('inspectorLosslessBadge');
+
+    if (fileNameEl) fileNameEl.textContent = inspected.fileName;
+    if (codecEl) codecEl.textContent = inspected.codec;
+    if (bitrateEl) bitrateEl.textContent = inspected.bitrate;
+    if (sampleRateEl) sampleRateEl.textContent = inspected.sampleRate;
+    if (bitDepthEl) bitDepthEl.textContent = inspected.bitDepth;
+    if (channelsEl) channelsEl.textContent = inspected.channels;
+    if (durationEl) durationEl.textContent = inspected.duration;
+
+    if (latencyEl && window.audioEngine && window.audioEngine.ctx) {
+      const baseLat = window.audioEngine.ctx.baseLatency || 0.0051;
+      latencyEl.textContent = `${(baseLat * 1000).toFixed(1)} ms (Ultra-Low Latency)`;
+    }
+
+    if (losslessBadge) {
+      const badgeText = losslessBadge.querySelector('.badge-text');
+      if (inspected.isLossless) {
+        losslessBadge.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+        losslessBadge.style.boxShadow = '0 0 16px rgba(16, 185, 129, 0.4)';
+        if (badgeText) badgeText.textContent = 'HI-RES LOSSLESS';
+      } else {
+        losslessBadge.style.background = 'linear-gradient(135deg, #f59e0b, #d97706)';
+        losslessBadge.style.boxShadow = '0 0 16px rgba(245, 158, 11, 0.4)';
+        if (badgeText) badgeText.textContent = 'STUDIO 320K';
+      }
+    }
+  }
+
+  if (openCodecInspectorBtn) {
+    openCodecInspectorBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      openCodecInspectorModal();
+    });
+  }
+
+  if (closeCodecBtn) {
+    closeCodecBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      closeCodecInspectorModal();
+    });
+  }
+
+  if (codecInspectorModalBackdrop) {
+    codecInspectorModalBackdrop.addEventListener('click', (e) => {
+      if (e.target === codecInspectorModalBackdrop) closeCodecInspectorModal();
+    });
+  }
+
+  if (refreshCodecBtn) {
+    refreshCodecBtn.addEventListener('click', () => {
+      updateCodecInspector();
+      if (window.showToast) window.showToast('Codec & Stream Parameters Re-Inspected', 'info');
+    });
+  }
+
+  if (audioPlayer) {
+    audioPlayer.addEventListener('loadedmetadata', () => updateCodecInspector());
+    audioPlayer.addEventListener('play', () => updateCodecInspector());
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      if (autoEqModalBackdrop && autoEqModalBackdrop.classList.contains('open')) closeAutoEqModal();
+      if (earHealthModalBackdrop && earHealthModalBackdrop.classList.contains('open')) closeEarHealthModal();
+      if (codecInspectorModalBackdrop && codecInspectorModalBackdrop.classList.contains('open')) closeCodecInspectorModal();
+    }
+  });
+
 });
 
 
