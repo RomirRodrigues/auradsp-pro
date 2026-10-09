@@ -446,35 +446,6 @@ body.cyber-dark {
   letter-spacing: 0.05em;
 }
 
-.dev-mode-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-family: var(--font-mono);
-  font-size: 0.65rem;
-  font-weight: 700;
-  color: #10b981;
-  background: rgba(16, 185, 129, 0.12);
-  border: 1px solid rgba(16, 185, 129, 0.35);
-  padding: 1px 7px;
-  border-radius: 4px;
-  cursor: pointer;
-  letter-spacing: 0.05em;
-  transition: all 0.2s ease;
-  box-shadow: 0 0 10px rgba(16, 185, 129, 0.15);
-}
-
-.dev-mode-pill:hover {
-  background: rgba(16, 185, 129, 0.25);
-  border-color: #10b981;
-  box-shadow: 0 0 15px rgba(16, 185, 129, 0.45);
-  transform: translateY(-1px);
-}
-
-.dev-mode-pill.hidden {
-  display: none !important;
-}
-
 .logo-container .subtitle {
   font-size: 0.72rem;
   color: var(--text-muted);

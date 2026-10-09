@@ -39,10 +39,6 @@ class AuraDevMenu {
     this.bindOverridesControls();
     this.bindStateControls();
     this.bindBenchmarkControls();
-
-    if (this.isUnlocked) {
-      this.showDevQuickButton();
-    }
   }
 
   // --- AUDIO SYNTHESIS FEEDBACK ---
@@ -146,7 +142,6 @@ class AuraDevMenu {
       this.clickCount = 0;
       this.isUnlocked = true;
       localStorage.setItem('auradsp_dev_unlocked', 'true');
-      this.showDevQuickButton();
       this.playUnlockFanfare();
 
       if (window.showToast) {
@@ -161,14 +156,6 @@ class AuraDevMenu {
     this.clickTimer = setTimeout(() => {
       this.clickCount = 0;
     }, 3200);
-  }
-
-  showDevQuickButton() {
-    const btn = document.getElementById('devModeQuickBtn');
-    if (btn) {
-      btn.classList.remove('hidden');
-      btn.style.display = 'inline-flex';
-    }
   }
 
   bindKeyboardShortcuts() {
@@ -193,14 +180,6 @@ class AuraDevMenu {
   bindModalElements() {
     const modal = document.getElementById('devModalBackdrop');
     const closeBtn = document.getElementById('closeDevModalBtn');
-    const quickBtn = document.getElementById('devModeQuickBtn');
-
-    if (quickBtn) {
-      quickBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        this.openModal();
-      });
-    }
 
     if (closeBtn) {
       closeBtn.addEventListener('click', () => this.closeModal());
