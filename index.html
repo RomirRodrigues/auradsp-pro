@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=50.0.0">
+  <link rel="stylesheet" href="styles.css?v=51.0.0">
   <link rel="manifest" href="manifest.json">
 </head>
 <body class="theme-studio">
@@ -122,7 +122,7 @@
         <label for="demoTrackSelect">Select Reference Track / Audio Source:</label>
         <select id="demoTrackSelect" class="cyber-select">
           <option value="https://raw.githubusercontent.com/rafaelreis-hotmart/Audio-Sample-files/master/sample.mp3" selected>Sub-Bass & Heavy Kick Calibration [Reference]</option>
-          <option value="https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/11/71/d6/1171d6ad-3c96-e027-2af6-58028426588c/mzaf_15137631797407745471.plus.aac.p.m4a">Starboy - The Weeknd ft. Daft Punk [Studio Master]</option>
+          <option value="https://aac.saavncdn.com/372/b7f9937fefd686876e90be4a96c9a6e9_320.mp4">Starboy - The Weeknd ft. Daft Punk [Full 320k Studio Master]</option>
           <option value="synth_bass">808 Synth Groove [Sub-Harmonic Beat]</option>
           <option value="synth_spatial">3D Binaural Soundstage [HRTF Acoustic Field]</option>
           <option value="synth_acoustic">Acoustic Guitar Resonance [Mid-Range Warmth]</option>
@@ -265,7 +265,7 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px; height:18px; color:var(--accent-cyan);"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
             <div>
               <h4 style="margin:0; font-size:0.85rem; font-weight:700; color:var(--text-main); letter-spacing:0.02em;">Universal Link & Stream Player</h4>
-              <p style="margin:2px 0 0; font-size:0.7rem; color:var(--text-muted);">Stream from YouTube, Spotify, WhatsApp shared audio, Amazon Music, Apple Music, or direct links</p>
+              <p style="margin:2px 0 0; font-size:0.7rem; color:var(--text-muted);">Stream from YouTube, Spotify, WhatsApp shared audio, Amazon Music, Tidal, JioSaavn HD, or direct links</p>
             </div>
           </div>
           <span id="linkStreamStatus" class="status-pill" style="font-size:0.65rem; padding:2px 8px; border-radius:10px; background:rgba(0,240,255,0.1); color:#00f0ff; border:1px solid rgba(0,240,255,0.25); font-weight:600; text-transform:uppercase;">Ready</span>
@@ -332,7 +332,7 @@
           <span style="color:rgba(255,255,255,0.2);">·</span>
           <span>Amazon Music</span>
           <span style="color:rgba(255,255,255,0.2);">·</span>
-          <span>Apple Music</span>
+          <span>Tidal & Lossless Hi-Fi</span>
           <span style="color:rgba(255,255,255,0.2);">·</span>
           <span>JioSaavn HD</span>
           <span style="color:rgba(255,255,255,0.2);">·</span>
@@ -922,19 +922,19 @@
   </footer>
 
   <!-- Modular Scripts -->
-  <script src="js/data/presets.js?v=50.0.0"></script>
-  <script src="js/audio/audio-engine.js?v=50.0.0"></script>
-  <script src="js/visual/spatial-canvas.js?v=50.0.0"></script>
-  <script src="js/visual/visualizer.js?v=50.0.0"></script>
-  <script src="js/ui/motion-ui.js?v=50.0.0"></script>
-  <script src="js/app.js?v=50.0.0"></script>
+  <script src="js/data/presets.js?v=51.0.0"></script>
+  <script src="js/audio/audio-engine.js?v=51.0.0"></script>
+  <script src="js/visual/spatial-canvas.js?v=51.0.0"></script>
+  <script src="js/visual/visualizer.js?v=51.0.0"></script>
+  <script src="js/ui/motion-ui.js?v=51.0.0"></script>
+  <script src="js/app.js?v=51.0.0"></script>
 
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js?v=50.0.0')
+        navigator.serviceWorker.register('sw.js?v=51.0.0')
           .then(reg => {
-            console.log('Service Worker Registered v50.0.0');
+            console.log('Service Worker Registered v51.0.0');
             reg.update();
           })
           .catch(err => console.log('Service Worker Error', err));
