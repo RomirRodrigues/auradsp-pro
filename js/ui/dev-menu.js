@@ -31,7 +31,7 @@ class AuraDevMenu {
   }
 
   init() {
-    this.bindCreatorClickTriggers();
+    this.bindBrandClickTriggers();
     this.bindKeyboardShortcuts();
     this.bindModalElements();
     this.bindTelemetryControls();
@@ -100,24 +100,35 @@ class AuraDevMenu {
   }
 
   // --- 5-CLICK TRIGGER DETECTION ---
-  bindCreatorClickTriggers() {
-    const creatorElements = document.querySelectorAll('.animated-creator-name');
-    creatorElements.forEach(el => {
+  bindBrandClickTriggers() {
+    // Primary trigger: AuraDSP Pro brand title in header and footer
+    const brandElements = document.querySelectorAll('.animated-brand-text, .footer-title, #brandTitleHeader, #footerBrandTitle');
+    brandElements.forEach(el => {
       el.style.cursor = 'pointer';
-      el.setAttribute('title', 'Romir Rodrigues · AuraDSP Pro Creator');
+      el.setAttribute('title', 'AuraDSP Pro Studio Core (Click 5 times for Developer Console)');
       
       el.addEventListener('click', (e) => {
         e.preventDefault();
-        this.handleCreatorClick(el);
+        this.handleBrandClick(el);
+      });
+    });
+
+    // Also keep creator name as alternate trigger
+    const creatorElements = document.querySelectorAll('.animated-creator-name');
+    creatorElements.forEach(el => {
+      el.style.cursor = 'pointer';
+      el.addEventListener('click', (e) => {
+        e.preventDefault();
+        this.handleBrandClick(el);
       });
     });
   }
 
-  handleCreatorClick(targetElement) {
+  handleBrandClick(targetElement) {
     clearTimeout(this.clickTimer);
     this.clickCount++;
 
-    // Visual pulse animation on clicked name
+    // Visual pulse animation on clicked brand name
     if (targetElement) {
       targetElement.classList.remove('dev-click-pulse');
       void targetElement.offsetWidth; // Force CSS reflow
@@ -127,9 +138,9 @@ class AuraDevMenu {
     this.playClickTick(this.clickCount);
 
     if (this.clickCount === 3) {
-      if (window.showToast) window.showToast('🔧 Dev Console: 2 clicks remaining...', 'info');
+      if (window.showToast) window.showToast('🔧 AuraDSP Dev Console: 2 clicks remaining...', 'info');
     } else if (this.clickCount === 4) {
-      if (window.showToast) window.showToast('⚡ Dev Console: 1 click remaining!', 'warning');
+      if (window.showToast) window.showToast('⚡ AuraDSP Dev Console: 1 click remaining!', 'warning');
     } else if (this.clickCount >= 5) {
       // 5th click -> UNLOCK!
       this.clickCount = 0;
@@ -139,7 +150,7 @@ class AuraDevMenu {
       this.playUnlockFanfare();
 
       if (window.showToast) {
-        window.showToast('🚀 DEVELOPER CONSOLE UNLOCKED — Welcome Romir Rodrigues!', 'success');
+        window.showToast('🚀 DEVELOPER CONSOLE UNLOCKED — AuraDSP Pro Superuser Access!', 'success');
       }
 
       this.openModal();

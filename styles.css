@@ -327,6 +327,29 @@ body.cyber-dark {
   gap: 4px;
   font-weight: 800;
   letter-spacing: 0.04em;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), filter 0.2s ease;
+}
+
+.animated-brand-text:hover {
+  filter: drop-shadow(0 0 10px rgba(0, 240, 255, 0.8));
+}
+
+.animated-brand-text:active {
+  transform: scale(0.96);
+}
+
+.animated-brand-text.dev-click-pulse,
+.footer-title.dev-click-pulse {
+  animation: brandDevPulse 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes brandDevPulse {
+  0% { transform: scale(1); filter: drop-shadow(0 0 4px rgba(0, 240, 255, 0.4)); }
+  50% { transform: scale(1.12); filter: drop-shadow(0 0 20px rgba(0, 240, 255, 1)) drop-shadow(0 0 32px rgba(192, 132, 252, 0.9)); }
+  100% { transform: scale(1); filter: drop-shadow(0 0 6px rgba(0, 240, 255, 0.6)); }
 }
 
 @keyframes brandShimmer {
@@ -2274,6 +2297,18 @@ input:checked + .slider:before {
   font-weight: 700;
   color: var(--accent-cyan);
   letter-spacing: 1px;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: transform 0.2s ease, text-shadow 0.2s ease;
+}
+
+.footer-title:hover {
+  text-shadow: 0 0 10px rgba(0, 240, 255, 0.85);
+}
+
+.footer-title:active {
+  transform: scale(0.96);
 }
 
 .footer-copy {

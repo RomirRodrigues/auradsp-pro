@@ -10,7 +10,7 @@ const CHANGELOG_DATA = [
     tag: 'Latest',
     date: 'Current Release',
     items: [
-      '5-Click Creator Easter Egg: Clicking creator name "Romir Rodrigues" 5 times plays a sci-fi unlock chime and launches the Developer Diagnostics & Superuser Console.',
+      '5-Click AuraDSP Pro Easter Egg: Clicking the "AURA DSP PRO" brand name 5 times plays a sci-fi unlock chime and launches the Developer Diagnostics & Superuser Console.',
       'AudioContext Runtime Telemetry: Live real-time inspection of AudioContext state, sample rate, base & output buffer latency, DSP clock runtime, and channel topology.',
       'Calibrated Reference Signal Generator: Laboratory signal generator for 1 kHz reference sine (-18 dBFS), 440 Hz tuning pitch (A4), 20 Hz – 20 kHz log sine sweep with live frequency tracker, calibrated pink noise, flat white noise, and 1ms Dirac acoustic impulse clicks.',
       'Low-Level DSP Overrides & Safety: Zero-latency master hardware wire passthrough bypass, 16 Hz infrasonic high-pass sub-guard filter, and AI Auto EQ speed governor.',
