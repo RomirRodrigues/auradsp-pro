@@ -3777,4 +3777,148 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // --- CHANGELOG & VERSION HISTORY MODAL LOGIC ---
+  const appVersionTag = document.getElementById('appVersionTag');
+  const changelogModalBackdrop = document.getElementById('changelogModalBackdrop');
+  const closeChangelogBtn = document.getElementById('closeChangelogBtn');
+  const changelogSearchInput = document.getElementById('changelogSearchInput');
+  const changelogCountBadge = document.getElementById('changelogCountBadge');
+  const changelogListContainer = document.getElementById('changelogListContainer');
+
+  const escapeChangelogHtml = (str) => {
+    if (typeof str !== 'string') return '';
+    return str
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  };
+
+  const renderChangelogList = (filterTerm = '') => {
+    if (!changelogListContainer) return;
+    const term = (filterTerm || '').trim().toLowerCase();
+    const dataset = (typeof CHANGELOG_DATA !== 'undefined' && Array.isArray(CHANGELOG_DATA))
+      ? CHANGELOG_DATA
+      : ((typeof window !== 'undefined' && Array.isArray(window.CHANGELOG_DATA)) ? window.CHANGELOG_DATA : []);
+
+    const filtered = dataset.filter(entry => {
+      if (!term) return true;
+      const vMatch = (entry.version || '').toLowerCase().includes(term);
+      const titleMatch = (entry.title || '').toLowerCase().includes(term);
+      const tagMatch = (entry.tag || '').toLowerCase().includes(term);
+      const bulletsMatch = Array.isArray(entry.items) && entry.items.some(b => (b || '').toLowerCase().includes(term));
+      return vMatch || titleMatch || tagMatch || bulletsMatch;
+    });
+
+    if (changelogCountBadge) {
+      changelogCountBadge.textContent = `${filtered.length} Release${filtered.length === 1 ? '' : 's'}`;
+    }
+
+    if (filtered.length === 0) {
+      changelogListContainer.innerHTML = `
+        <div style="text-align:center; padding:40px 16px; color:var(--text-muted); font-size:0.85rem;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:28px; height:28px; opacity:0.4; margin-bottom:8px; display:block; margin:0 auto 8px auto;"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <p style="margin:0 0 4px 0;">No release notes matching "<strong>${escapeChangelogHtml(term)}</strong>"</p>
+          <span style="font-size:0.75rem; opacity:0.7;">Try searching for a version number (e.g. 52, v1) or keyword (e.g. AI EQ, Spotify, 144Hz)</span>
+        </div>
+      `;
+      return;
+    }
+
+    changelogListContainer.innerHTML = filtered.map((entry, index) => {
+      const isLatest = entry.tag === 'Latest' || entry.version === 'v52.0.0' || (index === 0 && !term);
+      const latestClass = isLatest ? ' latest' : '';
+      const tagHtml = entry.tag ? `<span class="changelog-badge-pill">${escapeChangelogHtml(entry.tag)}</span>` : '';
+      const dateHtml = entry.date ? `<span style="font-size:0.68rem; color:var(--text-muted); font-family:var(--font-mono);">${escapeChangelogHtml(entry.date)}</span>` : '';
+      const bulletsHtml = Array.isArray(entry.items) && entry.items.length > 0
+        ? `<ul class="changelog-item-bullets">${entry.items.map(bullet => `<li>${escapeChangelogHtml(bullet)}</li>`).join('')}</ul>`
+        : '';
+
+      return `
+        <div class="changelog-item${latestClass}">
+          <div class="changelog-item-header">
+            <div class="changelog-item-title-group">
+              <span class="changelog-vtag">${escapeChangelogHtml(entry.version)}</span>
+              <span class="changelog-item-title">${escapeChangelogHtml(entry.title)}</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              ${tagHtml}
+              ${dateHtml}
+            </div>
+          </div>
+          ${bulletsHtml}
+        </div>
+      `;
+    }).join('');
+  };
+
+  const openChangelogModal = () => {
+    if (!changelogModalBackdrop) return;
+    renderChangelogList(changelogSearchInput ? changelogSearchInput.value : '');
+    changelogModalBackdrop.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    if (changelogSearchInput) {
+      setTimeout(() => changelogSearchInput.focus(), 80);
+    }
+  };
+
+  const closeChangelogModal = () => {
+    if (!changelogModalBackdrop) return;
+    changelogModalBackdrop.classList.remove('open');
+    document.body.style.overflow = '';
+  };
+
+  if (appVersionTag) {
+    appVersionTag.style.cursor = 'pointer';
+    appVersionTag.setAttribute('role', 'button');
+    appVersionTag.setAttribute('tabindex', '0');
+    appVersionTag.addEventListener('click', (e) => {
+      e.preventDefault();
+      openChangelogModal();
+    });
+    appVersionTag.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        openChangelogModal();
+      }
+    });
+  }
+
+  const footerChangelogLink = document.getElementById('footerChangelogLink');
+  if (footerChangelogLink) {
+    footerChangelogLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      openChangelogModal();
+    });
+  }
+
+  if (closeChangelogBtn) {
+    closeChangelogBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      closeChangelogModal();
+    });
+  }
+
+  if (changelogModalBackdrop) {
+    changelogModalBackdrop.addEventListener('click', (e) => {
+      if (e.target === changelogModalBackdrop) {
+        closeChangelogModal();
+      }
+    });
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && changelogModalBackdrop && changelogModalBackdrop.classList.contains('open')) {
+      closeChangelogModal();
+    }
+  });
+
+  if (changelogSearchInput) {
+    changelogSearchInput.addEventListener('input', (e) => {
+      renderChangelogList(e.target.value);
+    });
+  }
+
 });
+

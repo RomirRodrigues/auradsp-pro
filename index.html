@@ -24,7 +24,7 @@
         </svg>
       </div>
       <div>
-        <div class="brand-title">AURA<span>DSP</span> PRO <span class="version-tag">v50.0</span></div>
+        <div class="brand-title">AURA<span>DSP</span> PRO <span class="version-tag" id="appVersionTag" title="Click to view full Changelog & Version History">v52.0</span></div>
         <p class="subtitle">Reference Studio Audio Workstation & 3D Spatial Processor</p>
       </div>
     </div>
@@ -932,13 +932,42 @@
         &copy; 2026 <strong>Romir Rodrigues</strong>. All rights reserved.
       </div>
       <div class="footer-note">
-        AuraDSP Pro Workstation &nbsp;·&nbsp; Real-Time Web Audio DSP &nbsp;·&nbsp; 3D HRTF Spatial Soundstage &nbsp;·&nbsp; Aura Sound Engine
+        AuraDSP Pro Workstation &nbsp;·&nbsp; Real-Time Web Audio DSP &nbsp;·&nbsp; 3D HRTF Spatial Soundstage &nbsp;·&nbsp; <a href="#" id="footerChangelogLink" style="color:var(--accent-cyan); text-decoration:none; border-bottom:1px dashed rgba(0,240,255,0.4); padding-bottom:1px;" title="View full release notes & version history">v52.0 Release Notes</a>
       </div>
     </div>
   </footer>
 
+  <!-- Changelog & Version History Modal -->
+  <div id="changelogModalBackdrop" class="changelog-modal-backdrop">
+    <div class="changelog-modal" role="dialog" aria-modal="true" aria-labelledby="changelogTitle">
+      <div class="changelog-modal-header">
+        <div class="changelog-header-left">
+          <div class="changelog-title-row">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px; height:20px; color:var(--accent-cyan);"><path d="M12 2v20M17 5v14M7 5v14M2 9v6M22 9v6"/></svg>
+            <h3 id="changelogTitle" style="margin:0; font-size:1.05rem; font-weight:800; color:#fff; letter-spacing:0.02em;">AuraDSP Pro · Version History & Changelog</h3>
+          </div>
+          <p style="margin:4px 0 0; font-size:0.75rem; color:var(--text-muted);">Complete milestone release notes from v1.0.0 (Genesis) to v52.0.0 (Latest)</p>
+        </div>
+        <button id="closeChangelogBtn" class="changelog-close-btn" title="Close Changelog (Esc)">&times;</button>
+      </div>
+
+      <div class="changelog-search-row">
+        <div class="changelog-search-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px; height:14px; color:var(--text-muted);"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input type="text" id="changelogSearchInput" placeholder="Filter by version or feature (e.g. AI EQ, 144Hz, Spatial, Spotify, 10-Band, CORS)...">
+        </div>
+        <span id="changelogCountBadge" class="changelog-count-badge">52 Releases</span>
+      </div>
+
+      <div class="changelog-modal-body" id="changelogListContainer">
+        <!-- Dynamically rendered by app.js -->
+      </div>
+    </div>
+  </div>
+
   <!-- Modular Scripts -->
   <script src="js/data/presets.js?v=52.0.0"></script>
+  <script src="js/data/changelog.js?v=52.0.0"></script>
   <script src="js/audio/audio-engine.js?v=52.0.0"></script>
   <script src="js/visual/spatial-canvas.js?v=52.0.0"></script>
   <script src="js/visual/visualizer.js?v=52.0.0"></script>

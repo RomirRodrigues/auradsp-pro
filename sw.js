@@ -7,6 +7,7 @@ const ASSETS = [
   './js/ui/motion-ui.js',
   './js/audio/audio-engine.js',
   './js/data/presets.js',
+  './js/data/changelog.js',
   './js/visual/spatial-canvas.js',
   './js/visual/visualizer.js',
   './js/dsp/meter-worklet.js'
