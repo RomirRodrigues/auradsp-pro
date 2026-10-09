@@ -204,18 +204,96 @@ body.cyber-dark {
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 2px 6px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(0, 240, 255, 0.28);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 2px 8px rgba(0, 0, 0, 0.5);
+  animation: logoGlowBreathing 4s ease-in-out infinite;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  cursor: pointer;
+}
+
+.logo-icon:hover {
+  transform: scale(1.05);
+  border-color: rgba(0, 240, 255, 0.85);
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.45), 0 0 35px rgba(168, 85, 247, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.25);
 }
 
 .logo-icon svg {
   width: 20px;
   height: 20px;
   color: var(--accent-cyan);
+  overflow: visible;
 }
 
-.pulse-ring {
-  display: none !important;
+/* Individual Equalizer Waveform Bars in Logo */
+.wave-bar {
+  transform-box: fill-box;
+  transform-origin: center;
+  stroke: var(--accent-cyan);
+  transition: stroke 0.3s ease;
+}
+
+.bar-1 { animation: waveBounce 1.5s ease-in-out infinite alternate 0.1s; }
+.bar-2 { animation: waveBounce 1.1s ease-in-out infinite alternate 0.3s; }
+.bar-3 { animation: waveBounce 1.7s ease-in-out infinite alternate 0.0s; stroke: #38bdf8; }
+.bar-4 { animation: waveBounce 1.25s ease-in-out infinite alternate 0.25s; }
+.bar-5 { animation: waveBounce 1.45s ease-in-out infinite alternate 0.4s; }
+
+@keyframes waveBounce {
+  0% {
+    transform: scaleY(0.28);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scaleY(1.0);
+    opacity: 1;
+  }
+  100% {
+    transform: scaleY(0.42);
+    opacity: 0.8;
+  }
+}
+
+/* Live High-Energy Waveform when audio plays */
+.logo-icon.is-playing .bar-1 { animation: waveBounceFast 0.6s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate 0.05s; stroke: #38bdf8; }
+.logo-icon.is-playing .bar-2 { animation: waveBounceFast 0.45s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate 0.15s; stroke: #00f0ff; }
+.logo-icon.is-playing .bar-3 { animation: waveBounceFast 0.7s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate 0.0s; stroke: #a855f7; }
+.logo-icon.is-playing .bar-4 { animation: waveBounceFast 0.5s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate 0.2s; stroke: #00f0ff; }
+.logo-icon.is-playing .bar-5 { animation: waveBounceFast 0.65s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate 0.1s; stroke: #38bdf8; }
+
+.logo-icon.is-playing {
+  border-color: rgba(0, 240, 255, 0.7);
+  box-shadow: 0 0 16px rgba(0, 240, 255, 0.35), 0 0 28px rgba(168, 85, 247, 0.2);
+}
+
+@keyframes waveBounceFast {
+  0% {
+    transform: scaleY(0.18);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scaleY(1.18);
+    opacity: 1;
+  }
+  100% {
+    transform: scaleY(0.3);
+    opacity: 0.85;
+  }
+}
+
+@keyframes logoGlowBreathing {
+  0% {
+    border-color: rgba(0, 240, 255, 0.2);
+    box-shadow: 0 0 10px rgba(0, 240, 255, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  }
+  50% {
+    border-color: rgba(0, 240, 255, 0.6);
+    box-shadow: 0 0 18px rgba(0, 240, 255, 0.35), 0 0 30px rgba(168, 85, 247, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  }
+  100% {
+    border-color: rgba(0, 240, 255, 0.2);
+    box-shadow: 0 0 10px rgba(0, 240, 255, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  }
 }
 
 .brand-title {
@@ -229,8 +307,91 @@ body.cyber-dark {
   line-height: 1.2;
 }
 
-.brand-title span {
-  color: var(--accent-cyan);
+.animated-brand-text {
+  background: linear-gradient(
+    110deg,
+    #ffffff 0%,
+    #ffffff 20%,
+    #00f0ff 40%,
+    #38bdf8 50%,
+    #c084fc 65%,
+    #ffffff 80%,
+    #ffffff 100%
+  );
+  background-size: 240% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: brandShimmer 5s ease-in-out infinite;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+@keyframes brandShimmer {
+  0% {
+    background-position: 120% 0;
+  }
+  100% {
+    background-position: -120% 0;
+  }
+}
+
+.brand-dsp-badge {
+  color: #00f0ff;
+  -webkit-text-fill-color: #00f0ff;
+  text-shadow: 0 0 10px rgba(0, 240, 255, 0.6);
+  animation: dspPulseGlow 3s ease-in-out infinite alternate;
+}
+
+@keyframes dspPulseGlow {
+  0% {
+    text-shadow: 0 0 6px rgba(0, 240, 255, 0.4);
+  }
+  100% {
+    text-shadow: 0 0 18px rgba(0, 240, 255, 0.95), 0 0 30px rgba(0, 240, 255, 0.4);
+  }
+}
+
+.animated-creator-name {
+  font-weight: 700;
+  background: linear-gradient(
+    120deg,
+    #00f0ff 0%,
+    #38bdf8 15%,
+    #a855f7 35%,
+    #ec4899 55%,
+    #fbbf24 75%,
+    #00f0ff 100%
+  );
+  background-size: 280% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: nameHoloShine 5s linear infinite;
+  display: inline-block;
+  letter-spacing: 0.02em;
+  position: relative;
+  text-shadow: 0 0 10px rgba(0, 240, 255, 0.25);
+  transition: all 0.25s ease;
+}
+
+.animated-creator-name:hover {
+  animation-duration: 2s;
+  filter: drop-shadow(0 0 8px rgba(0, 240, 255, 0.7));
+  transform: translateY(-0.5px);
+}
+
+@keyframes nameHoloShine {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 .brand-title .version-tag {
@@ -2195,7 +2356,15 @@ input:checked + .slider:before {
   .logo-container h1 {
     font-size: 1.1rem;
   }
-  .subtitle { display: none; }
+  .subtitle {
+    display: block !important;
+    font-size: 0.64rem !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 180px;
+    margin: 2px 0 0 0;
+  }
   .logo-icon { width: 36px; height: 36px; }
   .status-bar {
     display: none; /* hide desktop status bar on mobile */
@@ -2891,7 +3060,12 @@ input[type=range]:not(.eq-slider)::-webkit-slider-thumb:hover {
   }
 
   .logo-container .subtitle {
-    display: none !important;
+    display: block !important;
+    font-size: 0.65rem !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
   }
 
   .vis-btn, .sm-btn, .source-btn {

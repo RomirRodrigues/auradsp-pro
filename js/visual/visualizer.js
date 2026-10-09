@@ -41,6 +41,8 @@ class AudioVisualizer {
     // Cached elements
     this.player = document.getElementById('audioPlayer');
     this.fpsCountText = document.getElementById('fpsCountText');
+    this.brandLogoIcon = document.getElementById('brandLogoIcon');
+    this._lastLogoPlaying = null;
 
     this.initResizeHandling();
     this.startLoop();
@@ -188,6 +190,12 @@ class AudioVisualizer {
         isActivelyPlaying = false;
         dataArray.fill(this.visMode === 'bars' ? 0 : 128);
       }
+    }
+
+    // Toggle live playback state on brand logo soundwave
+    if (this.brandLogoIcon && isActivelyPlaying !== this._lastLogoPlaying) {
+      this._lastLogoPlaying = isActivelyPlaying;
+      this.brandLogoIcon.classList.toggle('is-playing', isActivelyPlaying);
     }
 
     // 3. Render Mode
