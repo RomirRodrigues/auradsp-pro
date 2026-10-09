@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=49.0.0">
+  <link rel="stylesheet" href="styles.css?v=50.0.0">
   <link rel="manifest" href="manifest.json">
 </head>
 <body class="theme-studio">
@@ -24,7 +24,7 @@
         </svg>
       </div>
       <div>
-        <div class="brand-title">AURA<span>DSP</span> PRO <span class="version-tag">v49.0</span></div>
+        <div class="brand-title">AURA<span>DSP</span> PRO <span class="version-tag">v50.0</span></div>
         <p class="subtitle">Reference Studio Audio Workstation & 3D Spatial Processor</p>
       </div>
     </div>
@@ -38,6 +38,10 @@
       <div class="device-badge" id="activeDeviceBadge">
         <span class="dot"></span>
         <span id="activeDeviceText">Aura Reference Active</span>
+      </div>
+      <div class="fps-badge" id="fpsBadge" title="Ultra-High Refresh Render Pipeline (60 / 144 / 240 FPS)">
+        <span class="dot"></span>
+        <span id="fpsCountText">144 FPS</span>
       </div>
 
       <div class="header-tools-group">
@@ -918,19 +922,19 @@
   </footer>
 
   <!-- Modular Scripts -->
-  <script src="js/data/presets.js?v=49.0.0"></script>
-  <script src="js/audio/audio-engine.js?v=49.0.0"></script>
-  <script src="js/visual/spatial-canvas.js?v=49.0.0"></script>
-  <script src="js/visual/visualizer.js?v=49.0.0"></script>
-  <script src="js/ui/motion-ui.js?v=49.0.0"></script>
-  <script src="js/app.js?v=49.0.0"></script>
+  <script src="js/data/presets.js?v=50.0.0"></script>
+  <script src="js/audio/audio-engine.js?v=50.0.0"></script>
+  <script src="js/visual/spatial-canvas.js?v=50.0.0"></script>
+  <script src="js/visual/visualizer.js?v=50.0.0"></script>
+  <script src="js/ui/motion-ui.js?v=50.0.0"></script>
+  <script src="js/app.js?v=50.0.0"></script>
 
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js?v=49.0.0')
+        navigator.serviceWorker.register('sw.js?v=50.0.0')
           .then(reg => {
-            console.log('Service Worker Registered v49.0.0');
+            console.log('Service Worker Registered v50.0.0');
             reg.update();
           })
           .catch(err => console.log('Service Worker Error', err));

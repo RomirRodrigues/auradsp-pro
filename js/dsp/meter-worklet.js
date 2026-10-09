@@ -12,12 +12,14 @@ class MeterProcessor extends AudioWorkletProcessor {
     // For Stereo Correlation
     this.crossSum = 0;
 
+    // High-Refresh Meter Updates (~240Hz update rate)
+    this.updateInterval = Math.max(128, Math.round(sampleRate / 240)); 
+    this.fps = sampleRate / this.updateInterval;
+
     // LUFS buffers (rolling window)
     this.lufsHistory = [];
-    this.maxLufsHistory = 180; // ~3 seconds at 60fps
-
-    // Send updates every 16ms (~60fps)
-    this.updateInterval = sampleRate * 0.016; 
+    this.maxLufsHistory = Math.round(3.0 * this.fps); // ~3 seconds short-term
+    this.momWindowSize = Math.max(10, Math.round(0.4 * this.fps)); // ~400ms momentary
   }
 
   process(inputs, outputs, parameters) {
@@ -70,8 +72,8 @@ class MeterProcessor extends AudioWorkletProcessor {
         this.lufsHistory.shift();
       }
 
-      // Momentary (last 25 frames)
-      const momFrames = this.lufsHistory.slice(-25);
+      // Momentary (last 400ms)
+      const momFrames = this.lufsHistory.slice(-this.momWindowSize);
       const momPower = momFrames.reduce((a, b) => a + b, 0) / (momFrames.length || 1);
       const lufsMomentary = momPower > 0.00000001 ? -0.691 + 10 * Math.log10(momPower) : -100;
 

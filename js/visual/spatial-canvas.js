@@ -1,13 +1,15 @@
 /**
  * Spatial Audio 3D Stage & HRTF Canvas Controller
+ * Optimized for ultra-high refresh rate rendering (144Hz / 240Hz)
  */
 
 class SpatialCanvas {
   constructor(canvasId) {
     this.canvas = document.getElementById(canvasId);
-    this.ctx = this.canvas.getContext('2d');
-    this.width = this.canvas.width;
-    this.height = this.canvas.height;
+    this.ctx = this.canvas ? this.canvas.getContext('2d', { alpha: true }) : null;
+    this.dpr = window.devicePixelRatio || 1;
+    this.width = this.canvas ? this.canvas.width : 300;
+    this.height = this.canvas ? this.canvas.height : 300;
     this.centerX = this.width / 2;
     this.centerY = this.height / 2;
     this.radius = 120; // 3D soundstage outer ring radius
@@ -21,32 +23,75 @@ class SpatialCanvas {
     this.isOrbiting = true;
     this.autoPattern = 'orbit';
     this.orbitAngle = 0;
-    this.baseOrbitSpeed = 0.015; // Base speed step
+    this.baseOrbitSpeed = 0.015; // Base speed step (60Hz normalized)
     this.speedMultiplier = 1.0;
     this.orbitRadiusMultiplier = 0.85; // Default distance
 
+    // Cached UI elements
+    this.elAz = document.getElementById('spatAzimuth');
+    this.elDist = document.getElementById('spatDistance');
+    this.orbitToggleBtn = document.getElementById('spatOrbitToggle');
+    this.lastAzText = '';
+    this.lastDistText = '';
+
     this.initEvents();
+    this.initResize();
     this.startLoop();
   }
 
-  initEvents() {
-    const getCanvasCoords = (e) => {
+  initResize() {
+    if (!this.canvas) return;
+    const resize = () => {
+      this.dpr = window.devicePixelRatio || 1;
       const rect = this.canvas.getBoundingClientRect();
+      if (rect && rect.width > 0 && rect.height > 0) {
+        const tw = Math.round(rect.width * this.dpr);
+        const th = Math.round(rect.height * this.dpr);
+        if (this.canvas.width !== tw || this.canvas.height !== th) {
+          this.canvas.width = tw;
+          this.canvas.height = th;
+          this.width = tw;
+          this.height = th;
+          this.centerX = tw / 2;
+          this.centerY = th / 2;
+          this.radius = Math.min(this.centerX, this.centerY) * 0.8;
+        }
+      }
+    };
+    if (window.ResizeObserver) {
+      new ResizeObserver(resize).observe(this.canvas);
+    }
+    window.addEventListener('resize', resize);
+    setTimeout(resize, 40);
+  }
+
+  initEvents() {
+    if (!this.canvas) return;
+
+    let cachedRect = null;
+    const updateRect = () => {
+      cachedRect = this.canvas.getBoundingClientRect();
+    };
+
+    const getCanvasCoords = (e) => {
+      if (!cachedRect) updateRect();
       const clientX = e.touches ? e.touches[0].clientX : e.clientX;
       const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      const dprScale = this.width / (cachedRect.width || 1);
       return {
-        x: clientX - rect.left - this.centerX,
-        y: clientY - rect.top - this.centerY
+        x: (clientX - cachedRect.left) * dprScale - this.centerX,
+        y: (clientY - cachedRect.top) * dprScale - this.centerY
       };
     };
 
     const startDrag = (e) => {
+      updateRect();
       const pos = getCanvasCoords(e);
       const dist = Math.hypot(pos.x - this.sourceX, pos.y - this.sourceY);
-      if (dist < 28) {
+      if (dist < 32 * this.dpr) {
         this.isDragging = true;
         this.isOrbiting = false;
-        document.getElementById('spatOrbitToggle')?.classList.remove('active');
+        if (this.orbitToggleBtn) this.orbitToggleBtn.classList.remove('active');
       }
     };
 
@@ -73,31 +118,31 @@ class SpatialCanvas {
     window.addEventListener('mousemove', doDrag);
     window.addEventListener('mouseup', endDrag);
 
-    this.canvas.addEventListener('touchstart', startDrag);
-    window.addEventListener('touchmove', doDrag);
+    this.canvas.addEventListener('touchstart', startDrag, { passive: true });
+    window.addEventListener('touchmove', doDrag, { passive: true });
     window.addEventListener('touchend', endDrag);
   }
 
   setPresetAngle(angleKey) {
     this.isOrbiting = false;
-    document.getElementById('spatOrbitToggle')?.classList.remove('active');
+    if (this.orbitToggleBtn) this.orbitToggleBtn.classList.remove('active');
 
     switch (angleKey) {
       case 'front':
         this.sourceX = 0;
-        this.sourceY = -100;
+        this.sourceY = -this.radius * 0.85;
         break;
       case 'left':
-        this.sourceX = -100;
+        this.sourceX = -this.radius * 0.85;
         this.sourceY = 0;
         break;
       case 'right':
-        this.sourceX = 100;
+        this.sourceX = this.radius * 0.85;
         this.sourceY = 0;
         break;
       case 'behind':
         this.sourceX = 0;
-        this.sourceY = 100;
+        this.sourceY = this.radius * 0.85;
         break;
     }
     this.updateAudioPosition();
@@ -115,7 +160,7 @@ class SpatialCanvas {
   setOrbitRadius(radiusPercent) {
     this.orbitRadiusMultiplier = parseFloat(radiusPercent) / 100;
     if (!this.isOrbiting) {
-      this.draw(); // Force redraw if paused so user sees the change immediately
+      this.draw(0.016);
     }
   }
 
@@ -125,88 +170,99 @@ class SpatialCanvas {
   }
 
   updateAudioPosition() {
-    // Map Canvas Coordinates to Web Audio API 3D Meter Coordinates (-4.0m to +4.0m)
-    const audioX = (this.sourceX / this.radius) * 4.0;
-    const audioY = (-this.sourceY / this.radius) * 4.0;
+    const audioX = (this.sourceX / (this.radius || 1)) * 4.0;
+    const audioY = (-this.sourceY / (this.radius || 1)) * 4.0;
     const audioZ = this.sourceZ;
 
     if (window.audioEngine) {
       window.audioEngine.set3DPosition(audioX, audioZ, -audioY);
     }
 
-    // Update UI Stats
     const azimuthDeg = Math.round((Math.atan2(this.sourceX, -this.sourceY) * 180) / Math.PI);
     const distanceMeters = Math.hypot(audioX, audioY, audioZ).toFixed(1);
 
-    const elAz = document.getElementById('spatAzimuth');
-    const elDist = document.getElementById('spatDistance');
-    if (elAz) elAz.textContent = `${azimuthDeg > 0 ? '+' : ''}${azimuthDeg}°`;
-    if (elDist) elDist.textContent = `${distanceMeters}m`;
+    const azText = `${azimuthDeg > 0 ? '+' : ''}${azimuthDeg}°`;
+    const distText = `${distanceMeters}m`;
+
+    if (this.elAz && this.lastAzText !== azText) {
+      this.elAz.textContent = azText;
+      this.lastAzText = azText;
+    }
+    if (this.elDist && this.lastDistText !== distText) {
+      this.elDist.textContent = distText;
+      this.lastDistText = distText;
+    }
   }
 
-  draw() {
-    this.ctx.clearRect(0, 0, this.width, this.height);
+  draw(dt) {
+    if (!this.ctx) return;
+    const ctx = this.ctx;
+    const dpr = this.dpr;
 
-    // 1. Draw 3D Radial Soundstage Rings with direction indicators
-    for (let r = 40; r <= this.radius; r += 40) {
-      this.ctx.beginPath();
-      this.ctx.arc(this.centerX, this.centerY, r, 0, Math.PI * 2);
-      this.ctx.strokeStyle = r === this.radius ? 'rgba(0, 240, 255, 0.4)' : 'rgba(255, 255, 255, 0.08)';
-      this.ctx.lineWidth = r === this.radius ? 2 : 1;
-      this.ctx.setLineDash(r === this.radius ? [] : [4, 4]);
-      this.ctx.stroke();
-      this.ctx.setLineDash([]);
+    ctx.clearRect(0, 0, this.width, this.height);
+
+    // 1. 3D Radial Soundstage Rings
+    const step = this.radius / 3;
+    for (let r = step; r <= this.radius; r += step) {
+      ctx.beginPath();
+      ctx.arc(this.centerX, this.centerY, r, 0, Math.PI * 2);
+      ctx.strokeStyle = Math.abs(r - this.radius) < 2 ? 'rgba(0, 194, 203, 0.4)' : 'rgba(255, 255, 255, 0.08)';
+      ctx.lineWidth = Math.abs(r - this.radius) < 2 ? 1.5 * dpr : 1 * dpr;
+      ctx.setLineDash(Math.abs(r - this.radius) < 2 ? [] : [3 * dpr, 3 * dpr]);
+      ctx.stroke();
+      ctx.setLineDash([]);
     }
 
-    // 2. Draw Quadrant Crosshair Axes
-    this.ctx.beginPath();
-    this.ctx.moveTo(this.centerX - this.radius, this.centerY);
-    this.ctx.lineTo(this.centerX + this.radius, this.centerY);
-    this.ctx.moveTo(this.centerX, this.centerY - this.radius);
-    this.ctx.lineTo(this.centerX, this.centerY + this.radius);
-    this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
-    this.ctx.stroke();
+    // 2. Crosshair Axes
+    ctx.beginPath();
+    ctx.moveTo(this.centerX - this.radius, this.centerY);
+    ctx.lineTo(this.centerX + this.radius, this.centerY);
+    ctx.moveTo(this.centerX, this.centerY - this.radius);
+    ctx.lineTo(this.centerX, this.centerY + this.radius);
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+    ctx.lineWidth = 1 * dpr;
+    ctx.stroke();
 
-    // Cardinal Labels (L, R, F, B)
-    this.ctx.font = '10px "JetBrains Mono"';
-    this.ctx.fillStyle = 'rgba(0, 240, 255, 0.6)';
-    this.ctx.textAlign = 'center';
-    this.ctx.fillText('FRONT', this.centerX, this.centerY - this.radius + 12);
-    this.ctx.fillText('BACK', this.centerX, this.centerY + this.radius - 4);
-    this.ctx.fillText('L', this.centerX - this.radius + 10, this.centerY + 3);
-    this.ctx.fillText('R', this.centerX + this.radius - 10, this.centerY + 3);
+    // Cardinal Labels
+    ctx.font = `${Math.round(10 * dpr)}px "JetBrains Mono", monospace`;
+    ctx.fillStyle = 'rgba(0, 194, 203, 0.7)';
+    ctx.textAlign = 'center';
+    ctx.fillText('FRONT', this.centerX, this.centerY - this.radius + 14 * dpr);
+    ctx.fillText('BACK', this.centerX, this.centerY + this.radius - 6 * dpr);
+    ctx.fillText('L', this.centerX - this.radius + 12 * dpr, this.centerY + 4 * dpr);
+    ctx.fillText('R', this.centerX + this.radius - 12 * dpr, this.centerY + 4 * dpr);
 
-    // 3. Draw Center Listener Head
-    this.ctx.save();
-    this.ctx.translate(this.centerX, this.centerY);
-    
-    // Head Glow
-    this.ctx.beginPath();
-    this.ctx.arc(0, 0, 18, 0, Math.PI * 2);
-    this.ctx.fillStyle = '#7000ff';
-    this.ctx.shadowColor = '#7000ff';
-    this.ctx.shadowBlur = 16;
-    this.ctx.fill();
+    // 3. Center Listener Head
+    ctx.save();
+    ctx.translate(this.centerX, this.centerY);
 
-    // Earbud / Speaker Icons
-    this.ctx.fillStyle = '#00f0ff';
-    this.ctx.fillRect(-22, -5, 4, 10); // Left Ear
-    this.ctx.fillRect(18, -5, 4, 10);  // Right Ear
+    // Head Core
+    ctx.beginPath();
+    ctx.arc(0, 0, 16 * dpr, 0, Math.PI * 2);
+    ctx.fillStyle = '#1e2433';
+    ctx.strokeStyle = '#00c2cb';
+    ctx.lineWidth = 2 * dpr;
+    ctx.fill();
+    ctx.stroke();
 
-    // Nose direction arrow (Front)
-    this.ctx.beginPath();
-    this.ctx.moveTo(-6, -18);
-    this.ctx.lineTo(0, -26);
-    this.ctx.lineTo(6, -18);
-    this.ctx.fillStyle = '#00f0ff';
-    this.ctx.fill();
+    // Ear Indicators
+    ctx.fillStyle = '#00c2cb';
+    ctx.fillRect(-20 * dpr, -4 * dpr, 3 * dpr, 8 * dpr);
+    ctx.fillRect(17 * dpr, -4 * dpr, 3 * dpr, 8 * dpr);
 
-    this.ctx.restore();
+    // Nose direction
+    ctx.beginPath();
+    ctx.moveTo(-5 * dpr, -16 * dpr);
+    ctx.lineTo(0, -23 * dpr);
+    ctx.lineTo(5 * dpr, -16 * dpr);
+    ctx.fillStyle = '#00c2cb';
+    ctx.fill();
+    ctx.restore();
 
-
-    // 4. Auto 3D Orbit & Pattern Movement calculation with speed control
+    // 4. Auto 3D Orbit Delta-Time Calculation (Independent of 60Hz/144Hz/240Hz)
     if (this.isOrbiting && !this.isDragging) {
-      this.orbitAngle += this.baseOrbitSpeed * this.speedMultiplier;
+      const safeDt = Math.max(0.001, Math.min(0.05, dt || 0.016));
+      this.orbitAngle += (this.baseOrbitSpeed * 60) * this.speedMultiplier * safeDt;
       const rad = this.radius * this.orbitRadiusMultiplier;
 
       if (this.autoPattern === 'figure8') {
@@ -219,58 +275,54 @@ class SpatialCanvas {
         this.sourceX = (Math.sin(this.orbitAngle * 1.3) + Math.cos(this.orbitAngle * 0.7)) * rad * 0.5;
         this.sourceY = (Math.cos(this.orbitAngle * 1.1) - Math.sin(this.orbitAngle * 0.5)) * rad * 0.5;
       } else {
-        // Default orbit
         this.sourceX = Math.sin(this.orbitAngle) * rad;
         this.sourceY = -Math.cos(this.orbitAngle) * rad;
       }
       this.updateAudioPosition();
     }
 
+    // 5. Sound Beam Connection
+    const targetX = this.centerX + this.sourceX;
+    const targetY = this.centerY + this.sourceY;
 
-    // 5. Draw Sound Beam Connection Line
-    const targetCanvasX = this.centerX + this.sourceX;
-    const targetCanvasY = this.centerY + this.sourceY;
+    ctx.beginPath();
+    ctx.moveTo(this.centerX, this.centerY);
+    ctx.lineTo(targetX, targetY);
+    ctx.strokeStyle = 'rgba(0, 194, 203, 0.45)';
+    ctx.lineWidth = 1.5 * dpr;
+    ctx.setLineDash([3 * dpr, 3 * dpr]);
+    ctx.stroke();
+    ctx.setLineDash([]);
 
-    this.ctx.beginPath();
-    this.ctx.moveTo(this.centerX, this.centerY);
-    this.ctx.lineTo(targetCanvasX, targetCanvasY);
-    this.ctx.strokeStyle = 'rgba(0, 240, 255, 0.6)';
-    this.ctx.lineWidth = 2;
-    this.ctx.setLineDash([3, 3]);
-    this.ctx.stroke();
-    this.ctx.setLineDash([]);
+    // 6. Glowing 3D Audio Source Node
+    ctx.beginPath();
+    ctx.arc(targetX, targetY, 11 * dpr, 0, Math.PI * 2);
+    ctx.fillStyle = '#00c2cb';
+    ctx.fill();
 
-    // 6. Draw Glowing 3D Audio Source Node
-    this.ctx.save();
-    this.ctx.beginPath();
-    this.ctx.arc(targetCanvasX, targetCanvasY, 13, 0, Math.PI * 2);
-    this.ctx.fillStyle = '#00f0ff';
-    this.ctx.shadowColor = '#00f0ff';
-    this.ctx.shadowBlur = 24;
-    this.ctx.fill();
+    // Concentric Halo Ring
+    const pulseOffset = (Math.sin(Date.now() / 120) * 3 + 4) * dpr;
+    ctx.beginPath();
+    ctx.arc(targetX, targetY, 11 * dpr + pulseOffset, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(0, 194, 203, 0.5)';
+    ctx.lineWidth = 1.5 * dpr;
+    ctx.stroke();
 
-    // Dynamic Pulsing Outer Wave Ring
-    const pulseSize = 13 + (Math.sin(Date.now() / 150) * 5);
-    this.ctx.beginPath();
-    this.ctx.arc(targetCanvasX, targetCanvasY, pulseSize + 4, 0, Math.PI * 2);
-    this.ctx.strokeStyle = 'rgba(0, 240, 255, 0.7)';
-    this.ctx.lineWidth = 1.5;
-    this.ctx.stroke();
-
-    // Text Label
-    this.ctx.font = '10px "JetBrains Mono"';
-    this.ctx.fillStyle = '#ffffff';
-    this.ctx.textAlign = 'center';
-    this.ctx.fillText('3D SOURCE', targetCanvasX, targetCanvasY - 18);
-
-    this.ctx.restore();
+    // Source Label
+    ctx.font = `${Math.round(9 * dpr)}px "JetBrains Mono", monospace`;
+    ctx.fillStyle = '#ffffff';
+    ctx.textAlign = 'center';
+    ctx.fillText('3D SOURCE', targetX, targetY - 16 * dpr);
   }
 
   startLoop() {
-    const render = () => {
-      this.draw();
+    let lastTime = performance.now();
+    const render = (now) => {
+      const dt = Math.min(0.05, (now - lastTime) / 1000);
+      lastTime = now;
+      this.draw(dt);
       requestAnimationFrame(render);
     };
-    render();
+    requestAnimationFrame(render);
   }
 }

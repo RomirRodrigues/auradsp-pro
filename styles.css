@@ -1014,20 +1014,28 @@ input[type="range"]:not(.eq-slider)::-webkit-slider-thumb:hover {
 }
 
 .vu-channel {
-  height: 8px;
-  background: rgba(255, 255, 255, 0.06);
-  border-radius: var(--radius-full);
+  position: relative;
+  height: 10px;
+  background: #090c13;
+  border-radius: var(--radius-xs);
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.7);
 }
 
 .vu-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
   height: 100%;
-  width: 0%;
+  width: 100%;
+  transform-origin: left center;
+  transform: scaleX(0);
   background: linear-gradient(90deg, #10b981 60%, #f59e0b 85%, #ef4444 100%);
-  border-radius: var(--radius-full);
-  transition: width 0.04s ease-out;
-  box-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
+  border-radius: inherit;
+  transition: none !important;
+  will-change: transform;
+  pointer-events: none;
 }
 
 /* CENTER PANEL: VISUALIZER & EQ */
@@ -2522,24 +2530,29 @@ body.font-roboto {
 }
 
 .vu-channel {
-  height: 14px !important;
+  height: 12px !important;
   width: 100% !important;
-  background: rgba(255, 255, 255, 0.08) !important;
-  border-radius: 7px !important;
+  background: #090c13 !important;
+  border-radius: var(--radius-xs) !important;
   overflow: hidden !important;
   position: relative !important;
-  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
   box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.8) !important;
 }
 
 .vu-fill {
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
   display: block !important;
   height: 100% !important;
-  width: 0% !important;
-  background: linear-gradient(90deg, #00ffa3 0%, #00f0ff 65%, #ffd700 85%, #ff2a5f 100%) !important;
-  transition: width 0.04s ease-out !important;
-  box-shadow: 0 0 14px rgba(0, 240, 255, 0.6) !important;
-  border-radius: 7px !important;
+  width: 100% !important;
+  transform-origin: left center !important;
+  transform: scaleX(0);
+  background: linear-gradient(90deg, #10b981 0%, #00c2cb 65%, #f59e0b 85%, #ef4444 100%) !important;
+  transition: none !important;
+  will-change: transform !important;
+  pointer-events: none !important;
   opacity: 1 !important;
 }
 
@@ -2948,21 +2961,26 @@ input[type=range]:not(.eq-slider):active::-webkit-slider-thumb {
 }
 
 .vu-channel {
-  height: 12px !important;
-  background: rgba(255, 255, 255, 0.05) !important;
-  border-radius: 6px !important;
+  height: 10px !important;
+  background: #090c13 !important;
+  border-radius: var(--radius-xs) !important;
   overflow: hidden !important;
   position: relative !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
 }
 
 .vu-fill {
-  position: relative !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
   height: 100% !important;
-  width: 0% !important;
-  background: linear-gradient(90deg, #00ffa3 0%, #00f0ff 65%, #ffd700 85%, #ff2a5f 100%) !important;
-  transition: width 0.05s ease-out !important;
-  box-shadow: 0 0 10px rgba(0, 240, 255, 0.5) !important;
+  width: 100% !important;
+  transform-origin: left center !important;
+  transform: scaleX(0);
+  background: linear-gradient(90deg, #10b981 0%, #00c2cb 65%, #f59e0b 85%, #ef4444 100%) !important;
+  transition: none !important;
+  will-change: transform !important;
+  pointer-events: none !important;
   opacity: 1 !important;
 }
 
@@ -3230,6 +3248,9 @@ input[type="range"]:not(.eq-slider)::-webkit-slider-thumb:hover {
   display: block !important;
   width: 100% !important;
   box-sizing: border-box !important;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  will-change: contents;
 }
 
 #spectrumCanvas {
@@ -3257,15 +3278,51 @@ select.cyber-select:focus, select.cyber-select-sm:focus, input.cyber-input:focus
   border-color: var(--accent-cyan) !important;
 }
 
-/* 8. VU Meter Signal Scaling */
+/* 8. VU Meter Signal Scaling & Ultra-High FPS Pipeline */
 .vu-channel {
+  position: relative !important;
   background: #0a0d14 !important;
   border: 1px solid rgba(255, 255, 255, 0.06) !important;
   box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.7) !important;
 }
 
 .vu-fill {
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  height: 100% !important;
+  width: 100% !important;
+  transform-origin: left center !important;
+  transform: scaleX(0);
   background: linear-gradient(90deg, #10b981 0%, #00c2cb 65%, #f59e0b 85%, #ef4444 100%) !important;
+  will-change: transform !important;
+  transition: none !important;
+  pointer-events: none !important;
+}
+
+/* 9. Real-Time Hardware Refresh Pipeline Badge */
+.fps-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--accent-green);
+  letter-spacing: 0.03em;
+}
+
+.fps-badge .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent-green);
+  box-shadow: 0 0 6px var(--accent-green);
+  display: inline-block;
 }
 
 
