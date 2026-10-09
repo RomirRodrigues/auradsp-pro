@@ -817,35 +817,74 @@ class AudioEngine {
   }
 
   getAiSpectrumData() {
-    if (!this.aiAnalyserNode || !this.ctx) return null;
-    const buffer = new Uint8Array(this.aiAnalyserNode.frequencyBinCount);
-    this.aiAnalyserNode.getByteFrequencyData(buffer);
-    return {
-      buffer,
-      sampleRate: this.ctx.sampleRate || 48000,
-      fftSize: this.aiAnalyserNode.fftSize
-    };
+    if (!this.ctx) return null;
+
+    // 1. Try dedicated high-resolution AI analyser node
+    if (this.aiAnalyserNode) {
+      const buffer = new Uint8Array(this.aiAnalyserNode.frequencyBinCount);
+      this.aiAnalyserNode.getByteFrequencyData(buffer);
+      let sum = 0;
+      for (let i = 0; i < Math.min(64, buffer.length); i++) sum += buffer[i];
+      if (sum > 0) {
+        return {
+          buffer,
+          sampleRate: this.ctx.sampleRate || 48000,
+          fftSize: this.aiAnalyserNode.fftSize
+        };
+      }
+    }
+
+    // 2. Fallback to main visualizer analyser node if available
+    if (this.analyserNode) {
+      const buffer = new Uint8Array(this.analyserNode.frequencyBinCount);
+      this.analyserNode.getByteFrequencyData(buffer);
+      return {
+        buffer,
+        sampleRate: this.ctx.sampleRate || 48000,
+        fftSize: this.analyserNode.fftSize
+      };
+    }
+
+    return null;
   }
 
   isActivelyProducingSound() {
-    if (!this.ctx || this.ctx.state !== 'running') return false;
-    const mediaPlaying = (this.connectedElement && !this.connectedElement.paused && this.connectedElement.currentTime > 0);
-    const bufferPlaying = this.isBufferPlaying || this.isPlaying;
-    const webAudioPlaying = (window.webAudioPlayer && !window.webAudioPlayer.paused && window.webAudioPlayer.currentTime > 0);
-    const audioPlayer = document.getElementById('audioPlayer');
-    const localAudioPlaying = (audioPlayer && !audioPlayer.paused && audioPlayer.currentTime > 0);
-    
-    if (!mediaPlaying && !bufferPlaying && !webAudioPlaying && !localAudioPlaying) return false;
+    if (!this.ctx) return false;
+    if (this.ctx.state === 'suspended') {
+      try { this.ctx.resume(); } catch (e) {}
+    }
 
-    // Check actual audio energy from analyser to verify sound isn't in a silent gap
+    // 1. Standard HTML5 Audio elements
+    const audioPlayer = document.getElementById('audioPlayer');
+    const localAudioPlaying = !!(audioPlayer && !audioPlayer.paused && !audioPlayer.ended);
+    const mediaPlaying = !!(this.connectedElement && !this.connectedElement.paused && !this.connectedElement.ended);
+    const webAudioPlaying = !!(window.webAudioPlayer && !window.webAudioPlayer.paused && !window.webAudioPlayer.ended);
+
+    // 2. Synthesizer, audio buffers, line-in, mic, or test signals
+    const bufferPlaying = !!(this.isBufferPlaying || this.isPlaying || this.isSynthLoopActive || this.oscillator || this.micStream);
+
+    if (localAudioPlaying || mediaPlaying || webAudioPlaying || bufferPlaying) {
+      return true;
+    }
+
+    // 3. Fallback: Check live frequency activity in audio buffers
     if (this.analyserNode) {
       const test = new Uint8Array(32);
       this.analyserNode.getByteFrequencyData(test);
       let sum = 0;
       for (let i = 0; i < 32; i++) sum += test[i];
-      if (sum < 3) return false;
+      if (sum > 0) return true;
     }
-    return true;
+
+    if (this.aiAnalyserNode) {
+      const testAi = new Uint8Array(32);
+      this.aiAnalyserNode.getByteFrequencyData(testAi);
+      let sumAi = 0;
+      for (let i = 0; i < 32; i++) sumAi += testAi[i];
+      if (sumAi > 0) return true;
+    }
+
+    return false;
   }
 
   setSubBass(gainDb) {
@@ -997,6 +1036,9 @@ class AudioEngine {
       }
       if (this.inputMeterNode) {
         try { this.preGainNode.connect(this.inputMeterNode); } catch (e) {}
+      }
+      if (this.aiAnalyserNode) {
+        try { this.preGainNode.connect(this.aiAnalyserNode); } catch (e) {}
       }
     } catch (e) {
       console.warn("Bypass routing warning:", e);

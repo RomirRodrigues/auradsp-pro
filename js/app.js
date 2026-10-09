@@ -255,13 +255,15 @@ document.addEventListener('DOMContentLoaded', () => {
   // =========================================================================
   // 2B. AUTO AI 10-BAND PARAMETRIC EQUALIZER ENGINE (REAL-TIME PSYCHOACOUSTIC DSP)
   // Dynamically analyzes song spectrum and optimizes all 10 sliders every 3-4s.
-  // Freezes in place when audio pauses/stops; auto-resumes when music plays.
+  // UNLIMITED CONTINUOUS ADAPTATION: Never stops or times out until explicitly toggled off.
+  // Freezes in place when audio pauses/stops; instantly resumes when music plays.
   // =========================================================================
 
   let isAiAutoEqEnabled = true; // Auto AI EQ active by default as requested
   let aiAutoEqTimer = null;
   let aiGlideAnimId = null;
   let isAiAdapting = false;
+  let aiCycleCount = 0;
 
   const aiAutoEqBtn = document.getElementById('aiAutoEqBtn');
   const aiAutoEqLabel = document.getElementById('aiAutoEqLabel');
@@ -274,6 +276,21 @@ document.addEventListener('DOMContentLoaded', () => {
     if (aiGlideAnimId) {
       cancelAnimationFrame(aiGlideAnimId);
       aiGlideAnimId = null;
+    }
+
+    if (document.hidden) {
+      // Tab is in background: apply immediately without waiting for RAF to resume
+      for (let i = 0; i < 10; i++) {
+        currentEqGains[i] = targetGains[i];
+        updateEqBandUI(i, targetGains[i]);
+        if (window.audioEngine) {
+          window.audioEngine.setBandGain(i, targetGains[i]);
+        }
+      }
+      if (window.visualizer) {
+        window.visualizer.drawEqCurve(currentEqGains);
+      }
+      return;
     }
 
     const startGains = [...currentEqGains];
@@ -316,50 +333,49 @@ document.addEventListener('DOMContentLoaded', () => {
     aiGlideAnimId = requestAnimationFrame(step);
   }
 
-  // Psychoacoustic AI analysis calculation
+  // Psychoacoustic AI analysis calculation (UNLIMITED & CONTINUOUS)
+  // Always returns valid dynamic target gains for live audio without arbitrary cutoffs
   function calculateOptimalAiEqGains(spectrum) {
-    if (!spectrum || !spectrum.buffer || spectrum.buffer.length === 0) return null;
-    const { buffer, sampleRate, fftSize } = spectrum;
-    const binWidth = sampleRate / fftSize;
+    const defaultRatios = [1.20, 1.25, 1.10, 0.82, 0.92, 1.08, 1.18, 0.88, 1.05, 1.02];
+    let relEnergy = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0];
 
-    // Measure raw RMS energy for each of the 10 critical octave frequency bands
-    const bandEnergies = [];
-    let totalEnergy = 0;
+    if (spectrum && spectrum.buffer && spectrum.buffer.length > 0) {
+      const { buffer, sampleRate, fftSize } = spectrum;
+      const binWidth = (sampleRate || 48000) / (fftSize || 2048);
 
-    for (let i = 0; i < FREQ_BANDS.length; i++) {
-      const fc = FREQ_BANDS[i];
-      const fLow = fc * 0.7071; // 1/2 octave below
-      const fHigh = fc * 1.4142; // 1/2 octave above
-      const kStart = Math.max(1, Math.floor(fLow / binWidth));
-      const kEnd = Math.min(buffer.length - 1, Math.ceil(fHigh / binWidth));
+      const bandEnergies = [];
+      let totalEnergy = 0;
 
-      let energySum = 0;
-      let count = 0;
-      for (let k = kStart; k <= kEnd; k++) {
-        const val = buffer[k] / 255.0;
-        energySum += val * val;
-        count++;
+      for (let i = 0; i < FREQ_BANDS.length; i++) {
+        const fc = FREQ_BANDS[i];
+        const fLow = fc * 0.7071; // 1/2 octave below
+        const fHigh = fc * 1.4142; // 1/2 octave above
+        const kStart = Math.max(1, Math.floor(fLow / binWidth));
+        const kEnd = Math.min(buffer.length - 1, Math.ceil(fHigh / binWidth));
+
+        let energySum = 0;
+        let count = 0;
+        for (let k = kStart; k <= kEnd; k++) {
+          const val = buffer[k] / 255.0;
+          energySum += val * val;
+          count++;
+        }
+        const rms = count > 0 ? Math.sqrt(energySum / count) : 0;
+        bandEnergies.push(rms);
+        totalEnergy += rms;
       }
-      const rms = count > 0 ? Math.sqrt(energySum / count) : 0;
-      bandEnergies.push(rms);
-      totalEnergy += rms;
-    }
 
-    // Require audible energy threshold to avoid calibrating background noise
-    if (totalEnergy < 0.04) {
-      return null;
+      if (totalEnergy >= 0.005) {
+        const avgEnergy = totalEnergy / 10;
+        relEnergy = bandEnergies.map(e => e / (avgEnergy + 0.001));
+      }
     }
-
-    const avgEnergy = totalEnergy / 10;
-    const relEnergy = bandEnergies.map(e => e / (avgEnergy + 0.001));
 
     // Fletcher-Munson & Harman Target Reference Weightings for 10 Octave Bands
     // 31Hz, 62Hz, 125Hz, 250Hz, 500Hz, 1kHz, 2kHz, 4kHz, 8kHz, 16kHz
-    const targetRatios = [1.20, 1.25, 1.10, 0.82, 0.92, 1.08, 1.18, 0.88, 1.05, 1.02];
-
     const targetGains = [];
     for (let i = 0; i < 10; i++) {
-      const delta = targetRatios[i] - relEnergy[i];
+      const delta = defaultRatios[i] - relEnergy[i];
       let gain = delta * 4.2;
 
       // Band-specific psychoacoustic tuning heuristics
@@ -396,53 +412,64 @@ document.addEventListener('DOMContentLoaded', () => {
     return targetGains;
   }
 
-  // Periodic AI Evaluation Cycle (Every 3.2 seconds)
+  // Periodic AI Evaluation Cycle (Every 3.2 seconds, UNLIMITED)
   function executeAiAutoEqCycle() {
     if (!isAiAutoEqEnabled) return;
 
-    const isAudioPlaying = window.audioEngine && typeof window.audioEngine.isActivelyProducingSound === 'function'
-      ? window.audioEngine.isActivelyProducingSound()
-      : false;
+    try {
+      const isAudioPlaying = window.audioEngine && typeof window.audioEngine.isActivelyProducingSound === 'function'
+        ? window.audioEngine.isActivelyProducingSound()
+        : false;
 
-    if (!isAudioPlaying) {
-      // Audio paused/stopped: DO NOT MOVE SLIDERS, keep at last tuned position!
-      if (aiEqStatusText) aiEqStatusText.textContent = 'AI STANDBY · LAST PROFILE RETAINED (PAUSED)';
-      if (aiEqTargetMode) aiEqTargetMode.textContent = 'Playback Paused';
-      if (aiEqStatusStrip) aiEqStatusStrip.classList.remove('adapting');
-      return;
-    }
-
-    // Audio is playing: evaluate live spectrum
-    const spectrum = window.audioEngine ? window.audioEngine.getAiSpectrumData() : null;
-    const optimalGains = calculateOptimalAiEqGains(spectrum);
-
-    if (optimalGains && optimalGains.length === 10) {
-      // Determine dominant track profile for UI description
-      let profileLabel = 'Studio Harman Reference';
-      if (optimalGains[0] >= 4.0 || optimalGains[1] >= 4.0) {
-        profileLabel = 'Sub-Bass & Kick Optimized';
-      } else if (optimalGains[5] >= 2.5 || optimalGains[6] >= 2.5) {
-        profileLabel = 'Vocal & Presence Enhanced';
-      } else if (optimalGains[8] >= 3.5 || optimalGains[9] >= 3.5) {
-        profileLabel = 'Acoustic Detail & Air Lifted';
+      if (!isAudioPlaying) {
+        // Audio paused/stopped: DO NOT MOVE SLIDERS, keep at last tuned position!
+        if (aiEqStatusText) aiEqStatusText.textContent = `AI STANDBY (PAUSED) · CYCLE #${aiCycleCount} RETAINED`;
+        if (aiEqTargetMode) aiEqTargetMode.textContent = 'Playback Paused · Resumes Automatically on Play';
+        if (aiEqStatusStrip) aiEqStatusStrip.classList.remove('adapting');
+        return;
       }
 
-      if (aiEqStatusText) aiEqStatusText.textContent = `AI ADAPTING · CALIBRATING 10 BANDS (LIVE)`;
-      if (aiEqTargetMode) aiEqTargetMode.textContent = `Target: ${profileLabel}`;
+      // Audio is playing: evaluate live spectrum
+      const spectrum = window.audioEngine ? window.audioEngine.getAiSpectrumData() : null;
+      const optimalGains = calculateOptimalAiEqGains(spectrum);
 
-      // Smoothly glide sliders to newly optimized curve
-      glideEqGains(optimalGains, 1200);
+      if (optimalGains && optimalGains.length === 10) {
+        aiCycleCount++;
+
+        // Determine dominant track profile for UI description
+        let profileLabel = 'Studio Harman Reference';
+        if (optimalGains[0] >= 4.0 || optimalGains[1] >= 4.0) {
+          profileLabel = 'Sub-Bass & Kick Optimized';
+        } else if (optimalGains[5] >= 2.5 || optimalGains[6] >= 2.5) {
+          profileLabel = 'Vocal & Presence Enhanced';
+        } else if (optimalGains[8] >= 3.5 || optimalGains[9] >= 3.5) {
+          profileLabel = 'Acoustic Detail & Air Lifted';
+        }
+
+        if (aiEqStatusText) aiEqStatusText.textContent = `AI ADAPTING · CYCLE #${aiCycleCount} (UNLIMITED · 3S)`;
+        if (aiEqTargetMode) aiEqTargetMode.textContent = `Target: ${profileLabel}`;
+
+        // Smoothly glide sliders to newly optimized curve
+        glideEqGains(optimalGains, 1200);
+      }
+    } catch (err) {
+      console.warn("executeAiAutoEqCycle caught exception:", err);
     }
   }
 
   function startAiAutoEq() {
-    if (aiAutoEqTimer) clearInterval(aiAutoEqTimer);
+    isAiAutoEqEnabled = true;
+    if (aiAutoEqTimer) {
+      clearInterval(aiAutoEqTimer);
+      aiAutoEqTimer = null;
+    }
     aiAutoEqTimer = setInterval(executeAiAutoEqCycle, 3200);
     // Execute first evaluation immediately if playing
     executeAiAutoEqCycle();
   }
 
   function stopAiAutoEq() {
+    isAiAutoEqEnabled = false;
     if (aiAutoEqTimer) {
       clearInterval(aiAutoEqTimer);
       aiAutoEqTimer = null;
@@ -451,27 +478,54 @@ document.addEventListener('DOMContentLoaded', () => {
       cancelAnimationFrame(aiGlideAnimId);
       aiGlideAnimId = null;
     }
+    isAiAdapting = false;
+    if (aiEqStatusStrip) aiEqStatusStrip.classList.remove('adapting');
   }
 
   // Toggle button event listener
   if (aiAutoEqBtn) {
     aiAutoEqBtn.addEventListener('click', () => {
-      isAiAutoEqEnabled = !isAiAutoEqEnabled;
-      if (isAiAutoEqEnabled) {
+      if (!isAiAutoEqEnabled) {
+        // TURN ON: UNLIMITED
+        isAiAutoEqEnabled = true;
         aiAutoEqBtn.classList.add('active');
-        if (aiAutoEqLabel) aiAutoEqLabel.textContent = 'AI Auto EQ: ON';
-        if (aiEqStatusText) aiEqStatusText.textContent = 'AI ADAPTIVE TUNING ACTIVE · 3S CYCLE';
+        if (aiAutoEqLabel) aiAutoEqLabel.textContent = 'AI Auto EQ: ON (UNLIMITED)';
+        if (aiEqStatusText) aiEqStatusText.textContent = 'AI ADAPTIVE TUNING ACTIVE · UNLIMITED CONTINUOUS';
         if (aiEqTargetMode) aiEqTargetMode.textContent = 'Target: Studio Harman Reference';
         startAiAutoEq();
-        if (window.showToast) window.showToast('AI Auto EQ Activated: Auto-optimizing 10 bands every 3s', 'success');
+        if (window.showToast) window.showToast('AI Auto EQ: ON (Unlimited continuous adaptation every 3s)', 'success');
       } else {
+        // TURN OFF
+        isAiAutoEqEnabled = false;
         aiAutoEqBtn.classList.remove('active');
         if (aiAutoEqLabel) aiAutoEqLabel.textContent = 'AI Auto EQ: OFF';
-        if (aiEqStatusText) aiEqStatusText.textContent = 'AI AUTO TUNING PAUSED (MANUAL EQ MODE)';
+        if (aiEqStatusText) aiEqStatusText.textContent = 'AI AUTO TUNING OFF (MANUAL EQ MODE)';
         if (aiEqTargetMode) aiEqTargetMode.textContent = 'Manual Sliders Active';
         if (aiEqStatusStrip) aiEqStatusStrip.classList.remove('adapting');
         stopAiAutoEq();
-        if (window.showToast) window.showToast('AI Auto EQ Paused: Manual control enabled', 'info');
+        if (window.showToast) window.showToast('AI Auto EQ: OFF (Manual control enabled)', 'info');
+      }
+    });
+  }
+
+  // Watchdog timer: Guarantees AI Auto EQ adaptation loop is always running while enabled
+  setInterval(() => {
+    if (isAiAutoEqEnabled && !aiAutoEqTimer) {
+      console.log("[AI Auto EQ] Watchdog: restarting adaptive interval");
+      startAiAutoEq();
+    }
+  }, 4000);
+
+  // Instant trigger when audio starts or resumes
+  if (audioPlayer) {
+    audioPlayer.addEventListener('play', () => {
+      if (isAiAutoEqEnabled) {
+        setTimeout(executeAiAutoEqCycle, 200);
+      }
+    });
+    audioPlayer.addEventListener('playing', () => {
+      if (isAiAutoEqEnabled) {
+        setTimeout(executeAiAutoEqCycle, 300);
       }
     });
   }
