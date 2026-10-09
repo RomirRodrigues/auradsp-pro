@@ -30,9 +30,10 @@
       <div>
         <div class="brand-title">
           <span class="animated-brand-text">AURA<span class="brand-dsp-badge">DSP</span> PRO</span>
-          <span class="version-tag" id="appVersionTag" title="Click to view full Changelog & Version History">v52.1</span>
+          <span class="version-tag" id="appVersionTag" title="Click to view full Changelog & Version History">v53.1</span>
+          <button id="devModeQuickBtn" class="dev-mode-pill hidden" title="AuraDSP Developer Diagnostics Console (Ctrl+Shift+D)">⚡ DEV</button>
         </div>
-        <p class="subtitle">Reference Studio Audio Workstation &middot; by <span class="animated-creator-name">Romir Rodrigues</span></p>
+        <p class="subtitle">Reference Studio Audio Workstation &middot; by <span class="animated-creator-name" id="creatorNameHeader">Romir Rodrigues</span></p>
       </div>
     </div>
 
@@ -1135,10 +1136,10 @@
         <span class="footer-title">AuraDSP Pro</span>
       </div>
       <div class="footer-copy">
-        &copy; 2026 <strong class="animated-creator-name">Romir Rodrigues</strong>. All rights reserved.
+        &copy; 2026 <strong class="animated-creator-name" id="creatorNameFooter">Romir Rodrigues</strong>. All rights reserved.
       </div>
       <div class="footer-note">
-        AuraDSP Pro Workstation &nbsp;·&nbsp; Real-Time Web Audio DSP &nbsp;·&nbsp; 3D HRTF Spatial Soundstage &nbsp;·&nbsp; <a href="#" id="footerChangelogLink" style="color:var(--accent-cyan); text-decoration:none; border-bottom:1px dashed rgba(0,240,255,0.4); padding-bottom:1px;" title="View full release notes & version history">v52.1 Release Notes</a> &nbsp;·&nbsp; <a href="#" id="footerManualLink" style="color:var(--accent-cyan); text-decoration:none; border-bottom:1px dashed rgba(0,240,255,0.4); padding-bottom:1px; margin-left:6px;" title="Open Studio User Manual & Feature Guide">📖 Studio Manual &amp; Guide</a>
+        AuraDSP Pro Workstation &nbsp;·&nbsp; Real-Time Web Audio DSP &nbsp;·&nbsp; 3D HRTF Spatial Soundstage &nbsp;·&nbsp; <a href="#" id="footerChangelogLink" style="color:var(--accent-cyan); text-decoration:none; border-bottom:1px dashed rgba(0,240,255,0.4); padding-bottom:1px;" title="View full release notes & version history">v53.1 Release Notes</a> &nbsp;·&nbsp; <a href="#" id="footerManualLink" style="color:var(--accent-cyan); text-decoration:none; border-bottom:1px dashed rgba(0,240,255,0.4); padding-bottom:1px; margin-left:6px;" title="Open Studio User Manual & Feature Guide">📖 Studio Manual &amp; Guide</a>
       </div>
     </div>
   </footer>
@@ -1418,24 +1419,323 @@
     </div>
   </div>
 
+  <!-- Hidden Developer Diagnostics & Superuser Console Modal (5-Click Easter Egg) -->
+  <div id="devModalBackdrop" class="dev-modal-backdrop">
+    <div class="dev-modal" role="dialog" aria-modal="true" aria-labelledby="devModalTitle">
+      <!-- Modal Header -->
+      <div class="dev-modal-header">
+        <div class="dev-header-left">
+          <div class="dev-title-row">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="dev-header-icon">
+              <polyline points="4 17 10 11 4 5"/>
+              <line x1="12" y1="19" x2="20" y2="19"/>
+            </svg>
+            <h3 id="devModalTitle" class="dev-title">AuraDSP Pro &middot; Developer Diagnostics &amp; Engine Console</h3>
+            <span class="dev-badge-root">ROOT ACCESS</span>
+            <span class="dev-badge-creator">Romir Rodrigues</span>
+          </div>
+          <p class="dev-subtitle">Low-Level Web Audio DSP Telemetry, Signal Generation, Engine Graph Diagnostics &amp; Hard Overrides</p>
+        </div>
+        <div class="dev-header-right">
+          <div class="dev-live-pill" id="devLiveCtxPill">
+            <span class="dev-led-pulse"></span>
+            <span id="devLiveCtxSummary">RUNNING &middot; 48,000 Hz</span>
+          </div>
+          <button id="closeDevModalBtn" class="dev-close-btn" title="Close Developer Console (Esc)">&times;</button>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <div class="dev-tabs-row" id="devTabsRow">
+        <button class="dev-tab-btn active" data-tab="telemetry">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          Engine Telemetry &amp; Graph
+        </button>
+        <button class="dev-tab-btn" data-tab="generator">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12a4 4 0 0 1 8 0"/></svg>
+          Signal &amp; Sweep Generator
+        </button>
+        <button class="dev-tab-btn" data-tab="overrides">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          DSP Overrides &amp; Flags
+        </button>
+        <button class="dev-tab-btn" data-tab="state">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+          JSON State &amp; Memory Dump
+        </button>
+        <button class="dev-tab-btn" data-tab="benchmark">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          DSP Quantum Benchmark
+        </button>
+      </div>
+
+      <!-- Tab Content Area -->
+      <div class="dev-modal-body" id="devModalBody">
+        <!-- Tab 1: Telemetry & Graph -->
+        <div class="dev-tab-panel active" data-panel="telemetry">
+          <div class="dev-section-title">AUDIO CONTEXT RUNTIME TELEMETRY</div>
+          <div class="dev-telemetry-grid">
+            <div class="dev-telemetry-card">
+              <span class="telemetry-label">AUDIO CONTEXT STATE</span>
+              <span class="telemetry-val" id="devCtxStateVal" style="color:var(--accent-green);">RUNNING</span>
+              <div class="telemetry-actions">
+                <button id="devResumeCtxBtn" class="dev-mini-btn">Resume</button>
+                <button id="devSuspendCtxBtn" class="dev-mini-btn">Suspend</button>
+              </div>
+            </div>
+            <div class="dev-telemetry-card">
+              <span class="telemetry-label">HARDWARE SAMPLE RATE</span>
+              <span class="telemetry-val" id="devSampleRateVal">48,000 Hz</span>
+              <span class="telemetry-sub">Native Hardware Clock</span>
+            </div>
+            <div class="dev-telemetry-card">
+              <span class="telemetry-label">BASE BUFFER LATENCY</span>
+              <span class="telemetry-val" id="devBaseLatencyVal">3.80 ms</span>
+              <span class="telemetry-sub">Audio Processing Quantum</span>
+            </div>
+            <div class="dev-telemetry-card">
+              <span class="telemetry-label">OUTPUT DRIVER LATENCY</span>
+              <span class="telemetry-val" id="devOutputLatencyVal">12.40 ms</span>
+              <span class="telemetry-sub">Hardware Output Buffer</span>
+            </div>
+            <div class="dev-telemetry-card">
+              <span class="telemetry-label">DSP CLOCK RUNTIME</span>
+              <span class="telemetry-val" id="devCurrentTimeVal">00:00.00s</span>
+              <span class="telemetry-sub">AudioContext.currentTime</span>
+            </div>
+            <div class="dev-telemetry-card">
+              <span class="telemetry-label">DESTINATION CHANNELS</span>
+              <span class="telemetry-val" id="devChannelCountVal">2 ch (Stereo)</span>
+              <span class="telemetry-sub">Hardware Sink Routing</span>
+            </div>
+          </div>
+
+          <div class="dev-section-title" style="margin-top:20px; display:flex; justify-content:space-between; align-items:center;">
+            <span>ACTIVE DSP NODE TOPOLOGY GRAPH</span>
+            <button id="devRebuildGraphBtn" class="dev-mini-btn dev-accent-btn">Re-Sync Node Graph</button>
+          </div>
+          <div class="dev-node-list" id="devDspNodeList">
+            <!-- Rendered dynamically by dev-menu.js -->
+          </div>
+        </div>
+
+        <!-- Tab 2: Signal & Sweep Generator -->
+        <div class="dev-tab-panel" data-panel="generator">
+          <div class="dev-section-title">CALIBRATED ACOUSTIC REFERENCE TEST SIGNALS</div>
+          <p class="dev-panel-desc">Real-time Web Audio laboratory signal synthesizer for acoustic verification, frequency response measurements, and speaker phase checks.</p>
+
+          <div class="dev-gen-grid">
+            <button class="dev-gen-btn" data-gen="sine1k">
+              <div class="gen-btn-top">
+                <span class="gen-icon">🎯</span>
+                <span class="gen-title">1 kHz Reference Sine</span>
+              </div>
+              <span class="gen-desc">Standard studio meter calibration signal</span>
+            </button>
+            <button class="dev-gen-btn" data-gen="sine440">
+              <div class="gen-btn-top">
+                <span class="gen-icon">🎵</span>
+                <span class="gen-title">440 Hz Tuning Sine (A4)</span>
+              </div>
+              <span class="gen-desc">Standard international concert pitch reference</span>
+            </button>
+            <button class="dev-gen-btn" data-gen="sweep">
+              <div class="gen-btn-top">
+                <span class="gen-icon">🌊</span>
+                <span class="gen-title">20 Hz – 20 kHz Log Sweep</span>
+              </div>
+              <span class="gen-desc">Full audible spectrum logarithmic sweep (5s)</span>
+            </button>
+            <button class="dev-gen-btn" data-gen="pink">
+              <div class="gen-btn-top">
+                <span class="gen-icon">🌸</span>
+                <span class="gen-title">Calibrated Pink Noise</span>
+              </div>
+              <span class="gen-desc">1/f equal energy per octave room tuning noise</span>
+            </button>
+            <button class="dev-gen-btn" data-gen="white">
+              <div class="gen-btn-top">
+                <span class="gen-icon">⚪</span>
+                <span class="gen-title">Flat White Noise</span>
+              </div>
+              <span class="gen-desc">Equal energy across all linear frequencies</span>
+            </button>
+            <button class="dev-gen-btn" data-gen="impulse">
+              <div class="gen-btn-top">
+                <span class="gen-icon">⚡</span>
+                <span class="gen-title">Dirac Impulse Click</span>
+              </div>
+              <span class="gen-desc">Ultra-fast 1ms acoustic transient pulse</span>
+            </button>
+          </div>
+
+          <!-- Sweep Live Frequency Readout -->
+          <div class="dev-sweep-display-box">
+            <span class="dev-sweep-label">SWEEP TRACKER:</span>
+            <span id="devSweepFreqBadge" class="dev-sweep-badge">Sweep Inactive</span>
+          </div>
+
+          <!-- Signal Generator Controls -->
+          <div class="dev-gen-controls-row">
+            <div class="dev-control-cell">
+              <div class="control-label-row">
+                <label for="devSignalVolSlider">Signal Output Level</label>
+                <span id="devSignalVolVal" class="control-val">-15 dBFS</span>
+              </div>
+              <input type="range" id="devSignalVolSlider" min="-36" max="0" value="-15" step="1">
+            </div>
+
+            <div class="dev-control-cell">
+              <div class="control-label-row">
+                <label for="devSignalRouteSelect">Signal Routing Path</label>
+              </div>
+              <select id="devSignalRouteSelect" class="cyber-select-sm" style="width:100%;">
+                <option value="dry">Direct Hardware Output (Pure Dry Reference)</option>
+                <option value="wet">Through Active DSP Pipeline (Hear EQ &amp; Enhancers)</option>
+              </select>
+            </div>
+
+            <div class="dev-control-cell" style="display:flex; align-items:flex-end;">
+              <button id="devStopSignalBtn" class="dev-stop-btn">🛑 STOP TEST SIGNALS</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 3: DSP Overrides & Flags -->
+        <div class="dev-tab-panel" data-panel="overrides">
+          <div class="dev-section-title">LOW-LEVEL DSP OVERRIDES &amp; WORKSTATION FLAGS</div>
+          <div class="dev-overrides-list">
+            <div class="dev-override-card">
+              <div class="override-info">
+                <span class="override-title">Master Hardware DSP Bypass (Zero-Latency Wire Passthrough)</span>
+                <span class="override-desc">Instantly disconnects all EQ biquads, convolution, spatial panners, and enhancers. Routes input gain directly to master gain for true bit-exact comparison.</span>
+              </div>
+              <label class="switch-sm">
+                <input type="checkbox" id="devHardBypassToggle">
+                <span class="slider-sm round"></span>
+              </label>
+            </div>
+
+            <div class="dev-override-card">
+              <div class="override-info">
+                <span class="override-title">Infrasonic Safety Sub-Guard Filter (16 Hz 2nd-Order Highpass)</span>
+                <span class="override-desc">Injects a steep Butterworth high-pass filter at 16 Hz before the master output stage to prevent speaker driver bottoming-out and sub-audible DC drift.</span>
+              </div>
+              <label class="switch-sm">
+                <input type="checkbox" id="devInfrasonicToggle">
+                <span class="slider-sm round"></span>
+              </label>
+            </div>
+
+            <div class="dev-override-card">
+              <div class="override-info">
+                <span class="override-title">AI Auto EQ Continuous Loop Interval</span>
+                <span class="override-desc">Configure the real-time background adaptive FFT analysis polling rate for AI automatic frequency curve sculpting.</span>
+              </div>
+              <select id="devAiSpeedSelect" class="cyber-select-sm" style="width:160px;">
+                <option value="200">Turbo (200 ms)</option>
+                <option value="600" selected>Standard (600 ms)</option>
+                <option value="1200">Battery Saver (1200 ms)</option>
+              </select>
+            </div>
+
+            <div class="dev-override-card">
+              <div class="override-info">
+                <span class="override-title">Visualizer &amp; Canvas FPS Governor</span>
+                <span class="override-desc">Cap or uncap requestAnimationFrame rendering rates for spectrum visualizers, 3D spatial orbit spheres, and VU needles.</span>
+              </div>
+              <select id="devFpsGovSelect" class="cyber-select-sm" style="width:160px;">
+                <option value="0" selected>Native Refresh (Uncapped)</option>
+                <option value="60">Lock 60 FPS</option>
+                <option value="120">Lock 120 FPS</option>
+                <option value="144">Lock 144 FPS (Pro Gaming)</option>
+              </select>
+            </div>
+
+            <div class="dev-override-card">
+              <div class="override-info">
+                <span class="override-title">Verbose DSP DevTools Console Logging</span>
+                <span class="override-desc">Prints real-time parameter changes, biquad filter Q shifts, dynamic gain reduction, and node connections to browser DevTools console.</span>
+              </div>
+              <label class="switch-sm">
+                <input type="checkbox" id="devVerboseLogToggle">
+                <span class="slider-sm round"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 4: JSON State & Memory Dump -->
+        <div class="dev-tab-panel" data-panel="state">
+          <div class="dev-section-title" style="display:flex; justify-content:space-between; align-items:center;">
+            <span>ACTIVE DSP STATE JSON DUMP</span>
+            <button id="devCopyStateBtn" class="dev-mini-btn dev-accent-btn">📋 Copy State JSON</button>
+          </div>
+          <pre id="devStateJsonDump" class="dev-json-box">// Loading state dump...</pre>
+
+          <div class="dev-section-title" style="margin-top:20px;">SYSTEM MEMORY &amp; DOM METRICS</div>
+          <div class="dev-telemetry-grid" style="grid-template-columns: 1fr 1fr;">
+            <div class="dev-telemetry-card">
+              <span class="telemetry-label">JAVASCRIPT HEAP MEMORY</span>
+              <span class="telemetry-val" id="devHeapStats" style="font-size:0.85rem;">Inspecting...</span>
+              <span class="telemetry-sub">Chrome/Edge performance.memory</span>
+            </div>
+            <div class="dev-telemetry-card">
+              <span class="telemetry-label">ACTIVE DOM NODES</span>
+              <span class="telemetry-val" id="devDomNodeCount" style="font-size:0.85rem;">Inspecting...</span>
+              <span class="telemetry-sub">Live Document Tree Elements</span>
+            </div>
+          </div>
+
+          <div class="dev-section-title" style="margin-top:20px;">INJECT CUSTOM JSON STATE</div>
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <textarea id="devCustomStateInput" class="dev-custom-json-input" placeholder='Paste custom snapshot JSON here (e.g. {"masterGain":1.0, "eqGains":[0, 2, 4, ...]})'></textarea>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <button id="devApplyCustomStateBtn" class="dev-mini-btn dev-accent-btn">Apply Custom JSON to DSP Engine</button>
+              <button id="devWipeStorageBtn" class="dev-mini-btn dev-danger-btn">⚠️ Wipe LocalStorage &amp; Reset</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 5: DSP Quantum Benchmark -->
+        <div class="dev-tab-panel" data-panel="benchmark">
+          <div class="dev-section-title">HARDWARE DSP QUANTUM STRESS BENCHMARK</div>
+          <p class="dev-panel-desc">Tests device Web Audio hardware processing headroom by cascading 100 simultaneous BiquadFilterNodes (peaking and bandpass) in an OfflineAudioContext, processing high-density white noise, and measuring sub-millisecond render execution latency.</p>
+
+          <div style="margin: 16px 0;">
+            <button id="devRunBenchmarkBtn" class="dev-benchmark-run-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px; height:18px;"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              RUN 100-FILTER QUANTUM BENCHMARK
+            </button>
+          </div>
+
+          <div id="devBenchmarkResults" style="display:none;">
+            <!-- Rendered by runBenchmark() -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Modular Scripts -->
-  <script src="js/data/presets.js?v=52.0.0"></script>
-  <script src="js/data/autoeq-database.js?v=52.0.0"></script>
-  <script src="js/data/changelog.js?v=52.0.0"></script>
-  <script src="js/data/manual.js?v=52.0.0"></script>
-  <script src="js/audio/audio-engine.js?v=52.0.0"></script>
-  <script src="js/dsp/audio-pro-tools.js?v=52.0.0"></script>
-  <script src="js/visual/spatial-canvas.js?v=52.0.0"></script>
-  <script src="js/visual/visualizer.js?v=52.0.0"></script>
-  <script src="js/ui/motion-ui.js?v=52.0.0"></script>
-  <script src="js/app.js?v=52.0.0"></script>
+  <script src="js/data/presets.js?v=53.1.0"></script>
+  <script src="js/data/autoeq-database.js?v=53.1.0"></script>
+  <script src="js/data/changelog.js?v=53.1.0"></script>
+  <script src="js/data/manual.js?v=53.1.0"></script>
+  <script src="js/audio/audio-engine.js?v=53.1.0"></script>
+  <script src="js/dsp/audio-pro-tools.js?v=53.1.0"></script>
+  <script src="js/visual/spatial-canvas.js?v=53.1.0"></script>
+  <script src="js/visual/visualizer.js?v=53.1.0"></script>
+  <script src="js/ui/motion-ui.js?v=53.1.0"></script>
+  <script src="js/ui/dev-menu.js?v=53.1.0"></script>
+  <script src="js/app.js?v=53.1.0"></script>
 
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js?v=52.0.0')
+        navigator.serviceWorker.register('sw.js?v=53.1.0')
           .then(reg => {
-            console.log('Service Worker Registered v52.0.0');
+            console.log('Service Worker Registered v53.1.0');
             reg.update();
           })
           .catch(err => console.log('Service Worker Error', err));

@@ -4725,6 +4725,10 @@ document.addEventListener('DOMContentLoaded', () => {
       if (autoEqModalBackdrop && autoEqModalBackdrop.classList.contains('open')) closeAutoEqModal();
       if (earHealthModalBackdrop && earHealthModalBackdrop.classList.contains('open')) closeEarHealthModal();
       if (codecInspectorModalBackdrop && codecInspectorModalBackdrop.classList.contains('open')) closeCodecInspectorModal();
+      const devBackdrop = document.getElementById('devModalBackdrop');
+      if (devBackdrop && devBackdrop.classList.contains('open') && window.auraDevMenu) {
+        window.auraDevMenu.closeModal();
+      }
     }
   });
 

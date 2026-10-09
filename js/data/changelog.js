@@ -5,10 +5,24 @@
 
 const CHANGELOG_DATA = [
   {
-    version: 'v53.0.0',
-    title: 'DTS:X 7.1 Surround Up-Mixer & MaxxBass Sub-Bass Synthesizer',
+    version: 'v53.1.0',
+    title: 'Developer Diagnostics & Superuser Console (Romir Rodrigues Secret Menu)',
     tag: 'Latest',
     date: 'Current Release',
+    items: [
+      '5-Click Creator Easter Egg: Clicking creator name "Romir Rodrigues" 5 times plays a sci-fi unlock chime and launches the Developer Diagnostics & Superuser Console.',
+      'AudioContext Runtime Telemetry: Live real-time inspection of AudioContext state, sample rate, base & output buffer latency, DSP clock runtime, and channel topology.',
+      'Calibrated Reference Signal Generator: Laboratory signal generator for 1 kHz reference sine (-18 dBFS), 440 Hz tuning pitch (A4), 20 Hz – 20 kHz log sine sweep with live frequency tracker, calibrated pink noise, flat white noise, and 1ms Dirac acoustic impulse clicks.',
+      'Low-Level DSP Overrides & Safety: Zero-latency master hardware wire passthrough bypass, 16 Hz infrasonic high-pass sub-guard filter, and AI Auto EQ speed governor.',
+      'Active State JSON Inspector: Real-time JSON state serialization, one-click clipboard copy, and custom state JSON injection.',
+      '100-Filter Quantum DSP Benchmark: Stress-test hardware audio rendering headroom with 100 cascaded BiquadFilterNodes measuring sub-millisecond execution latency and hardware tier scoring (S-Tier / A-Tier).'
+    ]
+  },
+  {
+    version: 'v53.0.0',
+    title: 'DTS:X 7.1 Surround Up-Mixer & MaxxBass Sub-Bass Synthesizer',
+    tag: 'Major',
+    date: 'Milestone Release',
     items: [
       'Feature 3 - DTS:X / 5.1 & 7.1 Real-Time Surround Up-Mixer: Decodes 2-channel stereo into virtual 5.1 Cinema, 7.1 DTS:X, and 9.1.4 Neural:X multi-channel surround with Center dialogue focus, 24dB/oct LFE subwoofer extraction, Haas side delays, and rear ear-shadow filtering.',
       'Live 8-Channel Surround Decoder Activity Matrix: Real-time visual activity meters for FL, C, FR, LFE, SL, SR, RL, and RR channels.',

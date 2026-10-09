@@ -1,10 +1,11 @@
-const CACHE_NAME = 'auradsp-pro-v53.0.0';
+const CACHE_NAME = 'auradsp-pro-v53.1.0';
 const ASSETS = [
   './',
   './index.html',
   './styles.css',
   './js/app.js',
   './js/ui/motion-ui.js',
+  './js/ui/dev-menu.js',
   './js/audio/audio-engine.js',
   './js/dsp/audio-pro-tools.js',
   './js/data/autoeq-database.js',
