@@ -77,6 +77,7 @@ class AudioEngine {
 
     // Analyser Node for Spectrum & VU Meters
     this.analyserNode = null;
+    this.aiAnalyserNode = null;
     this.limiterNode = null;
 
     // --- GOD MODE NODES ---
@@ -297,6 +298,12 @@ class AudioEngine {
     this.analyserNode = this.ctx.createAnalyser();
     this.analyserNode.fftSize = 256;
     this.analyserNode.smoothingTimeConstant = 0.8;
+
+    // Dedicated High-Resolution AI Acoustic Spectrum Analyser (2048 FFT)
+    this.aiAnalyserNode = this.ctx.createAnalyser();
+    this.aiAnalyserNode.fftSize = 2048;
+    this.aiAnalyserNode.smoothingTimeConstant = 0.82;
+    this.preGainNode.connect(this.aiAnalyserNode);
 
     // Load Meter Worklets
     if (this.ctx.audioWorklet) {
@@ -807,6 +814,38 @@ class AudioEngine {
     if (this.eqNodes[index]) {
       this.eqNodes[index].gain.value = parseFloat(valueDb);
     }
+  }
+
+  getAiSpectrumData() {
+    if (!this.aiAnalyserNode || !this.ctx) return null;
+    const buffer = new Uint8Array(this.aiAnalyserNode.frequencyBinCount);
+    this.aiAnalyserNode.getByteFrequencyData(buffer);
+    return {
+      buffer,
+      sampleRate: this.ctx.sampleRate || 48000,
+      fftSize: this.aiAnalyserNode.fftSize
+    };
+  }
+
+  isActivelyProducingSound() {
+    if (!this.ctx || this.ctx.state !== 'running') return false;
+    const mediaPlaying = (this.connectedElement && !this.connectedElement.paused && this.connectedElement.currentTime > 0);
+    const bufferPlaying = this.isBufferPlaying || this.isPlaying;
+    const webAudioPlaying = (window.webAudioPlayer && !window.webAudioPlayer.paused && window.webAudioPlayer.currentTime > 0);
+    const audioPlayer = document.getElementById('audioPlayer');
+    const localAudioPlaying = (audioPlayer && !audioPlayer.paused && audioPlayer.currentTime > 0);
+    
+    if (!mediaPlaying && !bufferPlaying && !webAudioPlaying && !localAudioPlaying) return false;
+
+    // Check actual audio energy from analyser to verify sound isn't in a silent gap
+    if (this.analyserNode) {
+      const test = new Uint8Array(32);
+      this.analyserNode.getByteFrequencyData(test);
+      let sum = 0;
+      for (let i = 0; i < 32; i++) sum += test[i];
+      if (sum < 3) return false;
+    }
+    return true;
   }
 
   setSubBass(gainDb) {

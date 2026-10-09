@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=51.0.0">
+  <link rel="stylesheet" href="styles.css?v=52.0.0">
   <link rel="manifest" href="manifest.json">
 </head>
 <body class="theme-studio">
@@ -620,13 +620,29 @@
 
       <!-- 10-BAND PARAMETRIC EQUALIZER -->
       <div class="eq-container">
-        <div class="panel-header">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 21v-7"/><path d="M4 10V3"/><path d="M12 21v-9"/><path d="M12 8V3"/><path d="M20 21v-5"/><path d="M20 12V3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
-          <h2>10-BAND PARAMETRIC EQUALIZER (REAL DSP)</h2>
-          <div style="display:flex; gap:8px; align-items:center;">
+        <div class="panel-header" style="flex-wrap:wrap; gap:10px;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 21v-7"/><path d="M4 10V3"/><path d="M12 21v-9"/><path d="M12 8V3"/><path d="M20 21v-5"/><path d="M20 12V3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+            <h2>10-BAND PARAMETRIC EQUALIZER (REAL DSP)</h2>
+          </div>
+          <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+            <button id="aiAutoEqBtn" class="sm-btn ai-eq-btn active" title="AI Auto-Tuning EQ: dynamically optimizes 10-band sliders every 3-4s for best sound quality">
+              <span class="ai-sparkle">✨</span>
+              <span id="aiAutoEqLabel">AI Auto EQ: ON</span>
+              <span class="ai-pulse-dot"></span>
+            </button>
             <button id="toggleEqCurveBtn" class="sm-btn" title="Toggle EQ Frequency Response Graph">Response Curve</button>
             <button id="resetEqBtn" class="sm-btn">Reset Flat</button>
           </div>
+        </div>
+
+        <!-- AI Real-Time Calibration Status Strip -->
+        <div id="aiEqStatusStrip" class="ai-eq-status-strip">
+          <div class="ai-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px; height:13px; color:var(--accent-cyan);"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+            <span id="aiEqStatusText">AI ADAPTIVE TUNING ACTIVE · 3S CYCLE</span>
+          </div>
+          <div id="aiEqTargetMode" class="ai-cycle-timer">Target: Studio Harman Reference</div>
         </div>
 
         <!-- 10 Band Sliders Grid (MAIN EQUALIZER SLIDERS) -->
@@ -922,19 +938,19 @@
   </footer>
 
   <!-- Modular Scripts -->
-  <script src="js/data/presets.js?v=51.0.0"></script>
-  <script src="js/audio/audio-engine.js?v=51.0.0"></script>
-  <script src="js/visual/spatial-canvas.js?v=51.0.0"></script>
-  <script src="js/visual/visualizer.js?v=51.0.0"></script>
-  <script src="js/ui/motion-ui.js?v=51.0.0"></script>
-  <script src="js/app.js?v=51.0.0"></script>
+  <script src="js/data/presets.js?v=52.0.0"></script>
+  <script src="js/audio/audio-engine.js?v=52.0.0"></script>
+  <script src="js/visual/spatial-canvas.js?v=52.0.0"></script>
+  <script src="js/visual/visualizer.js?v=52.0.0"></script>
+  <script src="js/ui/motion-ui.js?v=52.0.0"></script>
+  <script src="js/app.js?v=52.0.0"></script>
 
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js?v=51.0.0')
+        navigator.serviceWorker.register('sw.js?v=52.0.0')
           .then(reg => {
-            console.log('Service Worker Registered v51.0.0');
+            console.log('Service Worker Registered v52.0.0');
             reg.update();
           })
           .catch(err => console.log('Service Worker Error', err));
