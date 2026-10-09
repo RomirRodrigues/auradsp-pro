@@ -121,21 +121,21 @@
   --border-focus: rgba(0, 210, 235, 0.6);
   --ring-focus: 0 0 0 2px rgba(0, 210, 235, 0.25);
   
-  --font-heading: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-heading: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
   
   --radius-xs: 4px;
   --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 14px;
-  --radius-xl: 18px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
   --radius-full: 9999px;
   
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.35);
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.4);
   --shadow-md: 0 4px 12px -2px rgba(0, 0, 0, 0.5), 0 2px 4px -2px rgba(0, 0, 0, 0.4);
   --shadow-lg: 0 12px 24px -4px rgba(0, 0, 0, 0.6), 0 4px 8px -4px rgba(0, 0, 0, 0.5);
-  --shadow-glow: 0 0 20px rgba(0, 210, 235, 0.2);
-  --inner-bevel: inset 0 1px 0 0 rgba(255, 255, 255, 0.06);
+  --shadow-glow: 0 0 16px rgba(0, 194, 203, 0.15);
+  --inner-bevel: inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
 }
 
 * {
@@ -144,12 +144,11 @@
   padding: 0;
 }
 
+body,
+body.theme-studio,
 body.cyber-dark {
   background-color: var(--bg-primary);
-  background-image: 
-    radial-gradient(circle at 20% 10%, rgba(0, 210, 235, 0.04) 0%, transparent 50%),
-    radial-gradient(circle at 80% 90%, rgba(56, 189, 248, 0.03) 0%, transparent 50%),
-    linear-gradient(180deg, #0a0c10 0%, #0d1016 100%);
+  background-image: linear-gradient(180deg, #0e1117 0%, #090c10 100%);
   color: var(--text-main);
   font-family: var(--font-heading);
   min-height: 100vh;
@@ -198,47 +197,54 @@ body.cyber-dark {
 }
 
 .logo-icon {
-  position: relative;
-  width: 40px;
-  height: 40px;
-  background: linear-gradient(135deg, rgba(0, 240, 255, 0.9), rgba(139, 92, 246, 0.9));
-  border-radius: var(--radius-md);
+  width: 38px;
+  height: 38px;
+  background: #151923;
+  border-radius: var(--radius-sm);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 0 16px rgba(0, 240, 255, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 2px 6px rgba(0, 0, 0, 0.4);
 }
 
 .logo-icon svg {
-  width: 22px;
-  height: 22px;
-  color: #05070a;
+  width: 20px;
+  height: 20px;
+  color: var(--accent-cyan);
 }
 
 .pulse-ring {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  border-radius: var(--radius-md);
-  border: 2px solid var(--accent-cyan);
-  animation: ringPulse 2.5s infinite ease-out;
+  display: none !important;
 }
 
-@keyframes ringPulse {
-  0% { transform: scale(1); opacity: 0.8; }
-  100% { transform: scale(1.4); opacity: 0; }
+.brand-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  line-height: 1.2;
 }
 
-.logo-container h1 {
-  font-size: 1.35rem;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  line-height: 1.1;
-}
-.logo-container h1 span {
+.brand-title span {
   color: var(--accent-cyan);
 }
+
+.brand-title .version-tag {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 1px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.05em;
+}
+
 .logo-container .subtitle {
   font-size: 0.72rem;
   color: var(--text-muted);
@@ -249,7 +255,7 @@ body.cyber-dark {
 .status-bar {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
 }
 
 .status-indicator {
@@ -258,13 +264,13 @@ body.cyber-dark {
   gap: 7px;
   font-family: var(--font-mono);
   font-size: 0.72rem;
-  font-weight: 500;
-  padding: 5px 11px;
+  font-weight: 600;
+  padding: 5px 12px;
   background: rgba(16, 185, 129, 0.08);
   border: 1px solid rgba(16, 185, 129, 0.25);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-sm);
   color: var(--accent-green);
-  letter-spacing: 0.02em;
+  letter-spacing: 0.03em;
 }
 
 .status-indicator .dot {
@@ -272,7 +278,7 @@ body.cyber-dark {
   height: 7px;
   border-radius: 50%;
   background: var(--accent-green);
-  box-shadow: 0 0 8px var(--accent-green);
+  box-shadow: 0 0 6px var(--accent-green);
 }
 
 .device-badge {
@@ -280,13 +286,13 @@ body.cyber-dark {
   align-items: center;
   gap: 7px;
   padding: 5px 12px;
-  background: rgba(0, 210, 235, 0.08);
-  border: 1px solid rgba(0, 210, 235, 0.25);
-  border-radius: var(--radius-full);
-  font-size: 0.75rem;
+  background: rgba(0, 194, 203, 0.08);
+  border: 1px solid rgba(0, 194, 203, 0.22);
+  border-radius: var(--radius-sm);
+  font-size: 0.74rem;
   color: var(--accent-cyan);
   font-weight: 600;
-  letter-spacing: 0.01em;
+  letter-spacing: 0.02em;
 }
 
 .device-badge .dot {
@@ -294,20 +300,98 @@ body.cyber-dark {
   height: 7px;
   border-radius: 50%;
   background: var(--accent-cyan);
-  box-shadow: 0 0 8px var(--accent-cyan);
+  box-shadow: 0 0 6px var(--accent-cyan);
   display: inline-block;
 }
 
-/* Header DSP Power & Snap Controls */
-.dsp-power-btn {
+/* Studio Console Header Toolbar Group */
+.header-tools-group {
   display: flex;
   align-items: center;
-  gap: 6px;
-  background: rgba(16, 185, 129, 0.1) !important;
-  border: 1px solid rgba(16, 185, 129, 0.3) !important;
-  color: #10b981 !important;
+  gap: 8px;
+}
+
+.toolbar-btn-group {
+  display: flex;
+  align-items: center;
+  background: #141822;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-sm);
+  padding: 2px;
+  gap: 2px;
+}
+
+.toolbar-btn-group .group-label {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--text-subtle);
+  font-weight: 700;
+  padding: 0 6px;
+  letter-spacing: 0.05em;
+}
+
+.tool-btn {
+  background: transparent !important;
+  border: none !important;
+  color: var(--text-muted) !important;
+  font-family: var(--font-mono) !important;
+  font-size: 0.7rem !important;
   font-weight: 600 !important;
-  padding: 5px 10px !important;
+  padding: 4px 8px !important;
+  border-radius: 3px !important;
+  cursor: pointer;
+  letter-spacing: 0.04em !important;
+  transition: all 0.12s ease;
+  box-shadow: none !important;
+}
+
+.tool-btn:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: var(--text-main) !important;
+}
+
+.tool-btn:active {
+  transform: translateY(1px);
+}
+
+.snapshot-group .snap-btn {
+  background: transparent !important;
+  border: none !important;
+  color: var(--text-muted) !important;
+  font-family: var(--font-mono) !important;
+  font-size: 0.72rem !important;
+  font-weight: 700 !important;
+  padding: 4px 9px !important;
+  border-radius: 3px !important;
+  cursor: pointer;
+  transition: all 0.12s ease;
+  box-shadow: none !important;
+}
+
+.snapshot-group .snap-btn:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: var(--text-main) !important;
+}
+
+.snapshot-group .snap-btn.active {
+  background: var(--accent-cyan) !important;
+  color: #0b0f17 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Master DSP Engine Power Switch */
+.dsp-power-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: rgba(16, 185, 129, 0.1) !important;
+  border: 1px solid rgba(16, 185, 129, 0.35) !important;
+  color: #10b981 !important;
+  font-family: var(--font-mono);
+  font-size: 0.72rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.04em;
+  padding: 5px 11px !important;
   border-radius: var(--radius-sm) !important;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -318,9 +402,9 @@ body.cyber-dark {
   border-color: rgba(16, 185, 129, 0.5) !important;
 }
 
-.dsp-power-btn.bypassed {
+.dsp-power-btn.bypassed, .dsp-power-btn.bypassed-active {
   background: rgba(239, 68, 68, 0.1) !important;
-  border-color: rgba(239, 68, 68, 0.3) !important;
+  border-color: rgba(239, 68, 68, 0.35) !important;
   color: #ef4444 !important;
 }
 
@@ -331,19 +415,34 @@ body.cyber-dark {
   background: #10b981;
   box-shadow: 0 0 6px #10b981;
   display: inline-block;
+  flex-shrink: 0;
 }
 
-.dsp-power-btn.bypassed .dsp-power-led {
+.dsp-power-btn.bypassed .dsp-power-led, .dsp-power-btn.bypassed-active .dsp-power-led {
   background: #ef4444;
   box-shadow: 0 0 6px #ef4444;
 }
 
-.snap-btn {
-  min-width: 24px;
-  text-align: center;
+.theme-picker select, #appThemeSelector {
+  background: #141822;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-main);
+  font-family: var(--font-heading);
+  font-size: 0.74rem;
   font-weight: 600;
+  padding: 5px 10px;
   border-radius: var(--radius-sm);
+  cursor: pointer;
+  outline: none;
   transition: all 0.15s ease;
+}
+
+.theme-picker select:hover, #appThemeSelector:hover {
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.theme-picker select:focus, #appThemeSelector:focus {
+  border-color: var(--accent-cyan);
 }
 
 /* Studio Rack Grid Layout */
@@ -2259,44 +2358,83 @@ input:checked + .slider:before {
   color: var(--text-main);
 }
 
-/* 1. Midnight OLED */
-body.theme-oled {
-  --bg-primary: #000000;
-  --bg-panel: rgba(5, 5, 5, 0.9);
-  --bg-card: rgba(15, 15, 15, 0.9);
-  --bg-card-hover: rgba(25, 25, 25, 1);
-  --accent-cyan: #00a8ff;
-  --accent-neon: #0097e6;
-  --accent-amber: #fbc531;
-  --accent-green: #4cd137;
-  --accent-red: #e84118;
-  --border-color: rgba(0, 168, 255, 0.3);
-  --border-hardware: rgba(255, 255, 255, 0.1);
+/* 1. Reference Studio Dark Console */
+body.theme-studio {
+  --bg-primary: #0d1017;
+  --bg-panel: #131722;
+  --bg-card: #181d2a;
+  --bg-card-hover: #1f2536;
+  --accent-cyan: #00c2cb;
+  --accent-neon: #00c2cb;
+  --accent-amber: #f59e0b;
+  --accent-green: #10b981;
+  --accent-red: #ef4444;
+  --text-main: #f0f4f8;
+  --text-muted: #8b97a8;
+  --text-subtle: #5a6676;
+  --border-color: rgba(255, 255, 255, 0.08);
+  --border-hardware: rgba(255, 255, 255, 0.08);
 }
 
-/* 2. Clean Light Mode */
+/* 2. Obsidian OLED Console */
+body.theme-oled {
+  --bg-primary: #000000;
+  --bg-panel: #090a0d;
+  --bg-card: #111317;
+  --bg-card-hover: #171a20;
+  --accent-cyan: #00c2cb;
+  --accent-neon: #00c2cb;
+  --accent-amber: #f59e0b;
+  --accent-green: #10b981;
+  --accent-red: #ef4444;
+  --text-main: #f0f6fc;
+  --text-muted: #7d8590;
+  --text-subtle: #484f58;
+  --border-color: rgba(255, 255, 255, 0.08);
+  --border-hardware: rgba(255, 255, 255, 0.08);
+}
+body.theme-oled {
+  background: #000000 !important;
+  background-image: none !important;
+}
+
+/* 3. Graphite Grey Console */
+body.theme-graphite {
+  --bg-primary: #181a1f;
+  --bg-panel: #20232a;
+  --bg-card: #272a33;
+  --bg-card-hover: #2f333e;
+  --accent-cyan: #38bdf8;
+  --accent-neon: #38bdf8;
+  --accent-amber: #fbbf24;
+  --accent-green: #34d399;
+  --accent-red: #f87171;
+  --text-main: #f3f4f6;
+  --text-muted: #9ca3af;
+  --text-subtle: #6b7280;
+  --border-color: rgba(255, 255, 255, 0.09);
+  --border-hardware: rgba(255, 255, 255, 0.09);
+}
+body.theme-graphite {
+  background: #181a1f !important;
+  background-image: linear-gradient(180deg, #1b1d23 0%, #15161b 100%) !important;
+}
+
+/* Fallback theme-light support */
 body.theme-light {
   --bg-primary: #f0f2f5;
-  --bg-panel: rgba(255, 255, 255, 0.9);
-  --bg-card: rgba(240, 242, 245, 0.8);
-  --bg-card-hover: rgba(225, 230, 235, 0.9);
-  --accent-cyan: #0052cc;
-  --accent-neon: #0065ff;
-  --accent-amber: #ff991f;
-  --accent-green: #36b37e;
-  --accent-red: #ff5630;
-  --text-main: #172b4d;
-  --text-muted: #5e6c84;
-  --border-color: rgba(0, 82, 204, 0.2);
-  --border-hardware: rgba(9, 30, 66, 0.1);
-}
-body.theme-light #appThemeSelector,
-body.theme-light #appFontSelector {
-  background: #ffffff;
-  color: var(--accent-cyan);
-}
-body.theme-light .dsp-node {
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  --bg-panel: #ffffff;
+  --bg-card: #f8fafc;
+  --bg-card-hover: #f1f5f9;
+  --accent-cyan: #0284c7;
+  --accent-neon: #0284c7;
+  --accent-amber: #d97706;
+  --accent-green: #16a34a;
+  --accent-red: #dc2626;
+  --text-main: #0f172a;
+  --text-muted: #475569;
+  --border-color: rgba(0, 0, 0, 0.1);
+  --border-hardware: rgba(0, 0, 0, 0.1);
 }
 
 /* =========================================
@@ -2955,157 +3093,140 @@ button, input[type=range], .preset-card, .sf-node {
 
 
 /* ==========================================================================
-   ULTRA-PREMIUM $1000 STUDIO HARDWARE RACK THEME & UX POLISH
+   AURA PRO STUDIO WORKSTATION - REFERENCE HARDWARE STYLING
    ========================================================================== */
 
-/* 1. Master Studio Panels */
+/* 1. Precision Hardware Panels */
 .panel {
-  background: linear-gradient(180deg, rgba(16, 20, 30, 0.92) 0%, rgba(10, 13, 20, 0.96) 100%) !important;
-  border: 1px solid rgba(0, 240, 255, 0.18) !important;
-  border-top: 1px solid rgba(255, 255, 255, 0.25) !important;
-  border-radius: 16px !important;
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
+  position: relative;
+  background: var(--bg-panel) !important;
+  border: 1px solid var(--border-hardware) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: var(--radius-md) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.04) !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
 }
 
-/* 2. Engraved Studio Hardware Section Titles */
+.panel-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+  padding-bottom: 10px !important;
+}
+
 .panel-header h2, .section-title {
   font-family: var(--font-heading) !important;
-  font-weight: 800 !important;
-  letter-spacing: 1.5px !important;
+  font-size: 0.78rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.08em !important;
   text-transform: uppercase !important;
-  background: linear-gradient(180deg, #ffffff 0%, #a0a0b8 100%) !important;
-  -webkit-background-clip: text !important;
-  -webkit-text-fill-color: transparent !important;
+  color: var(--text-muted) !important;
 }
 
-/* 3. Premium Glass Card Units */
-.enhancer-card, .preset-card, .meter-block, .slider-group {
-  background: linear-gradient(145deg, rgba(22, 28, 42, 0.7) 0%, rgba(14, 18, 28, 0.8) 100%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  border-top: 1px solid rgba(255, 255, 255, 0.15) !important;
-  border-radius: 12px !important;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+/* 2. Hardware Cards & Module Modules */
+.enhancer-card, .preset-card, .meter-block, .slider-group, .source-card {
+  background: var(--bg-card) !important;
+  border: 1px solid rgba(255, 255, 255, 0.06) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.09) !important;
+  border-radius: var(--radius-sm) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3) !important;
+  transition: border-color 0.15s ease, background 0.15s ease !important;
 }
 
 .enhancer-card:hover, .preset-card:hover {
-  border-color: rgba(0, 240, 255, 0.35) !important;
-  box-shadow: 0 8px 30px rgba(0, 240, 255, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+  border-color: rgba(255, 255, 255, 0.14) !important;
+  background: var(--bg-card-hover) !important;
 }
 
-/* 4. Glowing Neon Sliders & Knobs */
-input[type=range]:not(.eq-slider)::-webkit-slider-runnable-track {
-  height: 6px !important;
-  background: linear-gradient(90deg, rgba(0, 240, 255, 0.2), rgba(112, 0, 255, 0.3)) !important;
-  border-radius: 4px !important;
+/* 3. Reference Studio Tactile Controls & Buttons */
+button, .primary-btn, .accent-btn, .sm-btn, .vis-btn, .spat-btn {
+  font-family: var(--font-heading) !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.02em !important;
+  border-radius: var(--radius-sm) !important;
+  transition: all 0.12s ease !important;
 }
 
-input[type=range]:not(.eq-slider)::-webkit-slider-thumb {
-  height: 16px !important;
-  width: 16px !important;
-  background: #e2e8f0 !important;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.6), 0 0 6px rgba(0, 210, 235, 0.35) !important;
-  border: 1px solid rgba(255, 255, 255, 0.4) !important;
+button:hover, .primary-btn:hover, .accent-btn:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3) !important;
+}
+
+button:active, .primary-btn:active, .accent-btn:active {
+  transform: translateY(1px) !important;
+}
+
+/* Primary Action Buttons */
+.accent-btn, #playPauseBtn, #webPlayPauseBtn {
+  background: #00c2cb !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  color: #080c14 !important;
+  font-weight: 700 !important;
+  box-shadow: 0 2px 8px rgba(0, 194, 203, 0.25) !important;
+}
+
+.accent-btn:hover, #playPauseBtn:hover, #webPlayPauseBtn:hover {
+  background: #25d6df !important;
+}
+
+/* Active Source & Presets */
+.source-btn.active, .preset-card.active, .preset-category-card.active {
+  background: rgba(0, 194, 203, 0.12) !important;
+  border-color: var(--accent-cyan) !important;
+  color: #ffffff !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+}
+
+.snap-btn.active, .vis-btn.active, .spat-btn.active {
+  background: var(--accent-cyan) !important;
+  color: #0b0f17 !important;
+  font-weight: 700 !important;
+  border: none !important;
+}
+
+/* 4. Industrial Recessed Sliders */
+input[type="range"]:not(.eq-slider) {
+  height: 5px !important;
+  border-radius: 3px !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+  outline: none !important;
+}
+
+input[type="range"]:not(.eq-slider)::-webkit-slider-thumb {
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  height: 14px !important;
+  width: 14px !important;
+  background: #d4d4d8 !important;
+  border: 1.5px solid #27272a !important;
   border-radius: 50% !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5) !important;
+  cursor: pointer !important;
+  transition: transform 0.12s ease, background 0.12s ease !important;
 }
 
-input[type=range]:not(.eq-slider)::-webkit-slider-thumb:hover {
-  transform: scale(1.15) !important;
+input[type="range"]:not(.eq-slider)::-webkit-slider-thumb:hover {
+  transform: scale(1.18) !important;
   background: #ffffff !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.7), 0 0 10px rgba(0, 210, 235, 0.6) !important;
   border-color: var(--accent-cyan) !important;
 }
 
-/* 5. Glowing Value Pills */
-.slider-header span, .knob-item span {
+/* 5. Calibrated Monospace Numeric Badges */
+.slider-header span, .knob-item span, .band-val {
   font-family: var(--font-mono) !important;
-  font-weight: 700 !important;
+  font-size: 0.72rem !important;
+  font-weight: 600 !important;
   padding: 2px 6px !important;
-  background: rgba(0, 210, 235, 0.08) !important;
-  border: 1px solid rgba(0, 210, 235, 0.22) !important;
+  background: #0f131c !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
   border-radius: 4px !important;
   color: var(--accent-cyan) !important;
 }
 
-/* 6. Active Snapshot & Control Button Glowing Trails */
-.snap-btn.active, .vis-btn.active, .spat-btn.active {
-  background: linear-gradient(135deg, #00d2eb 0%, #0284c7 100%) !important;
-  color: #040810 !important;
-  font-weight: 800 !important;
-  box-shadow: 0 2px 10px rgba(0, 210, 235, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
-  border: none !important;
-}
-
-
-/* ==========================================================================
-   WORLD-CLASS $5,000 CYBER-STUDIO DAW THEME & 11/10 UX POLISH
-   ========================================================================== */
-
-/* 1. Dynamic Aurora Mesh Background Glow */
-body {
-  background: #06080e !important;
-  background-image: 
-    radial-gradient(at 0% 0%, rgba(0, 240, 255, 0.12) 0px, transparent 50%),
-    radial-gradient(at 100% 0%, rgba(112, 0, 255, 0.15) 0px, transparent 50%),
-    radial-gradient(at 50% 100%, rgba(255, 0, 127, 0.1) 0px, transparent 50%) !important;
-  background-attachment: fixed !important;
-}
-
-/* 2. Glassmorphic Ambient Border Lighting */
-.panel {
-  position: relative;
-  background: rgba(13, 17, 26, 0.88) !important;
-  backdrop-filter: blur(32px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(32px) saturate(180%) !important;
-  border: 1px solid rgba(0, 240, 255, 0.25) !important;
-  box-shadow: 
-    0 20px 60px rgba(0, 0, 0, 0.8),
-    inset 0 1px 1px rgba(255, 255, 255, 0.25),
-    0 0 30px rgba(0, 240, 255, 0.08) !important;
-}
-
-/* 3. Cyber-Select Dropdown Luxury Styling */
-select.cyber-select-sm {
-  appearance: none !important;
-  -webkit-appearance: none !important;
-  background: #0d121d url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2300F0FF%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E") no-repeat right 10px center !important;
-  background-size: 10px auto !important;
-  padding-right: 28px !important;
-  border: 1px solid rgba(0, 240, 255, 0.3) !important;
-  border-radius: 8px !important;
-  color: #ffffff !important;
-  font-weight: 600 !important;
-  box-shadow: inset 0 1px 3px rgba(0,0,0,0.5), 0 0 10px rgba(0, 240, 255, 0.1) !important;
-  transition: all 0.3s ease !important;
-}
-
-select.cyber-select-sm:hover, select.cyber-select-sm:focus {
-  border-color: #00f0ff !important;
-  box-shadow: 0 0 16px rgba(0, 240, 255, 0.4) !important;
-}
-
-/* 4. Tactile Hardware Spring Buttons */
-button, .sm-btn, .primary-btn-sm, .spat-btn, .vis-btn {
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
-}
-
-button:active, .sm-btn:active, .primary-btn-sm:active {
-  transform: translateY(2px) scale(0.97) !important;
-  filter: brightness(1.2) !important;
-}
-
-/* 5. Glowing Meter Scale LED Indicators */
-.vu-channel {
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.8), 0 0 8px rgba(0, 240, 255, 0.15) !important;
-}
-
-.vu-fill {
-  background: linear-gradient(90deg, #00ffa3 0%, #00f0ff 60%, #ffd700 85%, #ff2a5f 100%) !important;
-}
-
-
-/* CRITICAL 10/10 CANVAS BACKGROUND & LAYOUT PROTECTION */
+/* 6. Clean Canvas Frames */
 #spectrumCanvas, #eqCurveCanvas, #spatialCanvas {
-  background: #040609 !important;
+  background: #090c12 !important;
+  border: 1px solid rgba(255, 255, 255, 0.06) !important;
+  border-radius: var(--radius-sm) !important;
   display: block !important;
   width: 100% !important;
   box-sizing: border-box !important;
@@ -3119,477 +3240,34 @@ button:active, .sm-btn:active, .primary-btn-sm:active {
   min-height: 90px !important;
 }
 
-
-/* ==========================================================================
-   $10,000 PROFESSIONAL CYBER-STUDIO DAW PRO LUXURY UI & UX SYSTEM
-   ========================================================================== */
-
-/* 1. Pro Panel Borders & Metallic Glassmorphism */
-.panel {
-  background: rgba(10, 14, 23, 0.92) !important;
-  border: 1px solid rgba(0, 240, 255, 0.22) !important;
-  border-top: 1px solid rgba(255, 255, 255, 0.2) !important;
-  border-radius: 14px !important;
-  box-shadow: 
-    0 16px 40px rgba(0, 0, 0, 0.75),
-    inset 0 1px 0 rgba(255, 255, 255, 0.12),
-    0 0 25px rgba(0, 240, 255, 0.06) !important;
-}
-
-/* 2. Tactile Hardware Spring Buttons */
-button, .primary-btn, .accent-btn, .sm-btn, .vis-btn, .spat-btn {
-  font-family: var(--font-main) !important;
-  font-weight: 700 !important;
-  letter-spacing: 0.5px !important;
-  border-radius: 8px !important;
-  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4) !important;
-}
-
-button:hover, .primary-btn:hover, .accent-btn:hover {
-  transform: translateY(-1px) scale(1.02) !important;
-  box-shadow: 0 6px 20px rgba(0, 240, 255, 0.35) !important;
-}
-
-button:active, .primary-btn:active, .accent-btn:active {
-  transform: translateY(1px) scale(0.98) !important;
-  filter: brightness(1.15) !important;
-}
-
-/* 3. Primary Glowing Action Buttons */
-.accent-btn, #playPauseBtn, #webPlayPauseBtn {
-  background: linear-gradient(135deg, #00d2eb 0%, #0284c7 100%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.2) !important;
-  color: #040810 !important;
-  font-weight: 700 !important;
-  box-shadow: 0 4px 14px rgba(0, 210, 235, 0.3) !important;
-}
-
-/* 4. Active Preset & Control Selectors */
-.source-btn.active, .preset-card.active {
-  background: rgba(0, 210, 235, 0.12) !important;
-  border-color: var(--accent-cyan) !important;
-  box-shadow: 0 0 14px rgba(0, 210, 235, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
-}
-
-/* 5. Custom Cyber Input & Dropdown Styling */
-select.cyber-select, input.cyber-input {
-  background: #090d16 !important;
-  border: 1px solid rgba(0, 240, 255, 0.3) !important;
-  border-radius: 8px !important;
-  color: #ffffff !important;
-  padding: 8px 12px !important;
-  font-weight: 600 !important;
-  box-shadow: inset 0 2px 4px rgba(0,0,0,0.6) !important;
-}
-
-select.cyber-select:focus, input.cyber-input:focus {
-  border-color: #00f0ff !important;
-  box-shadow: 0 0 14px rgba(0, 240, 255, 0.4) !important;
-}
-
-/* 6. High-Refresh Visualizer Border Glow */
-.visualizer-container {
-  border-color: rgba(0, 240, 255, 0.3) !important;
-  box-shadow: 0 0 20px rgba(0, 240, 255, 0.08) !important;
-}
-
-
-/* Master DSP Engine Power Switch Styling */
-.dsp-power-btn {
-  display: inline-flex !important;
-  align-items: center !important;
-  gap: 6px !important;
-  background: linear-gradient(135deg, rgba(0, 240, 255, 0.15), rgba(112, 0, 255, 0.25)) !important;
-  border: 1px solid rgba(0, 240, 255, 0.5) !important;
-  color: #00f0ff !important;
-  font-weight: 800 !important;
-  padding: 5px 12px !important;
-  border-radius: 20px !important;
-  box-shadow: 0 0 12px rgba(0, 240, 255, 0.25) !important;
-  transition: all 0.2s ease !important;
-  cursor: pointer !important;
-}
-
-.dsp-power-btn:hover {
-  transform: scale(1.04) !important;
-  box-shadow: 0 0 18px rgba(0, 240, 255, 0.45) !important;
-}
-
-.dsp-power-led {
-  width: 8px !important;
-  height: 8px !important;
-  border-radius: 50% !important;
-  background: #00ffa3 !important;
-  box-shadow: 0 0 8px #00ffa3 !important;
-  animation: ledPulse 2s infinite ease-in-out !important;
-}
-
-@keyframes ledPulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.6; transform: scale(0.85); }
-}
-
-.dsp-power-btn.bypassed-active {
-  background: rgba(255, 170, 0, 0.15) !important;
-  border-color: rgba(255, 170, 0, 0.5) !important;
-  color: #ffaa00 !important;
-  box-shadow: 0 0 10px rgba(255, 170, 0, 0.25) !important;
-}
-
-.dsp-power-btn.bypassed-active .dsp-power-led {
-  background: #ffaa00 !important;
-  box-shadow: 0 0 8px #ffaa00 !important;
-  animation: none !important;
-}
-
-/* ==========================================================================
-   21st.dev & Motion.dev UI/UX Enhancement Layer
-   ========================================================================== */
-
-/* 1. 21st.dev Mouse-Tracking Spotlight Overlay */
-.panel, .source-card, .preset-card, .preset-category-card, .pro-dsp-container, .spotify-sub-card {
-  position: relative !important;
-  overflow: hidden !important;
-}
-
-.panel::before, .source-card::before, .preset-card::before, .preset-category-card::before, .pro-dsp-container::before {
-  content: '' !important;
-  position: absolute !important;
-  inset: 0 !important;
-  background: radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(0, 240, 255, 0.12), transparent 40%) !important;
-  opacity: 0 !important;
-  transition: opacity 0.3s ease !important;
-  pointer-events: none !important;
-  z-index: 1 !important;
-}
-
-.panel:hover::before, .source-card:hover::before, .preset-card:hover::before, .preset-category-card:hover::before, .pro-dsp-container:hover::before {
-  opacity: 1 !important;
-}
-
-/* 2. Motion.dev Spring Physics Button Interactions */
-button, .source-btn, .preset-card, .pro-btn, .mpn-btn, .tab-btn {
-  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease, background 0.2s ease, border-color 0.2s ease !important;
-  position: relative !important;
-  overflow: hidden !important;
-}
-
-button:hover, .source-btn:hover, .preset-card:hover, .pro-btn:hover, .tab-btn:hover {
-  transform: translateY(-2px) scale(1.01) !important;
-}
-
-button:active, .source-btn:active, .preset-card:active, .pro-btn:active {
-  transform: scale(0.97) !important;
-}
-
-.motion-press {
-  transform: scale(0.96) !important;
-  transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
-}
-
-.motion-ripple {
-  position: absolute !important;
-  border-radius: 50% !important;
-  background: rgba(0, 240, 255, 0.25) !important;
-  transform: scale(0) !important;
-  animation: motionRippleAnim 0.6s ease-out !important;
-  pointer-events: none !important;
-}
-
-@keyframes motionRippleAnim {
-  to {
-    transform: scale(3.5) !important;
-    opacity: 0 !important;
-  }
-}
-
-/* 3. 21st.dev Border Beam Animation for Active Highlights */
-.border-beam-active {
-  position: relative !important;
-}
-
-.border-beam-active::after {
-  content: '' !important;
-  position: absolute !important;
-  inset: -1px !important;
-  border-radius: inherit !important;
-  padding: 1px !important;
-  background: linear-gradient(90deg, #00d2eb, #38bdf8, #818cf8, #00d2eb) !important;
-  background-size: 300% 300% !important;
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0) !important;
-  -webkit-mask-composite: xor !important;
-  mask-composite: exclude !important;
-  animation: borderBeamGlow 4s linear infinite !important;
-  pointer-events: none !important;
-}
-
-@keyframes borderBeamGlow {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-/* 4. Motion-Enhanced Dynamic Slider Styling */
-input[type="range"]:not(.eq-slider) {
-  height: 6px !important;
-  border-radius: 3px !important;
-  background: linear-gradient(to right, var(--slider-glow, var(--accent-cyan)) var(--slider-progress, 0%), rgba(255, 255, 255, 0.1) var(--slider-progress, 0%)) !important;
-  transition: background 0.1s ease !important;
-}
-
-input[type="range"]:not(.eq-slider)::-webkit-slider-thumb {
-  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease !important;
-}
-
-input[type="range"]:not(.eq-slider):hover::-webkit-slider-thumb {
-  transform: scale(1.35) !important;
-  box-shadow: 0 0 14px var(--slider-glow, var(--accent-cyan)) !important;
-}
-
-/* 5. 21st.dev Ambient Aurora Mesh Background */
-body.cyber-dark::before {
-  content: '' !important;
-  position: fixed !important;
-  top: -10% !important;
-  left: -10% !important;
-  width: 120vw !important;
-  height: 120vh !important;
-  background: 
-    radial-gradient(circle at 20% 30%, rgba(0, 240, 255, 0.08) 0%, transparent 40%),
-    radial-gradient(circle at 80% 70%, rgba(255, 0, 127, 0.08) 0%, transparent 40%),
-    radial-gradient(circle at 50% 50%, rgba(112, 0, 255, 0.06) 0%, transparent 50%) !important;
-  pointer-events: none !important;
-  z-index: 0 !important;
-  animation: auroraMeshPulse 12s infinite alternate ease-in-out !important;
-}
-
-@keyframes auroraMeshPulse {
-  0% { transform: scale(1) rotate(0deg); opacity: 0.8; }
-  100% { transform: scale(1.1) rotate(3deg); opacity: 1; }
-}
-
-/* 6. shadcn Glassmorphic Floating Quick Control Dock */
-.quick-dock {
-  position: fixed !important;
-  bottom: 20px !important;
-  left: 50% !important;
-  transform: translateX(-50%) !important;
-  background: rgba(12, 12, 16, 0.88) !important;
-  backdrop-filter: blur(20px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
-  border-radius: var(--radius-full) !important;
-  padding: 6px 14px !important;
-  display: flex !important;
-  align-items: center !important;
-  gap: 8px !important;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), inset 0 1px 0 0 rgba(255, 255, 255, 0.08) !important;
-  z-index: 999 !important;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
-}
-
-.quick-dock:hover {
-  border-color: rgba(255, 255, 255, 0.18) !important;
-  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.7), inset 0 1px 0 0 rgba(255, 255, 255, 0.12) !important;
-}
-
-.quick-dock-label {
-  font-family: var(--font-mono) !important;
-  font-size: 0.72rem !important;
-  color: var(--accent-cyan) !important;
-  font-weight: 700 !important;
-  letter-spacing: 0.06em !important;
-  padding-right: 8px !important;
-  border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
-}
-
-.quick-dock-btn {
-  background: rgba(255, 255, 255, 0.05) !important;
+/* 7. Dropdown Select & Form Inputs */
+select.cyber-select, select.cyber-select-sm, input.cyber-input {
+  background: #11141e !important;
   border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  color: var(--text-muted) !important;
-  padding: 6px 12px !important;
-  border-radius: var(--radius-full) !important;
-  font-family: var(--font-heading) !important;
-  font-size: 0.75rem !important;
-  font-weight: 500 !important;
-  cursor: pointer !important;
-  display: flex !important;
-  align-items: center !important;
-  gap: 6px !important;
-  transition: all 0.15s ease !important;
-}
-
-.quick-dock-btn:hover {
-  background: rgba(255, 255, 255, 0.1) !important;
-  border-color: rgba(255, 255, 255, 0.2) !important;
+  border-radius: var(--radius-sm) !important;
   color: var(--text-main) !important;
-  transform: translateY(-1px) !important;
+  font-family: var(--font-heading) !important;
+  font-size: 0.78rem !important;
+  padding: 7px 10px !important;
+  outline: none !important;
+  transition: border-color 0.15s ease !important;
 }
 
-.quick-dock-btn:active {
-  transform: scale(0.96) !important;
+select.cyber-select:focus, select.cyber-select-sm:focus, input.cyber-input:focus {
+  border-color: var(--accent-cyan) !important;
 }
 
-/* ==========================================================================
-   Welcome Animation Splash Overlay (21st.dev + Motion.dev style)
-   ========================================================================== */
-.welcome-splash {
-  position: fixed !important;
-  inset: 0 !important;
-  background: rgba(5, 7, 12, 0.96) !important;
-  backdrop-filter: blur(30px) saturate(200%) !important;
-  -webkit-backdrop-filter: blur(30px) saturate(200%) !important;
-  z-index: 10000 !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), filter 0.8s ease !important;
+/* 8. VU Meter Signal Scaling */
+.vu-channel {
+  background: #0a0d14 !important;
+  border: 1px solid rgba(255, 255, 255, 0.06) !important;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.7) !important;
 }
 
-.welcome-splash.hidden-splash {
-  opacity: 0 !important;
-  transform: scale(1.08) !important;
-  filter: blur(12px) !important;
-  pointer-events: none !important;
+.vu-fill {
+  background: linear-gradient(90deg, #10b981 0%, #00c2cb 65%, #f59e0b 85%, #ef4444 100%) !important;
 }
 
-.welcome-card {
-  background: rgba(15, 20, 32, 0.85) !important;
-  border: 1px solid rgba(0, 240, 255, 0.3) !important;
-  border-radius: 28px !important;
-  padding: 40px 48px !important;
-  text-align: center !important;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(0, 240, 255, 0.2) !important;
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: center !important;
-  max-width: 480px !important;
-  width: 90% !important;
-  animation: welcomePop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
-}
-
-@keyframes welcomePop {
-  0% { transform: scale(0.85); opacity: 0; }
-  100% { transform: scale(1); opacity: 1; }
-}
-
-.welcome-logo-ring {
-  position: relative !important;
-  width: 72px !important;
-  height: 72px !important;
-  background: linear-gradient(135deg, var(--accent-neon), var(--accent-cyan)) !important;
-  border-radius: 20px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  margin-bottom: 20px !important;
-  box-shadow: 0 0 30px rgba(0, 240, 255, 0.5) !important;
-}
-
-.welcome-logo-ring svg {
-  width: 36px !important;
-  height: 36px !important;
-  color: #fff !important;
-}
-
-.welcome-pulse {
-  position: absolute !important;
-  width: 100% !important;
-  height: 100% !important;
-  border-radius: 20px !important;
-  border: 2px solid var(--accent-cyan) !important;
-  animation: ringPulse 2s infinite ease-out !important;
-}
-
-.welcome-title {
-  font-size: 2.2rem !important;
-  font-weight: 800 !important;
-  letter-spacing: 3px !important;
-  color: #fff !important;
-  margin-bottom: 8px !important;
-}
-
-.welcome-title span {
-  color: var(--accent-cyan) !important;
-}
-
-.welcome-subtitle {
-  font-size: 0.88rem !important;
-  color: var(--text-muted) !important;
-  margin-bottom: 24px !important;
-}
-
-.welcome-wave-bars {
-  display: flex !important;
-  gap: 6px !important;
-  align-items: flex-end !important;
-  height: 24px !important;
-  margin-bottom: 24px !important;
-}
-
-.welcome-wave-bars span {
-  width: 4px !important;
-  background: var(--accent-cyan) !important;
-  border-radius: 2px !important;
-  animation: welcomeWave 1.2s infinite ease-in-out alternate !important;
-}
-
-.welcome-wave-bars span:nth-child(1) { height: 100%; animation-delay: 0.0s; }
-.welcome-wave-bars span:nth-child(2) { height: 60%; animation-delay: 0.2s; }
-.welcome-wave-bars span:nth-child(3) { height: 90%; animation-delay: 0.4s; }
-.welcome-wave-bars span:nth-child(4) { height: 40%; animation-delay: 0.1s; }
-.welcome-wave-bars span:nth-child(5) { height: 80%; animation-delay: 0.3s; }
-.welcome-wave-bars span:nth-child(6) { height: 50%; animation-delay: 0.5s; }
-
-@keyframes welcomeWave {
-  0% { transform: scaleY(0.2); background: var(--accent-cyan); }
-  100% { transform: scaleY(1); background: var(--accent-pink); }
-}
-
-.welcome-progress-bar {
-  width: 100% !important;
-  height: 6px !important;
-  background: rgba(255, 255, 255, 0.1) !important;
-  border-radius: 3px !important;
-  overflow: hidden !important;
-  margin-bottom: 12px !important;
-}
-
-.welcome-progress-fill {
-  width: 0% !important;
-  height: 100% !important;
-  background: linear-gradient(90deg, var(--accent-cyan), var(--accent-pink), var(--accent-green)) !important;
-  transition: width 0.1s linear !important;
-  box-shadow: 0 0 10px var(--accent-cyan) !important;
-}
-
-.welcome-status {
-  font-family: var(--font-mono) !important;
-  font-size: 0.72rem !important;
-  color: var(--accent-cyan) !important;
-  letter-spacing: 1px !important;
-  margin-bottom: 20px !important;
-}
-
-.welcome-enter-btn {
-  background: linear-gradient(135deg, var(--accent-cyan), #0088ff) !important;
-  color: #000 !important;
-  font-weight: 800 !important;
-  padding: 12px 28px !important;
-  border-radius: 20px !important;
-  border: none !important;
-  cursor: pointer !important;
-  font-size: 0.9rem !important;
-  letter-spacing: 1px !important;
-  box-shadow: 0 4px 20px rgba(0, 240, 255, 0.4) !important;
-  transition: all 0.25s ease !important;
-}
-
-.welcome-enter-btn:hover {
-  transform: scale(1.05) !important;
-  box-shadow: 0 6px 28px rgba(0, 240, 255, 0.6) !important;
-}
 
 /* ─── AURA MULTI-ENGINE DSP CARDS ──────────────────────────── */
 .audio-engine-section {

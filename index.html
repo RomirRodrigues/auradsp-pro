@@ -7,38 +7,11 @@
   <meta name="description" content="Professional real-time audio tuning processor for Aura Audio Gear, earbuds, and home theater systems with 3D Spatial Audio, Aura Virtualizer, and 10-Band EQ.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=48.0.0">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=49.0.0">
   <link rel="manifest" href="manifest.json">
 </head>
-<body class="cyber-dark">
-  <!-- 21st.dev Welcome Animation Splash Overlay -->
-  <div id="welcomeSplash" class="welcome-splash">
-    <div class="welcome-card">
-      <div class="welcome-logo-ring">
-        <span class="welcome-pulse"></span>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M12 2v20M17 5v14M7 5v14M2 9v6M22 9v6"/>
-        </svg>
-      </div>
-      <h1 class="welcome-title">AURA<span>DSP</span> PRO</h1>
-      <p class="welcome-subtitle">3D Spatial Audio Engine & Real-Time DSP Workstation</p>
-      
-      <div class="welcome-wave-bars">
-        <span></span><span></span><span></span><span></span><span></span><span></span>
-      </div>
-
-      <div class="welcome-progress-bar">
-        <div id="welcomeProgressFill" class="welcome-progress-fill"></div>
-      </div>
-      <div id="welcomeStatusText" class="welcome-status">INITIALIZING AUDIO DSP ENGINE...</div>
-
-      <button id="welcomeEnterBtn" class="welcome-enter-btn">
-        <span>ENTER WORKSTATION</span>
-      </button>
-    </div>
-  </div>
-
+<body class="theme-studio">
   <!-- Toast Notification System -->
   <div id="toastContainer" class="toast-container"></div>
 
@@ -46,57 +19,53 @@
   <header class="app-header">
     <div class="logo-container">
       <div class="logo-icon">
-        <span class="pulse-ring"></span>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M12 2v20M17 5v14M7 5v14M2 9v6M22 9v6"/>
         </svg>
       </div>
       <div>
-        <h1>AURA<span>DSP</span> PRO</h1>
-        <p class="subtitle">Live Real-Time Audio Tuning & 3D Spatial Processor</p>
+        <div class="brand-title">AURA<span>DSP</span> PRO <span class="version-tag">v49.0</span></div>
+        <p class="subtitle">Reference Studio Audio Workstation & 3D Spatial Processor</p>
       </div>
     </div>
 
-    <!-- Active Audio Status -->
+    <!-- Active Audio Status & Studio Console Toolbar -->
     <div class="status-bar">
       <div class="status-indicator active" id="engineStatusIndicator">
         <span class="dot"></span>
-        <span id="engineStatusText">DSP ENGINE ACTIVE</span>
+        <span id="engineStatusText">48kHz · 32-BIT DSP · ACTIVE</span>
       </div>
       <div class="device-badge" id="activeDeviceBadge">
         <span class="dot"></span>
         <span id="activeDeviceText">Aura Reference Active</span>
       </div>
 
-      <div class="theme-picker" style="margin-left: 6px; display:flex; gap:3px;">
-        <button id="undoBtn" class="sm-btn" title="Undo (Ctrl+Z)" style="background:#14171f; color:#00f0ff; padding:4px 8px; font-weight:600; letter-spacing:0.04em;">UNDO</button>
-        <button id="redoBtn" class="sm-btn" title="Redo (Ctrl+Y)" style="background:#14171f; color:#00f0ff; padding:4px 8px; font-weight:600; letter-spacing:0.04em;">REDO</button>
-      </div>
-      <div class="theme-picker" style="margin-left: 6px; display:flex; gap:2px;">
-        <button id="snapABtn" class="sm-btn snap-btn active" style="background:#00f0ff; color:#09090b; font-weight:bold; padding:4px 8px;">A</button>
-        <button id="snapBBtn" class="sm-btn snap-btn" style="background:#14171f; color:#fff; font-weight:bold; padding:4px 8px;">B</button>
-        <button id="snapCBtn" class="sm-btn snap-btn" style="background:#14171f; color:#fff; font-weight:bold; padding:4px 8px;">C</button>
-        <button id="snapDBtn" class="sm-btn snap-btn" style="background:#14171f; color:#fff; font-weight:bold; padding:4px 8px;">D</button>
-      </div>
-      <div class="theme-picker" style="margin-left: 6px;">
+      <div class="header-tools-group">
         <button id="globalBypassBtn" class="sm-btn dsp-power-btn" title="Toggle Master DSP Engine (ON / BYPASS)">
           <span class="dsp-power-led"></span>
-          <span id="dspPowerText">DSP ENGINE: ACTIVE</span>
+          <span id="dspPowerText">DSP ACTIVE</span>
         </button>
-      </div>
-      <div class="theme-picker" style="margin-left: 10px;">
-        <select id="appFontSelector" title="Change UI Font">
-          <option value="font-outfit">Outfit (Modern)</option>
-          <option value="font-inter">Inter (Studio)</option>
-          <option value="font-roboto">Roboto</option>
-        </select>
-      </div>
-      <div class="theme-picker" style="margin-left:auto;">
-        <select id="appThemeSelector" title="Change UI Theme">
-          <option value="theme-cyberpunk">Cyberpunk Dark</option>
-          <option value="theme-oled">Midnight Obsidian</option>
-          <option value="theme-light">Studio Precision</option>
-        </select>
+
+        <div class="toolbar-btn-group">
+          <button id="undoBtn" class="sm-btn tool-btn" title="Undo (Ctrl+Z)">UNDO</button>
+          <button id="redoBtn" class="sm-btn tool-btn" title="Redo (Ctrl+Y)">REDO</button>
+        </div>
+
+        <div class="toolbar-btn-group snapshot-group">
+          <span class="group-label">SNAP</span>
+          <button id="snapABtn" class="sm-btn snap-btn active">A</button>
+          <button id="snapBBtn" class="sm-btn snap-btn">B</button>
+          <button id="snapCBtn" class="sm-btn snap-btn">C</button>
+          <button id="snapDBtn" class="sm-btn snap-btn">D</button>
+        </div>
+
+        <div class="theme-picker">
+          <select id="appThemeSelector" title="Studio Theme">
+            <option value="theme-studio">Dark Studio</option>
+            <option value="theme-oled">Obsidian OLED</option>
+            <option value="theme-graphite">Graphite Grey</option>
+          </select>
+        </div>
       </div>
     </div>
 
@@ -948,34 +917,20 @@
     </div>
   </footer>
 
-  <!-- Precision Floating Quick Dock -->
-  <div class="quick-dock" id="floatingQuickDock">
-    <span class="quick-dock-label">AURA DOCK</span>
-    <button class="quick-dock-btn" onclick="document.getElementById('playPauseBtn')?.click()">
-      <span>Play / Pause</span>
-    </button>
-    <button class="quick-dock-btn" onclick="document.getElementById('globalBypassBtn')?.click()">
-      <span>Bypass DSP</span>
-    </button>
-    <button class="quick-dock-btn" onclick="document.getElementById('resetEqBtn')?.click()">
-      <span>Reset Flat</span>
-    </button>
-  </div>
-
   <!-- Modular Scripts -->
-  <script src="js/data/presets.js?v=48.0.0"></script>
-  <script src="js/audio/audio-engine.js?v=48.0.0"></script>
-  <script src="js/visual/spatial-canvas.js?v=48.0.0"></script>
-  <script src="js/visual/visualizer.js?v=48.0.0"></script>
-  <script src="js/ui/motion-ui.js?v=48.0.0"></script>
-  <script src="js/app.js?v=48.0.0"></script>
+  <script src="js/data/presets.js?v=49.0.0"></script>
+  <script src="js/audio/audio-engine.js?v=49.0.0"></script>
+  <script src="js/visual/spatial-canvas.js?v=49.0.0"></script>
+  <script src="js/visual/visualizer.js?v=49.0.0"></script>
+  <script src="js/ui/motion-ui.js?v=49.0.0"></script>
+  <script src="js/app.js?v=49.0.0"></script>
 
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js?v=48.0.0')
+        navigator.serviceWorker.register('sw.js?v=49.0.0')
           .then(reg => {
-            console.log('Service Worker Registered v48.0.0');
+            console.log('Service Worker Registered v49.0.0');
             reg.update();
           })
           .catch(err => console.log('Service Worker Error', err));
