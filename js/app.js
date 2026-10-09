@@ -3846,65 +3846,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }, { passive: false });
 
   
-  // --- A, B, C, D SNAPSHOT UI HANDLERS ---
-  const snapBtns = {
-    A: document.getElementById('snapABtn'),
-    B: document.getElementById('snapBBtn'),
-    C: document.getElementById('snapCBtn'),
-    D: document.getElementById('snapDBtn')
-  };
-
-  // Save initial A snapshot on load
-  setTimeout(() => {
-    if (window.audioEngine) {
-      window.audioEngine.saveSnapshot('A');
-      window.audioEngine.saveSnapshot('B');
-      window.audioEngine.saveSnapshot('C');
-      window.audioEngine.saveSnapshot('D');
-    }
-  }, 1000);
-
-  ['A', 'B', 'C', 'D'].forEach(key => {
-    if (snapBtns[key]) {
-      snapBtns[key].addEventListener('click', () => {
-        if (!window.audioEngine) return;
-        
-        // Save current to active, then switch
-        window.audioEngine.saveSnapshot(window.audioEngine.activeSnapshotKey);
-        const success = window.audioEngine.loadSnapshot(key);
-        
-        Object.keys(snapBtns).forEach(k => {
-          if (snapBtns[k]) {
-            snapBtns[k].style.background = k === key ? '#00d2d3' : '#1e293b';
-            snapBtns[k].style.color = k === key ? '#09090b' : '#ffffff';
-          }
-        });
-
-        if (window.showToast) window.showToast(`Switched to Snapshot ${key}`, 'info');
-      });
-    }
-  });
-
-  // --- UNDO / REDO UI HANDLERS ---
-  const undoBtn = document.getElementById('undoBtn');
-  const redoBtn = document.getElementById('redoBtn');
-
-  if (undoBtn) {
-    undoBtn.addEventListener('click', () => {
-      if (window.audioEngine && window.audioEngine.undo()) {
-        if (window.showToast) window.showToast('↩ Undo Action', 'info');
-      }
-    });
-  }
-
-  if (redoBtn) {
-    redoBtn.addEventListener('click', () => {
-      if (window.audioEngine && window.audioEngine.redo()) {
-        if (window.showToast) window.showToast('↪ Redo Action', 'info');
-      }
-    });
-  }
-
   // Ctrl+Z & Ctrl+Y Keyboard Shortcuts
   window.addEventListener('keydown', (e) => {
     if ((e.ctrlKey || e.metaKey) && e.key === 'z') {

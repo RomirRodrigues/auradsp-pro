@@ -48,46 +48,13 @@
       </button>
     </div>
 
-    <!-- Active Audio Status & Studio Console Toolbar -->
+    <!-- Studio Console Toolbar -->
     <div class="status-bar">
-      <div class="status-indicator active" id="engineStatusIndicator">
-        <span class="dot"></span>
-        <span id="engineStatusText">48kHz · 32-BIT DSP · ACTIVE</span>
-      </div>
-      <div class="device-badge" id="activeDeviceBadge">
-        <span class="dot"></span>
-        <span id="activeDeviceText">Aura Reference Active</span>
-      </div>
-      <div class="fps-badge" id="fpsBadge" title="Ultra-High Refresh Render Pipeline (60 / 144 / 240 FPS)">
-        <span class="dot"></span>
-        <span id="fpsCountText">144 FPS</span>
-      </div>
-      <div class="ear-dose-badge" id="earDoseBadge" title="Safe Listening Exposure Dose (WHO 85dB Standard). Click for Details.">
-        <span class="dose-icon">👂</span>
-        <span id="earDoseText">DOSE: 0% · 0m</span>
-      </div>
-      <button id="openCodecInspectorBtn" class="sm-btn codec-badge-btn" title="Inspect Audio File Codec, Sample Rate & Bit Depth">
-        <span>🔍 CODEC</span>
-      </button>
-
       <div class="header-tools-group">
         <button id="globalBypassBtn" class="sm-btn dsp-power-btn" title="Toggle Master DSP Engine (ON / BYPASS)">
           <span class="dsp-power-led"></span>
           <span id="dspPowerText">DSP ACTIVE</span>
         </button>
-
-        <div class="toolbar-btn-group">
-          <button id="undoBtn" class="sm-btn tool-btn" title="Undo (Ctrl+Z)">UNDO</button>
-          <button id="redoBtn" class="sm-btn tool-btn" title="Redo (Ctrl+Y)">REDO</button>
-        </div>
-
-        <div class="toolbar-btn-group snapshot-group">
-          <span class="group-label">SNAP</span>
-          <button id="snapABtn" class="sm-btn snap-btn active">A</button>
-          <button id="snapBBtn" class="sm-btn snap-btn">B</button>
-          <button id="snapCBtn" class="sm-btn snap-btn">C</button>
-          <button id="snapDBtn" class="sm-btn snap-btn">D</button>
-        </div>
 
         <div class="theme-picker">
           <select id="appThemeSelector" title="Studio Theme">
