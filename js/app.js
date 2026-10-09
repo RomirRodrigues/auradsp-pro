@@ -3617,26 +3617,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  const headDiameter = document.getElementById('headDiameter');
-  const headDiameterVal = document.getElementById('headDiameterVal');
-  const crosstalkAmount = document.getElementById('crosstalkAmount');
-  const crosstalkAmountVal = document.getElementById('crosstalkAmountVal');
-
-  if (headDiameter && headDiameterVal) {
-    headDiameter.addEventListener('input', (e) => {
-      const cm = parseFloat(e.target.value).toFixed(1);
-      headDiameterVal.textContent = `${cm} cm`;
-      if (window.audioEngine) window.audioEngine.setHeadDiameter(cm);
-    });
-  }
-
-  if (crosstalkAmount && crosstalkAmountVal) {
-    crosstalkAmount.addEventListener('input', (e) => {
-      const val = e.target.value;
-      crosstalkAmountVal.textContent = `${val}%`;
-      if (window.audioEngine) window.audioEngine.setCrosstalk(val);
-    });
-  }
 
   
   // --- ACCESSIBILITY KEYBOARD SHORTCUTS ---
