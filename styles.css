@@ -97,28 +97,29 @@
    ========================================================================== */
 
 :root {
-  /* Modern shadcn Dark Studio Palette */
-  --bg-primary: #09090b;
-  --bg-panel: rgba(18, 18, 24, 0.78);
-  --bg-card: rgba(24, 24, 30, 0.65);
-  --bg-card-hover: rgba(36, 36, 44, 0.85);
-  --bg-elevated: rgba(30, 30, 38, 0.9);
+  /* High-End Studio Obsidian & Precision Console Palette */
+  --bg-primary: #0a0c10;
+  --bg-panel: rgba(16, 20, 27, 0.88);
+  --bg-card: rgba(22, 27, 36, 0.75);
+  --bg-card-hover: rgba(30, 37, 50, 0.9);
+  --bg-elevated: rgba(26, 32, 44, 0.95);
   
-  --accent-cyan: #00f0ff;
-  --accent-neon: #ff007f;
+  --accent-cyan: #00d2eb;
+  --accent-blue: #38bdf8;
+  --accent-neon: #00d2eb;
   --accent-amber: #f59e0b;
   --accent-green: #10b981;
-  --accent-purple: #8b5cf6;
+  --accent-purple: #818cf8;
   --accent-rose: #f43f5e;
   
-  --text-main: #fafafa;
-  --text-muted: #a1a1aa;
-  --text-subtle: #71717a;
+  --text-main: #f0f4f8;
+  --text-muted: #8b97a8;
+  --text-subtle: #5a6676;
   
   --border-color: rgba(255, 255, 255, 0.08);
   --border-hardware: rgba(255, 255, 255, 0.08);
-  --border-focus: rgba(0, 240, 255, 0.6);
-  --ring-focus: 0 0 0 2px rgba(0, 240, 255, 0.25);
+  --border-focus: rgba(0, 210, 235, 0.6);
+  --ring-focus: 0 0 0 2px rgba(0, 210, 235, 0.25);
   
   --font-heading: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
@@ -133,7 +134,7 @@
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.35);
   --shadow-md: 0 4px 12px -2px rgba(0, 0, 0, 0.5), 0 2px 4px -2px rgba(0, 0, 0, 0.4);
   --shadow-lg: 0 12px 24px -4px rgba(0, 0, 0, 0.6), 0 4px 8px -4px rgba(0, 0, 0, 0.5);
-  --shadow-glow: 0 0 20px rgba(0, 240, 255, 0.25);
+  --shadow-glow: 0 0 20px rgba(0, 210, 235, 0.2);
   --inner-bevel: inset 0 1px 0 0 rgba(255, 255, 255, 0.06);
 }
 
@@ -146,10 +147,9 @@
 body.cyber-dark {
   background-color: var(--bg-primary);
   background-image: 
-    radial-gradient(circle at 15% 15%, rgba(0, 240, 255, 0.08) 0%, transparent 45%),
-    radial-gradient(circle at 85% 85%, rgba(139, 92, 246, 0.07) 0%, transparent 45%),
-    radial-gradient(circle at 50% 50%, rgba(255, 0, 127, 0.04) 0%, transparent 60%),
-    linear-gradient(180deg, #09090b 0%, #0c0c10 100%);
+    radial-gradient(circle at 20% 10%, rgba(0, 210, 235, 0.04) 0%, transparent 50%),
+    radial-gradient(circle at 80% 90%, rgba(56, 189, 248, 0.03) 0%, transparent 50%),
+    linear-gradient(180deg, #0a0c10 0%, #0d1016 100%);
   color: var(--text-main);
   font-family: var(--font-heading);
   min-height: 100vh;
@@ -280,13 +280,22 @@ body.cyber-dark {
   align-items: center;
   gap: 7px;
   padding: 5px 12px;
-  background: rgba(0, 240, 255, 0.08);
-  border: 1px solid rgba(0, 240, 255, 0.25);
+  background: rgba(0, 210, 235, 0.08);
+  border: 1px solid rgba(0, 210, 235, 0.25);
   border-radius: var(--radius-full);
   font-size: 0.75rem;
   color: var(--accent-cyan);
   font-weight: 600;
   letter-spacing: 0.01em;
+}
+
+.device-badge .dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent-cyan);
+  box-shadow: 0 0 8px var(--accent-cyan);
+  display: inline-block;
 }
 
 /* Header DSP Power & Snap Controls */
@@ -510,46 +519,68 @@ body.cyber-dark {
 }
 
 .primary-btn {
-  background: linear-gradient(135deg, #00f0ff 0%, #0099ff 100%);
+  background: linear-gradient(135deg, #00d2eb 0%, #0284c7 100%);
   color: #05070a;
   border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 2px 10px rgba(0, 240, 255, 0.35);
+  box-shadow: 0 2px 10px rgba(0, 210, 235, 0.3);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 .primary-btn:hover {
-  box-shadow: 0 4px 18px rgba(0, 240, 255, 0.5);
+  box-shadow: 0 4px 18px rgba(0, 210, 235, 0.45);
   transform: translateY(-1px);
 }
 
 .primary-btn:active {
-  transform: scale(0.98);
+  transform: translateY(1px);
 }
 
 .accent-btn {
-  background: rgba(139, 92, 246, 0.2);
-  border: 1px solid rgba(139, 92, 246, 0.4);
-  color: #fff;
+  background: linear-gradient(180deg, #1b2230 0%, #131722 100%);
+  border: 1px solid rgba(0, 210, 235, 0.35);
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+  color: #00d2eb;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
 .accent-btn:hover {
-  background: rgba(139, 92, 246, 0.35);
-  border-color: rgba(139, 92, 246, 0.6);
+  background: linear-gradient(180deg, #222b3d 0%, #171d2b 100%);
+  border-color: rgba(0, 210, 235, 0.6);
+  color: #ffffff;
+  box-shadow: 0 0 14px rgba(0, 210, 235, 0.25);
+}
+
+.accent-btn:active {
+  transform: translateY(1px);
 }
 
 .sm-btn {
   width: auto;
   padding: 5px 11px;
   font-size: 0.72rem;
-  background: rgba(24, 24, 30, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  background: linear-gradient(180deg, #1d232f 0%, #131720 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
   color: var(--text-muted);
   border-radius: var(--radius-sm);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 .sm-btn:hover {
   color: var(--text-main);
-  background: rgba(36, 36, 44, 0.9);
-  border-color: rgba(255, 255, 255, 0.18);
+  background: linear-gradient(180deg, #242c3b 0%, #171c26 100%);
+  border-color: rgba(0, 210, 235, 0.35);
+}
+
+.sm-btn:active {
+  transform: translateY(1px);
 }
 
 /* File Dropzone - shadcn Upload Card */
@@ -2870,15 +2901,9 @@ input[type=range]:not(.eq-slider):active::-webkit-slider-thumb {
   box-shadow: 0 0 14px rgba(0, 240, 255, 0.5) !important;
 }
 
-/* 5. Glowing Sound Beam Wave Animation */
-@keyframes beamGlowWave {
-  0% { filter: drop-shadow(0 0 2px #00f0ff); }
-  50% { filter: drop-shadow(0 0 10px #00f0ff) drop-shadow(0 0 18px #ff007f); }
-  100% { filter: drop-shadow(0 0 2px #00f0ff); }
-}
-
+/* 5. Precision Studio Visualizer Display */
 #spectrumCanvas, #spatialCanvas {
-  animation: beamGlowWave 4s infinite ease-in-out;
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8) !important;
 }
 
 
@@ -2975,18 +3000,19 @@ input[type=range]:not(.eq-slider)::-webkit-slider-runnable-track {
 }
 
 input[type=range]:not(.eq-slider)::-webkit-slider-thumb {
-  height: 20px !important;
-  width: 20px !important;
-  background: radial-gradient(circle, #ffffff 30%, #00f0ff 100%) !important;
-  box-shadow: 0 0 14px #00f0ff, inset 0 1px 2px #fff !important;
-  border: 1px solid #00f0ff !important;
+  height: 16px !important;
+  width: 16px !important;
+  background: #e2e8f0 !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.6), 0 0 6px rgba(0, 210, 235, 0.35) !important;
+  border: 1px solid rgba(255, 255, 255, 0.4) !important;
+  border-radius: 50% !important;
 }
 
 input[type=range]:not(.eq-slider)::-webkit-slider-thumb:hover {
-  transform: scale(1.25) !important;
-  background: radial-gradient(circle, #ffffff 30%, #ff007f 100%) !important;
-  box-shadow: 0 0 20px #ff007f !important;
-  border-color: #ff007f !important;
+  transform: scale(1.15) !important;
+  background: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.7), 0 0 10px rgba(0, 210, 235, 0.6) !important;
+  border-color: var(--accent-cyan) !important;
 }
 
 /* 5. Glowing Value Pills */
@@ -2994,18 +3020,18 @@ input[type=range]:not(.eq-slider)::-webkit-slider-thumb:hover {
   font-family: var(--font-mono) !important;
   font-weight: 700 !important;
   padding: 2px 6px !important;
-  background: rgba(0, 240, 255, 0.1) !important;
-  border: 1px solid rgba(0, 240, 255, 0.25) !important;
-  border-radius: 6px !important;
-  color: #00f0ff !important;
+  background: rgba(0, 210, 235, 0.08) !important;
+  border: 1px solid rgba(0, 210, 235, 0.22) !important;
+  border-radius: 4px !important;
+  color: var(--accent-cyan) !important;
 }
 
 /* 6. Active Snapshot & Control Button Glowing Trails */
 .snap-btn.active, .vis-btn.active, .spat-btn.active {
-  background: linear-gradient(135deg, #00f0ff 0%, #7000ff 100%) !important;
-  color: #ffffff !important;
+  background: linear-gradient(135deg, #00d2eb 0%, #0284c7 100%) !important;
+  color: #040810 !important;
   font-weight: 800 !important;
-  box-shadow: 0 0 16px rgba(0, 240, 255, 0.5), inset 0 1px 1px #fff !important;
+  box-shadow: 0 2px 10px rgba(0, 210, 235, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
   border: none !important;
 }
 
@@ -3132,17 +3158,18 @@ button:active, .primary-btn:active, .accent-btn:active {
 
 /* 3. Primary Glowing Action Buttons */
 .accent-btn, #playPauseBtn, #webPlayPauseBtn {
-  background: linear-gradient(135deg, #00f0ff 0%, #7000ff 100%) !important;
-  border: none !important;
-  color: #ffffff !important;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
+  background: linear-gradient(135deg, #00d2eb 0%, #0284c7 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  color: #040810 !important;
+  font-weight: 700 !important;
+  box-shadow: 0 4px 14px rgba(0, 210, 235, 0.3) !important;
 }
 
 /* 4. Active Preset & Control Selectors */
 .source-btn.active, .preset-card.active {
-  background: linear-gradient(135deg, rgba(0, 240, 255, 0.18) 0%, rgba(112, 0, 255, 0.25) 100%) !important;
-  border-color: #00f0ff !important;
-  box-shadow: 0 0 18px rgba(0, 240, 255, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+  background: rgba(0, 210, 235, 0.12) !important;
+  border-color: var(--accent-cyan) !important;
+  box-shadow: 0 0 14px rgba(0, 210, 235, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
 }
 
 /* 5. Custom Cyber Input & Dropdown Styling */
@@ -3288,7 +3315,7 @@ button:active, .source-btn:active, .preset-card:active, .pro-btn:active {
   inset: -1px !important;
   border-radius: inherit !important;
   padding: 1px !important;
-  background: linear-gradient(90deg, #00f0ff, #ff007f, #00ffa3, #00f0ff) !important;
+  background: linear-gradient(90deg, #00d2eb, #38bdf8, #818cf8, #00d2eb) !important;
   background-size: 300% 300% !important;
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0) !important;
   -webkit-mask-composite: xor !important;

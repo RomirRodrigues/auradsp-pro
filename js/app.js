@@ -121,7 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
     toggleEqCurveBtn.addEventListener('click', () => {
       eqCurveBox.classList.toggle('hidden');
       const isVisible = !eqCurveBox.classList.contains('hidden');
-      toggleEqCurveBtn.textContent = isVisible ? '📉 Hide Curve' : '📈 View Curve';
+      toggleEqCurveBtn.textContent = isVisible ? 'Hide Curve' : 'Response Curve';
       if (isVisible && window.visualizer) {
         window.visualizer.drawEqCurve(currentEqGains);
       }
@@ -267,7 +267,7 @@ document.addEventListener('DOMContentLoaded', () => {
       saveCard.style.background = 'rgba(0, 240, 255, 0.05)';
       saveCard.innerHTML = `
         <div class="preset-info">
-          <h4 style="color:var(--accent-cyan);">💾 Save Current Tuning</h4>
+          <h4 style="color:var(--accent-cyan); font-weight:700;">Save Active Calibration</h4>
           <p>Save active EQ and filter levels as a custom preset</p>
         </div>
         <button class="primary-btn-sm" style="padding: 4px 10px; font-size: 0.72rem; width: auto; min-width: auto; background: linear-gradient(135deg, var(--accent-cyan), #00a8ff); color: #000; box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);">Save</button>
@@ -296,7 +296,7 @@ document.addEventListener('DOMContentLoaded', () => {
           </div>
           <div style="display:flex; align-items:center; gap:8px;">
             <span class="preset-badge" style="background:rgba(0, 240, 255, 0.12); border: 1px solid var(--accent-cyan); color:var(--accent-cyan);">${preset.badge}</span>
-            <button class="delete-preset-btn" style="background:none; border:none; color:var(--accent-red); cursor:pointer; font-size:0.95rem; padding: 4px; display: flex; align-items: center; justify-content: center; transition: transform 0.1s;" title="Delete Preset">🗑️</button>
+            <button class="delete-preset-btn" style="background:none; border:none; color:var(--accent-rose); cursor:pointer; padding: 4px; display: flex; align-items: center; justify-content: center;" title="Delete Preset"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
           </div>
         `;
         card.querySelector('.delete-preset-btn').addEventListener('click', (e) => {
@@ -678,7 +678,7 @@ document.addEventListener('DOMContentLoaded', () => {
   audioFileInput.addEventListener('change', (e) => {
     const file = e.target.files[0];
     if (file) {
-      fileNameDisplay.textContent = `🎵 Active File: ${file.name}`;
+      fileNameDisplay.textContent = `Active File: ${file.name}`;
       const url = URL.createObjectURL(file);
       audioPlayer.src = url;
       
@@ -1223,7 +1223,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // --- UNIVERSAL MULTI-ENGINE CONCURRENT SEARCH ORCHESTRATION ---
   async function performWebMusicSearch(query) {
     if (webSearchResults) {
-      webSearchResults.innerHTML = '<div style="padding:16px; font-size:0.78rem; color:var(--text-muted); text-align:center;">🔍 Searching 7 Global Audio Engines (100M+ Songs)...</div>';
+      webSearchResults.innerHTML = '<div style="padding:18px; font-size:0.75rem; letter-spacing:0.04em; color:var(--text-muted); text-align:center; display:flex; align-items:center; justify-content:center; gap:8px;"><div style="width:14px; height:14px; border:2px solid rgba(0,210,235,0.25); border-top-color:var(--accent-cyan); border-radius:50%; animation:linkSpin 0.75s linear infinite;"></div><span>SCANNING 7 GLOBAL AUDIO ENGINES (100M+ CATALOG)...</span></div>';
     }
 
     const countLabel = document.getElementById('webSearchCount');
@@ -1332,51 +1332,51 @@ document.addEventListener('DOMContentLoaded', () => {
       const imgUrl = track.thumbnail || 'https://images.unsplash.com/photo-1614680376593-902f74fa0d41?w=40';
       const durationStr = track.duration > 0 ? `${Math.floor(track.duration / 60)}:${String(track.duration % 60).padStart(2, '0')}` : '';
       
-      let sourceBadge = '🏛️ Archive';
-      let badgeColor = '#00f0ff';
-      let badgeBg = 'rgba(0,240,255,0.1)';
-      let badgeBorder = 'rgba(0,240,255,0.3)';
+      let sourceBadge = 'Archive';
+      let badgeColor = '#00d2eb';
+      let badgeBg = 'rgba(0, 210, 235, 0.1)';
+      let badgeBorder = 'rgba(0, 210, 235, 0.3)';
 
       if (track.source === 'apple') {
-        sourceBadge = '🍎 Apple Music';
-        badgeColor = '#ff2d55';
-        badgeBg = 'rgba(255, 45, 85, 0.16)';
-        badgeBorder = 'rgba(255, 45, 85, 0.38)';
-      } else if (track.source === 'jiosaavn') {
-        sourceBadge = '🎵 JioSaavn HD';
-        badgeColor = '#2bc5b4';
-        badgeBg = 'rgba(43, 197, 180, 0.16)';
-        badgeBorder = 'rgba(43, 197, 180, 0.38)';
-      } else if (track.source === 'audius') {
-        sourceBadge = '🌐 Audius 320k';
-        badgeColor = '#b537f2';
-        badgeBg = 'rgba(181, 55, 242, 0.16)';
-        badgeBorder = 'rgba(181, 55, 242, 0.38)';
-      } else if (track.source === 'radio') {
-        sourceBadge = '📻 Live Radio';
-        badgeColor = '#ff9900';
-        badgeBg = 'rgba(255, 153, 0, 0.16)';
-        badgeBorder = 'rgba(255, 153, 0, 0.38)';
-      } else if (track.source === 'live_session') {
-        sourceBadge = '🎧 Studio Podcast';
-        badgeColor = '#00f0ff';
-        badgeBg = 'rgba(0, 240, 255, 0.16)';
-        badgeBorder = 'rgba(0, 240, 255, 0.38)';
-      } else if (track.source === 'archive') {
-        sourceBadge = '🏛️ Archive Vault';
+        sourceBadge = 'Apple Music';
         badgeColor = '#38bdf8';
-        badgeBg = 'rgba(56, 189, 248, 0.16)';
-        badgeBorder = 'rgba(56, 189, 248, 0.38)';
+        badgeBg = 'rgba(56, 189, 248, 0.12)';
+        badgeBorder = 'rgba(56, 189, 248, 0.3)';
+      } else if (track.source === 'jiosaavn') {
+        sourceBadge = 'JioSaavn HD';
+        badgeColor = '#10b981';
+        badgeBg = 'rgba(16, 185, 129, 0.12)';
+        badgeBorder = 'rgba(16, 185, 129, 0.3)';
+      } else if (track.source === 'audius') {
+        sourceBadge = 'Audius 320k';
+        badgeColor = '#818cf8';
+        badgeBg = 'rgba(129, 140, 248, 0.12)';
+        badgeBorder = 'rgba(129, 140, 248, 0.3)';
+      } else if (track.source === 'radio') {
+        sourceBadge = 'Live Radio';
+        badgeColor = '#f59e0b';
+        badgeBg = 'rgba(245, 158, 11, 0.12)';
+        badgeBorder = 'rgba(245, 158, 11, 0.3)';
+      } else if (track.source === 'live_session') {
+        sourceBadge = 'Studio Session';
+        badgeColor = '#00d2eb';
+        badgeBg = 'rgba(0, 210, 235, 0.12)';
+        badgeBorder = 'rgba(0, 210, 235, 0.3)';
+      } else if (track.source === 'archive') {
+        sourceBadge = 'Archive Master';
+        badgeColor = '#94a3b8';
+        badgeBg = 'rgba(148, 163, 184, 0.12)';
+        badgeBorder = 'rgba(148, 163, 184, 0.3)';
       } else if (track.source === 'vinyl') {
-        sourceBadge = '🎙️ 78RPM Vinyl';
-        badgeColor = '#ffd700';
-        badgeBg = 'rgba(255, 215, 0, 0.16)';
-        badgeBorder = 'rgba(255, 215, 0, 0.38)';
+        sourceBadge = 'Vinyl Master';
+        badgeColor = '#fbbf24';
+        badgeBg = 'rgba(251, 191, 36, 0.12)';
+        badgeBorder = 'rgba(251, 191, 36, 0.3)';
       } else if (track.source === 'featured') {
-        sourceBadge = '⚡ Studio Master';
-        badgeColor = '#00ff88';
-        badgeBg = 'rgba(0, 255, 136, 0.16)';
-        badgeBorder = 'rgba(0, 255, 136, 0.38)';
+        sourceBadge = 'Studio Master';
+        badgeColor = '#10b981';
+        badgeBg = 'rgba(16, 185, 129, 0.12)';
+        badgeBorder = 'rgba(16, 185, 129, 0.3)';
       }
 
       item.innerHTML = `
@@ -1419,7 +1419,7 @@ document.addEventListener('DOMContentLoaded', () => {
       webAlbumArt.src = track.thumbnail || 'https://images.unsplash.com/photo-1614680376593-902f74fa0d41?w=120';
     }
 
-    if (webPlayPauseBtn) webPlayPauseBtn.innerHTML = "<span>⚡ Streaming...</span>";
+    if (webPlayPauseBtn) webPlayPauseBtn.innerHTML = "<span>Streaming...</span>";
 
     if (window.audioEngine) {
       window.audioEngine.resumeCtx();
@@ -1758,8 +1758,8 @@ document.addEventListener('DOMContentLoaded', () => {
             url: bestMatch.streamUrl,
             title: trackTitle || bestMatch.title,
             meta: (bestMatch.uploaderName ? `${bestMatch.uploaderName} · ` : '') + 'Spotify Master Audio',
-            badge: '🟢 Spotify Track',
-            art: albumArt || bestMatch.thumbnail || '🟢'
+            badge: 'Spotify Track',
+            art: albumArt || bestMatch.thumbnail || ''
           };
         }
       } catch (e) {
@@ -1793,8 +1793,8 @@ document.addEventListener('DOMContentLoaded', () => {
               url: match.streamUrl,
               title: match.title || cleanSongName,
               meta: (match.uploaderName ? `${match.uploaderName} · ` : '') + 'YouTube Music Master',
-              badge: '🔴 YouTube Music',
-              art: ytData.thumbnail_url || match.thumbnail || '🔴'
+              badge: 'YouTube Music',
+              art: ytData.thumbnail_url || match.thumbnail || ''
             };
           }
         }
@@ -1823,8 +1823,8 @@ document.addEventListener('DOMContentLoaded', () => {
               url: match.streamUrl,
               title: scData.title || match.title,
               meta: (match.uploaderName ? `${match.uploaderName} · ` : '') + 'SoundCloud Audio Stream',
-              badge: '🟠 SoundCloud',
-              art: scData.thumbnail_url || match.thumbnail || '🟠'
+              badge: 'SoundCloud',
+              art: scData.thumbnail_url || match.thumbnail || ''
             };
           }
         }
@@ -1843,8 +1843,8 @@ document.addEventListener('DOMContentLoaded', () => {
         url,
         title: decodeURIComponent(url.split('/').pop().split('?')[0]) || 'Dropbox Audio Stream',
         meta: 'Dropbox Cloud Stream',
-        badge: '☁️ Dropbox',
-        art: '☁️'
+        badge: 'Dropbox',
+        art: ''
       };
     }
 
@@ -1857,8 +1857,8 @@ document.addEventListener('DOMContentLoaded', () => {
           url: direct,
           title: 'Google Drive Stream',
           meta: 'Google Cloud Audio Feed',
-          badge: '📁 G-Drive',
-          art: '📁'
+          badge: 'Google Drive',
+          art: ''
         };
       }
     }
@@ -1870,8 +1870,8 @@ document.addEventListener('DOMContentLoaded', () => {
         url,
         title: decodeURIComponent(url.split('/').pop()) || 'GitHub Raw Audio',
         meta: 'GitHub Audio Repository',
-        badge: '🐙 GitHub',
-        art: '🐙'
+        badge: 'GitHub',
+        art: ''
       };
     }
 
@@ -1889,7 +1889,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 url: track.previewUrl,
                 title: track.trackName || 'Apple Music Track',
                 meta: (track.artistName || 'Apple Music') + ' · 256k AAC Master',
-                badge: '🍎 Apple Music',
+                badge: 'Apple Music',
                 art: (track.artworkUrl100 || '').replace('100x100bb', '600x600bb')
               };
             }
@@ -1912,7 +1912,7 @@ document.addEventListener('DOMContentLoaded', () => {
               url: res[0].streamUrl,
               title: res[0].title,
               meta: res[0].uploaderName + ' · 320k Studio Master',
-              badge: '🎵 JioSaavn HD',
+              badge: 'JioSaavn HD',
               art: res[0].thumbnail
             };
           }
@@ -1934,7 +1934,7 @@ document.addEventListener('DOMContentLoaded', () => {
               url: res[0].streamUrl,
               title: res[0].title,
               meta: res[0].uploaderName + ' · Audius 320k',
-              badge: '🌐 Audius 320k',
+              badge: 'Audius 320k',
               art: res[0].thumbnail
             };
           }
@@ -1958,7 +1958,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 url: `https://archive.org/download/${id}/${encodeURIComponent(mp3.name)}`,
                 title: meta.metadata?.title || id,
                 meta: (meta.metadata?.creator || 'Archive Vault') + ' · Archive Master',
-                badge: '🏛️ Archive Vault',
+                badge: 'Archive Master',
                 art: `https://archive.org/services/img/${id}`
               };
             }
@@ -1987,8 +1987,8 @@ document.addEventListener('DOMContentLoaded', () => {
       url,
       title: cleanTitle,
       meta: isRadio ? 'Live Web Radio Stream' : 'Universal Stream Feed',
-      badge: isRadio ? '📻 Live Radio' : '🔗 Web Stream',
-      art: isRadio ? '📻' : '🔗'
+      badge: isRadio ? 'Live Radio' : 'Web Stream',
+      art: ''
     };
   }
 
@@ -2066,10 +2066,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (linkStreamStatus) linkStreamStatus.textContent = 'Buffering...';
 
     if (linkArtPlaceholder) {
+      const linkSvgFallback = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="studio-icon"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>';
       if (finalArt && (finalArt.startsWith('http://') || finalArt.startsWith('https://'))) {
-        linkArtPlaceholder.innerHTML = `<img src="${finalArt}" style="width:100%; height:100%; object-fit:cover; border-radius:5px;" onerror="this.parentNode.innerHTML='🔗'">`;
+        linkArtPlaceholder.innerHTML = `<img src="${finalArt}" style="width:100%; height:100%; object-fit:cover; border-radius:5px;" onerror="this.parentNode.innerHTML='${linkSvgFallback}'">`;
       } else {
-        linkArtPlaceholder.textContent = finalArt || '🔗';
+        linkArtPlaceholder.innerHTML = linkSvgFallback;
       }
     }
 
@@ -2251,7 +2252,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // Live radio or infinite stream
       if (linkCurrentTime) linkCurrentTime.textContent = formatMs(cur * 1000);
       if (linkDuration) linkDuration.textContent = "LIVE";
-      if (linkStreamTypeLabel) linkStreamTypeLabel.textContent = "🔴 LIVE RADIO";
+      if (linkStreamTypeLabel) linkStreamTypeLabel.textContent = "LIVE BROADCAST";
     }
   };
 
@@ -2668,12 +2669,12 @@ document.addEventListener('DOMContentLoaded', () => {
     globalBypassBtn.addEventListener('click', () => {
       isGlobalBypass = !isGlobalBypass;
       if (isGlobalBypass) {
-        if (dspPowerText) dspPowerText.textContent = '⚡ DSP ENGINE: BYPASS';
+        if (dspPowerText) dspPowerText.textContent = 'DSP ENGINE: BYPASS';
         globalBypassBtn.classList.add('bypassed-active');
         document.body.classList.add('bypassed');
-        if (window.showToast) window.showToast("DSP Engine Bypassed (Pure Direct Passthrough)", "info");
+        if (window.showToast) window.showToast("DSP Engine Bypassed (Direct Passthrough)", "info");
       } else {
-        if (dspPowerText) dspPowerText.textContent = '⚡ DSP ENGINE: ON';
+        if (dspPowerText) dspPowerText.textContent = 'DSP ENGINE: ACTIVE';
         globalBypassBtn.classList.remove('bypassed-active');
         document.body.classList.remove('bypassed');
         if (window.showToast) window.showToast("DSP Engine Active", "success");
@@ -2692,7 +2693,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!container) return;
       const toast = document.createElement('div');
       toast.className = `toast toast-${type}`;
-      toast.innerHTML = `<span>${type === 'error' ? '⚠️' : '✓'}</span> <span>${message}</span>`;
+      toast.innerHTML = `<span class="toast-indicator" style="display:inline-block; width:6px; height:6px; border-radius:50%; background:${type === 'error' ? 'var(--accent-rose)' : 'var(--accent-cyan)'}; margin-right:6px;"></span> <span>${message}</span>`;
       container.appendChild(toast);
       setTimeout(() => {
         toast.style.opacity = '0';
@@ -2705,7 +2706,7 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   // Toast welcome
-  setTimeout(() => window.showToast('AuraDSP Pro 10/10 Workstation Active', 'success'), 1000);
+  setTimeout(() => window.showToast('AuraDSP Studio Workstation Ready', 'success'), 1000);
 
   // --- LUFS METERS UPDATE (Point 3) ---
   const elLufsMom = document.getElementById('lufsMomentary');
@@ -2956,7 +2957,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       }, 50);
 
-      if (window.showToast) window.showToast('🎯 AI Spectrum Match Applied to 10-Band EQ!', 'success');
+      if (window.showToast) window.showToast('AI Spectrum Match Applied to 10-Band EQ', 'success');
     });
   }
 
@@ -2992,10 +2993,10 @@ document.addEventListener('DOMContentLoaded', () => {
     quickMuteBtn.addEventListener('click', () => {
       if (!window.audioEngine) return;
       const isMuted = window.audioEngine.toggleMute();
-      quickMuteBtn.style.background = isMuted ? '#ff2a5f' : 'rgba(255,42,95,0.2)';
-      quickMuteBtn.style.color = isMuted ? '#ffffff' : '#ff2a5f';
-      quickMuteBtn.textContent = isMuted ? '🔊 Unmute' : '🔇 Mute Output';
-      if (window.showToast) window.showToast(isMuted ? 'Master Muted' : 'Master Unmuted', 'info');
+      quickMuteBtn.style.background = isMuted ? 'var(--accent-rose)' : 'rgba(255, 42, 95, 0.15)';
+      quickMuteBtn.style.color = isMuted ? '#ffffff' : 'var(--accent-rose)';
+      quickMuteBtn.textContent = isMuted ? 'UNMUTE OUTPUT' : 'MUTE OUTPUT';
+      if (window.showToast) window.showToast(isMuted ? 'Master Output Muted' : 'Master Output Active', 'info');
     });
   }
 
@@ -3215,8 +3216,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let isListeningRef = false;
     toggleRefBtn.addEventListener('click', () => {
       isListeningRef = !isListeningRef;
-      toggleRefBtn.style.background = isListeningRef ? '#ff007f' : '#7000ff';
-      toggleRefBtn.textContent = isListeningRef ? '🎧 LISTENING TO REF' : '🔁 LISTEN TO REF';
+      toggleRefBtn.style.background = isListeningRef ? 'var(--accent-amber)' : 'rgba(56, 189, 248, 0.2)';
+      toggleRefBtn.style.color = isListeningRef ? '#000000' : 'var(--accent-cyan)';
+      toggleRefBtn.style.borderColor = isListeningRef ? 'var(--accent-amber)' : 'var(--accent-cyan)';
+      toggleRefBtn.textContent = isListeningRef ? 'MONITORING DRY REF' : 'A/B DRY REFERENCE';
       if (window.showToast) window.showToast(isListeningRef ? 'Switched to Dry Reference Track' : 'Switched to Processed Master', 'info');
     });
   }

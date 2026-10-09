@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=43.0.0">
+  <link rel="stylesheet" href="styles.css?v=47.0.0">
   <link rel="manifest" href="manifest.json">
 </head>
 <body class="cyber-dark">
@@ -34,7 +34,7 @@
       <div id="welcomeStatusText" class="welcome-status">INITIALIZING AUDIO DSP ENGINE...</div>
 
       <button id="welcomeEnterBtn" class="welcome-enter-btn">
-        <span>⚡ ENTER STUDIO ENGINE</span>
+        <span>ENTER WORKSTATION</span>
       </button>
     </div>
   </div>
@@ -64,43 +64,38 @@
         <span id="engineStatusText">DSP ENGINE ACTIVE</span>
       </div>
       <div class="device-badge" id="activeDeviceBadge">
-        <span class="icon">🎧</span>
+        <span class="dot"></span>
         <span id="activeDeviceText">Aura Reference Active</span>
       </div>
-      
-      
-      
-      <div class="theme-picker" style="margin-left: 6px;">
-        
+
       <div class="theme-picker" style="margin-left: 6px; display:flex; gap:3px;">
-        <button id="undoBtn" class="sm-btn" title="Undo (Ctrl+Z)" style="background:#1e293b; color:#00f0ff; padding:4px 8px;">↩ Undo</button>
-        <button id="redoBtn" class="sm-btn" title="Redo (Ctrl+Y)" style="background:#1e293b; color:#00f0ff; padding:4px 8px;">↪ Redo</button>
+        <button id="undoBtn" class="sm-btn" title="Undo (Ctrl+Z)" style="background:#14171f; color:#00f0ff; padding:4px 8px; font-weight:600; letter-spacing:0.04em;">UNDO</button>
+        <button id="redoBtn" class="sm-btn" title="Redo (Ctrl+Y)" style="background:#14171f; color:#00f0ff; padding:4px 8px; font-weight:600; letter-spacing:0.04em;">REDO</button>
       </div>
       <div class="theme-picker" style="margin-left: 6px; display:flex; gap:2px;">
-        <button id="snapABtn" class="sm-btn snap-btn active" style="background:#00d2d3; color:#09090b; font-weight:bold; padding:4px 8px;">A</button>
-        <button id="snapBBtn" class="sm-btn snap-btn" style="background:#1e293b; color:#fff; font-weight:bold; padding:4px 8px;">B</button>
-        <button id="snapCBtn" class="sm-btn snap-btn" style="background:#1e293b; color:#fff; font-weight:bold; padding:4px 8px;">C</button>
-        <button id="snapDBtn" class="sm-btn snap-btn" style="background:#1e293b; color:#fff; font-weight:bold; padding:4px 8px;">D</button>
-      </div>
+        <button id="snapABtn" class="sm-btn snap-btn active" style="background:#00f0ff; color:#09090b; font-weight:bold; padding:4px 8px;">A</button>
+        <button id="snapBBtn" class="sm-btn snap-btn" style="background:#14171f; color:#fff; font-weight:bold; padding:4px 8px;">B</button>
+        <button id="snapCBtn" class="sm-btn snap-btn" style="background:#14171f; color:#fff; font-weight:bold; padding:4px 8px;">C</button>
+        <button id="snapDBtn" class="sm-btn snap-btn" style="background:#14171f; color:#fff; font-weight:bold; padding:4px 8px;">D</button>
       </div>
       <div class="theme-picker" style="margin-left: 6px;">
         <button id="globalBypassBtn" class="sm-btn dsp-power-btn" title="Toggle Master DSP Engine (ON / BYPASS)">
           <span class="dsp-power-led"></span>
-          <span id="dspPowerText">⚡ DSP ENGINE: ON</span>
+          <span id="dspPowerText">DSP ENGINE: ACTIVE</span>
         </button>
       </div>
       <div class="theme-picker" style="margin-left: 10px;">
         <select id="appFontSelector" title="Change UI Font">
-          <option value="font-outfit">Outfit (Default)</option>
-          <option value="font-inter">Inter</option>
+          <option value="font-outfit">Outfit (Modern)</option>
+          <option value="font-inter">Inter (Studio)</option>
           <option value="font-roboto">Roboto</option>
         </select>
       </div>
       <div class="theme-picker" style="margin-left:auto;">
         <select id="appThemeSelector" title="Change UI Theme">
-          <option value="theme-cyberpunk">Cyberpunk (Default)</option>
-          <option value="theme-oled">Midnight OLED</option>
-          <option value="theme-light">Clean Light Mode</option>
+          <option value="theme-cyberpunk">Cyberpunk Dark</option>
+          <option value="theme-oled">Midnight Obsidian</option>
+          <option value="theme-light">Studio Precision</option>
         </select>
       </div>
     </div>
@@ -113,9 +108,9 @@
 
   <!-- Mobile Bottom Panel Nav -->
   <nav class="mobile-panel-nav" id="mobilePanelNav">
-    <button class="mpn-btn active" data-panel="source">🎙 Source</button>
-    <button class="mpn-btn" data-panel="center">🎛 EQ & 3D</button>
-    <button class="mpn-btn" data-panel="spatial">📊 Visualizer</button>
+    <button class="mpn-btn active" data-panel="source">Source</button>
+    <button class="mpn-btn" data-panel="center">EQ & 3D</button>
+    <button class="mpn-btn" data-panel="spatial">Visualizer</button>
   </nav>
 
   <!-- Main Grid Layout -->
@@ -124,51 +119,43 @@
     <!-- LEFT COLUMN: Source Input & Device Modes -->
     <aside class="panel source-panel" data-panel="source">
       <div class="panel-header">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
         <h2>AUDIO SOURCE ROUTER</h2>
       </div>
       
       <div class="source-selector">
         <button class="source-btn active" id="srcDemoBtn">
-          <span class="src-icon">🎵</span>
-          <span class="src-label">Live Beat & Demos</span>
+          <span class="src-label">Reference Demos</span>
         </button>
         <button class="source-btn" id="srcSpotifyBtn">
-          <span class="src-icon">🌐</span>
-          <span class="src-label">Web Streamer</span>
+          <span class="src-label">Global Catalog</span>
         </button>
         <button class="source-btn" id="srcFileBtn">
-          <span class="src-icon">📁</span>
           <span class="src-label">Audio File</span>
         </button>
         <button class="source-btn" id="srcMicBtn">
-          <span class="src-icon">🎙️</span>
           <span class="src-label">Mic / Line-In</span>
         </button>
         <button class="source-btn" id="srcToneBtn">
-          <span class="src-icon">⚡</span>
-          <span class="src-label">Tone Generator</span>
+          <span class="src-label">Test Signal</span>
         </button>
         <button class="source-btn" id="srcLinkBtn">
-          <span class="src-icon">🔗</span>
           <span class="src-label">Link Player</span>
         </button>
       </div>
 
       <!-- Live Beat & Demo Selector Panel -->
       <div class="source-card" id="cardDemo">
-        
-
-        <label for="demoTrackSelect">Select HD Test Track / Live Audio:</label>
+        <label for="demoTrackSelect">Select Reference Track / Audio Source:</label>
         <select id="demoTrackSelect" class="cyber-select">
-          <option value="https://raw.githubusercontent.com/rafaelreis-hotmart/Audio-Sample-files/master/sample.mp3" selected>🔊 Sub-Bass & Heavy Kick Test (HD Audio Sample)</option>
-          <option value="https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/11/71/d6/1171d6ad-3c96-e027-2af6-58028426588c/mzaf_15137631797407745471.plus.aac.p.m4a">⚡ Starboy - The Weeknd ft. Daft Punk (Studio Master)</option>
-          <option value="synth_bass">🎹 808 Trap Synth Groove (Synthesized Beat)</option>
-          <option value="synth_spatial">🌌 3D Binaural Spatial Stage Groove (Live 3D HRTF Soundstage)</option>
-          <option value="synth_acoustic">🎸 Acoustic Warmth & Vocal Chords (Live Acoustic Resonance)</option>
-          <option value="synth_movie">🎬 Cinematic Movie Hall 3D Dynamic Audio (Deep Sub & Impact)</option>
-          <option value="https://actions.google.com/sounds/v1/ambiences/coffee_shop.ogg">☕ Acoustic Ambient Coffeehouse (Google Cloud Audio)</option>
-          <option value="https://files.freemusicarchive.org/storage-freemusicarchive-org/music/WFMU/Broke_For_Free/Directionless_EP/Broke_For_Free_-_01_-_Night_Owl.mp3">🦉 Night Owl - Broke For Free (Full Online HD Song)</option>
+          <option value="https://raw.githubusercontent.com/rafaelreis-hotmart/Audio-Sample-files/master/sample.mp3" selected>Sub-Bass & Heavy Kick Calibration [Reference]</option>
+          <option value="https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/11/71/d6/1171d6ad-3c96-e027-2af6-58028426588c/mzaf_15137631797407745471.plus.aac.p.m4a">Starboy - The Weeknd ft. Daft Punk [Studio Master]</option>
+          <option value="synth_bass">808 Synth Groove [Sub-Harmonic Beat]</option>
+          <option value="synth_spatial">3D Binaural Soundstage [HRTF Acoustic Field]</option>
+          <option value="synth_acoustic">Acoustic Guitar Resonance [Mid-Range Warmth]</option>
+          <option value="synth_movie">Cinematic Dynamic Theater [Sub & Impact]</option>
+          <option value="https://actions.google.com/sounds/v1/ambiences/coffee_shop.ogg">Acoustic Room Ambiance [Soundstage]</option>
+          <option value="https://files.freemusicarchive.org/storage-freemusicarchive-org/music/WFMU/Broke_For_Free/Directionless_EP/Broke_For_Free_-_01_-_Night_Owl.mp3">Night Owl - Broke For Free [Electronic HD]</option>
         </select>
         <div class="audio-controls">
           <button id="playPauseBtn" class="accent-btn">
@@ -182,7 +169,9 @@
       <!-- WEB MUSIC STREAMER (REAL EQ PROCESSING) -->
       <div class="source-card hidden" id="cardSpotify">
         <div class="spotify-header">
-          <span class="spotify-logo">🌐</span>
+          <div class="header-icon-box">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="studio-icon"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          </div>
           <div>
             <h4>Web Music Streamer</h4>
             <p id="spotifyHeaderDesc">Search & stream millions of tracks with real real-time 10-Band EQ & 3D Spatial Audio processing!</p>
@@ -219,10 +208,10 @@
           </div>
 
           <!-- Audio Clarity Engine Quick-Selector -->
-          <div class="web-engine-selector" style="margin: 12px 0; padding: 10px 12px; background: rgba(0, 240, 255, 0.04); border: 1px solid rgba(0, 240, 255, 0.18); border-radius: 8px;">
+          <div class="web-engine-selector" style="margin: 12px 0; padding: 10px 12px; background: rgba(0, 240, 255, 0.03); border: 1px solid rgba(0, 240, 255, 0.15); border-radius: 8px;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-              <span style="font-size:0.75rem; font-weight:700; color:var(--accent-cyan); display:flex; align-items:center; gap:5px;">✨ Audio Clarity Engine:</span>
-              <span id="webActiveEngineName" style="font-size:0.7rem; color:#fff; font-weight:600; background:rgba(0,240,255,0.15); border:1px solid rgba(0,240,255,0.3); padding:1px 8px; border-radius:10px;">Crystal Clarity 4K</span>
+              <span style="font-size:0.75rem; font-weight:700; color:var(--accent-cyan); letter-spacing:0.04em;">DSP CLARITY PROFILE:</span>
+              <span id="webActiveEngineName" style="font-size:0.7rem; color:#fff; font-weight:600; background:rgba(0,240,255,0.12); border:1px solid rgba(0,240,255,0.25); padding:1px 8px; border-radius:10px;">Crystal Clarity 4K</span>
             </div>
             <div class="web-engine-buttons" style="display:grid; grid-template-columns: repeat(5, 1fr); gap: 5px;">
               <button class="web-engine-btn active" data-engine="clarity" style="padding:6px 2px; font-size:0.68rem; font-weight:600; border-radius:5px; border:1px solid rgba(0,240,255,0.5); background:rgba(0,240,255,0.2); color:#fff; cursor:pointer;">Clarity 4K</button>
@@ -236,21 +225,21 @@
           <!-- Catalog Search Box -->
           <div class="spotify-search-box" style="margin-top: 15px;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-              <label for="webSearchInput" style="font-size:0.8rem; font-weight:700;">🔍 Universal Global Search (7 Multi-Engine Clusters · 100M+ Songs · 1:1 World Coverage):</label>
+              <label for="webSearchInput" style="font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.04em;">Global Catalog Search (7 Audio Engines · 100M+ Master Tracks):</label>
               <span id="webSearchCount" style="font-size:0.68rem; color:#00f0ff; background:rgba(0,240,255,0.1); border:1px solid rgba(0,240,255,0.25); padding:2px 8px; border-radius:10px;">Trending Hits</span>
             </div>
-            <input type="text" id="webSearchInput" class="cyber-input" placeholder="Search literally every song, artist, album (e.g. Vasaikar, Arijit, The Weeknd, Taylor Swift, Believer, Diljit)...">
+            <input type="text" id="webSearchInput" class="cyber-input" placeholder="Search song title, artist, album (e.g. Starboy, Vasaikar, Arijit, Believer, Diljit)...">
             
             <!-- Quick Genre Filters -->
             <div class="web-genre-chips" id="webGenreChips" style="display:flex; gap:6px; overflow-x:auto; margin:8px 0; padding-bottom:4px;">
-              <button class="chip-btn active" data-genre="global">🌟 Top Global</button>
-              <button class="chip-btn" data-genre="bollywood">🇮🇳 Bollywood</button>
-              <button class="chip-btn" data-genre="vasaikar">🌊 Vasaikar / Marathi</button>
-              <button class="chip-btn" data-genre="hiphop">🎧 Hip-Hop</button>
-              <button class="chip-btn" data-genre="rock">🎸 Rock & Pop</button>
-              <button class="chip-btn" data-genre="edm">⚡ EDM & Club</button>
-              <button class="chip-btn" data-genre="lofi">☕ Lo-Fi Chill</button>
-              <button class="chip-btn" data-genre="radio">📻 Live Radio</button>
+              <button class="chip-btn active" data-genre="global">Global Top</button>
+              <button class="chip-btn" data-genre="bollywood">Bollywood</button>
+              <button class="chip-btn" data-genre="vasaikar">Marathi / Vasaikar</button>
+              <button class="chip-btn" data-genre="hiphop">Hip-Hop</button>
+              <button class="chip-btn" data-genre="rock">Rock & Pop</button>
+              <button class="chip-btn" data-genre="edm">EDM / Club</button>
+              <button class="chip-btn" data-genre="lofi">Lo-Fi Beats</button>
+              <button class="chip-btn" data-genre="radio">Live Radio</button>
             </div>
 
             <div id="webSearchResults" class="search-results-list" style="max-height: 320px; overflow-y: auto; margin-top: 8px;"></div>
@@ -260,22 +249,22 @@
 
       <!-- File Upload Panel -->
       <div class="source-card hidden" id="cardFile">
-        <label>Upload Any Music / Audio File:</label>
+        <label>Upload Audio Master File:</label>
         <div class="file-dropzone" id="dropzone">
           <input type="file" id="audioFileInput" accept="audio/*">
-          <p id="fileNameDisplay">📂 Drag & drop audio file or click to select</p>
+          <p id="fileNameDisplay">Drop audio file here, or click to browse (WAV, FLAC, MP3, AAC, OGG)</p>
         </div>
         <div id="fileControlsRow" class="hidden" style="margin-top:12px; display:flex; align-items:center; gap:12px; padding: 10px; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: var(--radius-md);">
-          <button id="filePlayPauseBtn" class="primary-btn-sm" style="flex: 1; min-height: 38px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 6px;">▶ Play File</button>
+          <button id="filePlayPauseBtn" class="primary-btn-sm" style="flex: 1; min-height: 38px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 6px;">Play File</button>
           <span id="fileTimeDisplay" style="font-size:0.75rem; font-family:var(--font-mono); color:var(--text-muted); min-width: 85px; text-align: right; padding-right: 4px;">0:00 / 0:00</span>
         </div>
       </div>
 
       <!-- Mic Input Panel -->
       <div class="source-card hidden" id="cardMic">
-        <p class="info-text">Pass-through live microphone or AUX line-in with real-time low-latency tuning & noise gate.</p>
+        <p class="info-text">Pass-through live microphone or AUX line-in with real-time low-latency DSP tuning & noise gate.</p>
         <button id="startMicBtn" class="accent-btn" style="width:100%; display:flex; align-items:center; justify-content:center; gap:8px;">
-          ▶ Start Live Mic Input
+          START LIVE MIC INPUT
         </button>
       </div>
 
@@ -300,25 +289,25 @@
       <div class="source-card hidden" id="cardLink">
         <div class="link-player-header" style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; padding-bottom:10px; border-bottom:1px solid rgba(255,255,255,0.06);">
           <div style="display:flex; align-items:center; gap:8px;">
-            <span style="font-size:1.2rem; filter:drop-shadow(0 0 8px #00f0ff);">🔗</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px; height:18px; color:var(--accent-cyan);"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
             <div>
-              <h4 style="margin:0; font-size:0.85rem; font-weight:700; color:var(--text-main);">Universal Link Player</h4>
-              <p style="margin:2px 0 0; font-size:0.7rem; color:var(--text-muted);">Stream any audio from any web link, platform, or live radio through real DSP & EQ</p>
+              <h4 style="margin:0; font-size:0.85rem; font-weight:700; color:var(--text-main); letter-spacing:0.02em;">Universal Link Player</h4>
+              <p style="margin:2px 0 0; font-size:0.7rem; color:var(--text-muted);">Stream audio from Spotify, YouTube Music, Apple Music, or direct feeds through DSP</p>
             </div>
           </div>
-          <span id="linkStreamStatus" class="status-pill" style="font-size:0.65rem; padding:2px 8px; border-radius:10px; background:rgba(0,240,255,0.1); color:#00f0ff; border:1px solid rgba(0,240,255,0.25); font-weight:600;">Ready</span>
+          <span id="linkStreamStatus" class="status-pill" style="font-size:0.65rem; padding:2px 8px; border-radius:10px; background:rgba(0,240,255,0.1); color:#00f0ff; border:1px solid rgba(0,240,255,0.25); font-weight:600; text-transform:uppercase;">Ready</span>
         </div>
 
         <!-- Input Bar with Paste & Load -->
         <div style="margin-bottom:12px;">
           <label for="linkUrlInput" style="font-size:0.75rem; font-weight:600; color:var(--text-muted); display:block; margin-bottom:6px;">Paste Audio Link or Stream URL:</label>
           <div style="display:flex; gap:6px;">
-            <input type="url" id="linkUrlInput" class="cyber-input" style="flex:1;" placeholder="https://... (MP3, AAC, Apple Music, JioSaavn, Radio, Cloud file)">
-            <button id="linkPasteBtn" type="button" class="secondary-btn" style="padding:0 12px; font-size:0.75rem; display:flex; align-items:center; gap:4px; white-space:nowrap; border-radius:6px; cursor:pointer;" title="Paste from Clipboard">
-              📋 Paste
+            <input type="url" id="linkUrlInput" class="cyber-input" style="flex:1;" placeholder="https://... (Spotify, YouTube Music, Apple Music, SoundCloud, Radio, Cloud file)">
+            <button id="linkPasteBtn" type="button" class="secondary-btn" style="padding:0 12px; font-size:0.75rem; font-weight:600; display:flex; align-items:center; gap:4px; white-space:nowrap; border-radius:6px; cursor:pointer;" title="Paste from Clipboard">
+              PASTE
             </button>
             <button id="linkLoadPlayBtn" type="button" class="primary-btn glowing-btn" style="padding:0 14px; font-size:0.75rem; display:flex; align-items:center; gap:4px; white-space:nowrap; border-radius:6px; font-weight:700; cursor:pointer;">
-              ⚡ Play Stream
+              PLAY STREAM
             </button>
           </div>
         </div>
@@ -327,13 +316,13 @@
         <div class="spotify-sub-card" style="margin-bottom:12px;">
           <div class="spotify-now-playing">
             <div class="album-art-wrap">
-              <div id="linkArtPlaceholder" style="width:48px; height:48px; border-radius:6px; background:linear-gradient(135deg, rgba(0,240,255,0.2), rgba(181,55,242,0.2)); border:1px solid rgba(0,240,255,0.3); display:flex; align-items:center; justify-content:center; font-size:1.3rem;">
-                🔗
+              <div id="linkArtPlaceholder" style="width:48px; height:48px; border-radius:6px; background:linear-gradient(135deg, rgba(0,240,255,0.15), rgba(181,55,242,0.15)); border:1px solid rgba(0,240,255,0.25); display:flex; align-items:center; justify-content:center; font-size:1.1rem; color:var(--accent-cyan);">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px; height:20px;"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
               </div>
             </div>
             <div class="track-details" style="overflow:hidden;">
               <div id="linkTrackTitle" class="spotify-track-title" style="font-size:0.85rem; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">No Stream Loaded</div>
-              <div id="linkTrackMeta" class="spotify-track-artist" style="font-size:0.7rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Paste any URL above or choose a preset stream below</div>
+              <div id="linkTrackMeta" class="spotify-track-artist" style="font-size:0.7rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Paste any audio or track link above to stream live</div>
             </div>
             <span id="linkBadge" style="font-size:0.65rem; padding:2px 8px; border-radius:10px; background:rgba(255,255,255,0.05); color:var(--text-muted); border:1px solid rgba(255,255,255,0.1); font-weight:600; white-space:nowrap;">Link Player</span>
           </div>
@@ -341,10 +330,10 @@
           <!-- Controls Row -->
           <div style="display:flex; gap:8px; margin-top:10px;">
             <button id="linkPlayPauseBtn" class="primary-btn glowing-btn play-pause-ctrl" style="flex:1; border-radius:6px; min-height:36px; cursor:pointer;">
-              <span>▶ Play Stream</span>
+              <span>PLAY STREAM</span>
             </button>
-            <button id="linkStopBtn" class="secondary-btn" style="padding:0 14px; border-radius:6px; font-size:0.75rem; cursor:pointer;" title="Stop Stream">
-              ⏹ Stop
+            <button id="linkStopBtn" class="secondary-btn" style="padding:0 14px; border-radius:6px; font-size:0.75rem; font-weight:600; cursor:pointer;" title="Stop Stream">
+              STOP
             </button>
           </div>
 
@@ -359,80 +348,65 @@
           </div>
         </div>
 
-        <!-- Quick One-Click Stream Presets -->
-        <div style="margin-top:10px;">
-          <div style="font-size:0.72rem; font-weight:700; color:var(--text-muted); margin-bottom:6px; display:flex; align-items:center; gap:5px;">
-            ⚡ Quick Test Streams (One-Click Launch):
-          </div>
-          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); gap:6px;">
-            <button type="button" class="link-preset-btn" data-url="https://puma.streemlion.com:4130/stream" data-title="Bollywood Hits 24/7 (Live Radio)" data-meta="Live HD Radio Stream" data-badge="📻 Live Radio" style="padding:6px 8px; font-size:0.68rem; text-align:left; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:var(--text-main); cursor:pointer;">
-              📻 Bollywood Radio
-            </button>
-            <button type="button" class="link-preset-btn" data-url="https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview122/v4/fc/bd/41/fcbd41f6-6166-832b-8e87-2d715335b1db/mzaf_3702577433559914767.plus.aac.p.m4a" data-title="Vasaikar Masala - Sijoy Almeida" data-meta="Apple Music 256k AAC Master" data-badge="🍎 Apple Music" style="padding:6px 8px; font-size:0.68rem; text-align:left; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:var(--text-main); cursor:pointer;">
-              🌊 Vasaikar Masala
-            </button>
-            <button type="button" class="link-preset-btn" data-url="https://actions.google.com/sounds/v1/ambiences/coffee_shop.ogg" data-title="Acoustic Lo-Fi Coffeehouse" data-meta="High-Res Ambient Soundstage" data-badge="☕ Lo-Fi Ambient" style="padding:6px 8px; font-size:0.68rem; text-align:left; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:var(--text-main); cursor:pointer;">
-              ☕ Lo-Fi Coffeehouse
-            </button>
-            <button type="button" class="link-preset-btn" data-url="https://files.freemusicarchive.org/storage-freemusicarchive-org/music/WFMU/Broke_For_Free/Directionless_EP/Broke_For_Free_-_01_-_Night_Owl.mp3" data-title="Night Owl - Broke For Free" data-meta="Full Electronic Studio Master" data-badge="⚡ Studio Master" style="padding:6px 8px; font-size:0.68rem; text-align:left; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:var(--text-main); cursor:pointer;">
-              🦉 Night Owl (HD Master)
-            </button>
-          </div>
-        </div>
-
-        <!-- Supported Platforms Help Pill -->
-        <div style="margin-top:10px; padding:8px 10px; background:rgba(0,240,255,0.03); border:1px solid rgba(0,240,255,0.12); border-radius:6px; display:flex; flex-wrap:wrap; gap:6px; align-items:center; font-size:0.64rem; color:var(--text-muted);">
-          <span style="color:#00f0ff; font-weight:700;">Supported:</span>
-          <span style="color:#1ed760; font-weight:600;">🟢 Spotify (Tracks & Albums)</span>
-          <span style="color:#ff4e4e; font-weight:600;">🔴 YouTube Music</span>
-          <span>🍎 Apple Music</span>
-          <span>🎵 JioSaavn</span>
-          <span>🌐 Audius</span>
-          <span>🟠 SoundCloud</span>
-          <span>📻 Live Radio Streams</span>
-          <span>✓ Direct MP3/AAC/WAV/FLAC</span>
-          <span>✓ Dropbox / Google Drive / GitHub</span>
+        <!-- Supported Stream Formats & Protocols -->
+        <div style="margin-top:12px; padding:10px 12px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:8px; display:flex; flex-wrap:wrap; gap:8px; align-items:center; font-size:0.68rem; color:var(--text-muted);">
+          <span style="color:var(--text-main); font-weight:700; text-transform:uppercase; letter-spacing:0.06em;">Supported Sources:</span>
+          <span>Spotify (Tracks & Albums)</span>
+          <span style="color:rgba(255,255,255,0.2);">·</span>
+          <span>YouTube Music</span>
+          <span style="color:rgba(255,255,255,0.2);">·</span>
+          <span>Apple Music</span>
+          <span style="color:rgba(255,255,255,0.2);">·</span>
+          <span>JioSaavn HD</span>
+          <span style="color:rgba(255,255,255,0.2);">·</span>
+          <span>Audius Master</span>
+          <span style="color:rgba(255,255,255,0.2);">·</span>
+          <span>SoundCloud</span>
+          <span style="color:rgba(255,255,255,0.2);">·</span>
+          <span>Live Radio / Icecast</span>
+          <span style="color:rgba(255,255,255,0.2);">·</span>
+          <span>Lossless Direct / Cloud (FLAC, WAV, MP3, AAC)</span>
         </div>
       </div>
 
       <!-- MULTIPLE AURA AUDIO DSP CLARITY ENGINES -->
       <div class="panel-section audio-engine-section">
         <div class="section-title section-title-row">
-          <span>⚡ AURA AUDIO DSP ENGINES</span>
+          <span>AURA AUDIO DSP ENGINES</span>
           <span id="activeEngineBadge" style="font-size:0.7rem; font-weight:700; color:#00f0ff; background:rgba(0,240,255,0.1); border:1px solid rgba(0,240,255,0.3); padding:2px 8px; border-radius:12px;">Crystal Clarity 4K</span>
         </div>
-        <p class="info-text" style="margin-bottom:10px; font-size:0.75rem;">Switch specialized real-time DSP engines to make vocals, speech, and songs dramatically clearer.</p>
+        <p class="info-text" style="margin-bottom:10px; font-size:0.75rem;">Switch specialized real-time DSP engines to optimize vocal presence, dialogue articulation, and spatial stage.</p>
         <div class="engine-cards-grid">
           <button class="engine-card active" data-engine="clarity">
-            <span class="eng-icon">💎</span>
+            <span class="eng-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px; height:16px;"><polygon points="6 2 18 2 22 8 12 22 2 8 6 2"/></svg></span>
             <div class="eng-text">
               <strong>Crystal Clarity 4K</strong>
               <small>Vocal Presence & Sparkling Air</small>
             </div>
           </button>
           <button class="engine-card" data-engine="mastering">
-            <span class="eng-icon">🎙️</span>
+            <span class="eng-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px; height:16px;"><path d="M12 2v20M17 5v14M7 5v14M2 9v6M22 9v6"/></svg></span>
             <div class="eng-text">
               <strong>Studio Master Pro</strong>
               <small>Analog Warmth & Transparency</small>
             </div>
           </button>
           <button class="engine-card" data-engine="cinema">
-            <span class="eng-icon">🎬</span>
+            <span class="eng-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px; height:16px;"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/></svg></span>
             <div class="eng-text">
               <strong>Dolby 3D Cinema</strong>
               <small>Spatial Soundstage & Dialogue</small>
             </div>
           </button>
           <button class="engine-card" data-engine="bassquake">
-            <span class="eng-icon">🔊</span>
+            <span class="eng-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px; height:16px;"><rect x="4" y="2" width="16" height="20" rx="2"/><circle cx="12" cy="14" r="4"/><line x1="12" y1="6" x2="12.01" y2="6"/></svg></span>
             <div class="eng-text">
               <strong>Club Bass Quake</strong>
               <small>Sub-Harmonic 808 Punch</small>
             </div>
           </button>
           <button class="engine-card" data-engine="pure">
-            <span class="eng-icon">🎧</span>
+            <span class="eng-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px; height:16px;"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg></span>
             <div class="eng-text">
               <strong>Pure Audiophile</strong>
               <small>Bit-Perfect Direct Line</small>
@@ -444,7 +418,7 @@
       <!-- DEVICE TUNING MODES & PRESETS -->
       <div class="panel-section">
         <div class="section-title">
-          <span>🎧 TARGET DEVICE TUNING PRESETS</span>
+          <span>ACOUSTIC TARGET CALIBRATION</span>
         </div>
 
         <div class="device-category-tabs">
@@ -454,11 +428,10 @@
           <button class="device-tab" data-cat="custom">Custom EQ</button>
         </div>
 
-        
         <div class="preset-action-bar" style="margin-bottom:12px; display:flex; gap:6px; flex-wrap:wrap;">
-          <button id="savePresetBtn" class="sm-btn" style="flex:1;">💾 Save</button>
-          <button id="exportPresetBtn" class="sm-btn" style="flex:1;">📤 Export JSON</button>
-          <button id="importPresetBtn" class="sm-btn" style="flex:1;">📥 Import JSON</button>
+          <button id="savePresetBtn" class="sm-btn" style="flex:1;">Save Preset</button>
+          <button id="exportPresetBtn" class="sm-btn" style="flex:1;">Export JSON</button>
+          <button id="importPresetBtn" class="sm-btn" style="flex:1;">Import JSON</button>
           <input type="file" id="importPresetInput" accept=".json" style="display:none;">
         </div>
         <div class="preset-cards-container" id="presetCardsContainer">
@@ -469,7 +442,7 @@
       <!-- MASTER VOLUME & LIMITER -->
       <div class="panel-section master-section">
         <div class="section-title section-title-row">
-          <span>🔊 MASTER CONTROLS & PROTECTION</span>
+          <span>MASTER OUTPUT & MONITORING</span>
           <button id="resetMasterBtn" class="sm-btn">Reset</button>
         </div>
         <div class="master-sliders">
@@ -490,23 +463,23 @@
           </div>
         </div>
 
-        
-          <!-- Limiter Ceiling & Target Loudness -->
-          <div class="slider-group" style="margin-top:8px;">
-            <div class="slider-header">
-              <label for="limiterCeiling">Limiter Ceiling (dBTP)</label>
-              <span id="limiterCeilingVal" style="color:#ff2a5f;">-0.1 dBTP</span>
-            </div>
-            <input type="range" id="limiterCeiling" min="-6.0" max="0.0" value="-0.1" step="0.1">
+        <!-- Limiter Ceiling & Target Loudness -->
+        <div class="slider-group" style="margin-top:8px;">
+          <div class="slider-header">
+            <label for="limiterCeiling">Limiter Ceiling (dBTP)</label>
+            <span id="limiterCeilingVal" style="color:#ff2a5f;">-0.1 dBTP</span>
           </div>
+          <input type="range" id="limiterCeiling" min="-6.0" max="0.0" value="-0.1" step="0.1">
+        </div>
 
-          <div class="slider-group">
-            <div class="slider-header">
-              <label for="targetLoudness">Target Loudness (LUFS)</label>
-              <span id="targetLoudnessVal" style="color:#00f0ff;">-14 LUFS (Spotify)</span>
-            </div>
-            <input type="range" id="targetLoudness" min="-24" max="-8" value="-14" step="1">
+        <div class="slider-group">
+          <div class="slider-header">
+            <label for="targetLoudness">Target Loudness (LUFS)</label>
+            <span id="targetLoudnessVal" style="color:#00f0ff;">-14 LUFS (Spotify)</span>
           </div>
+          <input type="range" id="targetLoudness" min="-24" max="-8" value="-14" step="1">
+        </div>
+
         <!-- VU Level Meter -->
         <div class="vu-meter-container">
           <div class="vu-label">OUTPUT VU METERS</div>
@@ -521,75 +494,69 @@
         </div>
       </div>
 
-    
-        <!-- OVERPOWERED PREMIUM FEATURE: AI SPECTRUM MATCHER (Target Curve Auto-Tuner) -->
-        <div class="enhancer-card spectrum-matcher-card" style="margin-top: 15px; background: linear-gradient(135deg, rgba(0, 240, 255, 0.08), rgba(255, 0, 127, 0.08)); border: 1px solid rgba(0, 240, 255, 0.3);">
-          <div class="card-header" style="margin-bottom:10px;">
-            <div class="card-title-group">
-              <h4 style="color:#00f0ff; display:flex; align-items:center; gap:6px;">
-                <span>🤖</span> AI SPECTRUM MATCH & AUTO-TUNE
-              </h4>
-              <p style="font-size:0.7rem; color:#a0a0b8;">Matches audio spectrum to acoustic target curves in real-time</p>
-            </div>
-          </div>
-
-          <div class="slider-group" style="margin-bottom:10px;">
-            <label for="targetCurveSelect" style="font-size:0.75rem; color:#ddd; margin-bottom:4px; display:block;">Target Acoustic Curve</label>
-            <select id="targetCurveSelect" class="cyber-select-sm" style="width:100%; font-size:0.8rem; padding:6px; background:#0e121a; color:#fff; border:1px solid rgba(0,240,255,0.3); border-radius:6px;">
-              <option value="harman_in_ear">🎯 Harman Target 2019 (In-Ear Audiophile)</option>
-              <option value="harman_over_ear">🎧 Harman Target 2018 (Over-Ear Reference)</option>
-              <option value="bk_flat">📻 B&K 1974 Studio Flat Curve</option>
-              <option value="club_bass">🔊 Club Bass Impact (+6dB Sub-Woofer)</option>
-              <option value="speech_clarity">🎙️ Broadcast Speech Intelligibility</option>
-            </select>
-          </div>
-
-          <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:12px;">
-            <button id="autoMatchBtn" class="primary-btn-sm" style="flex:1; background: linear-gradient(135deg, #00f0ff, #7000ff); color:#fff; font-weight:bold; border:none; padding:10px; border-radius:8px; cursor:pointer; box-shadow:0 0 12px rgba(0,240,255,0.3);">
-              ⚡ AUTO-MATCH EQ
-            </button>
-            <div style="font-family:var(--font-mono); font-size:0.75rem; color:#00ffa3; text-align:right;">
-              <div>MATCH SCORE</div>
-              <div id="matchScoreVal" style="font-size:0.95rem; font-weight:bold; color:#00f0ff;">98.4%</div>
-            </div>
+      <!-- AI SPECTRUM PROFILE MATCHER -->
+      <div class="enhancer-card spectrum-matcher-card" style="margin-top: 15px; background: rgba(18, 22, 32, 0.85); border: 1px solid rgba(0, 240, 255, 0.25);">
+        <div class="card-header" style="margin-bottom:10px;">
+          <div class="card-title-group">
+            <h4 style="color:#00f0ff; letter-spacing:0.04em;">AI SPECTRUM PROFILE MATCHER</h4>
+            <p style="font-size:0.7rem; color:#a0a0b8;">Matches audio spectrum to acoustic target curves in real-time</p>
           </div>
         </div>
 
-    
-        <!-- MASTER CHANNEL BALANCE & UTILITY TOOLBAR -->
-        <div class="enhancer-card utility-matrix-card" style="margin-top: 15px; background: rgba(18, 22, 32, 0.8); border: 1px solid rgba(0, 240, 255, 0.2);">
-          <div class="card-header" style="margin-bottom:10px;">
-            <div class="card-title-group">
-              <h4 style="color:#00f0ff; display:flex; align-items:center; gap:6px;">
-                <span>🎚️</span> MASTER BALANCE & UTILITY RACK
-              </h4>
-              <p style="font-size:0.7rem; color:#a0a0b8;">L/R Stereo Panning, Mono Check & Instant Mute</p>
-            </div>
-            <button id="resetBalanceBtn" class="sm-btn card-reset-btn">Reset</button>
-          </div>
+        <div class="slider-group" style="margin-bottom:10px;">
+          <label for="targetCurveSelect" style="font-size:0.75rem; color:#ddd; margin-bottom:4px; display:block;">Target Acoustic Curve</label>
+          <select id="targetCurveSelect" class="cyber-select-sm" style="width:100%; font-size:0.8rem; padding:6px; background:#0e121a; color:#fff; border:1px solid rgba(0,240,255,0.3); border-radius:6px;">
+            <option value="harman_in_ear">Harman Target 2019 (In-Ear Reference)</option>
+            <option value="harman_over_ear">Harman Target 2018 (Over-Ear Reference)</option>
+            <option value="bk_flat">B&K 1974 Studio Flat Curve</option>
+            <option value="club_bass">Club Bass Impact (+6dB Sub-Woofer)</option>
+            <option value="speech_clarity">Broadcast Speech Intelligibility</option>
+          </select>
+        </div>
 
-          <!-- L/R Balance Slider -->
-          <div class="slider-group" style="margin-bottom:12px;">
-            <div class="slider-header" style="display:flex; justify-space-between; font-size:0.75rem;">
-              <label for="panBalance">L/R Stereo Panning</label>
-              <span id="panBalanceVal" style="color:#00f0ff; font-family:var(--font-mono);">CENTER</span>
-            </div>
-            <input type="range" id="panBalance" min="-100" max="100" value="0" step="1">
-          </div>
-
-          <!-- Quick Action Buttons -->
-          <div style="display:flex; gap:6px; flex-wrap:wrap;">
-            <button id="quickMuteBtn" class="sm-btn" style="flex:1; background:rgba(255,42,95,0.2); border:1px solid #ff2a5f; color:#ff2a5f; font-weight:bold;">
-              🔇 Mute Output
-            </button>
-            <button id="quickMonoBtn" class="sm-btn" style="flex:1; background:rgba(0,240,255,0.15); border:1px solid #00f0ff; color:#00f0ff; font-weight:bold;">
-              🎧 Mono Check
-            </button>
-            <button id="quickLoudnessBtn" class="sm-btn" style="flex:1; background:rgba(255,215,0,0.15); border:1px solid #ffd700; color:#ffd700; font-weight:bold;">
-              💥 Loud Boost
-            </button>
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:12px;">
+          <button id="autoMatchBtn" class="primary-btn-sm" style="flex:1; background: linear-gradient(135deg, #00f0ff, #7000ff); color:#fff; font-weight:bold; border:none; padding:10px; border-radius:8px; cursor:pointer; box-shadow:0 0 12px rgba(0,240,255,0.3);">
+            AUTO-MATCH PROFILE
+          </button>
+          <div style="font-family:var(--font-mono); font-size:0.75rem; color:#00ffa3; text-align:right;">
+            <div>MATCH SCORE</div>
+            <div id="matchScoreVal" style="font-size:0.95rem; font-weight:bold; color:#00f0ff;">98.4%</div>
           </div>
         </div>
+      </div>
+
+      <!-- MASTER CHANNEL BALANCE & UTILITY TOOLBAR -->
+      <div class="enhancer-card utility-matrix-card" style="margin-top: 15px; background: rgba(18, 22, 32, 0.85); border: 1px solid rgba(0, 240, 255, 0.2);">
+        <div class="card-header" style="margin-bottom:10px;">
+          <div class="card-title-group">
+            <h4 style="color:#00f0ff; letter-spacing:0.04em;">STEREO BUS UTILITY MATRIX</h4>
+            <p style="font-size:0.7rem; color:#a0a0b8;">L/R Stereo Panning, Mono Summing & Emergency Attenuation</p>
+          </div>
+          <button id="resetBalanceBtn" class="sm-btn card-reset-btn">Reset</button>
+        </div>
+
+        <!-- L/R Balance Slider -->
+        <div class="slider-group" style="margin-bottom:12px;">
+          <div class="slider-header" style="display:flex; justify-content:space-between; font-size:0.75rem;">
+            <label for="panBalance">L/R Stereo Panning</label>
+            <span id="panBalanceVal" style="color:#00f0ff; font-family:var(--font-mono);">CENTER</span>
+          </div>
+          <input type="range" id="panBalance" min="-100" max="100" value="0" step="1">
+        </div>
+
+        <!-- Quick Action Buttons -->
+        <div style="display:flex; gap:6px; flex-wrap:wrap;">
+          <button id="quickMuteBtn" class="sm-btn" style="flex:1; background:rgba(255,42,95,0.15); border:1px solid #ff2a5f; color:#ff2a5f; font-weight:bold;">
+            MUTE OUTPUT
+          </button>
+          <button id="quickMonoBtn" class="sm-btn" style="flex:1; background:rgba(0,240,255,0.12); border:1px solid #00f0ff; color:#00f0ff; font-weight:bold;">
+            MONO CHECK
+          </button>
+          <button id="quickLoudnessBtn" class="sm-btn" style="flex:1; background:rgba(255,215,0,0.12); border:1px solid #ffd700; color:#ffd700; font-weight:bold;">
+            LOUDNESS +3dB
+          </button>
+        </div>
+      </div>
 
     </aside>
 
@@ -626,7 +593,7 @@
             <!-- 3D Spatial Volume Boost -->
             <div class="slider-group">
               <div class="slider-header">
-                <label for="spatialVolumeBoost">🔊 3D Stage Volume Boost</label>
+                <label for="spatialVolumeBoost">Stage Volume Boost</label>
                 <span id="spatialVolumeBoostVal" style="color:#00f0ff">+8 dB</span>
               </div>
               <input type="range" id="spatialVolumeBoost" min="0" max="15" value="8" step="0.5">
@@ -637,7 +604,7 @@
               <button class="spat-btn" data-angle="left">Left Surround</button>
               <button class="spat-btn" data-angle="right">Right Surround</button>
               <button class="spat-btn" data-angle="behind">Behind Listener</button>
-              <button class="spat-btn active" id="spatOrbitToggle">🔄 Auto 3D Orbit</button>
+              <button class="spat-btn active" id="spatOrbitToggle">Auto Orbit</button>
             </div>
 
             <!-- Spatial Automation Pattern -->
@@ -647,7 +614,7 @@
               </div>
               <select id="spatialPatternSelect" class="cyber-select-sm" style="width:100%;">
                 <option value="orbit">Circular Orbit</option>
-                <option value="figure8">Figure-Eight ♾️</option>
+                <option value="figure8">Figure-8 Pattern</option>
                 <option value="sweep">Left-Right Sweep</option>
                 <option value="random">Random Motion</option>
               </select>
@@ -678,9 +645,9 @@
       <div class="eq-container">
         <div class="panel-header">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 21v-7"/><path d="M4 10V3"/><path d="M12 21v-9"/><path d="M12 8V3"/><path d="M20 21v-5"/><path d="M20 12V3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
-          <h2>10-BAND SLIDER EQUALIZER (REAL DSP)</h2>
+          <h2>10-BAND PARAMETRIC EQUALIZER (REAL DSP)</h2>
           <div style="display:flex; gap:8px; align-items:center;">
-            <button id="toggleEqCurveBtn" class="sm-btn" title="Toggle EQ Frequency Response Graph">📈 View Curve</button>
+            <button id="toggleEqCurveBtn" class="sm-btn" title="Toggle EQ Frequency Response Graph">Response Curve</button>
             <button id="resetEqBtn" class="sm-btn">Reset Flat</button>
           </div>
         </div>
@@ -713,7 +680,7 @@
                 <span class="slider round"></span>
               </label>
               <div class="card-title-group">
-                <h4>Dynamic Night Mode & Vocal Control</h4>
+                <h4>Dynamic Peak Control & Leveling</h4>
                 <p>Normalizes volume peaks & enhances quiet dialogue resonance</p>
               </div>
               <button id="resetAuraBtn" class="sm-btn card-reset-btn">Reset</button>
@@ -833,7 +800,6 @@
             </div>
           </div>
 
-          
           <!-- Harmonic Exciter -->
           <div class="enhancer-card">
             <div class="card-header">
@@ -862,14 +828,14 @@
           </div>
           
           <!-- TRANSIENT SHAPER & SUB-HARMONIC SYNTHESIZER -->
-          <div class="enhancer-card" style="background: linear-gradient(135deg, rgba(0, 240, 255, 0.06), rgba(112, 0, 255, 0.06)); border: 1px solid rgba(0, 240, 255, 0.25);">
+          <div class="enhancer-card" style="background: rgba(18, 22, 32, 0.85); border: 1px solid rgba(0, 240, 255, 0.2);">
             <div class="card-header">
               <label class="switch">
                 <input type="checkbox" id="transientToggle">
                 <span class="slider round"></span>
               </label>
               <div class="card-title-group">
-                <h4 style="color:#00f0ff;">🔮 Transient Punch & Sub-Harmonic Synthesizer</h4>
+                <h4 style="color:#00f0ff;">Transient Punch & Sub-Harmonic Shaper</h4>
                 <p>Sharpen attack transients and synthesize sub-octave bass impact</p>
               </div>
               <button id="resetTransientBtn" class="sm-btn card-reset-btn">Reset</button>
@@ -935,8 +901,8 @@
 
       <!-- 3D BINAURAL HEADSET OPTIMIZER & CROSSTALK MATRIX -->
       <div class="god-mode-container" style="background: rgba(16, 20, 30, 0.85); border: 1px solid rgba(0, 240, 255, 0.25); border-radius: 14px; padding: 14px;">
-        <h4 style="color:#00f0ff; font-size:0.85rem; margin-bottom:10px; display:flex; align-items:center; gap:6px;">
-          <span>🎧</span> BINAURAL HEADSET & CROSSTALK MATRIX
+        <h4 style="color:#00f0ff; font-size:0.85rem; margin-bottom:10px; display:flex; align-items:center; gap:6px; letter-spacing:0.04em;">
+          BINAURAL HEADSET & CROSSTALK MATRIX
         </h4>
 
         <!-- Head Diameter (ITD Micro-Delay) -->
@@ -966,7 +932,7 @@
   <footer class="app-footer">
     <div class="footer-inner">
       <div class="footer-brand">
-        <span class="footer-logo">🎧</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px; height:16px; color:var(--accent-cyan);"><path d="M12 2v20M17 5v14M7 5v14M2 9v6M22 9v6"/></svg>
         <span class="footer-title">AuraDSP Pro</span>
       </div>
       <div class="footer-copy">
@@ -978,34 +944,34 @@
     </div>
   </footer>
 
-  <!-- 21st.dev Floating Quick Control Dock -->
+  <!-- Precision Floating Quick Dock -->
   <div class="quick-dock" id="floatingQuickDock">
-    <span class="quick-dock-label">✨ AURA DOCK</span>
+    <span class="quick-dock-label">AURA DOCK</span>
     <button class="quick-dock-btn" onclick="document.getElementById('playPauseBtn')?.click()">
-      <span>▶ / ⏸ Play</span>
+      <span>Play / Pause</span>
     </button>
     <button class="quick-dock-btn" onclick="document.getElementById('globalBypassBtn')?.click()">
-      <span>⚡ DSP Toggle</span>
+      <span>Bypass DSP</span>
     </button>
     <button class="quick-dock-btn" onclick="document.getElementById('resetEqBtn')?.click()">
-      <span>🔄 Reset EQ</span>
+      <span>Reset Flat</span>
     </button>
   </div>
 
   <!-- Modular Scripts -->
-  <script src="js/data/presets.js?v=46.0.0"></script>
-  <script src="js/audio/audio-engine.js?v=46.0.0"></script>
-  <script src="js/visual/spatial-canvas.js?v=46.0.0"></script>
-  <script src="js/visual/visualizer.js?v=46.0.0"></script>
-  <script src="js/ui/motion-ui.js?v=46.0.0"></script>
-  <script src="js/app.js?v=46.0.0"></script>
+  <script src="js/data/presets.js?v=47.0.0"></script>
+  <script src="js/audio/audio-engine.js?v=47.0.0"></script>
+  <script src="js/visual/spatial-canvas.js?v=47.0.0"></script>
+  <script src="js/visual/visualizer.js?v=47.0.0"></script>
+  <script src="js/ui/motion-ui.js?v=47.0.0"></script>
+  <script src="js/app.js?v=47.0.0"></script>
 
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js?v=46.0.0')
+        navigator.serviceWorker.register('sw.js?v=47.0.0')
           .then(reg => {
-            console.log('Service Worker Registered v46.0.0');
+            console.log('Service Worker Registered v47.0.0');
             reg.update();
           })
           .catch(err => console.log('Service Worker Error', err));
