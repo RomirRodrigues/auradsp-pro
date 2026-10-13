@@ -604,17 +604,19 @@ class AudioVisualizer {
         this.drawSpectrum(dt);
       }
 
-      frameCount++;
-      if (now - fpsTimer >= 500) {
-        const measuredFps = Math.round((frameCount * 1000) / (now - fpsTimer));
-        if (this.fpsCountText) {
-          this.fpsCountText.textContent = `${measuredFps} FPS`;
+      if (!document.hidden) {
+        frameCount++;
+        if (now - fpsTimer >= 500) {
+          const measuredFps = Math.round((frameCount * 1000) / (now - fpsTimer));
+          if (this.fpsCountText) {
+            this.fpsCountText.textContent = `${measuredFps} FPS`;
+          }
+          if (this.fvisFpsText) {
+            this.fvisFpsText.textContent = `${measuredFps} FPS`;
+          }
+          frameCount = 0;
+          fpsTimer = now;
         }
-        if (this.fvisFpsText) {
-          this.fvisFpsText.textContent = `${measuredFps} FPS`;
-        }
-        frameCount = 0;
-        fpsTimer = now;
       }
 
       requestAnimationFrame(render);

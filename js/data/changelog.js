@@ -1,14 +1,28 @@
 /**
  * AuraDSP Pro - Complete Version History & Changelog Data
- * Records all 53+ version milestones from v1.0.0 (Genesis) to v53.9.0 (Latest).
+ * Records all 54+ version milestones from v1.0.0 (Genesis) to v54.0.0 (Latest).
  */
 
 const CHANGELOG_DATA = [
   {
-    version: 'v53.9.0',
-    title: 'Mobile Display Scaling Optimization & Responsive 850px Viewport Engine',
+    version: 'v54.0.0',
+    title: 'Mobile Background Audio Stability, Zero-Crackling Engine & Lookahead Audio Clock Scheduler',
     tag: 'Latest',
     date: 'Current Release',
+    items: [
+      'Eliminated Mobile Background Crackling & Fast Playback: Resolved Android buffer underflow pops and fast-forward clock catchup rushes by switching mobile AudioContext to interactive latency and standard hardware buffer sizes, preventing deep queue drift on mobile.',
+      'Two-Clock Lookahead Web Audio Hardware Scheduler: Re-engineered live DSP synth grooves with a 400ms lookahead audio hardware timeline queue (this.ctx.currentTime), ensuring rock-solid sample-accurate rhythm with zero stutter, zero pitch changes, and zero speedup even when Android OS throttles background JavaScript timers.',
+      'Android MediaSession Foreground Service Promotion: Connected navigator.mediaSession with track metadata, playback state tracking, and lock screen / notification shade controls, promoting Chrome into an active Android Media Service that prevents Doze-mode CPU starvation of the audio thread.',
+      'Background UI & DOM IPC Yielding: Paused AudioWorklet meter message dispatch (480 msg/s) and DOM style recalculations while document.hidden is true, dedicating 100% of available CPU to glitch-free audio processing.',
+      'De-Zippered Smooth Filter & Panner Transitions: Implemented setTargetAtTime parameter smoothing on all 10 EQ biquad filters and 3D binaural panner coordinates, eliminating digital clicks, pops, and stepping artifacts during background AI adaptations.',
+      'Gentle 10Hz Background 3D Spatial Orbit Heartbeat: Calibrated background 3D spatial soundstage updates to a smooth 10Hz tick with continuous audio interpolation, keeping 3D spatial orbits dynamic in the background without HRTF convolution overload.'
+    ]
+  },
+  {
+    version: 'v53.9.0',
+    title: 'Mobile Display Scaling Optimization & Responsive 850px Viewport Engine',
+    tag: 'Stable',
+    date: 'October 2026',
     items: [
       'Expanded Mobile/Tablet Breakpoint (850px): Upgraded the mobile layout switcher from 600px to 850px in both JavaScript and CSS, ensuring all modern Android & iOS smartphones (regardless of display density, UI scaling, or landscape mode) receive the dedicated single-panel mobile workstation and bottom navigation instead of the oversized desktop grid.',
       'Proportional Mobile Header: Streamlined the studio top banner on mobile devices with an ultra-compact single-line footprint, reduced 32px logo, auto-truncated subtitles (170px), and hidden manual labels to eliminate horizontal header blowout.',

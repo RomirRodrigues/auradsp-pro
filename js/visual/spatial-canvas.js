@@ -195,13 +195,15 @@ class SpatialCanvas {
     const azText = `${azimuthDeg > 0 ? '+' : ''}${azimuthDeg}°`;
     const distText = `${distanceMeters}m`;
 
-    if (this.elAz && this.lastAzText !== azText) {
-      this.elAz.textContent = azText;
-      this.lastAzText = azText;
-    }
-    if (this.elDist && this.lastDistText !== distText) {
-      this.elDist.textContent = distText;
-      this.lastDistText = distText;
+    if (!document.hidden) {
+      if (this.elAz && this.lastAzText !== azText) {
+        this.elAz.textContent = azText;
+        this.lastAzText = azText;
+      }
+      if (this.elDist && this.lastDistText !== distText) {
+        this.elDist.textContent = distText;
+        this.lastDistText = distText;
+      }
     }
   }
 
@@ -359,18 +361,18 @@ class SpatialCanvas {
     };
     requestAnimationFrame(render);
 
-    // Background interval heartbeat (20ms / 50Hz):
+    // Background interval heartbeat (100ms / 10Hz):
     // Browsers pause requestAnimationFrame when minimized or tab is hidden.
-    // This interval ensures orbit calculations and Web Audio 3D panner updates
-    // continue uninterrupted even when the window is minimized or in background.
+    // 100ms with smooth audio parameter interpolation keeps the 3D orbit
+    // dynamic in the background without causing audio thread underruns or crackling on mobile.
     let lastBgTime = performance.now();
     setInterval(() => {
       const now = performance.now();
-      const dt = Math.min(0.1, (now - lastBgTime) / 1000);
+      const dt = Math.min(0.2, (now - lastBgTime) / 1000);
       lastBgTime = now;
       if (document.hidden && this.isOrbiting) {
         this.stepOrbit(dt);
       }
-    }, 20);
+    }, 100);
   }
 }

@@ -12,8 +12,10 @@ class MeterProcessor extends AudioWorkletProcessor {
     // For Stereo Correlation
     this.crossSum = 0;
 
-    // High-Refresh Meter Updates (~240Hz update rate)
-    this.updateInterval = Math.max(128, Math.round(sampleRate / 240)); 
+    // High-Refresh Meter Updates (~60Hz on mobile devices to save audio thread CPU, ~120Hz on desktop)
+    const isMobile = (typeof navigator !== 'undefined' && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent || ''));
+    const targetFps = isMobile ? 60 : 120;
+    this.updateInterval = Math.max(256, Math.round(sampleRate / targetFps)); 
     this.fps = sampleRate / this.updateInterval;
 
     // LUFS buffers (rolling window)

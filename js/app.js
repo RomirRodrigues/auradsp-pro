@@ -115,6 +115,60 @@ document.addEventListener('DOMContentLoaded', () => {
     // Keep playback smooth and uninterrupted
   });
 
+  // ── Android / Mobile OS MediaSession Foreground Promotion ──
+  // Registers active playback with Android's MediaSession manager so Android OS elevates
+  // the browser tab into an active foreground media service. This completely prevents Android Doze
+  // CPU throttling, avoids audio thread starvation crackling, and provides lock-screen controls.
+  window.syncMediaSession = (isPlayingState, title = 'AuraDSP Pro Studio Audio', artist = 'Romir Rodrigues') => {
+    if (!('mediaSession' in navigator)) return;
+    try {
+      if (isPlayingState) {
+        navigator.mediaSession.metadata = new MediaMetadata({
+          title: title,
+          artist: artist,
+          album: 'AuraDSP Pro · 3D Spatial Audio Workstation'
+        });
+        navigator.mediaSession.playbackState = 'playing';
+
+        navigator.mediaSession.setActionHandler('play', () => {
+          if (audioPlayer && audioPlayer.src && audioPlayer.paused) {
+            audioPlayer.play().catch(() => {});
+          } else if (playPauseBtn) {
+            playPauseBtn.click();
+          }
+        });
+        navigator.mediaSession.setActionHandler('pause', () => {
+          if (audioPlayer && !audioPlayer.paused) {
+            audioPlayer.pause();
+          } else if (playPauseBtn) {
+            playPauseBtn.click();
+          }
+        });
+        navigator.mediaSession.setActionHandler('stop', () => {
+          if (audioPlayer) audioPlayer.pause();
+          if (window.audioEngine) window.audioEngine.stopAllSources();
+          window.syncMediaSession(false);
+        });
+      } else {
+        navigator.mediaSession.playbackState = 'paused';
+      }
+    } catch (e) {}
+  };
+
+  // Synchronize UI smoothly when returning to foreground without disturbing background audio
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) {
+      if (typeof currentEqGains !== 'undefined') {
+        for (let i = 0; i < 10; i++) {
+          updateEqBandUI(i, currentEqGains[i]);
+        }
+        if (window.visualizer) {
+          window.visualizer.drawEqCurve(currentEqGains);
+        }
+      }
+    }
+  });
+
 
   // Helper to deselect active preset and show manual tuning status
   function markTuningAsManual() {
@@ -292,16 +346,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (document.hidden) {
-      // Tab is in background: apply immediately without waiting for RAF to resume
+      // Tab is in background: update audio filters directly with smooth de-zippering, defer DOM/canvas until foreground
       for (let i = 0; i < 10; i++) {
         currentEqGains[i] = targetGains[i];
-        updateEqBandUI(i, targetGains[i]);
         if (window.audioEngine) {
           window.audioEngine.setBandGain(i, targetGains[i]);
         }
-      }
-      if (window.visualizer) {
-        window.visualizer.drawEqCurve(currentEqGains);
       }
       return;
     }
@@ -532,14 +582,22 @@ document.addEventListener('DOMContentLoaded', () => {
   // Instant trigger when audio starts or resumes
   if (audioPlayer) {
     audioPlayer.addEventListener('play', () => {
+      window.syncMediaSession(true, 'AuraDSP Pro Studio Audio', 'Romir Rodrigues');
       if (isAiAutoEqEnabled) {
         setTimeout(executeAiAutoEqCycle, 200);
       }
     });
     audioPlayer.addEventListener('playing', () => {
+      window.syncMediaSession(true, 'AuraDSP Pro Studio Audio', 'Romir Rodrigues');
       if (isAiAutoEqEnabled) {
         setTimeout(executeAiAutoEqCycle, 300);
       }
+    });
+    audioPlayer.addEventListener('pause', () => {
+      window.syncMediaSession(false);
+    });
+    audioPlayer.addEventListener('ended', () => {
+      window.syncMediaSession(false);
     });
   }
 
@@ -3170,7 +3228,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   window.updateInputMeters = (data) => {
-    if (!elInPeakL) return;
+    if (document.hidden || !elInPeakL) return;
     
     const peakL_dB = linearToDb(data.leftPeak);
     const peakR_dB = linearToDb(data.rightPeak);
@@ -3187,7 +3245,7 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   window.updateOutputMeters = (data) => {
-    if (!elOutPeakL) return;
+    if (document.hidden || !elOutPeakL) return;
     
     const peakL_dB = linearToDb(data.leftPeak);
     const peakR_dB = linearToDb(data.rightPeak);

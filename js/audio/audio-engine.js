@@ -160,7 +160,10 @@ class AudioEngine {
     if (this.isInitialized && this.ctx) return;
 
     const AudioCtx = window.AudioContext || window.webkitAudioContext;
-    this.ctx = new AudioCtx({ latencyHint: 'playback' });
+    const isMobile = (typeof navigator !== 'undefined' && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent || ''));
+    // On mobile devices (Android & iOS), use 'interactive' latency to prevent deep buffer queues
+    // from underflowing and causing audio crackles, popping, and fast-forward catchup rushes when backgrounded.
+    this.ctx = new AudioCtx({ latencyHint: isMobile ? 'interactive' : 'playback' });
 
     if (this.ctx.listener) {
       if (this.ctx.listener.setOrientation) {
@@ -281,7 +284,7 @@ class AudioEngine {
     // --- ADVANCED FX (Tube & Tape) ---
     // Tube Saturation (WaveShaper)
     this.tubeShaper = this.ctx.createWaveShaper();
-    this.tubeShaper.oversample = '4x';
+    this.tubeShaper.oversample = isMobile ? 'none' : '4x';
     this.tubeGain = this.ctx.createGain();
     this.tubeGain.gain.value = 1.0;
     this.setTubeWarmth(false, 30); // Default off
@@ -361,11 +364,13 @@ class AudioEngine {
         this.inputMeterNode = new AudioWorkletNode(this.ctx, 'meter-processor');
         this.outputMeterNode = new AudioWorkletNode(this.ctx, 'meter-processor');
 
-        // Setup message handlers
+        // Setup message handlers (pause DOM/IPC dispatch when hidden to keep audio thread clear)
         this.inputMeterNode.port.onmessage = (e) => {
+          if (document.hidden) return;
           if (window.updateInputMeters) window.updateInputMeters(e.data);
         };
         this.outputMeterNode.port.onmessage = (e) => {
+          if (document.hidden) return;
           if (window.updateOutputMeters) window.updateOutputMeters(e.data);
         };
 
@@ -379,7 +384,7 @@ class AudioEngine {
 
     // --- New Modules: Tube & Tape ---
     this.tubeShaperNode = this.ctx.createWaveShaper();
-    this.tubeShaperNode.oversample = '4x';
+    this.tubeShaperNode.oversample = isMobile ? 'none' : '4x';
     this.tubeShaperNode.curve = this.makeDistortionCurve(0); // Off by default
 
     this.tapeDelayNode = this.ctx.createDelay(1.0);
@@ -735,13 +740,17 @@ class AudioEngine {
     this.isPlaying = true;
     this.currentTrackMode = trackMode;
 
+    if (typeof window !== 'undefined' && window.syncMediaSession) {
+      window.syncMediaSession(true, `HD DSP Groove (${trackMode.toUpperCase()})`, 'AuraDSP Pro Studio');
+    }
+
     this.synthGain = this.ctx.createGain();
     this.synthGain.gain.value = 0.55;
     this.synthGain.connect(this.preGainNode);
 
-    let step = 0;
+    let currentStep = 0;
     const bpm = trackMode === 'acoustic' ? 90 : trackMode === 'movie' ? 70 : 120;
-    const stepInterval = (60 / bpm / 4) * 1000;
+    const stepDuration = 60 / bpm / 4; // seconds per 16th step on Web Audio hardware clock
 
     const bassFreqs = [55, 55, 65, 49, 55, 55, 73, 65];
     const acousticChords = [
@@ -752,90 +761,95 @@ class AudioEngine {
     ];
     const spatialMelody = [523.25, 659.25, 783.99, 1046.50, 880.00, 659.25, 587.33, 440.00];
 
-    this.synthLoopTimer = setInterval(() => {
+    // Lookahead Audio Clock Scheduler
+    // Decouples notes from browser JS timer drift. Even if Android throttles timers
+    // to 250ms+ in background, notes are already queued into hardware Web Audio timeline.
+    let nextNoteTime = this.ctx.currentTime + 0.05;
+    const scheduleAheadTime = 0.40; // 400ms lookahead window
+
+    const scheduleNote = (step, time) => {
       if (!this.isSynthLoopActive || !this.ctx) return;
-      const now = this.ctx.currentTime;
 
       if (trackMode === 'bass') {
         if (step % 4 === 0) {
           const kickOsc = this.ctx.createOscillator();
           const kickGain = this.ctx.createGain();
           kickOsc.type = 'sine';
-          kickOsc.frequency.setValueAtTime(160, now);
-          kickOsc.frequency.exponentialRampToValueAtTime(30, now + 0.18);
+          kickOsc.frequency.setValueAtTime(160, time);
+          kickOsc.frequency.exponentialRampToValueAtTime(30, time + 0.18);
           
-          kickGain.gain.setValueAtTime(0.9, now);
-          kickGain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+          kickGain.gain.setValueAtTime(0.9, time);
+          kickGain.gain.exponentialRampToValueAtTime(0.001, time + 0.18);
 
           kickOsc.connect(kickGain);
           kickGain.connect(this.synthGain);
-          kickOsc.start(now);
-          kickOsc.stop(now + 0.18);
+          kickOsc.start(time);
+          kickOsc.stop(time + 0.18);
         }
 
         if (step % 2 === 1) {
           const hatOsc = this.ctx.createOscillator();
           const hatGain = this.ctx.createGain();
           hatOsc.type = 'triangle';
-          hatOsc.frequency.setValueAtTime(3000 + Math.random() * 4000, now);
+          hatOsc.frequency.setValueAtTime(3000 + Math.random() * 4000, time);
           
-          hatGain.gain.setValueAtTime(0.25, now);
-          hatGain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+          hatGain.gain.setValueAtTime(0.25, time);
+          hatGain.gain.exponentialRampToValueAtTime(0.001, time + 0.05);
 
           hatOsc.connect(hatGain);
           hatGain.connect(this.synthGain);
-          hatOsc.start(now);
-          hatOsc.stop(now + 0.05);
+          hatOsc.start(time);
+          hatOsc.stop(time + 0.05);
         }
 
         const bassNote = bassFreqs[Math.floor(step / 2) % bassFreqs.length];
         const bassOsc = this.ctx.createOscillator();
         const bassGain = this.ctx.createGain();
         bassOsc.type = 'sawtooth';
-        bassOsc.frequency.setValueAtTime(bassNote, now);
+        bassOsc.frequency.setValueAtTime(bassNote, time);
 
-        bassGain.gain.setValueAtTime(0.45, now);
-        bassGain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+        bassGain.gain.setValueAtTime(0.45, time);
+        bassGain.gain.exponentialRampToValueAtTime(0.001, time + 0.2);
 
         bassOsc.connect(bassGain);
         bassGain.connect(this.synthGain);
-        bassOsc.start(now);
-        bassOsc.stop(now + 0.2);
+        bassOsc.start(time);
+        bassOsc.stop(time + 0.2);
       }
       else if (trackMode === 'spatial') {
         const leadNote = spatialMelody[step % spatialMelody.length];
         const leadOsc = this.ctx.createOscillator();
         const leadGain = this.ctx.createGain();
         leadOsc.type = 'sine';
-        leadOsc.frequency.setValueAtTime(leadNote, now);
+        leadOsc.frequency.setValueAtTime(leadNote, time);
 
         const vocalFilter = this.ctx.createBiquadFilter();
         vocalFilter.type = 'bandpass';
         vocalFilter.frequency.value = 1200 + Math.sin(step) * 600;
         vocalFilter.Q.value = 3.0;
 
-        leadGain.gain.setValueAtTime(0.35, now);
-        leadGain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+        leadGain.gain.setValueAtTime(0.35, time);
+        leadGain.gain.exponentialRampToValueAtTime(0.001, time + 0.35);
 
         leadOsc.connect(vocalFilter);
         vocalFilter.connect(leadGain);
         leadGain.connect(this.synthGain);
-        leadOsc.start(now);
-        leadOsc.stop(now + 0.35);
+        leadOsc.start(time);
+        leadOsc.stop(time + 0.35);
 
         if (step % 8 === 0) {
           const padOsc = this.ctx.createOscillator();
           const padGain = this.ctx.createGain();
           padOsc.type = 'triangle';
-          padOsc.frequency.setValueAtTime(130.81, now);
+          padOsc.frequency.setValueAtTime(130.81, time);
 
-          padGain.gain.setValueAtTime(0.3, now);
-          padGain.gain.exponentialRampToValueAtTime(0.001, now + 1.2);
+          padGain.gain.setValueAtTime(0.3, time);
+          padGain.gain.exponentialRampToValueAtTime(0.001, time + 1.2);
 
           padOsc.connect(padGain);
           padGain.connect(this.synthGain);
-          padOsc.start(now);
-          padOsc.stop(now + 1.2);
+          padOsc.start(time);
+          padOsc.stop(time + 1.2);
         }
       }
       else if (trackMode === 'acoustic') {
@@ -845,29 +859,29 @@ class AudioEngine {
         const guitarOsc = this.ctx.createOscillator();
         const guitarGain = this.ctx.createGain();
         guitarOsc.type = 'triangle';
-        guitarOsc.frequency.setValueAtTime(noteFreq, now);
+        guitarOsc.frequency.setValueAtTime(noteFreq, time);
 
-        guitarGain.gain.setValueAtTime(0.4, now);
-        guitarGain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+        guitarGain.gain.setValueAtTime(0.4, time);
+        guitarGain.gain.exponentialRampToValueAtTime(0.001, time + 0.4);
 
         guitarOsc.connect(guitarGain);
         guitarGain.connect(this.synthGain);
-        guitarOsc.start(now);
-        guitarOsc.stop(now + 0.4);
+        guitarOsc.start(time);
+        guitarOsc.stop(time + 0.4);
 
         if (step % 4 === 2) {
           const voiceOsc = this.ctx.createOscillator();
           const voiceGain = this.ctx.createGain();
           voiceOsc.type = 'sine';
-          voiceOsc.frequency.setValueAtTime(440, now);
+          voiceOsc.frequency.setValueAtTime(440, time);
 
-          voiceGain.gain.setValueAtTime(0.3, now);
-          voiceGain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+          voiceGain.gain.setValueAtTime(0.3, time);
+          voiceGain.gain.exponentialRampToValueAtTime(0.001, time + 0.5);
 
           voiceOsc.connect(voiceGain);
           voiceGain.connect(this.synthGain);
-          voiceOsc.start(now);
-          voiceOsc.stop(now + 0.5);
+          voiceOsc.start(time);
+          voiceOsc.stop(time + 0.5);
         }
       }
       else if (trackMode === 'movie') {
@@ -875,18 +889,18 @@ class AudioEngine {
           const boomOsc = this.ctx.createOscillator();
           const boomGain = this.ctx.createGain();
           boomOsc.type = 'sine';
-          boomOsc.frequency.setValueAtTime(180, now);
-          boomOsc.frequency.exponentialRampToValueAtTime(20, now + 1.2);
+          boomOsc.frequency.setValueAtTime(180, time);
+          boomOsc.frequency.exponentialRampToValueAtTime(20, time + 1.2);
 
-          boomGain.gain.setValueAtTime(1.0, now);
-          boomGain.gain.exponentialRampToValueAtTime(0.001, now + 1.2);
+          boomGain.gain.setValueAtTime(1.0, time);
+          boomGain.gain.exponentialRampToValueAtTime(0.001, time + 1.2);
 
           boomOsc.connect(boomGain);
           boomGain.connect(this.synthGain);
-          boomOsc.start(now);
-          boomOsc.stop(now + 1.2);
+          boomOsc.start(time);
+          boomOsc.stop(time + 1.2);
 
-          const noiseBuffer = this.ctx.createBuffer(1, this.ctx.sampleRate * 0.8, this.ctx.sampleRate);
+          const noiseBuffer = this.ctx.createBuffer(1, Math.floor(this.ctx.sampleRate * 0.8), this.ctx.sampleRate);
           const data = noiseBuffer.getChannelData(0);
           for (let i = 0; i < data.length; i++) {
             data[i] = Math.random() * 2 - 1;
@@ -896,22 +910,36 @@ class AudioEngine {
 
           const noiseFilter = this.ctx.createBiquadFilter();
           noiseFilter.type = 'lowpass';
-          noiseFilter.frequency.setValueAtTime(800, now);
-          noiseFilter.frequency.exponentialRampToValueAtTime(80, now + 0.8);
+          noiseFilter.frequency.setValueAtTime(800, time);
+          noiseFilter.frequency.exponentialRampToValueAtTime(80, time + 0.8);
 
           const noiseGain = this.ctx.createGain();
-          noiseGain.gain.setValueAtTime(0.6, now);
-          noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.8);
+          noiseGain.gain.setValueAtTime(0.6, time);
+          noiseGain.gain.exponentialRampToValueAtTime(0.001, time + 0.8);
 
           noiseSource.connect(noiseFilter);
           noiseFilter.connect(noiseGain);
           noiseGain.connect(this.synthGain);
-          noiseSource.start(now);
+          noiseSource.start(time);
         }
       }
+    };
 
-      step = (step + 1) % 16;
-    }, stepInterval);
+    const scheduler = () => {
+      if (!this.isSynthLoopActive || !this.ctx) return;
+      if (nextNoteTime < this.ctx.currentTime) {
+        nextNoteTime = this.ctx.currentTime + 0.05;
+      }
+      while (nextNoteTime < this.ctx.currentTime + scheduleAheadTime) {
+        scheduleNote(currentStep, nextNoteTime);
+        nextNoteTime += stepDuration;
+        currentStep = (currentStep + 1) % 16;
+      }
+    };
+
+    // Run scheduler every 50ms to keep 400ms buffer queued
+    scheduler();
+    this.synthLoopTimer = setInterval(scheduler, 50);
   }
 
   stopSynthGroove() {
@@ -919,6 +947,9 @@ class AudioEngine {
     if (this.synthLoopTimer) {
       clearInterval(this.synthLoopTimer);
       this.synthLoopTimer = null;
+    }
+    if (typeof window !== 'undefined' && window.syncMediaSession && (!this.connectedElement || this.connectedElement.paused)) {
+      window.syncMediaSession(false);
     }
     if (this.synthGain) {
       try { this.synthGain.disconnect(); } catch (e) {}
@@ -1054,7 +1085,13 @@ class AudioEngine {
 
   setBandGain(index, valueDb) {
     if (this.eqNodes[index]) {
-      this.eqNodes[index].gain.value = parseFloat(valueDb);
+      const node = this.eqNodes[index];
+      const val = parseFloat(valueDb);
+      if (this.ctx && node.gain.setTargetAtTime) {
+        node.gain.setTargetAtTime(val, this.ctx.currentTime, 0.02);
+      } else {
+        node.gain.value = val;
+      }
     }
   }
 
@@ -1247,10 +1284,11 @@ class AudioEngine {
   set3DPosition(x, y, z) {
     if (!this.pannerNode || !this.ctx) return;
     const now = this.ctx.currentTime;
+    const timeConstant = (typeof document !== 'undefined' && document.hidden) ? 0.08 : 0.03;
     if (this.pannerNode.positionX) {
-      this.pannerNode.positionX.setTargetAtTime(x, now, 0.03);
-      this.pannerNode.positionY.setTargetAtTime(y, now, 0.03);
-      this.pannerNode.positionZ.setTargetAtTime(z, now, 0.03);
+      this.pannerNode.positionX.setTargetAtTime(x, now, timeConstant);
+      this.pannerNode.positionY.setTargetAtTime(y, now, timeConstant);
+      this.pannerNode.positionZ.setTargetAtTime(z, now, timeConstant);
     } else if (this.pannerNode.setPosition) {
       this.pannerNode.setPosition(x, y, z);
     }
