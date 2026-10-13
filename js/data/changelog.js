@@ -1,14 +1,27 @@
 /**
  * AuraDSP Pro - Complete Version History & Changelog Data
- * Records all 52 version milestones from v1.0.0 (Genesis) to v52.0.0 (Latest).
+ * Records all 53+ version milestones from v1.0.0 (Genesis) to v53.5.0 (Latest).
  */
 
 const CHANGELOG_DATA = [
   {
-    version: 'v53.1.0',
-    title: 'Developer Diagnostics & Superuser Console (Romir Rodrigues Secret Menu)',
+    version: 'v53.5.0',
+    title: 'Mobile Touch Optimization, Background Audio Persistence & Seamless 3D Orbit Engine',
     tag: 'Latest',
     date: 'Current Release',
+    items: [
+      'Universal Touch Scrolling: Enforced pan-y pinch-zoom and overscroll-behavior across all mobile panels, grids, and touch areas, allowing natural fluid vertical scrolling from anywhere on screen.',
+      'Uninterrupted Background Playback: Completely eliminated audio pause and crackle on tab switch, window minimization, or phone screen lock by maintaining continuous Web Audio context clock routing.',
+      'Decoupled 3D Spatial Audio Orbit: Separated 3D HRTF orbital path calculations from visual rendering using an autonomous delta-time engine so 3D spatial surround sound keeps orbiting continuously when minimized.',
+      'Android / Mobile CPU Optimization: Canvas draw calls and meter DOM updates intelligently yield when minimized (document.hidden), dedicating 100% thread resources to glitch-free real-time audio DSP.',
+      'Hardware-Matched Latency Pipeline: Automatic latencyHint tuning without forced sample-rate clamping, aligning cleanly with native DAC sample clocks across Android, Windows, and macOS.'
+    ]
+  },
+  {
+    version: 'v53.1.0',
+    title: 'Developer Diagnostics & Superuser Console (Romir Rodrigues Secret Menu)',
+    tag: 'Major',
+    date: 'Milestone Release',
     items: [
       '5-Click AuraDSP Pro Easter Egg: Clicking the "AURA DSP PRO" brand name 5 times plays a sci-fi unlock chime and launches the Developer Diagnostics & Superuser Console.',
       'AudioContext Runtime Telemetry: Live real-time inspection of AudioContext state, sample rate, base & output buffer latency, DSP clock runtime, and channel topology.',
