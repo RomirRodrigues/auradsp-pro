@@ -1,14 +1,25 @@
 /**
  * AuraDSP Pro - Complete Version History & Changelog Data
- * Records all 54+ version milestones from v1.0.0 (Genesis) to v54.4.0 (Latest).
+ * Records all 54+ version milestones from v1.0.0 (Genesis) to v54.4.1 (Latest).
  */
 
 const CHANGELOG_DATA = [
   {
-    version: 'v54.4.0',
-    title: 'Permanent Zero-Crackling, Zero-Fast-Forward & Zero-Overlap Native Looping Architecture',
+    version: 'v54.4.1',
+    title: 'Universal Media Playback Engine Restoration & AudioContext Scope Fix',
     tag: 'Latest',
     date: 'Current Release',
+    items: [
+      'Restored Playback Across All Sources: Resolved a critical initialization ReferenceError where an undeclared mobile detection flag stalled AudioEngine.init() before completing node wiring. Local songs, demo synthesizer grooves, streaming links, and global web searches now play immediately with crystal clarity on both laptops and mobile devices.',
+      'Resilient AudioContext Playback Initialization: Wrapped high-capacity playback latencyHint allocation with resilient constructor fallbacks, ensuring instant AudioContext activation across all desktop browsers, Android Chrome, and iOS Safari.',
+      'Protected 10-Band EQ & Spatial Graph Continuity: Verified that all audio sources (HTML5 media elements, decoded buffers, synthesizers, and test generators) correctly route through preGain, 10-band parametric EQ, HRTF spatial panner, and limiter nodes without interruption.'
+    ]
+  },
+  {
+    version: 'v54.4.0',
+    title: 'Permanent Zero-Crackling, Zero-Fast-Forward & Zero-Overlap Native Looping Architecture',
+    tag: 'Stable',
+    date: 'October 2026',
     items: [
       'Eliminated All Mobile Background Audio Anomalies: Permanently resolved audio crackling, pops, auto fast-forward catchup rushing, and overlapping note bursts when the website is running in the background on mobile devices (Android and iOS).',
       'Hardware-Looped AudioBuffer Architecture: Replaced fragile JavaScript timer intervals (setInterval) in DSP synthesizer grooves with seamless stereo AudioBuffers pre-rendered via OfflineAudioContext (<5ms render). AudioBufferSourceNode.loop = true delegates looping entirely to native C++ hardware clocks, making clock drift, speedups, and note overlaps physically impossible.',

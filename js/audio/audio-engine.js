@@ -161,11 +161,18 @@ class AudioEngine {
   init() {
     if (this.isInitialized && this.ctx) return;
 
+    const isMobile = (typeof navigator !== 'undefined' && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent || ''));
+    this.isMobile = isMobile;
+
     const AudioCtx = window.AudioContext || window.webkitAudioContext;
-    // Always use 'playback' latencyHint on mobile and desktop:
-    // This tells Android's AAudio/OpenSL audio stack to allocate high-capacity (8192-sample) hardware
-    // audio buffers with high power efficiency, preventing buffer underruns, clicks, and crackles in background.
-    this.ctx = new AudioCtx({ latencyHint: 'playback' });
+    try {
+      // Use 'playback' latencyHint on mobile and desktop:
+      // This tells Android's AAudio/OpenSL audio stack to allocate high-capacity (8192-sample) hardware
+      // audio buffers with high power efficiency, preventing buffer underruns, clicks, and crackles in background.
+      this.ctx = new AudioCtx({ latencyHint: 'playback' });
+    } catch (e) {
+      this.ctx = new AudioCtx();
+    }
 
     if (this.ctx.listener) {
       if (this.ctx.listener.setOrientation) {
