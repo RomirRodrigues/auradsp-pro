@@ -338,7 +338,9 @@ class SpatialCanvas {
     const render = (now) => {
       const dt = Math.min(0.05, (now - lastTime) / 1000);
       lastTime = now;
-      this.draw(dt);
+      if (!document.hidden) {
+        this.draw(dt);
+      }
       requestAnimationFrame(render);
     };
     requestAnimationFrame(render);

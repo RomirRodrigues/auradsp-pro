@@ -600,7 +600,9 @@ class AudioVisualizer {
       const dt = Math.min(0.05, (now - lastTime) / 1000);
       lastTime = now;
 
-      this.drawSpectrum(dt);
+      if (!document.hidden) {
+        this.drawSpectrum(dt);
+      }
 
       frameCount++;
       if (now - fpsTimer >= 500) {

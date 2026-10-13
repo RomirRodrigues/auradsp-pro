@@ -160,8 +160,7 @@ class AudioEngine {
     if (this.isInitialized && this.ctx) return;
 
     const AudioCtx = window.AudioContext || window.webkitAudioContext;
-    const isMobileDevice = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-    this.ctx = new AudioCtx({ latencyHint: isMobileDevice ? 'playback' : 'interactive', sampleRate: 44100 });
+    this.ctx = new AudioCtx({ latencyHint: 'playback' });
 
     if (this.ctx.listener) {
       if (this.ctx.listener.setOrientation) {

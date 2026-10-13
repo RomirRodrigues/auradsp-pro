@@ -104,33 +104,12 @@ document.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('click', initEngineOnce, { once: true });
   window.addEventListener('touchstart', initEngineOnce, { once: true, passive: true });
 
-  // Handle tab hidden / app switch on Android
-  // Key insight: do NOT suspend AudioContext if audio is actively playing —
-  // suspending mid-stream causes the brief gap + crackle on return.
-  // Only suspend if nothing is playing (saves battery when idle).
-  document.addEventListener('visibilitychange', () => {
-    if (!window.audioEngine || !window.audioEngine.ctx) return;
-    const ae = window.audioEngine;
-    const ap = document.getElementById('audioPlayer');
-    const isActivelyPlaying = (ap && !ap.paused) || ae.isBufferPlaying || ae.isSynthLoopActive;
-
-    if (document.hidden) {
-      if (!isActivelyPlaying) {
-        // Nothing playing — suspend to save battery
-        try { ae.ctx.suspend(); } catch (e) {}
-      }
-      // If audio is playing: leave context running so background audio continues cleanly
-    } else {
-      // Returning to foreground — ensure context is running
-      ae.resumeCtx();
-    }
-  });
-
-  // Android back-button: only stop synth groove (not real audio — let it keep playing)
+  // Seamless background playback on desktop and mobile:
+  // Never suspend or disturb AudioContext on visibilitychange.
+  // This guarantees zero audio pauses, zero stutter, and continuous smooth playback
+  // whether the user minimizes the browser, switches apps, or changes tabs.
   window.addEventListener('pagehide', () => {
-    if (window.audioEngine) {
-      window.audioEngine.stopSynthGroove();
-    }
+    // Keep playback smooth and uninterrupted
   });
 
 
@@ -3765,7 +3744,7 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   function updateDtsxMetersLoop() {
-    if (window.audioEngine && typeof window.audioEngine.getDtsxChannelLevels === 'function') {
+    if (!document.hidden && window.audioEngine && typeof window.audioEngine.getDtsxChannelLevels === 'function') {
       const levels = window.audioEngine.getDtsxChannelLevels();
       for (const ch in dtsxChEls) {
         if (dtsxChEls[ch]) {
@@ -3849,7 +3828,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Real-time animation loop for MaxxBass synthesis harmonic meter
   function updateMaxxbassMeterLoop() {
-    if (maxxbassMeterFill && window.audioEngine && typeof window.audioEngine.getMaxxbassHarmonicLevel === 'function') {
+    if (!document.hidden && maxxbassMeterFill && window.audioEngine && typeof window.audioEngine.getMaxxbassHarmonicLevel === 'function') {
       const level = window.audioEngine.getMaxxbassHarmonicLevel();
       maxxbassMeterFill.style.width = `${level}%`;
     }
