@@ -1,14 +1,28 @@
 /**
  * AuraDSP Pro - Complete Version History & Changelog Data
- * Records all 53+ version milestones from v1.0.0 (Genesis) to v53.8.0 (Latest).
+ * Records all 53+ version milestones from v1.0.0 (Genesis) to v53.9.0 (Latest).
  */
 
 const CHANGELOG_DATA = [
   {
-    version: 'v53.8.0',
-    title: 'Definitive Viewport Scrollport Unification (overflow-x: clip & Zero-Interception Engine)',
+    version: 'v53.9.0',
+    title: 'Mobile Display Scaling Optimization & Responsive 850px Viewport Engine',
     tag: 'Latest',
     date: 'Current Release',
+    items: [
+      'Expanded Mobile/Tablet Breakpoint (850px): Upgraded the mobile layout switcher from 600px to 850px in both JavaScript and CSS, ensuring all modern Android & iOS smartphones (regardless of display density, UI scaling, or landscape mode) receive the dedicated single-panel mobile workstation and bottom navigation instead of the oversized desktop grid.',
+      'Proportional Mobile Header: Streamlined the studio top banner on mobile devices with an ultra-compact single-line footprint, reduced 32px logo, auto-truncated subtitles (170px), and hidden manual labels to eliminate horizontal header blowout.',
+      'Perfect-Fit 10-Band EQ Mobile Rack: Re-engineered .eq-sliders-grid with responsive flex scaling (min-width: 25px, well width: 24px, height: 115px), fitting all 10 EQ channels cleanly within 316px without edge cutoffs or horizontal overflow.',
+      'Responsive Canvas & Stage Architecture: Proportionally scaled spectrum analyzer (110px), EQ curve canvas (60px), and 3D spatial stage (230px max-width) to preserve complete visual fidelity while fitting modern smartphone screen ratios.',
+      'Horizontal Streaming Profile Chip Bar: Converted web music engine buttons into a silky touch-scrollable horizontal pill bar to prevent wrap clutter.',
+      '2-Column Dolby Atmos Virtualizer Matrix: Structured multichannel speaker nodes into a balanced 2-column mobile matrix with touch-friendly padded badges.'
+    ]
+  },
+  {
+    version: 'v53.8.0',
+    title: 'Definitive Viewport Scrollport Unification (overflow-x: clip & Zero-Interception Engine)',
+    tag: 'Stable',
+    date: 'October 2026',
     items: [
       'Solved Dual Scrollport Conflict: Converted body and html overflow-x from hidden to clip, keeping overflow-y strictly visible on body and letting the root browser window act as the single universal scrollport without nested viewport deadzones.',
       'Zero-Interception Wheel & Touch Pipeline: Stripped all wheel and touchmove event listeners from EQ bands and curve canvases so mouse wheel rolling and mobile finger swiping pass directly to compositor-level scrolling everywhere.',

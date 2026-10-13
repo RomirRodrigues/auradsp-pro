@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ─── Mobile Panel Switcher ───────────────────────────────────
-  function isMobile() { return window.innerWidth <= 600; }
+  function isMobile() { return window.innerWidth <= 850; }
 
   function activateMobilePanel(panelName) {
     document.querySelectorAll('.studio-grid [data-panel]').forEach(el => {
