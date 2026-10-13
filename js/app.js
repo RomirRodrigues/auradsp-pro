@@ -94,14 +94,38 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   // ─────────────────────────────────────────────────────────────
 
-  // Pre-initialize AudioContext on first touch/click
-  const initEngineOnce = () => {
+  // ── Mobile / Android Audio Lifecycle ─────────────────────────
+  // Unlock AudioContext on first user gesture (required on all mobile browsers)
+  const initEngineOnce = async () => {
     if (window.audioEngine) {
-      window.audioEngine.resumeCtx();
+      await window.audioEngine.resumeCtx();
     }
   };
   window.addEventListener('click', initEngineOnce, { once: true });
-  window.addEventListener('touchstart', initEngineOnce, { once: true });
+  window.addEventListener('touchstart', initEngineOnce, { once: true, passive: true });
+
+  // Handle tab hidden / app switch: suspend AudioContext to prevent
+  // the "song plays fast / overlaps" issue on Android when returning
+  document.addEventListener('visibilitychange', () => {
+    if (!window.audioEngine || !window.audioEngine.ctx) return;
+    if (document.hidden) {
+      // Tab went to background — suspend context to freeze its clock
+      try { window.audioEngine.ctx.suspend(); } catch (e) {}
+    } else {
+      // Tab came back to foreground — resume context properly
+      window.audioEngine.resumeCtx();
+    }
+  });
+
+  // Android back-button / app switch: pause cleanly on pagehide
+  window.addEventListener('pagehide', () => {
+    const ap = document.getElementById('audioPlayer');
+    if (ap && !ap.paused) ap.pause();
+    if (window.audioEngine) {
+      window.audioEngine.stopSynthGroove();
+      try { if (window.audioEngine.ctx) window.audioEngine.ctx.suspend(); } catch (e) {}
+    }
+  });
 
 
   // Helper to deselect active preset and show manual tuning status

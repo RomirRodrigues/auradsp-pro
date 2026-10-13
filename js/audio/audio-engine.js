@@ -160,7 +160,8 @@ class AudioEngine {
     if (this.isInitialized && this.ctx) return;
 
     const AudioCtx = window.AudioContext || window.webkitAudioContext;
-    this.ctx = new AudioCtx({ latencyHint: 'interactive' });
+    const isMobileDevice = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    this.ctx = new AudioCtx({ latencyHint: isMobileDevice ? 'playback' : 'interactive', sampleRate: 44100 });
 
     if (this.ctx.listener) {
       if (this.ctx.listener.setOrientation) {
@@ -679,15 +680,15 @@ class AudioEngine {
     this.isInitialized = true;
   }
 
-        resumeCtx() {
+  async resumeCtx() {
     if (!this.isInitialized || !this.ctx) {
       this.init();
     }
     if (this.ctx && this.ctx.state === 'suspended') {
       try {
-        this.ctx.resume();
+        await this.ctx.resume();
       } catch (e) {
-        console.warn("ctx.resume error:", e);
+        console.warn('ctx.resume error:', e);
       }
     }
     if (this.masterGainNode && !this.isMuted) {
@@ -698,25 +699,32 @@ class AudioEngine {
     }
   }
 
-      connectMediaElement(audioElement) {
+  connectMediaElement(audioElement) {
     if (!audioElement) return;
     this.resumeCtx();
-    
+
     // Ensure element volume is 100%
     audioElement.volume = 1.0;
     audioElement.muted = false;
 
     try {
+      // Create the source node once per element (Web Audio API rule)
       if (!audioElement._mediaSourceNode) {
         audioElement._mediaSourceNode = this.ctx.createMediaElementSource(audioElement);
       }
-      this.mediaSourceNode = audioElement._mediaSourceNode;
-      if (this.mediaSourceNode) {
+
+      // Only reconnect if the element has changed or node is disconnected
+      if (this.mediaSourceNode !== audioElement._mediaSourceNode) {
+        // Disconnect previous source node safely
+        if (this.mediaSourceNode) {
+          try { this.mediaSourceNode.disconnect(); } catch (e) {}
+        }
+        this.mediaSourceNode = audioElement._mediaSourceNode;
         try { this.mediaSourceNode.disconnect(); } catch (e) {}
         this.mediaSourceNode.connect(this.preGainNode);
       }
     } catch (err) {
-      console.warn("MediaElementSource CORS fallback:", err);
+      console.warn('MediaElementSource CORS fallback:', err);
     }
     this.connectedElement = audioElement;
   }

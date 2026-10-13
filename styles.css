@@ -152,10 +152,16 @@ body.cyber-dark {
   color: var(--text-main);
   font-family: var(--font-heading);
   min-height: 100vh;
+  min-height: -webkit-fill-available; /* Android fix: 100vh includes browser chrome */
   display: flex;
   flex-direction: column;
   overflow-x: hidden;
   letter-spacing: -0.01em;
+  /* Android pull-to-refresh prevention & smooth scroll */
+  overscroll-behavior-y: none;
+  -webkit-overflow-scrolling: touch;
+  /* Android safe-area insets (notch / nav-bar) */
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 /* Custom Scrollbars */
@@ -6482,5 +6488,103 @@ select.cyber-select:focus, select.cyber-select-sm:focus, input.cyber-input:focus
   .dev-override-card {
     flex-direction: column;
     align-items: flex-start;
+  }
+}
+
+/* ==========================================================================
+   ANDROID / MOBILE PERFORMANCE & SAFE-AREA FIXES  v53.2.0
+   ========================================================================== */
+
+/* Kill 300ms tap delay on ALL interactive elements on Android */
+a, button, input, select, textarea, label,
+[role="button"], [tabindex] {
+  touch-action: manipulation;
+}
+
+/* Momentum scrolling for all scroll containers on Android */
+.panel, .manual-modal-body, .changelog-modal-body,
+.dev-modal-body, .codec-modal-body, .ear-health-body,
+.auto-eq-list, .ai-eq-status-strip {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+/* Mobile nav bar: add safe-area inset so it clears Android nav bar */
+.mobile-panel-nav {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* App header: respect Android status bar / notch */
+.app-header {
+  padding-top: max(10px, env(safe-area-inset-top, 10px));
+  padding-left: max(16px, env(safe-area-inset-left, 16px));
+  padding-right: max(16px, env(safe-area-inset-right, 16px));
+}
+
+/* GPU-accelerated canvas & visualizer for smooth rendering on mobile */
+canvas {
+  will-change: transform;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+}
+
+/* Prevent text selection lag on long-press Android */
+.panel, .eq-sliders-grid, .preset-card, .source-btn, .sm-btn {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Allow text selection only where needed */
+input, textarea, .dev-custom-json-input {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+/* Android: remove tap highlight flash (default is a grey rectangle) */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Improve EQ slider touch target on Android (min 44px per Material guidelines) */
+@media (max-width: 768px) {
+  input[type="range"] {
+    min-height: 44px;
+    touch-action: pan-x;
+  }
+
+  /* Vertical EQ sliders — pan-y for up/down drag */
+  .eq-slider {
+    touch-action: pan-y;
+  }
+
+  /* Tighter preset grid on small Android screens */
+  .preset-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+  }
+
+  /* Make modal close buttons large enough for thumbs */
+  .modal-close-btn, .dev-close-btn {
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+/* Very small Android phones (360px wide) */
+@media (max-width: 400px) {
+  .app-header {
+    gap: 6px;
+  }
+  .logo-container h1 {
+    font-size: 1rem !important;
+  }
+  .panel {
+    padding: 10px 10px !important;
+  }
+  .eq-sliders-grid {
+    gap: 4px !important;
   }
 }
