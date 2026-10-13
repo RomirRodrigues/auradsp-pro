@@ -1,14 +1,26 @@
 /**
  * AuraDSP Pro - Complete Version History & Changelog Data
- * Records all 53+ version milestones from v1.0.0 (Genesis) to v53.7.0 (Latest).
+ * Records all 53+ version milestones from v1.0.0 (Genesis) to v53.8.0 (Latest).
  */
 
 const CHANGELOG_DATA = [
   {
-    version: 'v53.7.0',
-    title: 'Global Universal Scroll Engine & Deep Hardware Element Pass-Through',
+    version: 'v53.8.0',
+    title: 'Definitive Viewport Scrollport Unification (overflow-x: clip & Zero-Interception Engine)',
     tag: 'Latest',
     date: 'Current Release',
+    items: [
+      'Solved Dual Scrollport Conflict: Converted body and html overflow-x from hidden to clip, keeping overflow-y strictly visible on body and letting the root browser window act as the single universal scrollport without nested viewport deadzones.',
+      'Zero-Interception Wheel & Touch Pipeline: Stripped all wheel and touchmove event listeners from EQ bands and curve canvases so mouse wheel rolling and mobile finger swiping pass directly to compositor-level scrolling everywhere.',
+      'Eliminated Isolated Composite Layers: Removed translateZ and will-change layer promotions from panels, keeping all workstation controls in the primary composite scroll pass.',
+      'On-Demand Touch Drag Lifecycle: Dynamically bind spatial panner touchmove listeners only during active touch drags, releasing window touch events immediately when idle.'
+    ]
+  },
+  {
+    version: 'v53.7.0',
+    title: 'Global Universal Scroll Engine & Deep Hardware Element Pass-Through',
+    tag: 'Stable',
+    date: 'October 2026',
     items: [
       'Global Universal Scroll Engine: Applied overscroll-behavior-y: auto across the universal reset (*) and all audio hardware containers (enhancer cards, preset cards, source selectors, matrix grids, speaker nodes, canvases), guaranteeing zero-friction vertical scrolling from any millimeter of the screen on both Desktop and Android.',
       'Instant Mobile Tab Recalibration: Mobile navigation tab switches immediately align scroll position (window.scrollTo(0, 0)) to prevent viewport height traps between panel views.',

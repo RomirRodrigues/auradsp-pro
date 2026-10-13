@@ -145,7 +145,7 @@
   overscroll-behavior-y: auto;
 }
 html {
-  overflow-x: hidden;
+  overflow-x: clip;
   overflow-y: auto;
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
@@ -163,8 +163,8 @@ body.cyber-dark {
   min-height: -webkit-fill-available; /* Android fix: 100vh includes browser chrome */
   display: flex;
   flex-direction: column;
-  overflow-x: hidden;
-  overflow-y: visible;
+  overflow: visible;
+  overflow-x: clip;
   letter-spacing: -0.01em;
   /* Android smooth scroll & unrestricted vertical scrolling */
   overscroll-behavior-y: auto;
@@ -3396,9 +3396,8 @@ input[type=range]:not(.eq-slider):active::-webkit-slider-thumb {
 }
 
 /* Hardware Acceleration & Smooth Rendering Performance */
-.panel, .enhancer-card, .preset-card, .vis-btn, .primary-btn-sm, .sm-btn {
-  will-change: transform, opacity;
-  backface-visibility: hidden;
+.enhancer-card, .preset-card, .vis-btn, .primary-btn-sm, .sm-btn {
+  will-change: opacity;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -6647,10 +6646,6 @@ input, textarea, .dev-custom-json-input {
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
     background: rgba(14, 17, 24, 0.97) !important;
-    /* Promote each panel to its own GPU layer to prevent scroll repaints */
-    will-change: transform;
-    transform: translateZ(0);
-    -webkit-transform: translateZ(0);
   }
 
   /* Same for header — blur causes lag when scrolling near it */

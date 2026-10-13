@@ -114,13 +114,24 @@ class SpatialCanvas {
       this.isDragging = false;
     };
 
+    const startTouch = (e) => {
+      startDrag(e);
+      if (this.isDragging) {
+        window.addEventListener('touchmove', doDrag, { passive: true });
+        window.addEventListener('touchend', endTouch, { once: true });
+        window.addEventListener('touchcancel', endTouch, { once: true });
+      }
+    };
+    const endTouch = () => {
+      endDrag();
+      window.removeEventListener('touchmove', doDrag);
+    };
+
     this.canvas.addEventListener('mousedown', startDrag);
     window.addEventListener('mousemove', doDrag);
     window.addEventListener('mouseup', endDrag);
 
-    this.canvas.addEventListener('touchstart', startDrag, { passive: true });
-    window.addEventListener('touchmove', doDrag, { passive: true });
-    window.addEventListener('touchend', endDrag);
+    this.canvas.addEventListener('touchstart', startTouch, { passive: true });
   }
 
   setPresetAngle(angleKey) {

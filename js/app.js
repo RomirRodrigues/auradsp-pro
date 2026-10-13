@@ -257,20 +257,7 @@ document.addEventListener('DOMContentLoaded', () => {
         applyBandChange(idx, val);
       });
 
-      // 3. Wheel scroll adjustment: only adjust slider if holding Ctrl or Shift,
-      // otherwise allow the mouse wheel to scroll the page naturally!
-      bandCol.addEventListener('wheel', (e) => {
-        if (e.ctrlKey || e.shiftKey || e.altKey) {
-          e.preventDefault();
-          const delta = e.deltaY < 0 ? 0.5 : -0.5;
-          let newDb = Math.max(-12, Math.min(12, currentEqGains[idx] + delta));
-          newDb = Math.round(newDb * 2) / 2;
-          slider.value = newDb;
-          applyBandChange(idx, newDb);
-        }
-      }, { passive: false });
-
-      // 4. Double-click reset to 0dB flat
+      // 3. Double-click reset to 0dB flat
       bandCol.addEventListener('dblclick', () => {
         slider.value = 0;
         applyBandChange(idx, 0);
@@ -3346,9 +3333,7 @@ document.addEventListener('DOMContentLoaded', () => {
     eqCanvas.addEventListener('mousedown', (e) => { isDraggingEq = true; handleEqMove(e.clientX, e.clientY); });
     window.addEventListener('mousemove', (e) => { if (isDraggingEq) handleEqMove(e.clientX, e.clientY); });
     window.addEventListener('mouseup', () => { isDraggingEq = false; });
-    eqCanvas.addEventListener('touchstart', (e) => { isDraggingEq = true; handleEqMove(e.touches[0].clientX, e.touches[0].clientY); });
-    window.addEventListener('touchmove', (e) => { if (isDraggingEq) handleEqMove(e.touches[0].clientX, e.touches[0].clientY); });
-    window.addEventListener('touchend', () => { isDraggingEq = false; });
+    eqCanvas.addEventListener('click', (e) => { handleEqMove(e.clientX, e.clientY); });
   }
 
   // --- HARMONIC EXCITER BINDINGS (Point 13) ---
