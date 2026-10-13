@@ -1,14 +1,27 @@
 /**
  * AuraDSP Pro - Complete Version History & Changelog Data
- * Records all 54+ version milestones from v1.0.0 (Genesis) to v54.2.0 (Latest).
+ * Records all 54+ version milestones from v1.0.0 (Genesis) to v54.3.0 (Latest).
  */
 
 const CHANGELOG_DATA = [
   {
-    version: 'v54.2.0',
-    title: 'DSP Clarity Profile Container Boundary Fitting & Zero-Overflow Engine',
+    version: 'v54.3.0',
+    title: 'Mobile Viewport Zero-Overflow Engine & 2-Column Responsive Card Architecture',
     tag: 'Latest',
     date: 'Current Release',
+    items: [
+      'Universal Mobile Viewport Containment: Resolved the layout blowout on mobile screens where the right ~15% of the page was clipped off, ensuring all panels, controls, and sliders fit 100% within the smartphone viewport while leaving desktop workstation mode unchanged.',
+      'Grid Containment with minmax(0, 1fr): Upgraded .studio-grid to grid-template-columns: minmax(0, 1fr) with overflow-x: hidden on mobile, strictly prohibiting child elements from expanding the main studio grid wider than the screen.',
+      '2-Column Mobile Multi-Engine DSP Cards: Re-engineered .engine-cards-grid into a balanced 2-column grid (repeat(2, minmax(0, 1fr))) on mobile, with the 5th card ("Pure Audiophile") spanning full-width across both columns to eliminate horizontal overflow.',
+      'Defensive Panel & Status Strip Clamping: Added min-width: 0 and overflow-x: hidden across .panel, and converted .ai-eq-status-strip and action bars into wrapping flex layouts so long status strings never force container expansion.',
+      'Resolved Legacy Media Query Overrides: Scoped legacy tablet rules to min-width: 851px, eliminating conflicting style overrides that previously inflated mobile button paddings and erased navigation offsets.'
+    ]
+  },
+  {
+    version: 'v54.2.0',
+    title: 'DSP Clarity Profile Container Boundary Fitting & Zero-Overflow Engine',
+    tag: 'Stable',
+    date: 'October 2026',
     items: [
       'Resolved DSP Clarity Profile Box Overflow: Fixed the layout defect where the 5th engine button ("Audiophile") protruded outside the right border of the DSP Clarity Profile selector card on desktop streamer sidebars and mobile screens.',
       'Responsive minmax(0, 1fr) Grid Architecture: Replaced rigid inline repeat(5, 1fr) styling with semantic CSS using grid-template-columns: repeat(5, minmax(0, 1fr)), eliminating min-content intrinsic width blowouts and strictly containing all 5 button tracks within 100% of the parent card.',
