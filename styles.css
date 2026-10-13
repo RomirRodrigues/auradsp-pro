@@ -157,9 +157,10 @@ body.cyber-dark {
   flex-direction: column;
   overflow-x: hidden;
   letter-spacing: -0.01em;
-  /* Android pull-to-refresh prevention & smooth scroll */
-  overscroll-behavior-y: none;
+  /* Android smooth scroll & unrestricted vertical scrolling */
+  overscroll-behavior-y: auto;
   -webkit-overflow-scrolling: touch;
+  touch-action: pan-y pinch-zoom;
   /* Android safe-area insets (notch / nav-bar) */
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
@@ -1471,7 +1472,7 @@ input[type="range"]:not(.eq-slider)::-webkit-slider-thumb:hover {
   background: rgba(255, 255, 255, 0.02);
   border-radius: var(--radius-sm);
   cursor: pointer;
-  touch-action: none;
+  touch-action: pan-y;
   box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5);
 }
 
@@ -6629,8 +6630,21 @@ input, textarea, .dev-custom-json-input {
   /* Main scroll container: promote to GPU layer and enable smooth momentum scroll */
   .studio-grid {
     -webkit-overflow-scrolling: touch;
-    overscroll-behavior: contain;
-    will-change: scroll-position;
+    overscroll-behavior-y: auto;
+    touch-action: pan-y pinch-zoom;
+  }
+
+  /* Allow vertical touch drag across all panels and controls to scroll the page smoothly */
+  .panel,
+  .panel > *,
+  .preset-grid,
+  .source-selector,
+  .eq-sliders-grid,
+  .eq-band-col,
+  .enhancer-cards-grid,
+  .spatial-stage-layout,
+  .dtsx-matrix-grid {
+    touch-action: pan-y pinch-zoom !important;
   }
 
   /* Reduce box-shadow complexity on mobile (shadow blur = CPU repaints on scroll) */
