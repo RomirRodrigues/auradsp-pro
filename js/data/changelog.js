@@ -1,14 +1,26 @@
 /**
  * AuraDSP Pro - Complete Version History & Changelog Data
- * Records all 53+ version milestones from v1.0.0 (Genesis) to v53.6.0 (Latest).
+ * Records all 53+ version milestones from v1.0.0 (Genesis) to v53.7.0 (Latest).
  */
 
 const CHANGELOG_DATA = [
   {
-    version: 'v53.6.0',
-    title: 'Universal Full-Screen Scrolling on Desktop & Android + Background Persistence',
+    version: 'v53.7.0',
+    title: 'Global Universal Scroll Engine & Deep Hardware Element Pass-Through',
     tag: 'Latest',
     date: 'Current Release',
+    items: [
+      'Global Universal Scroll Engine: Applied overscroll-behavior-y: auto across the universal reset (*) and all audio hardware containers (enhancer cards, preset cards, source selectors, matrix grids, speaker nodes, canvases), guaranteeing zero-friction vertical scrolling from any millimeter of the screen on both Desktop and Android.',
+      'Instant Mobile Tab Recalibration: Mobile navigation tab switches immediately align scroll position (window.scrollTo(0, 0)) to prevent viewport height traps between panel views.',
+      'Touch-Action Pan-Y Pinch-Zoom Propagation: Explicitly configured hardware cards, matrices, and interactive modules to allow native multi-touch gestures to stream directly to the root viewport.',
+      'Service Worker Instant Refresh: Automated client claim and cache bust synchronization across all scripts and styles.'
+    ]
+  },
+  {
+    version: 'v53.6.0',
+    title: 'Universal Full-Screen Scrolling on Desktop & Android + Background Persistence',
+    tag: 'Stable',
+    date: 'October 2026',
     items: [
       'Universal Full-Screen Scrolling: Completely solved the edge-only scrolling restriction across both Desktop and Android by removing scroll containment traps (overscroll-behavior: contain and overflow: hidden) from all hardware panels.',
       'Unrestricted Mouse Wheel & Touch Swiping: Mouse wheel over all 10 EQ channels now effortlessly scrolls the web page vertically (hold Ctrl/Shift/Alt to adjust band gain). Mobile touch swiping across slider tracks and canvases flows smoothly without pointer-capture locking.',

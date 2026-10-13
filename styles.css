@@ -142,6 +142,7 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  overscroll-behavior-y: auto;
 }
 html {
   overflow-x: hidden;
@@ -6535,9 +6536,18 @@ a, button, input, select, textarea, label,
 .eq-fader-slot,
 .eq-slider-well,
 .enhancer-cards-grid,
+.enhancer-card,
+.preset-cards-container,
+.preset-card,
+.source-card,
+.source-selector,
+.spotify-sub-card,
+.generator-grid,
 .dtsx-matrix-grid,
 .atmos-layout-container,
-.atmos-plane-section {
+.atmos-plane-section,
+.atmos-spk-node,
+canvas {
   overscroll-behavior: auto !important;
   overscroll-behavior-y: auto !important;
   overscroll-behavior-x: auto !important;

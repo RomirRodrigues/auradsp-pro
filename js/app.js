@@ -67,7 +67,10 @@ document.addEventListener('DOMContentLoaded', () => {
       el.classList.remove('mobile-active');
     });
     const target = document.querySelector(`.studio-grid [data-panel="${panelName}"]`);
-    if (target) target.classList.add('mobile-active');
+    if (target) {
+      target.classList.add('mobile-active');
+      window.scrollTo(0, 0);
+    }
 
     document.querySelectorAll('.mpn-btn').forEach(btn => {
       btn.classList.toggle('active', btn.dataset.panel === panelName);
