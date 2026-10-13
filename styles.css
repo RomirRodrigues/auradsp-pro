@@ -146,6 +146,7 @@
 html {
   overflow-x: hidden;
   overflow-y: auto;
+  scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
   touch-action: pan-y pinch-zoom;
 }
@@ -157,10 +158,12 @@ body.cyber-dark {
   color: var(--text-main);
   font-family: var(--font-heading);
   min-height: 100vh;
+  min-height: 100dvh;
   min-height: -webkit-fill-available; /* Android fix: 100vh includes browser chrome */
   display: flex;
   flex-direction: column;
   overflow-x: hidden;
+  overflow-y: visible;
   letter-spacing: -0.01em;
   /* Android smooth scroll & unrestricted vertical scrolling */
   overscroll-behavior-y: auto;
@@ -3203,7 +3206,7 @@ body.cyber-dark {
   100% { transform: translateX(200%) rotate(30deg); }
 }
 
-.enhancer-card, .panel, .preset-card {
+.enhancer-card, .preset-card {
   position: relative;
   overflow: hidden;
 }
@@ -6507,12 +6510,38 @@ a, button, input, select, textarea, label,
   touch-action: pan-y pinch-zoom;
 }
 
-/* Momentum scrolling for all scroll containers on Android */
-.panel, .manual-modal-body, .changelog-modal-body,
+/* Momentum scrolling for modal dialog bodies (keeps scroll isolated inside modals) */
+.manual-modal-body, .changelog-modal-body,
 .dev-modal-body, .codec-modal-body, .ear-health-body,
 .auto-eq-list, .ai-eq-status-strip {
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
+}
+
+/* Universal effortless scrolling across entire layout on desktop, tablet, and mobile */
+.panel,
+.panel-section,
+.studio-grid,
+.center-panel,
+.source-panel,
+.spatial-panel,
+.visualizer-container,
+.spatial-stage-card,
+.spatial-stage-layout,
+.spatial-canvas-wrapper,
+.eq-sliders-grid,
+.eq-band-col,
+.eq-band-channel,
+.eq-fader-slot,
+.eq-slider-well,
+.enhancer-cards-grid,
+.dtsx-matrix-grid,
+.atmos-layout-container,
+.atmos-plane-section {
+  overscroll-behavior: auto !important;
+  overscroll-behavior-y: auto !important;
+  overscroll-behavior-x: auto !important;
+  touch-action: pan-y pinch-zoom !important;
 }
 
 /* Mobile nav bar: add safe-area inset so it clears Android nav bar */

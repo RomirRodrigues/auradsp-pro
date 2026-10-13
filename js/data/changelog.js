@@ -1,14 +1,27 @@
 /**
  * AuraDSP Pro - Complete Version History & Changelog Data
- * Records all 53+ version milestones from v1.0.0 (Genesis) to v53.5.0 (Latest).
+ * Records all 53+ version milestones from v1.0.0 (Genesis) to v53.6.0 (Latest).
  */
 
 const CHANGELOG_DATA = [
   {
-    version: 'v53.5.0',
-    title: 'Mobile Touch Optimization, Background Audio Persistence & Seamless 3D Orbit Engine',
+    version: 'v53.6.0',
+    title: 'Universal Full-Screen Scrolling on Desktop & Android + Background Persistence',
     tag: 'Latest',
     date: 'Current Release',
+    items: [
+      'Universal Full-Screen Scrolling: Completely solved the edge-only scrolling restriction across both Desktop and Android by removing scroll containment traps (overscroll-behavior: contain and overflow: hidden) from all hardware panels.',
+      'Unrestricted Mouse Wheel & Touch Swiping: Mouse wheel over all 10 EQ channels now effortlessly scrolls the web page vertically (hold Ctrl/Shift/Alt to adjust band gain). Mobile touch swiping across slider tracks and canvases flows smoothly without pointer-capture locking.',
+      'Single Canonical Scroll Viewport: Configured html as the primary smooth scrollport and unified body styling, eliminating nested scroll contention between browser viewport and inner workstations.',
+      'Uninterrupted Background Audio: Completely removed playback pauses and crackles when switching apps or minimizing browsers, maintaining continuous audio context clock streaming.',
+      'Persistent 3D Spatial Audio & Orbit: 3D spatial orbit math is decoupled from requestAnimationFrame and continuously ticks at 50Hz via background heartbeat timer so 3D soundstage remains fully dynamic in the background.'
+    ]
+  },
+  {
+    version: 'v53.5.0',
+    title: 'Mobile Touch Optimization, Background Audio Persistence & Seamless 3D Orbit Engine',
+    tag: 'Stable',
+    date: 'October 2026',
     items: [
       'Universal Touch Scrolling: Enforced pan-y pinch-zoom and overscroll-behavior across all mobile panels, grids, and touch areas, allowing natural fluid vertical scrolling from anywhere on screen.',
       'Uninterrupted Background Playback: Completely eliminated audio pause and crackle on tab switch, window minimization, or phone screen lock by maintaining continuous Web Audio context clock routing.',

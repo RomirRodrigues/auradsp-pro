@@ -221,13 +221,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
       let isDragging = false;
       well.addEventListener('pointerdown', (e) => {
-        isDragging = true;
-        well.setPointerCapture(e.pointerId);
-        updateFromPointer(e.clientY);
+        if (e.pointerType === 'mouse') {
+          isDragging = true;
+          try { well.setPointerCapture(e.pointerId); } catch (_) {}
+          updateFromPointer(e.clientY);
+        }
       });
+
       well.addEventListener('pointermove', (e) => {
-        if (isDragging) updateFromPointer(e.clientY);
+        if (isDragging && e.pointerType === 'mouse') {
+          updateFromPointer(e.clientY);
+        }
       });
+
       const endDrag = (e) => {
         if (isDragging) {
           isDragging = false;
@@ -237,20 +243,28 @@ document.addEventListener('DOMContentLoaded', () => {
       well.addEventListener('pointerup', endDrag);
       well.addEventListener('pointercancel', endDrag);
 
+      // Tap-to-set on mobile / click on desktop without locking vertical scroll
+      well.addEventListener('click', (e) => {
+        updateFromPointer(e.clientY);
+      });
+
       // 2. Direct native slider interaction (keyboard / programmatic)
       slider.addEventListener('input', (e) => {
         const val = parseFloat(e.target.value);
         applyBandChange(idx, val);
       });
 
-      // 3. Wheel scroll adjustment (0.5 dB per notch)
+      // 3. Wheel scroll adjustment: only adjust slider if holding Ctrl or Shift,
+      // otherwise allow the mouse wheel to scroll the page naturally!
       bandCol.addEventListener('wheel', (e) => {
-        e.preventDefault();
-        const delta = e.deltaY < 0 ? 0.5 : -0.5;
-        let newDb = Math.max(-12, Math.min(12, currentEqGains[idx] + delta));
-        newDb = Math.round(newDb * 2) / 2;
-        slider.value = newDb;
-        applyBandChange(idx, newDb);
+        if (e.ctrlKey || e.shiftKey || e.altKey) {
+          e.preventDefault();
+          const delta = e.deltaY < 0 ? 0.5 : -0.5;
+          let newDb = Math.max(-12, Math.min(12, currentEqGains[idx] + delta));
+          newDb = Math.round(newDb * 2) / 2;
+          slider.value = newDb;
+          applyBandChange(idx, newDb);
+        }
       }, { passive: false });
 
       // 4. Double-click reset to 0dB flat
