@@ -15,6 +15,8 @@ class AudioEngine {
     this.isBufferPlaying = false;
     this.connectedElement = null;
     this.synthLoopTimer = null;
+    this.synthLoopSource = null;
+    this.synthBufferCache = {};
     this.synthGain = null;
     this.micStream = null;
     this.tabStream = null;
@@ -160,10 +162,10 @@ class AudioEngine {
     if (this.isInitialized && this.ctx) return;
 
     const AudioCtx = window.AudioContext || window.webkitAudioContext;
-    const isMobile = (typeof navigator !== 'undefined' && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent || ''));
-    // On mobile devices (Android & iOS), use 'interactive' latency to prevent deep buffer queues
-    // from underflowing and causing audio crackles, popping, and fast-forward catchup rushes when backgrounded.
-    this.ctx = new AudioCtx({ latencyHint: isMobile ? 'interactive' : 'playback' });
+    // Always use 'playback' latencyHint on mobile and desktop:
+    // This tells Android's AAudio/OpenSL audio stack to allocate high-capacity (8192-sample) hardware
+    // audio buffers with high power efficiency, preventing buffer underruns, clicks, and crackles in background.
+    this.ctx = new AudioCtx({ latencyHint: 'playback' });
 
     if (this.ctx.listener) {
       if (this.ctx.listener.setOrientation) {
@@ -378,6 +380,15 @@ class AudioEngine {
         this.preGainNode.connect(this.inputMeterNode);
         // The Limiter is already connected to Analyser. We can just tap the signal.
         this.limiterNode.connect(this.outputMeterNode);
+
+        // Tell worklets to stop computing/posting messages when tab is hidden
+        if (typeof document !== 'undefined') {
+          document.addEventListener('visibilitychange', () => {
+            const isHidden = document.hidden;
+            try { this.inputMeterNode.port.postMessage({ type: isHidden ? 'pause' : 'resume' }); } catch(e) {}
+            try { this.outputMeterNode.port.postMessage({ type: isHidden ? 'pause' : 'resume' }); } catch(e) {}
+          });
+        }
       }).catch(err => console.error("Worklet load error:", err));
     }
 
@@ -733,24 +744,21 @@ class AudioEngine {
     this.connectedElement = audioElement;
   }
 
-  startSynthGroove(trackMode = 'bass') {
-    this.resumeCtx();
-    this.stopSynthGroove();
-    this.isSynthLoopActive = true;
-    this.isPlaying = true;
-    this.currentTrackMode = trackMode;
-
-    if (typeof window !== 'undefined' && window.syncMediaSession) {
-      window.syncMediaSession(true, `HD DSP Groove (${trackMode.toUpperCase()})`, 'AuraDSP Pro Studio');
-    }
-
-    this.synthGain = this.ctx.createGain();
-    this.synthGain.gain.value = 0.55;
-    this.synthGain.connect(this.preGainNode);
-
-    let currentStep = 0;
+  async renderSynthGrooveBuffer(trackMode = 'bass') {
+    const sampleRate = (this.ctx && this.ctx.sampleRate) ? this.ctx.sampleRate : 44100;
     const bpm = trackMode === 'acoustic' ? 90 : trackMode === 'movie' ? 70 : 120;
-    const stepDuration = 60 / bpm / 4; // seconds per 16th step on Web Audio hardware clock
+    const stepDuration = 60 / bpm / 4;
+    // Render 2 complete bars (32 steps) for rich variety and completely seamless looping
+    const totalSteps = 32;
+    const loopDuration = totalSteps * stepDuration;
+    const numSamples = Math.ceil(sampleRate * loopDuration);
+
+    const OfflineCtx = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+    const offlineCtx = new OfflineCtx(2, numSamples, sampleRate);
+
+    const masterGain = offlineCtx.createGain();
+    masterGain.gain.value = 0.55;
+    masterGain.connect(offlineCtx.destination);
 
     const bassFreqs = [55, 55, 65, 49, 55, 55, 73, 65];
     const acousticChords = [
@@ -761,192 +769,214 @@ class AudioEngine {
     ];
     const spatialMelody = [523.25, 659.25, 783.99, 1046.50, 880.00, 659.25, 587.33, 440.00];
 
-    // Lookahead Audio Clock Scheduler
-    // Decouples notes from browser JS timer drift. Even if Android throttles timers
-    // to 250ms+ in background, notes are already queued into hardware Web Audio timeline.
-    let nextNoteTime = this.ctx.currentTime + 0.05;
-    const scheduleAheadTime = 0.40; // 400ms lookahead window
-
-    const scheduleNote = (step, time) => {
-      if (!this.isSynthLoopActive || !this.ctx) return;
+    for (let step = 0; step < totalSteps; step++) {
+      const time = step * stepDuration;
 
       if (trackMode === 'bass') {
         if (step % 4 === 0) {
-          const kickOsc = this.ctx.createOscillator();
-          const kickGain = this.ctx.createGain();
+          const kickOsc = offlineCtx.createOscillator();
+          const kickGain = offlineCtx.createGain();
           kickOsc.type = 'sine';
           kickOsc.frequency.setValueAtTime(160, time);
-          kickOsc.frequency.exponentialRampToValueAtTime(30, time + 0.18);
-          
+          kickOsc.frequency.exponentialRampToValueAtTime(30, Math.min(loopDuration, time + 0.18));
+
           kickGain.gain.setValueAtTime(0.9, time);
-          kickGain.gain.exponentialRampToValueAtTime(0.001, time + 0.18);
+          kickGain.gain.exponentialRampToValueAtTime(0.001, Math.min(loopDuration, time + 0.18));
 
           kickOsc.connect(kickGain);
-          kickGain.connect(this.synthGain);
+          kickGain.connect(masterGain);
           kickOsc.start(time);
-          kickOsc.stop(time + 0.18);
+          kickOsc.stop(Math.min(loopDuration, time + 0.18));
         }
 
         if (step % 2 === 1) {
-          const hatOsc = this.ctx.createOscillator();
-          const hatGain = this.ctx.createGain();
+          const hatOsc = offlineCtx.createOscillator();
+          const hatGain = offlineCtx.createGain();
           hatOsc.type = 'triangle';
-          hatOsc.frequency.setValueAtTime(3000 + Math.random() * 4000, time);
-          
+          hatOsc.frequency.setValueAtTime(3000 + ((step * 7919) % 3500), time);
+
           hatGain.gain.setValueAtTime(0.25, time);
-          hatGain.gain.exponentialRampToValueAtTime(0.001, time + 0.05);
+          hatGain.gain.exponentialRampToValueAtTime(0.001, Math.min(loopDuration, time + 0.05));
 
           hatOsc.connect(hatGain);
-          hatGain.connect(this.synthGain);
+          hatGain.connect(masterGain);
           hatOsc.start(time);
-          hatOsc.stop(time + 0.05);
+          hatOsc.stop(Math.min(loopDuration, time + 0.05));
         }
 
         const bassNote = bassFreqs[Math.floor(step / 2) % bassFreqs.length];
-        const bassOsc = this.ctx.createOscillator();
-        const bassGain = this.ctx.createGain();
+        const bassOsc = offlineCtx.createOscillator();
+        const bassGain = offlineCtx.createGain();
         bassOsc.type = 'sawtooth';
         bassOsc.frequency.setValueAtTime(bassNote, time);
 
         bassGain.gain.setValueAtTime(0.45, time);
-        bassGain.gain.exponentialRampToValueAtTime(0.001, time + 0.2);
+        bassGain.gain.exponentialRampToValueAtTime(0.001, Math.min(loopDuration, time + 0.2));
 
         bassOsc.connect(bassGain);
-        bassGain.connect(this.synthGain);
+        bassGain.connect(masterGain);
         bassOsc.start(time);
-        bassOsc.stop(time + 0.2);
+        bassOsc.stop(Math.min(loopDuration, time + 0.2));
       }
       else if (trackMode === 'spatial') {
         const leadNote = spatialMelody[step % spatialMelody.length];
-        const leadOsc = this.ctx.createOscillator();
-        const leadGain = this.ctx.createGain();
+        const leadOsc = offlineCtx.createOscillator();
+        const leadGain = offlineCtx.createGain();
         leadOsc.type = 'sine';
         leadOsc.frequency.setValueAtTime(leadNote, time);
 
-        const vocalFilter = this.ctx.createBiquadFilter();
+        const vocalFilter = offlineCtx.createBiquadFilter();
         vocalFilter.type = 'bandpass';
         vocalFilter.frequency.value = 1200 + Math.sin(step) * 600;
         vocalFilter.Q.value = 3.0;
 
         leadGain.gain.setValueAtTime(0.35, time);
-        leadGain.gain.exponentialRampToValueAtTime(0.001, time + 0.35);
+        leadGain.gain.exponentialRampToValueAtTime(0.001, Math.min(loopDuration, time + 0.35));
 
         leadOsc.connect(vocalFilter);
         vocalFilter.connect(leadGain);
-        leadGain.connect(this.synthGain);
+        leadGain.connect(masterGain);
         leadOsc.start(time);
-        leadOsc.stop(time + 0.35);
+        leadOsc.stop(Math.min(loopDuration, time + 0.35));
 
         if (step % 8 === 0) {
-          const padOsc = this.ctx.createOscillator();
-          const padGain = this.ctx.createGain();
+          const padOsc = offlineCtx.createOscillator();
+          const padGain = offlineCtx.createGain();
           padOsc.type = 'triangle';
           padOsc.frequency.setValueAtTime(130.81, time);
 
           padGain.gain.setValueAtTime(0.3, time);
-          padGain.gain.exponentialRampToValueAtTime(0.001, time + 1.2);
+          padGain.gain.exponentialRampToValueAtTime(0.001, Math.min(loopDuration, time + 1.2));
 
           padOsc.connect(padGain);
-          padGain.connect(this.synthGain);
+          padGain.connect(masterGain);
           padOsc.start(time);
-          padOsc.stop(time + 1.2);
+          padOsc.stop(Math.min(loopDuration, time + 1.2));
         }
       }
       else if (trackMode === 'acoustic') {
         const chordIndex = Math.floor(step / 4) % acousticChords.length;
         const noteFreq = acousticChords[chordIndex][step % 3];
 
-        const guitarOsc = this.ctx.createOscillator();
-        const guitarGain = this.ctx.createGain();
+        const guitarOsc = offlineCtx.createOscillator();
+        const guitarGain = offlineCtx.createGain();
         guitarOsc.type = 'triangle';
         guitarOsc.frequency.setValueAtTime(noteFreq, time);
 
         guitarGain.gain.setValueAtTime(0.4, time);
-        guitarGain.gain.exponentialRampToValueAtTime(0.001, time + 0.4);
+        guitarGain.gain.exponentialRampToValueAtTime(0.001, Math.min(loopDuration, time + 0.4));
 
         guitarOsc.connect(guitarGain);
-        guitarGain.connect(this.synthGain);
+        guitarGain.connect(masterGain);
         guitarOsc.start(time);
-        guitarOsc.stop(time + 0.4);
+        guitarOsc.stop(Math.min(loopDuration, time + 0.4));
 
         if (step % 4 === 2) {
-          const voiceOsc = this.ctx.createOscillator();
-          const voiceGain = this.ctx.createGain();
+          const voiceOsc = offlineCtx.createOscillator();
+          const voiceGain = offlineCtx.createGain();
           voiceOsc.type = 'sine';
           voiceOsc.frequency.setValueAtTime(440, time);
 
           voiceGain.gain.setValueAtTime(0.3, time);
-          voiceGain.gain.exponentialRampToValueAtTime(0.001, time + 0.5);
+          voiceGain.gain.exponentialRampToValueAtTime(0.001, Math.min(loopDuration, time + 0.5));
 
           voiceOsc.connect(voiceGain);
-          voiceGain.connect(this.synthGain);
+          voiceGain.connect(masterGain);
           voiceOsc.start(time);
-          voiceOsc.stop(time + 0.5);
+          voiceOsc.stop(Math.min(loopDuration, time + 0.5));
         }
       }
       else if (trackMode === 'movie') {
         if (step % 8 === 0) {
-          const boomOsc = this.ctx.createOscillator();
-          const boomGain = this.ctx.createGain();
+          const boomOsc = offlineCtx.createOscillator();
+          const boomGain = offlineCtx.createGain();
           boomOsc.type = 'sine';
           boomOsc.frequency.setValueAtTime(180, time);
-          boomOsc.frequency.exponentialRampToValueAtTime(20, time + 1.2);
+          boomOsc.frequency.exponentialRampToValueAtTime(20, Math.min(loopDuration, time + 1.2));
 
           boomGain.gain.setValueAtTime(1.0, time);
-          boomGain.gain.exponentialRampToValueAtTime(0.001, time + 1.2);
+          boomGain.gain.exponentialRampToValueAtTime(0.001, Math.min(loopDuration, time + 1.2));
 
           boomOsc.connect(boomGain);
-          boomGain.connect(this.synthGain);
+          boomGain.connect(masterGain);
           boomOsc.start(time);
-          boomOsc.stop(time + 1.2);
+          boomOsc.stop(Math.min(loopDuration, time + 1.2));
 
-          const noiseBuffer = this.ctx.createBuffer(1, Math.floor(this.ctx.sampleRate * 0.8), this.ctx.sampleRate);
+          const noiseLen = Math.floor(sampleRate * 0.8);
+          const noiseBuffer = offlineCtx.createBuffer(1, noiseLen, sampleRate);
           const data = noiseBuffer.getChannelData(0);
           for (let i = 0; i < data.length; i++) {
             data[i] = Math.random() * 2 - 1;
           }
-          const noiseSource = this.ctx.createBufferSource();
+          const noiseSource = offlineCtx.createBufferSource();
           noiseSource.buffer = noiseBuffer;
 
-          const noiseFilter = this.ctx.createBiquadFilter();
+          const noiseFilter = offlineCtx.createBiquadFilter();
           noiseFilter.type = 'lowpass';
           noiseFilter.frequency.setValueAtTime(800, time);
-          noiseFilter.frequency.exponentialRampToValueAtTime(80, time + 0.8);
+          noiseFilter.frequency.exponentialRampToValueAtTime(80, Math.min(loopDuration, time + 0.8));
 
-          const noiseGain = this.ctx.createGain();
+          const noiseGain = offlineCtx.createGain();
           noiseGain.gain.setValueAtTime(0.6, time);
-          noiseGain.gain.exponentialRampToValueAtTime(0.001, time + 0.8);
+          noiseGain.gain.exponentialRampToValueAtTime(0.001, Math.min(loopDuration, time + 0.8));
 
           noiseSource.connect(noiseFilter);
           noiseFilter.connect(noiseGain);
-          noiseGain.connect(this.synthGain);
+          noiseGain.connect(masterGain);
           noiseSource.start(time);
         }
       }
-    };
+    }
 
-    const scheduler = () => {
+    return await offlineCtx.startRendering();
+  }
+
+  async startSynthGroove(trackMode = 'bass') {
+    await this.resumeCtx();
+    this.stopSynthGroove();
+    this.isSynthLoopActive = true;
+    this.isPlaying = true;
+    this.currentTrackMode = trackMode;
+
+    if (typeof window !== 'undefined' && window.syncMediaSession) {
+      window.syncMediaSession(true, `HD DSP Groove (${trackMode.toUpperCase()})`, 'AuraDSP Pro Studio');
+    }
+    if (typeof window !== 'undefined' && window.startAndroidMediaWakeLock) {
+      window.startAndroidMediaWakeLock();
+    }
+
+    try {
+      if (!this.synthBufferCache[trackMode]) {
+        this.synthBufferCache[trackMode] = await this.renderSynthGrooveBuffer(trackMode);
+      }
       if (!this.isSynthLoopActive || !this.ctx) return;
-      if (nextNoteTime < this.ctx.currentTime) {
-        nextNoteTime = this.ctx.currentTime + 0.05;
-      }
-      while (nextNoteTime < this.ctx.currentTime + scheduleAheadTime) {
-        scheduleNote(currentStep, nextNoteTime);
-        nextNoteTime += stepDuration;
-        currentStep = (currentStep + 1) % 16;
-      }
-    };
 
-    // Run scheduler every 50ms to keep 400ms buffer queued
-    scheduler();
-    this.synthLoopTimer = setInterval(scheduler, 50);
+      const buffer = this.synthBufferCache[trackMode];
+      this.synthLoopSource = this.ctx.createBufferSource();
+      this.synthLoopSource.buffer = buffer;
+      this.synthLoopSource.loop = true;
+      this.synthLoopSource.connect(this.preGainNode);
+      this.synthLoopSource.start(0);
+    } catch (err) {
+      console.error("Native synth buffer playback error:", err);
+    }
   }
 
   stopSynthGroove() {
     this.isSynthLoopActive = false;
+    if (this.synthLoopSource) {
+      try {
+        this.synthLoopSource.stop();
+        this.synthLoopSource.disconnect();
+      } catch (e) {}
+      this.synthLoopSource = null;
+    }
     if (this.synthLoopTimer) {
       clearInterval(this.synthLoopTimer);
       this.synthLoopTimer = null;
+    }
+    if (typeof window !== 'undefined' && window.stopAndroidMediaWakeLock) {
+      window.stopAndroidMediaWakeLock();
     }
     if (typeof window !== 'undefined' && window.syncMediaSession && (!this.connectedElement || this.connectedElement.paused)) {
       window.syncMediaSession(false);

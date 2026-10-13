@@ -22,6 +22,15 @@ class MeterProcessor extends AudioWorkletProcessor {
     this.lufsHistory = [];
     this.maxLufsHistory = Math.round(3.0 * this.fps); // ~3 seconds short-term
     this.momWindowSize = Math.max(10, Math.round(0.4 * this.fps)); // ~400ms momentary
+
+    this.isPaused = false;
+    this.port.onmessage = (e) => {
+      if (e.data && e.data.type === 'pause') {
+        this.isPaused = true;
+      } else if (e.data && e.data.type === 'resume') {
+        this.isPaused = false;
+      }
+    };
   }
 
   process(inputs, outputs, parameters) {
@@ -35,6 +44,11 @@ class MeterProcessor extends AudioWorkletProcessor {
     if (outputs[0]) {
       if (outputs[0][0]) outputs[0][0].set(channelL);
       if (outputs[0][1]) outputs[0][1].set(channelR);
+    }
+
+    // When backgrounded, skip all meter calculations and postMessage to conserve 100% audio CPU
+    if (this.isPaused) {
+      return true;
     }
 
     // Metering Math

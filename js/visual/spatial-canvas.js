@@ -361,18 +361,18 @@ class SpatialCanvas {
     };
     requestAnimationFrame(render);
 
-    // Background interval heartbeat (100ms / 10Hz):
+    // Background interval heartbeat (500ms):
     // Browsers pause requestAnimationFrame when minimized or tab is hidden.
-    // 100ms with smooth audio parameter interpolation keeps the 3D orbit
-    // dynamic in the background without causing audio thread underruns or crackling on mobile.
+    // 500ms keeps background orbit ticking smoothly while saving CPU and preventing
+    // HRTF audio underruns or crackling on mobile devices.
     let lastBgTime = performance.now();
     setInterval(() => {
       const now = performance.now();
-      const dt = Math.min(0.2, (now - lastBgTime) / 1000);
+      const dt = Math.min(0.5, (now - lastBgTime) / 1000);
       lastBgTime = now;
       if (document.hidden && this.isOrbiting) {
         this.stepOrbit(dt);
       }
-    }, 100);
+    }, 500);
   }
 }

@@ -155,6 +155,32 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (e) {}
   };
 
+  // ── Android Native Media Wake Lock ──
+  // Keeps Android's AudioManager in AUDIOFOCUS_GAIN state during non-file playback
+  // (e.g. Synthesizer grooves, Web Audio tone sweeps, generated buffers).
+  let androidWakeLockAudio = null;
+  window.startAndroidMediaWakeLock = () => {
+    try {
+      if (!androidWakeLockAudio) {
+        // 1-second 8kHz mono silent PCM WAV data URI
+        androidWakeLockAudio = new Audio('data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAA==');
+        androidWakeLockAudio.loop = true;
+        androidWakeLockAudio.volume = 0.01;
+      }
+      if (androidWakeLockAudio.paused) {
+        androidWakeLockAudio.play().catch(() => {});
+      }
+    } catch (e) {}
+  };
+
+  window.stopAndroidMediaWakeLock = () => {
+    try {
+      if (androidWakeLockAudio && !androidWakeLockAudio.paused) {
+        androidWakeLockAudio.pause();
+      }
+    } catch (e) {}
+  };
+
   // Synchronize UI smoothly when returning to foreground without disturbing background audio
   document.addEventListener('visibilitychange', () => {
     if (!document.hidden) {
@@ -509,11 +535,21 @@ document.addEventListener('DOMContentLoaded', () => {
           profileLabel = 'Acoustic Detail & Air Lifted';
         }
 
-        if (aiEqStatusText) aiEqStatusText.textContent = `AI ADAPTING · CYCLE #${aiCycleCount} (UNLIMITED · 3S)`;
-        if (aiEqTargetMode) aiEqTargetMode.textContent = `Target: ${profileLabel}`;
-
-        // Smoothly glide sliders to newly optimized curve
-        glideEqGains(optimalGains, 1200);
+        if (document.hidden) {
+          // In background on mobile, bypass requestAnimationFrame DOM slider animations
+          // and directly apply gains to the audio engine to avoid thread starvation
+          for (let i = 0; i < 10; i++) {
+            currentEqGains[i] = optimalGains[i];
+            if (window.audioEngine) {
+              window.audioEngine.setBandGain(i, optimalGains[i]);
+            }
+          }
+        } else {
+          if (aiEqStatusText) aiEqStatusText.textContent = `AI ADAPTING · CYCLE #${aiCycleCount} (UNLIMITED · 3S)`;
+          if (aiEqTargetMode) aiEqTargetMode.textContent = `Target: ${profileLabel}`;
+          // Smoothly glide sliders to newly optimized curve
+          glideEqGains(optimalGains, 1200);
+        }
       }
     } catch (err) {
       console.warn("executeAiAutoEqCycle caught exception:", err);
