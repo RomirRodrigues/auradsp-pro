@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=54.0.0">
+  <link rel="stylesheet" href="styles.css?v=54.1.0">
   <link rel="manifest" href="manifest.json">
 </head>
 <body class="theme-studio">
@@ -35,7 +35,7 @@
       <div>
         <div class="brand-title">
           <span class="animated-brand-text" id="brandTitleHeader" title="AuraDSP Pro Studio Audio Workstation (Click 5 times for Developer Console)">AURA<span class="brand-dsp-badge">DSP</span> PRO</span>
-          <span class="version-tag" id="appVersionTag" title="Click to view full Changelog &amp; Version History">v54.0</span>
+          <span class="version-tag" id="appVersionTag" title="Click to view full Changelog &amp; Version History">v54.1</span>
         </div>
         <p class="subtitle">Reference Studio Audio Workstation &middot; by <span class="animated-creator-name" id="creatorNameHeader">Romir Rodrigues</span></p>
       </div>
@@ -544,112 +544,6 @@
         </div>
       </div>
 
-      <!-- VIRTUAL 7.1.4 DOLBY ATMOS SPEAKER MATRIX -->
-      <div class="spatial-stage-card atmos-matrix-card" id="atmosMatrixCard">
-        <div class="panel-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
-          <div style="display:flex; align-items:center; gap:8px;">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px; height:18px; color:var(--accent-cyan);"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/></svg>
-            <h2 style="font-size:0.95rem; margin:0;">VIRTUAL 7.1.4 DOLBY ATMOS SPEAKER MATRIX</h2>
-          </div>
-          <div style="display:flex; gap:8px; align-items:center;">
-            <span class="status-pill atmos-status-pill">12-CH BINAURAL HRTF</span>
-            <button id="cycleAtmosSpeakersBtn" class="sm-btn atmos-cycle-btn" title="Sequentially fire test bursts through all 12 Atmos channels">🔊 Test 7.1.4 Sequence</button>
-          </div>
-        </div>
-        <p class="info-text">Hardware-calibrated 3D Spatial Pink Noise Engine. Click any speaker node to audition its binaural HRTF position in space.</p>
-        
-        <div class="atmos-layout-container">
-          <!-- Height / Overhead Layer -->
-          <div class="atmos-plane-section height-plane">
-            <div class="atmos-plane-badge">TOP HEIGHT LAYER (.4)</div>
-            <div class="atmos-node-row">
-              <button class="atmos-spk-node" data-speaker="TFL" title="Top Front Left Channel">
-                <span class="spk-indicator"></span>
-                <span class="spk-id">TFL</span>
-                <span class="spk-sub">Top Front L</span>
-              </button>
-              <button class="atmos-spk-node" data-speaker="TFR" title="Top Front Right Channel">
-                <span class="spk-indicator"></span>
-                <span class="spk-id">TFR</span>
-                <span class="spk-sub">Top Front R</span>
-              </button>
-              <button class="atmos-spk-node" data-speaker="TRL" title="Top Rear Left Channel">
-                <span class="spk-indicator"></span>
-                <span class="spk-id">TRL</span>
-                <span class="spk-sub">Top Rear L</span>
-              </button>
-              <button class="atmos-spk-node" data-speaker="TRR" title="Top Rear Right Channel">
-                <span class="spk-indicator"></span>
-                <span class="spk-id">TRR</span>
-                <span class="spk-sub">Top Rear R</span>
-              </button>
-            </div>
-          </div>
-
-          <!-- Ear-Level Bed & Subwoofer Layer -->
-          <div class="atmos-plane-section bed-plane">
-            <div class="atmos-plane-badge">LISTENER BED &amp; LFE LAYER (7.1)</div>
-            <div class="atmos-bed-chamber">
-              <!-- Front Bed -->
-              <div class="chamber-row front-chamber">
-                <button class="atmos-spk-node" data-speaker="FL" title="Front Left">
-                  <span class="spk-indicator"></span>
-                  <span class="spk-id">FL</span>
-                  <span class="spk-sub">Front L</span>
-                </button>
-                <button class="atmos-spk-node center-node" data-speaker="C" title="Center Channel">
-                  <span class="spk-indicator"></span>
-                  <span class="spk-id">C</span>
-                  <span class="spk-sub">Center</span>
-                </button>
-                <button class="atmos-spk-node" data-speaker="FR" title="Front Right">
-                  <span class="spk-indicator"></span>
-                  <span class="spk-id">FR</span>
-                  <span class="spk-sub">Front R</span>
-                </button>
-                <button class="atmos-spk-node sub-node" data-speaker="SUB" title="Subwoofer LFE Channel">
-                  <span class="spk-indicator sub-indicator"></span>
-                  <span class="spk-id">SUB</span>
-                  <span class="spk-sub">.1 LFE Bass</span>
-                </button>
-              </div>
-
-              <!-- Surrounds & Listener Sweet Spot -->
-              <div class="chamber-row mid-chamber">
-                <button class="atmos-spk-node" data-speaker="SL" title="Side Surround Left">
-                  <span class="spk-indicator"></span>
-                  <span class="spk-id">SL</span>
-                  <span class="spk-sub">Surround L</span>
-                </button>
-                <div class="atmos-listener-core" title="Acoustic Sweet Spot Center">
-                  <div class="sweet-spot-pulse"></div>
-                  <span class="sweet-spot-label">SWEET SPOT</span>
-                </div>
-                <button class="atmos-spk-node" data-speaker="SR" title="Side Surround Right">
-                  <span class="spk-indicator"></span>
-                  <span class="spk-id">SR</span>
-                  <span class="spk-sub">Surround R</span>
-                </button>
-              </div>
-
-              <!-- Rear Surrounds -->
-              <div class="chamber-row rear-chamber">
-                <button class="atmos-spk-node" data-speaker="RL" title="Rear Surround Left">
-                  <span class="spk-indicator"></span>
-                  <span class="spk-id">RL</span>
-                  <span class="spk-sub">Rear L</span>
-                </button>
-                <button class="atmos-spk-node" data-speaker="RR" title="Rear Surround Right">
-                  <span class="spk-indicator"></span>
-                  <span class="spk-id">RR</span>
-                  <span class="spk-sub">Rear R</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <!-- 10-BAND PARAMETRIC EQUALIZER -->
       <div class="eq-container">
         <div class="panel-header" style="flex-wrap:wrap; gap:10px;">
@@ -1110,7 +1004,7 @@
         &copy; 2026 <strong class="animated-creator-name" id="creatorNameFooter">Romir Rodrigues</strong>. All rights reserved.
       </div>
       <div class="footer-note">
-        AuraDSP Pro Workstation &nbsp;·&nbsp; Real-Time Web Audio DSP &nbsp;·&nbsp; 3D HRTF Spatial Soundstage &nbsp;·&nbsp; <a href="#" id="footerChangelogLink" style="color:var(--accent-cyan); text-decoration:none; border-bottom:1px dashed rgba(0,240,255,0.4); padding-bottom:1px;" title="View full release notes & version history">v54.0 Release Notes</a> &nbsp;·&nbsp; <a href="#" id="footerManualLink" style="color:var(--accent-cyan); text-decoration:none; border-bottom:1px dashed rgba(0,240,255,0.4); padding-bottom:1px; margin-left:6px;" title="Open Studio User Manual & Feature Guide">📖 Studio Manual &amp; Guide</a>
+        AuraDSP Pro Workstation &nbsp;·&nbsp; Real-Time Web Audio DSP &nbsp;·&nbsp; 3D HRTF Spatial Soundstage &nbsp;·&nbsp; <a href="#" id="footerChangelogLink" style="color:var(--accent-cyan); text-decoration:none; border-bottom:1px dashed rgba(0,240,255,0.4); padding-bottom:1px;" title="View full release notes & version history">v54.1 Release Notes</a> &nbsp;·&nbsp; <a href="#" id="footerManualLink" style="color:var(--accent-cyan); text-decoration:none; border-bottom:1px dashed rgba(0,240,255,0.4); padding-bottom:1px; margin-left:6px;" title="Open Studio User Manual & Feature Guide">📖 Studio Manual &amp; Guide</a>
       </div>
     </div>
   </footer>
@@ -1124,7 +1018,7 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px; height:20px; color:var(--accent-cyan);"><path d="M12 2v20M17 5v14M7 5v14M2 9v6M22 9v6"/></svg>
             <h3 id="changelogTitle" style="margin:0; font-size:1.05rem; font-weight:800; color:#fff; letter-spacing:0.02em;">AuraDSP Pro · Version History & Changelog</h3>
           </div>
-          <p style="margin:4px 0 0; font-size:0.75rem; color:var(--text-muted);">Complete milestone release notes from v1.0.0 (Genesis) to v54.0.0 (Latest)</p>
+          <p style="margin:4px 0 0; font-size:0.75rem; color:var(--text-muted);">Complete milestone release notes from v1.0.0 (Genesis) to v54.1.0 (Latest)</p>
         </div>
         <button id="closeChangelogBtn" class="changelog-close-btn" title="Close Changelog (Esc)">&times;</button>
       </div>
@@ -1689,24 +1583,24 @@
   </div>
 
   <!-- Modular Scripts -->
-  <script src="js/data/presets.js?v=54.0.0"></script>
-  <script src="js/data/autoeq-database.js?v=54.0.0"></script>
-  <script src="js/data/changelog.js?v=54.0.0"></script>
-  <script src="js/data/manual.js?v=54.0.0"></script>
-  <script src="js/audio/audio-engine.js?v=54.0.0"></script>
-  <script src="js/dsp/audio-pro-tools.js?v=54.0.0"></script>
-  <script src="js/visual/spatial-canvas.js?v=54.0.0"></script>
-  <script src="js/visual/visualizer.js?v=54.0.0"></script>
-  <script src="js/ui/motion-ui.js?v=54.0.0"></script>
-  <script src="js/ui/dev-menu.js?v=54.0.0"></script>
-  <script src="js/app.js?v=54.0.0"></script>
+  <script src="js/data/presets.js?v=54.1.0"></script>
+  <script src="js/data/autoeq-database.js?v=54.1.0"></script>
+  <script src="js/data/changelog.js?v=54.1.0"></script>
+  <script src="js/data/manual.js?v=54.1.0"></script>
+  <script src="js/audio/audio-engine.js?v=54.1.0"></script>
+  <script src="js/dsp/audio-pro-tools.js?v=54.1.0"></script>
+  <script src="js/visual/spatial-canvas.js?v=54.1.0"></script>
+  <script src="js/visual/visualizer.js?v=54.1.0"></script>
+  <script src="js/ui/motion-ui.js?v=54.1.0"></script>
+  <script src="js/ui/dev-menu.js?v=54.1.0"></script>
+  <script src="js/app.js?v=54.1.0"></script>
 
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js?v=54.0.0')
+        navigator.serviceWorker.register('sw.js?v=54.1.0')
           .then(reg => {
-            console.log('Service Worker Registered v54.0.0');
+            console.log('Service Worker Registered v54.1.0');
             reg.update();
           })
           .catch(err => console.log('Service Worker Error', err));

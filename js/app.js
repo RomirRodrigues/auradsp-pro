@@ -4413,28 +4413,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.audioProTools = new AudioProTools(window.audioEngine);
   }
 
-  // 2. Virtual 7.1.4 Dolby Atmos Speaker Matrix (Feature 8)
-  const atmosNodes = document.querySelectorAll('.atmos-spk-node[data-speaker]');
-  const cycleAtmosBtn = document.getElementById('cycleAtmosSpeakersBtn');
-
-  atmosNodes.forEach(btn => {
-    btn.addEventListener('click', () => {
-      const spkKey = btn.getAttribute('data-speaker');
-      if (spkKey && window.audioProTools) {
-        window.audioProTools.testAtmosSpeaker(spkKey);
-      }
-    });
-  });
-
-  if (cycleAtmosBtn) {
-    cycleAtmosBtn.addEventListener('click', () => {
-      if (window.audioProTools) {
-        window.audioProTools.cycleAllSpeakers();
-      }
-    });
-  }
-
-  // 3. 500+ Headphone AutoEQ Profile Importer (Feature 10)
+  // 2. 500+ Headphone AutoEQ Profile Importer (Feature 10)
   const openAutoEqBtn = document.getElementById('openAutoEqBtn');
   const closeAutoEqBtn = document.getElementById('closeAutoEqBtn');
   const autoEqModalBackdrop = document.getElementById('autoEqModalBackdrop');

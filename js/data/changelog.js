@@ -1,14 +1,25 @@
 /**
  * AuraDSP Pro - Complete Version History & Changelog Data
- * Records all 54+ version milestones from v1.0.0 (Genesis) to v54.0.0 (Latest).
+ * Records all 54+ version milestones from v1.0.0 (Genesis) to v54.1.0 (Latest).
  */
 
 const CHANGELOG_DATA = [
   {
-    version: 'v54.0.0',
-    title: 'Mobile Background Audio Stability, Zero-Crackling Engine & Lookahead Audio Clock Scheduler',
+    version: 'v54.1.0',
+    title: 'Workspace Simplification & Removal of Standalone Pink Noise Test Matrix',
     tag: 'Latest',
     date: 'Current Release',
+    items: [
+      'Removed Virtual 7.1.4 Atmos Pink Noise Matrix: Deprecated and removed the standalone 12-channel pink noise test card from the 3D Spatial Audio section as it was a diagnostic test generator rather than an active music enhancement tool.',
+      'Reclaimed Screen Real Estate: Significantly compacted vertical layout height on both mobile devices and desktop monitors, placing the 10-Band Parametric EQ and AutoEQ calibrator directly below the 3D HRTF Spatial Soundstage.',
+      'Optimized DOM & Style Footprint: Stripped out redundant Atmos matrix DOM tree nodes, speaker button event listeners, and CSS layout grids, accelerating initial DOM load and mobile page responsiveness.'
+    ]
+  },
+  {
+    version: 'v54.0.0',
+    title: 'Mobile Background Audio Stability, Zero-Crackling Engine & Lookahead Audio Clock Scheduler',
+    tag: 'Stable',
+    date: 'October 2026',
     items: [
       'Eliminated Mobile Background Crackling & Fast Playback: Resolved Android buffer underflow pops and fast-forward clock catchup rushes by switching mobile AudioContext to interactive latency and standard hardware buffer sizes, preventing deep queue drift on mobile.',
       'Two-Clock Lookahead Web Audio Hardware Scheduler: Re-engineered live DSP synth grooves with a 400ms lookahead audio hardware timeline queue (this.ctx.currentTime), ensuring rock-solid sample-accurate rhythm with zero stutter, zero pitch changes, and zero speedup even when Android OS throttles background JavaScript timers.',
