@@ -260,44 +260,7 @@ class SpatialCanvas {
     ctx.restore();
 
     // 4. Auto 3D Orbit Delta-Time Calculation (Independent of 60Hz/144Hz/240Hz)
-    if (this.isOrbiting && !this.isDragging) {
-      const safeDt = Math.max(0.001, Math.min(0.05, dt || 0.016));
-      this.orbitAngle += (this.baseOrbitSpeed * 60) * this.speedMultiplier * safeDt;
-      const rad = this.radius * this.orbitRadiusMultiplier;
-
-      if (this.autoPattern === 'figure8') {
-        this.sourceX = Math.sin(this.orbitAngle) * rad;
-        this.sourceY = Math.sin(this.orbitAngle * 2) * rad * 0.6;
-      } else if (this.autoPattern === 'sweep') {
-        this.sourceX = Math.sin(this.orbitAngle) * rad;
-        this.sourceY = 0;
-      } else if (this.autoPattern === 'frontback') {
-        this.sourceX = Math.sin(this.orbitAngle * 0.5) * rad * 0.2;
-        this.sourceY = -Math.cos(this.orbitAngle) * rad;
-      } else if (this.autoPattern === 'spiral') {
-        const spiralFactor = 0.3 + 0.7 * (0.5 + 0.5 * Math.sin(this.orbitAngle * 0.2));
-        this.sourceX = Math.sin(this.orbitAngle) * rad * spiralFactor;
-        this.sourceY = -Math.cos(this.orbitAngle) * rad * spiralFactor;
-      } else if (this.autoPattern === 'clover') {
-        const cloverR = rad * (0.35 + 0.65 * Math.abs(Math.sin(this.orbitAngle * 2)));
-        this.sourceX = Math.sin(this.orbitAngle) * cloverR;
-        this.sourceY = -Math.cos(this.orbitAngle) * cloverR;
-      } else if (this.autoPattern === 'pendulum') {
-        const swingRad = Math.sin(this.orbitAngle) * (Math.PI * 0.42);
-        this.sourceX = Math.sin(swingRad) * rad;
-        this.sourceY = -Math.cos(swingRad) * rad;
-      } else if (this.autoPattern === 'lissajous') {
-        this.sourceX = Math.sin(this.orbitAngle * 1.5) * rad * 0.95;
-        this.sourceY = Math.cos(this.orbitAngle) * rad * 0.85;
-      } else if (this.autoPattern === 'random') {
-        this.sourceX = (Math.sin(this.orbitAngle * 1.3) + Math.cos(this.orbitAngle * 0.7)) * rad * 0.5;
-        this.sourceY = (Math.cos(this.orbitAngle * 1.1) - Math.sin(this.orbitAngle * 0.5)) * rad * 0.5;
-      } else {
-        this.sourceX = Math.sin(this.orbitAngle) * rad;
-        this.sourceY = -Math.cos(this.orbitAngle) * rad;
-      }
-      this.updateAudioPosition();
-    }
+    this.stepOrbit(dt);
 
     // 5. Sound Beam Connection
     const targetX = this.centerX + this.sourceX;
@@ -333,6 +296,46 @@ class SpatialCanvas {
     ctx.fillText('3D SOURCE', targetX, targetY - 16 * dpr);
   }
 
+  stepOrbit(dt) {
+    if (!this.isOrbiting || this.isDragging) return;
+    const safeDt = Math.max(0.001, Math.min(0.1, dt || 0.016));
+    this.orbitAngle += (this.baseOrbitSpeed * 60) * this.speedMultiplier * safeDt;
+    const rad = (this.radius || 120) * this.orbitRadiusMultiplier;
+
+    if (this.autoPattern === 'figure8') {
+      this.sourceX = Math.sin(this.orbitAngle) * rad;
+      this.sourceY = Math.sin(this.orbitAngle * 2) * rad * 0.6;
+    } else if (this.autoPattern === 'sweep') {
+      this.sourceX = Math.sin(this.orbitAngle) * rad;
+      this.sourceY = 0;
+    } else if (this.autoPattern === 'frontback') {
+      this.sourceX = Math.sin(this.orbitAngle * 0.5) * rad * 0.2;
+      this.sourceY = -Math.cos(this.orbitAngle) * rad;
+    } else if (this.autoPattern === 'spiral') {
+      const spiralFactor = 0.3 + 0.7 * (0.5 + 0.5 * Math.sin(this.orbitAngle * 0.2));
+      this.sourceX = Math.sin(this.orbitAngle) * rad * spiralFactor;
+      this.sourceY = -Math.cos(this.orbitAngle) * rad * spiralFactor;
+    } else if (this.autoPattern === 'clover') {
+      const cloverR = rad * (0.35 + 0.65 * Math.abs(Math.sin(this.orbitAngle * 2)));
+      this.sourceX = Math.sin(this.orbitAngle) * cloverR;
+      this.sourceY = -Math.cos(this.orbitAngle) * cloverR;
+    } else if (this.autoPattern === 'pendulum') {
+      const swingRad = Math.sin(this.orbitAngle) * (Math.PI * 0.42);
+      this.sourceX = Math.sin(swingRad) * rad;
+      this.sourceY = -Math.cos(swingRad) * rad;
+    } else if (this.autoPattern === 'lissajous') {
+      this.sourceX = Math.sin(this.orbitAngle * 1.5) * rad * 0.95;
+      this.sourceY = Math.cos(this.orbitAngle) * rad * 0.85;
+    } else if (this.autoPattern === 'random') {
+      this.sourceX = (Math.sin(this.orbitAngle * 1.3) + Math.cos(this.orbitAngle * 0.7)) * rad * 0.5;
+      this.sourceY = (Math.cos(this.orbitAngle * 1.1) - Math.sin(this.orbitAngle * 0.5)) * rad * 0.5;
+    } else {
+      this.sourceX = Math.sin(this.orbitAngle) * rad;
+      this.sourceY = -Math.cos(this.orbitAngle) * rad;
+    }
+    this.updateAudioPosition();
+  }
+
   startLoop() {
     let lastTime = performance.now();
     const render = (now) => {
@@ -344,5 +347,19 @@ class SpatialCanvas {
       requestAnimationFrame(render);
     };
     requestAnimationFrame(render);
+
+    // Background interval heartbeat (20ms / 50Hz):
+    // Browsers pause requestAnimationFrame when minimized or tab is hidden.
+    // This interval ensures orbit calculations and Web Audio 3D panner updates
+    // continue uninterrupted even when the window is minimized or in background.
+    let lastBgTime = performance.now();
+    setInterval(() => {
+      const now = performance.now();
+      const dt = Math.min(0.1, (now - lastBgTime) / 1000);
+      lastBgTime = now;
+      if (document.hidden && this.isOrbiting) {
+        this.stepOrbit(dt);
+      }
+    }, 20);
   }
 }
