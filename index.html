@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=54.1.0">
+  <link rel="stylesheet" href="styles.css?v=54.2.0">
   <link rel="manifest" href="manifest.json">
 </head>
 <body class="theme-studio">
@@ -35,7 +35,7 @@
       <div>
         <div class="brand-title">
           <span class="animated-brand-text" id="brandTitleHeader" title="AuraDSP Pro Studio Audio Workstation (Click 5 times for Developer Console)">AURA<span class="brand-dsp-badge">DSP</span> PRO</span>
-          <span class="version-tag" id="appVersionTag" title="Click to view full Changelog &amp; Version History">v54.1</span>
+          <span class="version-tag" id="appVersionTag" title="Click to view full Changelog &amp; Version History">v54.2</span>
         </div>
         <p class="subtitle">Reference Studio Audio Workstation &middot; by <span class="animated-creator-name" id="creatorNameHeader">Romir Rodrigues</span></p>
       </div>
@@ -179,17 +179,17 @@
           </div>
 
           <!-- Audio Clarity Engine Quick-Selector -->
-          <div class="web-engine-selector" style="margin: 12px 0; padding: 10px 12px; background: rgba(0, 240, 255, 0.03); border: 1px solid rgba(0, 240, 255, 0.15); border-radius: 8px;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-              <span style="font-size:0.75rem; font-weight:700; color:var(--accent-cyan); letter-spacing:0.04em;">DSP CLARITY PROFILE:</span>
-              <span id="webActiveEngineName" style="font-size:0.7rem; color:#fff; font-weight:600; background:rgba(0,240,255,0.12); border:1px solid rgba(0,240,255,0.25); padding:1px 8px; border-radius:10px;">Crystal Clarity 4K</span>
+          <div class="web-engine-selector">
+            <div class="web-engine-header">
+              <span class="web-engine-title">DSP CLARITY PROFILE:</span>
+              <span id="webActiveEngineName" class="web-engine-active-badge">Crystal Clarity 4K</span>
             </div>
-            <div class="web-engine-buttons" style="display:grid; grid-template-columns: repeat(5, 1fr); gap: 5px;">
-              <button class="web-engine-btn active" data-engine="clarity" style="padding:6px 2px; font-size:0.68rem; font-weight:600; border-radius:5px; border:1px solid rgba(0,240,255,0.5); background:rgba(0,240,255,0.2); color:#fff; cursor:pointer;">Clarity 4K</button>
-              <button class="web-engine-btn" data-engine="mastering" style="padding:6px 2px; font-size:0.68rem; font-weight:600; border-radius:5px; border:1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.03); color:var(--text-muted); cursor:pointer;">Mastering</button>
-              <button class="web-engine-btn" data-engine="cinema" style="padding:6px 2px; font-size:0.68rem; font-weight:600; border-radius:5px; border:1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.03); color:var(--text-muted); cursor:pointer;">Cinema 3D</button>
-              <button class="web-engine-btn" data-engine="bassquake" style="padding:6px 2px; font-size:0.68rem; font-weight:600; border-radius:5px; border:1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.03); color:var(--text-muted); cursor:pointer;">Bass Quake</button>
-              <button class="web-engine-btn" data-engine="pure" style="padding:6px 2px; font-size:0.68rem; font-weight:600; border-radius:5px; border:1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.03); color:var(--text-muted); cursor:pointer;">Audiophile</button>
+            <div class="web-engine-buttons">
+              <button class="web-engine-btn active" data-engine="clarity">Clarity 4K</button>
+              <button class="web-engine-btn" data-engine="mastering">Mastering</button>
+              <button class="web-engine-btn" data-engine="cinema">Cinema 3D</button>
+              <button class="web-engine-btn" data-engine="bassquake">Bass Quake</button>
+              <button class="web-engine-btn" data-engine="pure">Audiophile</button>
             </div>
           </div>
 
@@ -1004,7 +1004,7 @@
         &copy; 2026 <strong class="animated-creator-name" id="creatorNameFooter">Romir Rodrigues</strong>. All rights reserved.
       </div>
       <div class="footer-note">
-        AuraDSP Pro Workstation &nbsp;·&nbsp; Real-Time Web Audio DSP &nbsp;·&nbsp; 3D HRTF Spatial Soundstage &nbsp;·&nbsp; <a href="#" id="footerChangelogLink" style="color:var(--accent-cyan); text-decoration:none; border-bottom:1px dashed rgba(0,240,255,0.4); padding-bottom:1px;" title="View full release notes & version history">v54.1 Release Notes</a> &nbsp;·&nbsp; <a href="#" id="footerManualLink" style="color:var(--accent-cyan); text-decoration:none; border-bottom:1px dashed rgba(0,240,255,0.4); padding-bottom:1px; margin-left:6px;" title="Open Studio User Manual & Feature Guide">📖 Studio Manual &amp; Guide</a>
+        AuraDSP Pro Workstation &nbsp;·&nbsp; Real-Time Web Audio DSP &nbsp;·&nbsp; 3D HRTF Spatial Soundstage &nbsp;·&nbsp; <a href="#" id="footerChangelogLink" style="color:var(--accent-cyan); text-decoration:none; border-bottom:1px dashed rgba(0,240,255,0.4); padding-bottom:1px;" title="View full release notes & version history">v54.2 Release Notes</a> &nbsp;·&nbsp; <a href="#" id="footerManualLink" style="color:var(--accent-cyan); text-decoration:none; border-bottom:1px dashed rgba(0,240,255,0.4); padding-bottom:1px; margin-left:6px;" title="Open Studio User Manual & Feature Guide">📖 Studio Manual &amp; Guide</a>
       </div>
     </div>
   </footer>
@@ -1018,7 +1018,7 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px; height:20px; color:var(--accent-cyan);"><path d="M12 2v20M17 5v14M7 5v14M2 9v6M22 9v6"/></svg>
             <h3 id="changelogTitle" style="margin:0; font-size:1.05rem; font-weight:800; color:#fff; letter-spacing:0.02em;">AuraDSP Pro · Version History & Changelog</h3>
           </div>
-          <p style="margin:4px 0 0; font-size:0.75rem; color:var(--text-muted);">Complete milestone release notes from v1.0.0 (Genesis) to v54.1.0 (Latest)</p>
+          <p style="margin:4px 0 0; font-size:0.75rem; color:var(--text-muted);">Complete milestone release notes from v1.0.0 (Genesis) to v54.2.0 (Latest)</p>
         </div>
         <button id="closeChangelogBtn" class="changelog-close-btn" title="Close Changelog (Esc)">&times;</button>
       </div>
@@ -1583,24 +1583,24 @@
   </div>
 
   <!-- Modular Scripts -->
-  <script src="js/data/presets.js?v=54.1.0"></script>
-  <script src="js/data/autoeq-database.js?v=54.1.0"></script>
-  <script src="js/data/changelog.js?v=54.1.0"></script>
-  <script src="js/data/manual.js?v=54.1.0"></script>
-  <script src="js/audio/audio-engine.js?v=54.1.0"></script>
-  <script src="js/dsp/audio-pro-tools.js?v=54.1.0"></script>
-  <script src="js/visual/spatial-canvas.js?v=54.1.0"></script>
-  <script src="js/visual/visualizer.js?v=54.1.0"></script>
-  <script src="js/ui/motion-ui.js?v=54.1.0"></script>
-  <script src="js/ui/dev-menu.js?v=54.1.0"></script>
-  <script src="js/app.js?v=54.1.0"></script>
+  <script src="js/data/presets.js?v=54.2.0"></script>
+  <script src="js/data/autoeq-database.js?v=54.2.0"></script>
+  <script src="js/data/changelog.js?v=54.2.0"></script>
+  <script src="js/data/manual.js?v=54.2.0"></script>
+  <script src="js/audio/audio-engine.js?v=54.2.0"></script>
+  <script src="js/dsp/audio-pro-tools.js?v=54.2.0"></script>
+  <script src="js/visual/spatial-canvas.js?v=54.2.0"></script>
+  <script src="js/visual/visualizer.js?v=54.2.0"></script>
+  <script src="js/ui/motion-ui.js?v=54.2.0"></script>
+  <script src="js/ui/dev-menu.js?v=54.2.0"></script>
+  <script src="js/app.js?v=54.2.0"></script>
 
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js?v=54.1.0')
+        navigator.serviceWorker.register('sw.js?v=54.2.0')
           .then(reg => {
-            console.log('Service Worker Registered v54.1.0');
+            console.log('Service Worker Registered v54.2.0');
             reg.update();
           })
           .catch(err => console.log('Service Worker Error', err));

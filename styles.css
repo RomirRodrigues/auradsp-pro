@@ -2094,8 +2094,86 @@ input:checked + .slider:before {
   transform: translateY(-1px) !important;
 }
 
-.play-pause-ctrl:active {
-  transform: scale(0.98) !important;
+/* Audio Clarity Engine Quick-Selector */
+.web-engine-selector {
+  margin: 12px 0;
+  padding: 10px 12px;
+  background: rgba(0, 240, 255, 0.03);
+  border: 1px solid rgba(0, 240, 255, 0.15);
+  border-radius: 8px;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.web-engine-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.web-engine-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--accent-cyan);
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.web-engine-active-badge {
+  font-size: 0.68rem;
+  color: #fff;
+  font-weight: 600;
+  background: rgba(0, 240, 255, 0.12);
+  border: 1px solid rgba(0, 240, 255, 0.25);
+  padding: 2px 8px;
+  border-radius: 10px;
+  white-space: nowrap;
+}
+
+.web-engine-buttons {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 4px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.web-engine-btn {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 6px 2px;
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  border-radius: 5px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-muted);
+  cursor: pointer;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: all 0.15s ease;
+}
+
+.web-engine-btn:hover {
+  border-color: rgba(0, 240, 255, 0.4);
+  color: #fff;
+  background: rgba(0, 240, 255, 0.08);
+}
+
+.web-engine-btn.active {
+  border-color: rgba(0, 240, 255, 0.5);
+  background: rgba(0, 240, 255, 0.2);
+  color: #fff;
+  box-shadow: 0 0 8px rgba(0, 240, 255, 0.2);
 }
 
 /* Search Box Styling */
@@ -2583,17 +2661,21 @@ input:checked + .slider:before {
 
   /* 7. Web Music Streamer / Catalog Buttons */
   .web-engine-buttons {
-    display: flex !important;
-    overflow-x: auto !important;
-    gap: 5px !important;
-    padding-bottom: 4px !important;
-    scrollbar-width: none !important;
+    display: grid !important;
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+    gap: 4px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
   }
   .web-engine-btn {
-    flex: 0 0 auto !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    padding: 6px 2px !important;
+    font-size: 0.62rem !important;
     white-space: nowrap !important;
-    padding: 5px 8px !important;
-    font-size: 0.65rem !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    box-sizing: border-box !important;
   }
 
   /* 8. Cards, Buttons & Sliders */

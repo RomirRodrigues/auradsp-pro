@@ -1,14 +1,26 @@
 /**
  * AuraDSP Pro - Complete Version History & Changelog Data
- * Records all 54+ version milestones from v1.0.0 (Genesis) to v54.1.0 (Latest).
+ * Records all 54+ version milestones from v1.0.0 (Genesis) to v54.2.0 (Latest).
  */
 
 const CHANGELOG_DATA = [
   {
-    version: 'v54.1.0',
-    title: 'Workspace Simplification & Removal of Standalone Pink Noise Test Matrix',
+    version: 'v54.2.0',
+    title: 'DSP Clarity Profile Container Boundary Fitting & Zero-Overflow Engine',
     tag: 'Latest',
     date: 'Current Release',
+    items: [
+      'Resolved DSP Clarity Profile Box Overflow: Fixed the layout defect where the 5th engine button ("Audiophile") protruded outside the right border of the DSP Clarity Profile selector card on desktop streamer sidebars and mobile screens.',
+      'Responsive minmax(0, 1fr) Grid Architecture: Replaced rigid inline repeat(5, 1fr) styling with semantic CSS using grid-template-columns: repeat(5, minmax(0, 1fr)), eliminating min-content intrinsic width blowouts and strictly containing all 5 button tracks within 100% of the parent card.',
+      'Card Boundary Clamping & Clean Typographic Scaling: Added overflow: hidden, box-sizing: border-box, and text-overflow ellipsis protection to .web-engine-selector and .web-engine-btn, perfectly fitting Clarity 4K, Mastering, Cinema 3D, Bass Quake, and Audiophile within any screen or panel width.',
+      'Flexible Profile Header Row: Converted the DSP clarity label and active engine badge into a responsive flex layout (.web-engine-header) with smooth wrapping and clean cyber accents.'
+    ]
+  },
+  {
+    version: 'v54.1.0',
+    title: 'Workspace Simplification & Removal of Standalone Pink Noise Test Matrix',
+    tag: 'Stable',
+    date: 'October 2026',
     items: [
       'Removed Virtual 7.1.4 Atmos Pink Noise Matrix: Deprecated and removed the standalone 12-channel pink noise test card from the 3D Spatial Audio section as it was a diagnostic test generator rather than an active music enhancement tool.',
       'Reclaimed Screen Real Estate: Significantly compacted vertical layout height on both mobile devices and desktop monitors, placing the 10-Band Parametric EQ and AutoEQ calibrator directly below the 3D HRTF Spatial Soundstage.',
