@@ -104,26 +104,32 @@ document.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('click', initEngineOnce, { once: true });
   window.addEventListener('touchstart', initEngineOnce, { once: true, passive: true });
 
-  // Handle tab hidden / app switch: suspend AudioContext to prevent
-  // the "song plays fast / overlaps" issue on Android when returning
+  // Handle tab hidden / app switch on Android
+  // Key insight: do NOT suspend AudioContext if audio is actively playing —
+  // suspending mid-stream causes the brief gap + crackle on return.
+  // Only suspend if nothing is playing (saves battery when idle).
   document.addEventListener('visibilitychange', () => {
     if (!window.audioEngine || !window.audioEngine.ctx) return;
+    const ae = window.audioEngine;
+    const ap = document.getElementById('audioPlayer');
+    const isActivelyPlaying = (ap && !ap.paused) || ae.isBufferPlaying || ae.isSynthLoopActive;
+
     if (document.hidden) {
-      // Tab went to background — suspend context to freeze its clock
-      try { window.audioEngine.ctx.suspend(); } catch (e) {}
+      if (!isActivelyPlaying) {
+        // Nothing playing — suspend to save battery
+        try { ae.ctx.suspend(); } catch (e) {}
+      }
+      // If audio is playing: leave context running so background audio continues cleanly
     } else {
-      // Tab came back to foreground — resume context properly
-      window.audioEngine.resumeCtx();
+      // Returning to foreground — ensure context is running
+      ae.resumeCtx();
     }
   });
 
-  // Android back-button / app switch: pause cleanly on pagehide
+  // Android back-button: only stop synth groove (not real audio — let it keep playing)
   window.addEventListener('pagehide', () => {
-    const ap = document.getElementById('audioPlayer');
-    if (ap && !ap.paused) ap.pause();
     if (window.audioEngine) {
       window.audioEngine.stopSynthGroove();
-      try { if (window.audioEngine.ctx) window.audioEngine.ctx.suspend(); } catch (e) {}
     }
   });
 

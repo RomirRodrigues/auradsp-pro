@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -130,7 +130,7 @@
         </select>
         <div class="audio-controls">
           <button id="playPauseBtn" class="accent-btn">
-            <span id="playIcon">â–¶</span> <span id="playText">Play Selected Track</span>
+            <span id="playIcon">▶</span> <span id="playText">Play Selected Track</span>
           </button>
         </div>
         <audio id="audioPlayer" loop crossorigin="anonymous"></audio>
@@ -165,7 +165,7 @@
           <!-- Playback Controls (Wired to audioPlayer) -->
           <div class="spotify-player-controls">
             <button id="webPlayPauseBtn" class="primary-btn glowing-btn play-pause-ctrl" style="width: 100%; border-radius: 6px;">
-              <span>â–¶ Play Track</span>
+              <span>▶ Play Track</span>
             </button>
           </div>
 
@@ -196,7 +196,7 @@
           <!-- Catalog Search Box -->
           <div class="spotify-search-box" style="margin-top: 15px;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-              <label for="webSearchInput" style="font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.04em;">Global Catalog Search (7 Audio Engines Â· 100M+ Master Tracks):</label>
+              <label for="webSearchInput" style="font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.04em;">Global Catalog Search (7 Audio Engines · 100M+ Master Tracks):</label>
               <span id="webSearchCount" style="font-size:0.68rem; color:#00f0ff; background:rgba(0,240,255,0.1); border:1px solid rgba(0,240,255,0.25); padding:2px 8px; border-radius:10px;">Trending Hits</span>
             </div>
             <input type="text" id="webSearchInput" class="cyber-input" placeholder="Search song title, artist, album (e.g. Starboy, Vasaikar, Arijit, Believer, Diljit)...">
@@ -323,23 +323,23 @@
         <div style="margin-top:12px; padding:10px 12px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:8px; display:flex; flex-wrap:wrap; gap:8px; align-items:center; font-size:0.68rem; color:var(--text-muted);">
           <span style="color:var(--text-main); font-weight:700; text-transform:uppercase; letter-spacing:0.06em;">Supported Sources:</span>
           <span>YouTube & YT Music</span>
-          <span style="color:rgba(255,255,255,0.2);">Â·</span>
+          <span style="color:rgba(255,255,255,0.2);">·</span>
           <span>Spotify</span>
-          <span style="color:rgba(255,255,255,0.2);">Â·</span>
+          <span style="color:rgba(255,255,255,0.2);">·</span>
           <span>WhatsApp Shared Audio</span>
-          <span style="color:rgba(255,255,255,0.2);">Â·</span>
+          <span style="color:rgba(255,255,255,0.2);">·</span>
           <span>Amazon Music</span>
-          <span style="color:rgba(255,255,255,0.2);">Â·</span>
+          <span style="color:rgba(255,255,255,0.2);">·</span>
           <span>Tidal & Lossless Hi-Fi</span>
-          <span style="color:rgba(255,255,255,0.2);">Â·</span>
+          <span style="color:rgba(255,255,255,0.2);">·</span>
           <span>JioSaavn HD</span>
-          <span style="color:rgba(255,255,255,0.2);">Â·</span>
+          <span style="color:rgba(255,255,255,0.2);">·</span>
           <span>SoundCloud</span>
-          <span style="color:rgba(255,255,255,0.2);">Â·</span>
+          <span style="color:rgba(255,255,255,0.2);">·</span>
           <span>Audius Master</span>
-          <span style="color:rgba(255,255,255,0.2);">Â·</span>
+          <span style="color:rgba(255,255,255,0.2);">·</span>
           <span>Live Radio / Icecast</span>
-          <span style="color:rgba(255,255,255,0.2);">Â·</span>
+          <span style="color:rgba(255,255,255,0.2);">·</span>
           <span>Direct Audio (MP3, FLAC, WAV, AAC, OPUS, MP4)</span>
         </div>
       </div>
@@ -474,7 +474,7 @@
           <div class="spatial-canvas-wrapper">
             <canvas id="spatialCanvas" width="320" height="320"></canvas>
             <div class="spatial-overlay-info">
-              <div>Azimuth: <span id="spatAzimuth">0Â°</span></div>
+              <div>Azimuth: <span id="spatAzimuth">0°</span></div>
               <div>Distance: <span id="spatDistance">1.5m</span></div>
             </div>
           </div>
@@ -553,7 +553,7 @@
           </div>
           <div style="display:flex; gap:8px; align-items:center;">
             <span class="status-pill atmos-status-pill">12-CH BINAURAL HRTF</span>
-            <button id="cycleAtmosSpeakersBtn" class="sm-btn atmos-cycle-btn" title="Sequentially fire test bursts through all 12 Atmos channels">ðŸ”Š Test 7.1.4 Sequence</button>
+            <button id="cycleAtmosSpeakersBtn" class="sm-btn atmos-cycle-btn" title="Sequentially fire test bursts through all 12 Atmos channels">🔊 Test 7.1.4 Sequence</button>
           </div>
         </div>
         <p class="info-text">Hardware-calibrated 3D Spatial Pink Noise Engine. Click any speaker node to audition its binaural HRTF position in space.</p>
@@ -659,10 +659,10 @@
           </div>
           <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
             <button id="openAutoEqBtn" class="sm-btn autoeq-trigger-btn" title="Open 500+ Headphone AutoEQ Profile Calibrator">
-              <span>ðŸŽ§ AutoEQ</span>
+              <span>🎧 AutoEQ</span>
             </button>
             <button id="aiAutoEqBtn" class="sm-btn ai-eq-btn active" title="AI Auto-Tuning EQ: Unlimited real-time continuous optimization of 10-band sliders every 3s">
-              <span class="ai-sparkle">âœ¨</span>
+              <span class="ai-sparkle">✨</span>
               <span id="aiAutoEqLabel">AI Auto EQ: ON (UNLIMITED)</span>
               <span class="ai-pulse-dot"></span>
             </button>
@@ -675,7 +675,7 @@
         <div id="aiEqStatusStrip" class="ai-eq-status-strip">
           <div class="ai-badge">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px; height:13px; color:var(--accent-cyan);"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
-            <span id="aiEqStatusText">AI ADAPTIVE TUNING ACTIVE Â· UNLIMITED CONTINUOUS</span>
+            <span id="aiEqStatusText">AI ADAPTIVE TUNING ACTIVE · UNLIMITED CONTINUOUS</span>
           </div>
           <div id="aiEqTargetMode" class="ai-cycle-timer">Target: Studio Harman Reference (Unlimited)</div>
         </div>
@@ -969,7 +969,7 @@
           <div class="vis-mode-toggle">
             <button class="vis-btn active" id="visModeBars">Spectrum</button>
             <button class="vis-btn" id="visModeWave">Oscilloscope</button>
-            <button class="vis-btn vis-fullscreen-trigger" id="visFullscreenBtn" title="Fullscreen Party & Cinema Visualizer (Shortcut: F)">â›¶ Cinema</button>
+            <button class="vis-btn vis-fullscreen-trigger" id="visFullscreenBtn" title="Fullscreen Party & Cinema Visualizer (Shortcut: F)">⛶ Cinema</button>
           </div>
         </div>
         <canvas id="spectrumCanvas" width="320" height="160"></canvas>
@@ -1024,7 +1024,7 @@
       <div class="dtsx-surround-container" id="dtsxSurroundWidget">
         <div class="dtsx-header">
           <div class="dtsx-title-badge">
-            <span class="dtsx-logo-icon">ðŸŽšï¸</span>
+            <span class="dtsx-logo-icon">🎚️</span>
             <div>
               <div class="dtsx-title">DTS:X 7.1 SURROUND UP-MIXER</div>
               <div class="dtsx-sub">Real-Time Cinema Multi-Channel Matrix</div>
@@ -1110,7 +1110,7 @@
         &copy; 2026 <strong class="animated-creator-name" id="creatorNameFooter">Romir Rodrigues</strong>. All rights reserved.
       </div>
       <div class="footer-note">
-        AuraDSP Pro Workstation &nbsp;Â·&nbsp; Real-Time Web Audio DSP &nbsp;Â·&nbsp; 3D HRTF Spatial Soundstage &nbsp;Â·&nbsp; <a href="#" id="footerChangelogLink" style="color:var(--accent-cyan); text-decoration:none; border-bottom:1px dashed rgba(0,240,255,0.4); padding-bottom:1px;" title="View full release notes & version history">v53.1 Release Notes</a> &nbsp;Â·&nbsp; <a href="#" id="footerManualLink" style="color:var(--accent-cyan); text-decoration:none; border-bottom:1px dashed rgba(0,240,255,0.4); padding-bottom:1px; margin-left:6px;" title="Open Studio User Manual & Feature Guide">ðŸ“– Studio Manual &amp; Guide</a>
+        AuraDSP Pro Workstation &nbsp;·&nbsp; Real-Time Web Audio DSP &nbsp;·&nbsp; 3D HRTF Spatial Soundstage &nbsp;·&nbsp; <a href="#" id="footerChangelogLink" style="color:var(--accent-cyan); text-decoration:none; border-bottom:1px dashed rgba(0,240,255,0.4); padding-bottom:1px;" title="View full release notes & version history">v53.1 Release Notes</a> &nbsp;·&nbsp; <a href="#" id="footerManualLink" style="color:var(--accent-cyan); text-decoration:none; border-bottom:1px dashed rgba(0,240,255,0.4); padding-bottom:1px; margin-left:6px;" title="Open Studio User Manual & Feature Guide">📖 Studio Manual &amp; Guide</a>
       </div>
     </div>
   </footer>
@@ -1122,7 +1122,7 @@
         <div class="changelog-header-left">
           <div class="changelog-title-row">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px; height:20px; color:var(--accent-cyan);"><path d="M12 2v20M17 5v14M7 5v14M2 9v6M22 9v6"/></svg>
-            <h3 id="changelogTitle" style="margin:0; font-size:1.05rem; font-weight:800; color:#fff; letter-spacing:0.02em;">AuraDSP Pro Â· Version History & Changelog</h3>
+            <h3 id="changelogTitle" style="margin:0; font-size:1.05rem; font-weight:800; color:#fff; letter-spacing:0.02em;">AuraDSP Pro · Version History & Changelog</h3>
           </div>
           <p style="margin:4px 0 0; font-size:0.75rem; color:var(--text-muted);">Complete milestone release notes from v1.0.0 (Genesis) to v52.0.0 (Latest)</p>
         </div>
@@ -1153,7 +1153,7 @@
               <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
               <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
             </svg>
-            <h3 id="manualTitle">AuraDSP Pro Â· Studio User Manual &amp; Feature Guide</h3>
+            <h3 id="manualTitle">AuraDSP Pro · Studio User Manual &amp; Feature Guide</h3>
           </div>
           <p class="manual-subtitle">Complete how-to guide, function diagrams, engineering working principles &amp; acoustic benefits</p>
         </div>
@@ -1167,12 +1167,12 @@
         </div>
         <div class="manual-tabs-row" id="manualTabsRow">
           <button class="manual-tab-btn active" data-tab="all">All Modules</button>
-          <button class="manual-tab-btn" data-tab="quickstart">âš¡ How To Use (Quick Start)</button>
-          <button class="manual-tab-btn" data-tab="eq">ðŸŽ›ï¸ Equalizer &amp; AI</button>
-          <button class="manual-tab-btn" data-tab="spatial">ðŸŽ§ 3D Spatial HRTF</button>
-          <button class="manual-tab-btn" data-tab="enhancers">âœ¨ Enhancers Rack</button>
-          <button class="manual-tab-btn" data-tab="streaming">ðŸŒ Audio Sources &amp; Links</button>
-          <button class="manual-tab-btn" data-tab="mastering">ðŸŽšï¸ Mastering &amp; FPS</button>
+          <button class="manual-tab-btn" data-tab="quickstart">⚡ How To Use (Quick Start)</button>
+          <button class="manual-tab-btn" data-tab="eq">🎛️ Equalizer &amp; AI</button>
+          <button class="manual-tab-btn" data-tab="spatial">🎧 3D Spatial HRTF</button>
+          <button class="manual-tab-btn" data-tab="enhancers">✨ Enhancers Rack</button>
+          <button class="manual-tab-btn" data-tab="streaming">🌐 Audio Sources &amp; Links</button>
+          <button class="manual-tab-btn" data-tab="mastering">🎚️ Mastering &amp; FPS</button>
         </div>
       </div>
 
@@ -1188,7 +1188,7 @@
       <div class="fvis-track-info">
         <span class="live-dot"></span>
         <span id="fvisTrackTitle" class="fvis-title">AuraDSP Pro Cinema Stage</span>
-        <span id="fvisTrackMeta" class="fvis-meta">300 FPS Â· 32-Bit Real-Time DSP</span>
+        <span id="fvisTrackMeta" class="fvis-meta">300 FPS · 32-Bit Real-Time DSP</span>
       </div>
       <div class="fvis-metrics-pill">
         <span id="fvisDrScore" class="fvis-metric-item">DR12</span>
@@ -1197,7 +1197,7 @@
       </div>
       <div class="fvis-actions">
         <button id="fvisModeToggle" class="fvis-btn" title="Toggle Spectrum Bars / Oscilloscope">Mode: Spectrum</button>
-        <button id="fvisExitBtn" class="fvis-btn fvis-exit-btn" title="Exit Fullscreen (Esc or F)">âœ• Exit (Esc)</button>
+        <button id="fvisExitBtn" class="fvis-btn fvis-exit-btn" title="Exit Fullscreen (Esc or F)">✕ Exit (Esc)</button>
       </div>
     </div>
     <canvas id="fullscreenSpectrumCanvas"></canvas>
@@ -1258,7 +1258,7 @@
       <div class="studio-modal-header">
         <div class="studio-modal-header-left">
           <div class="studio-modal-title-row">
-            <span style="font-size:1.2rem;">ðŸ‘‚</span>
+            <span style="font-size:1.2rem;">👂</span>
             <h3 id="earHealthTitle" style="margin:0; font-size:1.05rem; font-weight:800; color:#fff; letter-spacing:0.02em;">Ear Fatigue & Safe Volume Exposure Dose Tracker</h3>
           </div>
           <p style="margin:4px 0 0; font-size:0.75rem; color:var(--text-muted);">Real-time acoustic dosage monitoring based on WHO &amp; OSHA 85dB SPL Safe Listening Standards</p>
@@ -1339,10 +1339,10 @@
           <div class="codec-hero-info">
             <span class="codec-stream-tag">ACTIVE AUDIO STREAM</span>
             <h4 id="inspectorFileName" class="codec-stream-title">Sub-Bass & Heavy Kick Calibration [Reference]</h4>
-            <p id="inspectorTrackMeta" class="codec-stream-desc">Web Audio Pipeline Â· 32-Bit Floating Point DSP</p>
+            <p id="inspectorTrackMeta" class="codec-stream-desc">Web Audio Pipeline · 32-Bit Floating Point DSP</p>
           </div>
           <div id="inspectorLosslessBadge" class="lossless-badge">
-            <span class="badge-icon">â˜…</span>
+            <span class="badge-icon">★</span>
             <span class="badge-text">HI-RES AUDIO</span>
           </div>
         </div>
@@ -1498,42 +1498,42 @@
           <div class="dev-gen-grid">
             <button class="dev-gen-btn" data-gen="sine1k">
               <div class="gen-btn-top">
-                <span class="gen-icon">ðŸŽ¯</span>
+                <span class="gen-icon">🎯</span>
                 <span class="gen-title">1 kHz Reference Sine</span>
               </div>
               <span class="gen-desc">Standard studio meter calibration signal</span>
             </button>
             <button class="dev-gen-btn" data-gen="sine440">
               <div class="gen-btn-top">
-                <span class="gen-icon">ðŸŽµ</span>
+                <span class="gen-icon">🎵</span>
                 <span class="gen-title">440 Hz Tuning Sine (A4)</span>
               </div>
               <span class="gen-desc">Standard international concert pitch reference</span>
             </button>
             <button class="dev-gen-btn" data-gen="sweep">
               <div class="gen-btn-top">
-                <span class="gen-icon">ðŸŒŠ</span>
-                <span class="gen-title">20 Hz â€“ 20 kHz Log Sweep</span>
+                <span class="gen-icon">🌊</span>
+                <span class="gen-title">20 Hz – 20 kHz Log Sweep</span>
               </div>
               <span class="gen-desc">Full audible spectrum logarithmic sweep (5s)</span>
             </button>
             <button class="dev-gen-btn" data-gen="pink">
               <div class="gen-btn-top">
-                <span class="gen-icon">ðŸŒ¸</span>
+                <span class="gen-icon">🌸</span>
                 <span class="gen-title">Calibrated Pink Noise</span>
               </div>
               <span class="gen-desc">1/f equal energy per octave room tuning noise</span>
             </button>
             <button class="dev-gen-btn" data-gen="white">
               <div class="gen-btn-top">
-                <span class="gen-icon">âšª</span>
+                <span class="gen-icon">⚪</span>
                 <span class="gen-title">Flat White Noise</span>
               </div>
               <span class="gen-desc">Equal energy across all linear frequencies</span>
             </button>
             <button class="dev-gen-btn" data-gen="impulse">
               <div class="gen-btn-top">
-                <span class="gen-icon">âš¡</span>
+                <span class="gen-icon">⚡</span>
                 <span class="gen-title">Dirac Impulse Click</span>
               </div>
               <span class="gen-desc">Ultra-fast 1ms acoustic transient pulse</span>
@@ -1567,7 +1567,7 @@
             </div>
 
             <div class="dev-control-cell" style="display:flex; align-items:flex-end;">
-              <button id="devStopSignalBtn" class="dev-stop-btn">ðŸ›‘ STOP TEST SIGNALS</button>
+              <button id="devStopSignalBtn" class="dev-stop-btn">🛑 STOP TEST SIGNALS</button>
             </div>
           </div>
         </div>
@@ -1640,7 +1640,7 @@
         <div class="dev-tab-panel" data-panel="state">
           <div class="dev-section-title" style="display:flex; justify-content:space-between; align-items:center;">
             <span>ACTIVE DSP STATE JSON DUMP</span>
-            <button id="devCopyStateBtn" class="dev-mini-btn dev-accent-btn">ðŸ“‹ Copy State JSON</button>
+            <button id="devCopyStateBtn" class="dev-mini-btn dev-accent-btn">📋 Copy State JSON</button>
           </div>
           <pre id="devStateJsonDump" class="dev-json-box">// Loading state dump...</pre>
 
@@ -1663,7 +1663,7 @@
             <textarea id="devCustomStateInput" class="dev-custom-json-input" placeholder='Paste custom snapshot JSON here (e.g. {"masterGain":1.0, "eqGains":[0, 2, 4, ...]})'></textarea>
             <div style="display:flex; justify-content:space-between; align-items:center;">
               <button id="devApplyCustomStateBtn" class="dev-mini-btn dev-accent-btn">Apply Custom JSON to DSP Engine</button>
-              <button id="devWipeStorageBtn" class="dev-mini-btn dev-danger-btn">âš ï¸ Wipe LocalStorage &amp; Reset</button>
+              <button id="devWipeStorageBtn" class="dev-mini-btn dev-danger-btn">⚠️ Wipe LocalStorage &amp; Reset</button>
             </div>
           </div>
         </div>
@@ -1706,7 +1706,7 @@
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('sw.js?v=53.2.0')
           .then(reg => {
-            console.log('Service Worker Registered v53.1.0');
+            console.log('Service Worker Registered v53.2.0');
             reg.update();
           })
           .catch(err => console.log('Service Worker Error', err));
@@ -1715,4 +1715,3 @@
   </script>
 </body>
 </html>
-

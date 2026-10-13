@@ -6588,3 +6588,71 @@ input, textarea, .dev-custom-json-input {
     gap: 4px !important;
   }
 }
+
+/* ==========================================================================
+   ANDROID SCROLL PERFORMANCE PATCH  v53.2.0
+   Backdrop-filter blur is the #1 cause of scroll jank on Android Chrome.
+   Disable it on mobile and use solid backgrounds instead.
+   ========================================================================== */
+
+@media (max-width: 900px) {
+  /* Remove expensive blur — use solid panel background instead */
+  .panel,
+  .panel:hover {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    background: rgba(14, 17, 24, 0.97) !important;
+    /* Promote each panel to its own GPU layer to prevent scroll repaints */
+    will-change: transform;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+  }
+
+  /* Same for header — blur causes lag when scrolling near it */
+  .app-header {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    background: rgba(9, 9, 11, 0.99) !important;
+  }
+
+  /* Modals — also heavy blur */
+  .changelog-modal-overlay,
+  .manual-modal-overlay,
+  .dev-modal-backdrop,
+  [class*="modal-overlay"],
+  [class*="modal-backdrop"] {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    background: rgba(0, 0, 0, 0.92) !important;
+  }
+
+  /* Main scroll container: promote to GPU layer and enable smooth momentum scroll */
+  .studio-grid {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    will-change: scroll-position;
+  }
+
+  /* Reduce box-shadow complexity on mobile (shadow blur = CPU repaints on scroll) */
+  .panel {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5) !important;
+  }
+
+  /* Disable hover transitions on mobile (no hover on touch screens) */
+  .panel:hover,
+  .preset-card:hover,
+  .source-btn:hover,
+  .sm-btn:hover,
+  .engine-card:hover {
+    transform: none !important;
+    transition: none !important;
+  }
+
+  /* Disable ALL CSS transitions during scroll for maximum performance */
+  /* They will be re-enabled naturally after scroll ends */
+  .preset-card,
+  .source-btn,
+  .sm-btn {
+    transition: background-color 0.1s ease !important;
+  }
+}
