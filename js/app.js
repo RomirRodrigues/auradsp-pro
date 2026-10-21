@@ -1293,10 +1293,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // Resilient multi-cluster fallback architecture across 4 independent server mirrors!
   async function searchSaavnMusic(query, limit = 25) {
     const mirrors = [
-      { url: `https://jiosaavn-api-amber.vercel.app/api/search/songs?query=${encodeURIComponent(query)}&limit=${limit}`, type: 'v2' },
-      { url: `https://jiosaavn-api-2.vercel.app/search/songs?query=${encodeURIComponent(query)}`, type: 'v1' },
-      { url: `https://saavn-api-one.vercel.app/search/songs?query=${encodeURIComponent(query)}`, type: 'v1' },
-      { url: `https://saavn.sumit.co/api/search/songs?query=${encodeURIComponent(query)}&limit=${limit}`, type: 'v2' }
+      { url: `https://saavn.sumit.co/api/search/songs?query=${encodeURIComponent(query)}&limit=${limit}`, type: 'v2' },
+      { url: `https://saavn-api-one.vercel.app/search/songs?query=${encodeURIComponent(query)}`, type: 'v2' }
     ];
 
     for (const mirror of mirrors) {
@@ -1304,7 +1302,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const res = await fetchWithTimeout(mirror.url, 4000);
         if (!res.ok) continue;
         const json = await res.json();
-        const items = (mirror.type === 'v2') ? (json.data?.results || []) : (json.results || []);
+        const items = (mirror.type === 'v2') ? (json.data?.results || json.results || []) : (json.results || []);
 
         if (items && items.length > 0) {
           return items.map(t => {
@@ -1361,7 +1359,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const json = await res.json();
         const tracks = json.data || [];
         if (tracks.length > 0) {
-          return tracks.map(t => {
+          return tracks
+            .filter(t => t && t.is_streamable !== false && t.is_available !== false)
+            .map(t => {
             const stream = t.stream?.url || (t.track_id ? `${host}/v1/tracks/${t.track_id}/stream?app_name=${AUDIUS_APP_NAME}` : `${host}/v1/tracks/${t.id}/stream?app_name=${AUDIUS_APP_NAME}`);
             const art = t.artwork ? (t.artwork['480x480'] || t.artwork['150x150'] || t.artwork['1000x1000']) : '';
             return {
@@ -1873,11 +1873,19 @@ document.addEventListener('DOMContentLoaded', () => {
       const playPromise = audioPlayer.play();
       if (playPromise !== undefined) {
         playPromise.then(onPlaySuccess).catch(err => {
-          console.warn("Audio play promise notice:", err);
-          if (webPlayPauseBtn) webPlayPauseBtn.innerHTML = "<span>▶ Play Track</span>";
+          console.warn("Audio play promise notice, attempting fallback:", err);
           try {
-            if (window.showToast) window.showToast("Click Play to start stream", "info");
-          } catch (e) {}
+            audioPlayer.removeAttribute('crossOrigin');
+            audioPlayer.src = streamUrl;
+            audioPlayer.play().then(onPlaySuccess).catch(e2 => {
+              if (webPlayPauseBtn) webPlayPauseBtn.innerHTML = "<span>▶ Play Track</span>";
+              try {
+                if (window.showToast) window.showToast("Click Play to start stream", "info");
+              } catch (e) {}
+            });
+          } catch (e3) {
+            if (webPlayPauseBtn) webPlayPauseBtn.innerHTML = "<span>▶ Play Track</span>";
+          }
         });
       }
     } catch (err) {
@@ -2743,32 +2751,33 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         if (window.showToast) window.showToast("Streaming: " + finalTitle, "success");
       }).catch(err => {
-        console.warn("Direct stream play notice, attempting proxy fallback:", err);
-        // If direct stream fails (often due to missing CORS headers on custom server), try via open CORS proxy
-        if (!resolved.url.includes('allorigins.win')) {
-          const proxiedUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(resolved.url)}`;
-          audioPlayer.src = proxiedUrl;
+        console.warn("Direct stream play notice, attempting direct element fallback:", err);
+        try {
+          audioPlayer.removeAttribute('crossOrigin');
+          audioPlayer.src = resolved.url;
           audioPlayer.play().then(() => {
             isLinkPlaying = true;
             isPlaying = true;
             if (window.audioEngine) window.audioEngine.isPlaying = true;
             if (linkPlayPauseBtn) linkPlayPauseBtn.innerHTML = "<span>PAUSE STREAM</span>";
             if (linkStreamStatus) {
-              linkStreamStatus.textContent = "Proxied Stream";
+              linkStreamStatus.textContent = "Live / Playing";
+              linkStreamStatus.style.borderColor = "#00ff88";
+              linkStreamStatus.style.color = "#00ff88";
+            }
+            if (window.showToast) window.showToast("Streaming: " + finalTitle, "success");
+          }).catch(fbErr => {
+            console.error("Link stream playback notice:", fbErr);
+            if (linkStreamStatus) {
+              linkStreamStatus.textContent = "Ready / Tap Play";
               linkStreamStatus.style.borderColor = "#ff9900";
               linkStreamStatus.style.color = "#ff9900";
             }
-            if (window.showToast) window.showToast("Streaming via proxy: " + finalTitle, "success");
-          }).catch(proxyErr => {
-            console.error("Link stream failed completely:", proxyErr);
-            if (linkStreamStatus) {
-              linkStreamStatus.textContent = "Play Failed";
-              linkStreamStatus.style.borderColor = "#ff0055";
-              linkStreamStatus.style.color = "#ff0055";
-            }
             if (linkPlayPauseBtn) linkPlayPauseBtn.innerHTML = "<span>PLAY STREAM</span>";
-            if (window.showToast) window.showToast("Cannot stream URL. Host may block audio cross-origin.", "error");
+            if (window.showToast) window.showToast("Tap Play to start stream", "info");
           });
+        } catch (e3) {
+          if (linkStreamStatus) linkStreamStatus.textContent = "Play Failed";
         }
       });
     } catch (e) {
