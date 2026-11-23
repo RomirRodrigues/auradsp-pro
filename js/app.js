@@ -4348,7 +4348,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // --- Theme Switcher Logic ---
   const themeSelector = document.getElementById('appThemeSelector');
   if (themeSelector) {
-    const validThemes = ['theme-studio', 'theme-oled', 'theme-graphite'];
+    const validThemes = ['theme-studio', 'theme-oled', 'theme-cyber', 'theme-analog', 'theme-graphite', 'theme-light'];
     let savedTheme = localStorage.getItem('auradsp_ui_theme');
     if (!savedTheme || !validThemes.includes(savedTheme)) {
       savedTheme = 'theme-studio';

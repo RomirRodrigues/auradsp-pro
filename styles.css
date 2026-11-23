@@ -3122,6 +3122,49 @@ body.theme-light {
   --border-hardware: rgba(0, 0, 0, 0.1);
 }
 
+/* 4. Cyberpunk Neon Console (Electric Cyan & Violet) */
+body.theme-cyber {
+  --bg-primary: #050711;
+  --bg-panel: rgba(12, 16, 32, 0.88);
+  --bg-card: rgba(18, 24, 48, 0.72);
+  --bg-card-hover: rgba(28, 36, 72, 0.92);
+  --accent-cyan: #00f0ff;
+  --accent-neon: #b537f2;
+  --accent-amber: #ff0077;
+  --accent-green: #00ff9d;
+  --accent-red: #ff2a5f;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --text-subtle: #64748b;
+  --border-color: rgba(0, 240, 255, 0.16);
+  --border-hardware: rgba(181, 55, 242, 0.28);
+  background: #050711 !important;
+  background-image: radial-gradient(circle at 10% 10%, rgba(181, 55, 242, 0.14) 0%, transparent 45%),
+                   radial-gradient(circle at 90% 90%, rgba(0, 240, 255, 0.12) 0%, transparent 45%),
+                   linear-gradient(180deg, #050711 0%, #020308 100%) !important;
+}
+
+/* 5. Vintage Analog Tube Console (Warm Amber & Mahogany) */
+body.theme-analog {
+  --bg-primary: #0f0a07;
+  --bg-panel: rgba(24, 17, 13, 0.92);
+  --bg-card: rgba(36, 26, 19, 0.78);
+  --bg-card-hover: rgba(54, 38, 28, 0.92);
+  --accent-cyan: #f59e0b;
+  --accent-neon: #fbbf24;
+  --accent-amber: #d97706;
+  --accent-green: #84cc16;
+  --accent-red: #ea580c;
+  --text-main: #fef3c7;
+  --text-muted: #d97706;
+  --text-subtle: #92400e;
+  --border-color: rgba(245, 158, 11, 0.2);
+  --border-hardware: rgba(217, 119, 6, 0.32);
+  background: #0f0a07 !important;
+  background-image: radial-gradient(circle at 50% 0%, rgba(245, 158, 11, 0.1) 0%, transparent 55%),
+                   linear-gradient(180deg, #100b07 0%, #080504 100%) !important;
+}
+
 /* =========================================
    FONT SWITCHER STYLES
    ========================================= */
@@ -6940,4 +6983,81 @@ input, textarea, .dev-custom-json-input {
   max-height: 240px;
   overflow-y: auto;
   line-height: 1.5;
+}
+
+/* ==========================================================================
+   AuraDSP Pro: Advanced Glassmorphism, Slider Glow & Tactile Animations
+   ========================================================================== */
+
+/* Enhanced Studio Glassmorphic Panels */
+.panel {
+  backdrop-filter: blur(20px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, border-color 0.2s ease !important;
+}
+
+.source-card, .engine-card, .autoeq-card {
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.18s ease, box-shadow 0.18s ease !important;
+}
+
+/* Tactile Micro-Animations on Click */
+.primary-btn:active, .primary-btn-sm:active, .accent-btn:active, .sm-btn:active, .source-btn:active, .preset-card:active {
+  transform: scale(0.96) translateY(1px) !important;
+}
+
+/* Premium Range Slider Thumb Glow & Hover Scaling */
+input[type="range"]::-webkit-slider-thumb {
+  transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.15s ease, background-color 0.15s ease !important;
+  cursor: grab !important;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.25) !important;
+  box-shadow: 0 0 16px var(--accent-cyan) !important;
+}
+
+input[type="range"]::-webkit-slider-thumb:active {
+  cursor: grabbing !important;
+  transform: scale(1.38) !important;
+  box-shadow: 0 0 24px var(--accent-cyan) !important;
+}
+
+/* Smooth Preset Cards Staggered Animation */
+.preset-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.preset-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.04), transparent);
+  transition: left 0.6s ease;
+}
+
+.preset-card:hover::before {
+  left: 100%;
+}
+
+/* Polished Theme Selector Styling */
+#appThemeSelector {
+  border-radius: 8px !important;
+  padding: 6px 12px !important;
+  background: rgba(18, 22, 34, 0.85) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+}
+
+#appThemeSelector:hover {
+  border-color: var(--accent-cyan) !important;
+  box-shadow: 0 0 12px rgba(0, 240, 255, 0.2) !important;
 }

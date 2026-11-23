@@ -1,13 +1,24 @@
 /**
  * AuraDSP Pro - Complete Version History & Changelog Data
- * Records all 54+ version milestones from v1.0.0 (Genesis) to v54.6.0 (Latest).
+ * Records all 54+ version milestones from v1.0.0 (Genesis) to v54.7.0 (Latest).
  */
 
 const CHANGELOG_DATA = [
   {
+    version: 'v54.7.0',
+    title: 'Ultra-Premium Studio Theme Engine, Glassmorphic Panels & Tactile Micro-Animations',
+    tag: 'Latest',
+    date: 'November 2026',
+    items: [
+      'Two Flagship Studio Themes Added: Introduced Cyberpunk Neon (electric cyan & violet with radial glow backdrops) and Vintage Analog Tube Console (warm mahogany obsidian with amber tube highlights), joining Dark Studio, Obsidian OLED, Graphite Titanium, and Daylight.',
+      'Refined Studio Glassmorphism: Engineered modern backdrop-filter saturation (180% blur), subtle inset highlight borders, and elevation depth across audio panels, source cards, and dialogs.',
+      'Tactile Micro-Animations & Slider Glow: Added interactive hover scaling (1.25x) and active neon glow halos on range slider thumbs, tactile button-press feedback (scale 0.96), and animated preset card shine sweeps.'
+    ]
+  },
+  {
     version: 'v54.6.0',
     title: 'Interactive Parametric Bode Plot Engine, Mobile Touch Ergonomics & UI/UX Fluidity',
-    tag: 'Latest',
+    tag: 'Stable',
     date: 'November 2026',
     items: [
       'Interactive Parametric Bode Plot Engine: Upgraded the 10-band response curve canvas with professional dB reference grid lines (-12dB to +12dB), logarithmic frequency division guides (32Hz-16kHz), vibrant neon cyan/purple gradient fill, and active glowing control nodes.',
