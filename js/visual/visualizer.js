@@ -494,7 +494,7 @@ class AudioVisualizer {
     }
   }
 
-  drawEqCurve(gainsArray) {
+  drawEqCurve(gainsArray, activeBandIdx = -1) {
     if (!this.eqCtx || !this.eqCanvas) return;
     if (this.eqW <= 0 || this.eqH <= 0) {
       this.handleResize();
@@ -506,29 +506,73 @@ class AudioVisualizer {
     const height = this.eqH;
     const centerY = height / 2;
     const dpr = this.dpr;
+    const margin = 16 * dpr;
+    const usableHeight = centerY - margin;
 
     ctx.clearRect(0, 0, width, height);
 
-    // Reference flat line (0dB)
-    ctx.beginPath();
-    ctx.moveTo(0, centerY);
-    ctx.lineTo(width, centerY);
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
-    ctx.setLineDash([4, 4]);
-    ctx.lineWidth = 1 * dpr;
-    ctx.stroke();
-    ctx.setLineDash([]);
+    // 1. Draw dB Reference Grid Lines (-12dB, -6dB, 0dB, +6dB, +12dB)
+    const dbLines = [
+      { db: 12, y: centerY - usableHeight },
+      { db: 6, y: centerY - usableHeight * 0.5 },
+      { db: 0, y: centerY },
+      { db: -6, y: centerY + usableHeight * 0.5 },
+      { db: -12, y: centerY + usableHeight }
+    ];
+
+    ctx.font = `${Math.round(8.5 * dpr)}px JetBrains Mono, monospace`;
+    ctx.textBaseline = 'middle';
+
+    dbLines.forEach(line => {
+      ctx.beginPath();
+      ctx.moveTo(0, line.y);
+      ctx.lineTo(width, line.y);
+      if (line.db === 0) {
+        ctx.strokeStyle = 'rgba(0, 240, 255, 0.22)';
+        ctx.lineWidth = 1.2 * dpr;
+        ctx.setLineDash([5 * dpr, 4 * dpr]);
+      } else {
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+        ctx.lineWidth = 1 * dpr;
+        ctx.setLineDash([2 * dpr, 6 * dpr]);
+      }
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // dB Label on right edge
+      ctx.fillStyle = line.db === 0 ? 'rgba(0, 240, 255, 0.6)' : 'rgba(255, 255, 255, 0.25)';
+      ctx.textAlign = 'right';
+      ctx.fillText((line.db > 0 ? '+' : '') + line.db + 'dB', width - 6 * dpr, line.y);
+    });
 
     if (!gainsArray || gainsArray.length === 0) return;
 
+    // 2. Frequency Labels & Vertical Guidelines
+    const freqLabels = ['32', '64', '125', '250', '500', '1k', '2k', '4k', '8k', '16k'];
     const numColumns = 10;
     const colWidth = width / numColumns;
+
+    freqLabels.forEach((label, i) => {
+      const x = (i + 0.5) * colWidth;
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, height);
+      ctx.strokeStyle = (i === activeBandIdx) ? 'rgba(0, 240, 255, 0.18)' : 'rgba(255, 255, 255, 0.035)';
+      ctx.lineWidth = 1 * dpr;
+      ctx.stroke();
+
+      // Frequency label at bottom
+      ctx.textAlign = 'center';
+      ctx.fillStyle = (i === activeBandIdx) ? '#00f0ff' : 'rgba(255, 255, 255, 0.35)';
+      ctx.fillText(label, x, height - 6 * dpr);
+    });
+
+    // 3. Calculate Bode Plot Points
     const points = gainsArray.map((gain, i) => {
       const x = (i + 0.5) * colWidth;
       const clampedGain = Math.max(-12, Math.min(12, gain));
-      const margin = 10 * dpr;
-      const y = centerY - (clampedGain / 12) * (centerY - margin);
-      return { x, y };
+      const y = centerY - (clampedGain / 12) * usableHeight;
+      return { x, y, gain: clampedGain, i };
     });
 
     const slopes = [];
@@ -558,7 +602,7 @@ class AudioVisualizer {
     }
     curvePath.lineTo(width, centerY);
 
-    // Gradient fill under curve
+    // 4. Gradient Fill Under Response Curve
     ctx.save();
     const fillPath = new Path2D(curvePath);
     fillPath.lineTo(width, height);
@@ -566,28 +610,71 @@ class AudioVisualizer {
     fillPath.closePath();
 
     const fillGrad = ctx.createLinearGradient(0, 0, 0, height);
-    fillGrad.addColorStop(0, 'rgba(0, 194, 203, 0.22)');
-    fillGrad.addColorStop(1, 'rgba(0, 194, 203, 0.01)');
+    fillGrad.addColorStop(0, 'rgba(0, 240, 255, 0.25)');
+    fillGrad.addColorStop(0.5, 'rgba(112, 0, 255, 0.12)');
+    fillGrad.addColorStop(1, 'rgba(0, 240, 255, 0.01)');
     ctx.fillStyle = fillGrad;
     ctx.fill(fillPath);
     ctx.restore();
 
-    // Curve outline stroke
-    ctx.strokeStyle = '#00c2cb';
+    // 5. Glowing Response Stroke
+    ctx.save();
+    ctx.shadowColor = 'rgba(0, 240, 255, 0.6)';
+    ctx.shadowBlur = 8 * dpr;
+    ctx.strokeStyle = '#00f0ff';
     ctx.lineWidth = 2.5 * dpr;
     ctx.stroke(curvePath);
+    ctx.restore();
 
-    // Indicator points
-    for (let i = 0; i < points.length; i++) {
-      const pt = points[i];
+    // 6. Interactive Control Node Points with Hover/Drag Badges
+    points.forEach((pt, i) => {
+      const isActive = (i === activeBandIdx);
+
+      // Outer halo for active/dragged node
+      if (isActive) {
+        ctx.beginPath();
+        ctx.arc(pt.x, pt.y, 9 * dpr, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(0, 240, 255, 0.25)';
+        ctx.fill();
+
+        // Pulsing ring
+        ctx.beginPath();
+        ctx.arc(pt.x, pt.y, 14 * dpr, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(0, 240, 255, 0.4)';
+        ctx.lineWidth = 1 * dpr;
+        ctx.stroke();
+
+        // Floating tooltip badge above node
+        const badgeText = `${freqLabels[i]}Hz: ${pt.gain >= 0 ? '+' : ''}${pt.gain.toFixed(1)}dB`;
+        const badgeY = Math.max(16 * dpr, pt.y - 18 * dpr);
+        ctx.font = `${Math.round(8 * dpr)}px JetBrains Mono, monospace`;
+        const textWidth = ctx.measureText(badgeText).width;
+        const padX = 6 * dpr;
+        const padY = 3 * dpr;
+
+        ctx.fillStyle = 'rgba(13, 17, 23, 0.9)';
+        ctx.strokeStyle = 'var(--accent-cyan)';
+        ctx.lineWidth = 1 * dpr;
+        ctx.beginPath();
+        ctx.roundRect(pt.x - textWidth / 2 - padX, badgeY - 8 * dpr - padY, textWidth + padX * 2, 16 * dpr, 4 * dpr);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = '#00f0ff';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(badgeText, pt.x, badgeY);
+      }
+
+      // Center Node Point
       ctx.beginPath();
-      ctx.arc(pt.x, pt.y, 4 * dpr, 0, Math.PI * 2);
-      ctx.fillStyle = '#ffffff';
-      ctx.strokeStyle = '#00c2cb';
-      ctx.lineWidth = 1.5 * dpr;
+      ctx.arc(pt.x, pt.y, (isActive ? 5 : 3.5) * dpr, 0, Math.PI * 2);
+      ctx.fillStyle = isActive ? '#00f0ff' : '#ffffff';
+      ctx.strokeStyle = '#0d1117';
+      ctx.lineWidth = 1.8 * dpr;
       ctx.fill();
       ctx.stroke();
-    }
+    });
   }
 
   // 144Hz / 240Hz High-Refresh Render Pipeline with True Measured FPS Badge

@@ -1,13 +1,24 @@
 /**
  * AuraDSP Pro - Complete Version History & Changelog Data
- * Records all 54+ version milestones from v1.0.0 (Genesis) to v54.5.1 (Latest).
+ * Records all 54+ version milestones from v1.0.0 (Genesis) to v54.6.0 (Latest).
  */
 
 const CHANGELOG_DATA = [
   {
+    version: 'v54.6.0',
+    title: 'Interactive Parametric Bode Plot Engine, Mobile Touch Ergonomics & UI/UX Fluidity',
+    tag: 'Latest',
+    date: 'November 2026',
+    items: [
+      'Interactive Parametric Bode Plot Engine: Upgraded the 10-band response curve canvas with professional dB reference grid lines (-12dB to +12dB), logarithmic frequency division guides (32Hz-16kHz), vibrant neon cyan/purple gradient fill, and active glowing control nodes.',
+      'Touch-Screen Ergonomics & Live Tooltip Badge: Added full touch event handlers (touchstart, touchmove, touchend) enabling effortless finger-drag curve sculpting on mobile phones and tablets, complete with a real-time floating frequency/gain tooltip badge.',
+      'Continuous UI/UX Fluidity: Hardware-accelerated 60/120fps micro-animations, glowing active node halo rings, and zero-latency slider-to-canvas synchronization across all devices.'
+    ]
+  },
+  {
     version: 'v54.5.1',
     title: 'Zero-Touch Automatic Self-Update Engine & Background Sync',
-    tag: 'Latest',
+    tag: 'Stable',
     date: 'November 2026',
     items: [
       'Zero-Touch Client-Side Auto-Updater: Implemented automated Service Worker controllerchange lifecycle with background 15-minute polling and tab visibility triggers. Whenever code is updated on GitHub, mobile and desktop clients automatically detect, fetch, and activate the latest release without requiring any manual cache-clearing or reload commands.',

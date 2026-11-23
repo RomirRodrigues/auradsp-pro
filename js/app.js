@@ -3628,7 +3628,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // --- PARAMETRIC EQ CANVAS INTERACTION (Point 6) ---
+  // --- PARAMETRIC EQ CANVAS INTERACTION (Interactive Bode Plot) ---
   const eqCanvas = document.getElementById('eqCurveCanvas');
   if (eqCanvas) {
     let isDraggingEq = false;
@@ -3647,20 +3647,69 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       if (selectedBandIdx >= 0 && selectedBandIdx < 10) {
         const centerY = height / 2;
-        const normY = (centerY - y) / (centerY - 12);
+        const normY = (centerY - y) / (centerY - 16);
         const gainVal = Math.max(-12, Math.min(12, normY * 12));
         
-        // Update slider and engine
+        // Update slider, engine and interactive Bode curve with active dot glow
         updateEqBandUI(selectedBandIdx, gainVal);
         currentEqGains[selectedBandIdx] = gainVal;
         if (window.audioEngine) window.audioEngine.setBandGain(selectedBandIdx, gainVal);
-        if (window.visualizer) window.visualizer.drawEqCurve(currentEqGains);
+        if (window.visualizer) window.visualizer.drawEqCurve(currentEqGains, selectedBandIdx);
       }
     };
 
-    eqCanvas.addEventListener('mousedown', (e) => { isDraggingEq = true; handleEqMove(e.clientX, e.clientY); });
-    window.addEventListener('mousemove', (e) => { if (isDraggingEq) handleEqMove(e.clientX, e.clientY); });
-    window.addEventListener('mouseup', () => { isDraggingEq = false; });
+    const handleEqHover = (clientX, clientY) => {
+      if (isDraggingEq) return;
+      const rect = eqCanvas.getBoundingClientRect();
+      const x = clientX - rect.left;
+      const colWidth = rect.width / 10;
+      const hoverIdx = Math.floor(x / colWidth);
+      if (hoverIdx >= 0 && hoverIdx < 10 && window.visualizer) {
+        window.visualizer.drawEqCurve(currentEqGains, hoverIdx);
+      }
+    };
+
+    eqCanvas.addEventListener('mousedown', (e) => {
+      isDraggingEq = true;
+      handleEqMove(e.clientX, e.clientY);
+    });
+    window.addEventListener('mousemove', (e) => {
+      if (isDraggingEq) handleEqMove(e.clientX, e.clientY);
+    });
+    eqCanvas.addEventListener('mousemove', (e) => {
+      if (!isDraggingEq) handleEqHover(e.clientX, e.clientY);
+    });
+    eqCanvas.addEventListener('mouseleave', () => {
+      if (!isDraggingEq && window.visualizer) window.visualizer.drawEqCurve(currentEqGains, -1);
+    });
+    window.addEventListener('mouseup', () => {
+      if (isDraggingEq) {
+        isDraggingEq = false;
+        selectedBandIdx = -1;
+        if (window.visualizer) window.visualizer.drawEqCurve(currentEqGains, -1);
+      }
+    });
+
+    // Mobile & Tablet Touch Ergonomics
+    eqCanvas.addEventListener('touchstart', (e) => {
+      if (e.touches && e.touches[0]) {
+        isDraggingEq = true;
+        handleEqMove(e.touches[0].clientX, e.touches[0].clientY);
+      }
+    }, { passive: true });
+    window.addEventListener('touchmove', (e) => {
+      if (isDraggingEq && e.touches && e.touches[0]) {
+        handleEqMove(e.touches[0].clientX, e.touches[0].clientY);
+      }
+    }, { passive: true });
+    window.addEventListener('touchend', () => {
+      if (isDraggingEq) {
+        isDraggingEq = false;
+        selectedBandIdx = -1;
+        if (window.visualizer) window.visualizer.drawEqCurve(currentEqGains, -1);
+      }
+    });
+
     eqCanvas.addEventListener('click', (e) => { handleEqMove(e.clientX, e.clientY); });
   }
 
