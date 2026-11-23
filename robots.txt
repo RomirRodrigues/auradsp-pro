@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://romirrodrigues.github.io/auradsp-pro/sitemap.xml
