@@ -3431,15 +3431,19 @@ body.font-roboto {
    10/10 MASTER STUDIO PLUGIN & MOBILE UX POLISH
    ========================================================================== */
 
-/* Enhanced Studio Glass Panels */
+/* High-Performance Studio Panels (Zero GPU Shading Overhead) */
 .panel {
-  background: rgba(14, 17, 24, 0.85) !important;
-  border: 1px solid rgba(0, 240, 255, 0.15) !important;
-  backdrop-filter: blur(20px) !important;
-  -webkit-backdrop-filter: blur(20px) !important;
+  background: rgba(14, 18, 26, 0.96) !important;
+  border: 1px solid rgba(0, 240, 255, 0.14) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
   border-radius: 16px !important;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
-  transition: transform 0.2s ease, border-color 0.2s ease !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease !important;
+  contain: layout paint;
+  isolation: isolate;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
 }
 
 .panel:hover {
@@ -6989,18 +6993,19 @@ input, textarea, .dev-custom-json-input {
    AuraDSP Pro: Advanced Glassmorphism, Slider Glow & Tactile Animations
    ========================================================================== */
 
-/* Enhanced Studio Glassmorphic Panels */
+/* High-Performance Fluid Studio Surfaces (0ms GPU Blur Lag) */
 .panel {
-  backdrop-filter: blur(20px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
-  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, border-color 0.2s ease !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease !important;
 }
 
 .source-card, .engine-card, .autoeq-card {
-  backdrop-filter: blur(12px) !important;
-  -webkit-backdrop-filter: blur(12px) !important;
-  transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.18s ease, box-shadow 0.18s ease !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  background: rgba(20, 25, 36, 0.88) !important;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease !important;
 }
 
 /* Tactile Micro-Animations on Click */
@@ -7632,5 +7637,725 @@ input[type="range"]::-webkit-slider-thumb:active {
   .ms-mode-btn {
     flex: 1 1 calc(50% - 6px);
     text-align: center;
+  }
+}
+
+/* ==========================================================================
+   AuraDSP Pro v54.9.0 - STUDIO CONVOLUTION REVERB & ROOM IR SIMULATOR
+   ========================================================================== */
+
+.convolution-modal {
+  max-width: 960px !important;
+  width: 95vw;
+  background: rgba(12, 16, 24, 0.95) !important;
+  border: 1px solid rgba(0, 240, 255, 0.25) !important;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.75), 0 0 30px rgba(0, 240, 255, 0.12) !important;
+  border-radius: 12px;
+  overflow: hidden;
+  animation: modalScaleIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes modalScaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.convolution-modal-body {
+  padding: 18px 22px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-height: calc(88vh - 75px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* IR Waveform & Schroeder Canvas Container */
+.ir-canvas-container {
+  background: rgba(8, 12, 18, 0.92);
+  border: 1px solid rgba(0, 240, 255, 0.18);
+  border-radius: 8px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ir-canvas-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.ir-canvas-title-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ir-pill-label {
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.ir-preset-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--accent-cyan);
+  background: rgba(0, 240, 255, 0.1);
+  border: 1px solid rgba(0, 240, 255, 0.3);
+  padding: 2px 10px;
+  border-radius: 20px;
+}
+
+.ir-stats-pills {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.ir-stat-pill {
+  font-size: 0.68rem;
+  font-family: 'JetBrains Mono', monospace;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 2px 8px;
+  border-radius: 4px;
+  color: var(--text-main);
+}
+
+.ir-canvas-wrap {
+  position: relative;
+  width: 100%;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #06080e;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.ir-canvas {
+  width: 100%;
+  height: 200px;
+  display: block;
+  cursor: crosshair;
+}
+
+.ir-canvas-legend {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 6px 10px;
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  background: rgba(0, 0, 0, 0.3);
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.legend-color {
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+}
+
+/* Preset Gallery Grid */
+.ir-presets-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ir-section-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.ir-section-heading h4 {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.02em;
+}
+
+.ir-subheading {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.ir-presets-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.ir-preset-card {
+  background: rgba(18, 24, 34, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  min-height: 52px;
+}
+
+.ir-preset-card:hover {
+  background: rgba(26, 34, 48, 0.95);
+  border-color: rgba(0, 240, 255, 0.35);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 240, 255, 0.15);
+}
+
+.ir-preset-card:active {
+  transform: scale(0.97) translateY(1px);
+}
+
+.ir-preset-card.active {
+  background: rgba(0, 240, 255, 0.14);
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 16px rgba(0, 240, 255, 0.25);
+}
+
+.preset-icon {
+  font-size: 1.3rem;
+  line-height: 1;
+}
+
+.preset-info {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.preset-name {
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.preset-meta {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Drag and Drop Custom IR Box */
+.ir-drop-zone {
+  background: rgba(0, 240, 255, 0.03);
+  border: 1px dashed rgba(0, 240, 255, 0.3);
+  border-radius: 8px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ir-drop-zone:hover, .ir-drop-zone.drag-over {
+  background: rgba(0, 240, 255, 0.08);
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 14px rgba(0, 240, 255, 0.15);
+}
+
+.drop-text-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.drop-primary {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.drop-secondary {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+}
+
+/* Acoustic Controls Grid */
+.ir-controls-section {
+  background: rgba(14, 18, 26, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 8px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.ir-controls-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px 16px;
+}
+
+.ir-control-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ir-ctrl-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.72rem;
+}
+
+.ir-ctrl-header label {
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.ir-ctrl-header span {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  color: var(--accent-cyan);
+}
+
+/* Action Bar */
+.ir-action-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.ir-audition-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.audition-label {
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+.ir-audition-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  min-height: 36px;
+}
+
+.ir-audition-btn:hover {
+  background: rgba(0, 240, 255, 0.15);
+  border-color: rgba(0, 240, 255, 0.4);
+  transform: translateY(-1px);
+}
+
+.ir-audition-btn:active {
+  transform: scale(0.95);
+}
+
+.ir-export-group {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* ==========================================================================
+   AuraDSP Pro v54.9.0 - HOME THEATER SPEAKER DELAY & PHASE ALIGNMENT
+   ========================================================================== */
+
+.speaker-modal {
+  max-width: 980px !important;
+  width: 95vw;
+  background: rgba(12, 16, 24, 0.96) !important;
+  border: 1px solid rgba(0, 240, 255, 0.25) !important;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.8), 0 0 32px rgba(0, 240, 255, 0.1) !important;
+  border-radius: 12px;
+  overflow: hidden;
+  animation: modalScaleIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.speaker-modal-body {
+  padding: 18px 22px 24px;
+  max-height: calc(88vh - 75px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.spk-modal-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.35fr;
+  gap: 18px;
+}
+
+/* Radar Container */
+.spk-radar-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.spk-radar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.spk-pill-label {
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.spk-unit-toggle {
+  display: inline-flex;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.unit-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.unit-btn.active {
+  background: rgba(0, 240, 255, 0.2);
+  color: var(--accent-cyan);
+}
+
+.spk-canvas-wrap {
+  width: 100%;
+  background: #090c14;
+  border: 1px solid rgba(0, 240, 255, 0.15);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.spk-radar-canvas {
+  width: 100%;
+  height: 270px;
+  display: block;
+}
+
+/* Subwoofer Phase Card */
+.spk-sub-phase-card {
+  background: rgba(18, 24, 34, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sub-phase-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sub-phase-status-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.72rem;
+  padding-top: 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.sub-phase-label {
+  color: var(--text-muted);
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+}
+
+.sub-phase-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+}
+
+/* Speaker Distances List */
+.spk-distances-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.spk-presets-strip {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.presets-strip-label {
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+.presets-btn-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.spk-preset-pill {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text-main);
+  font-size: 0.7rem;
+  padding: 5px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  min-height: 34px;
+}
+
+.spk-preset-pill:hover {
+  background: rgba(0, 240, 255, 0.12);
+  border-color: rgba(0, 240, 255, 0.3);
+}
+
+.spk-preset-pill.active {
+  background: rgba(0, 240, 255, 0.18);
+  border-color: var(--accent-cyan);
+  color: #fff;
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
+}
+
+.spk-list-container {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 340px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.spk-row-item {
+  background: rgba(18, 24, 34, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 6px;
+  padding: 7px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.15s ease;
+}
+
+.spk-row-item:hover {
+  background: rgba(26, 34, 48, 0.95);
+  border-color: rgba(0, 240, 255, 0.25);
+}
+
+.spk-row-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.spk-badge-tag {
+  font-size: 0.68rem;
+  font-weight: 800;
+  font-family: 'JetBrains Mono', monospace;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(0, 240, 255, 0.1);
+  border: 1px solid rgba(0, 240, 255, 0.35);
+  color: var(--accent-cyan);
+  min-width: 32px;
+  text-align: center;
+}
+
+.spk-info-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.spk-name-text {
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.spk-delay-text {
+  font-size: 0.68rem;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.spk-row-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.spk-dist-input {
+  width: 72px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  color: var(--accent-cyan);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 4px 6px;
+  text-align: right;
+  transition: all 0.15s ease;
+}
+
+.spk-dist-input:focus {
+  border-color: var(--accent-cyan);
+  outline: none;
+  box-shadow: 0 0 8px rgba(0, 240, 255, 0.3);
+}
+
+.spk-unit-label {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+/* Responsive Overrides */
+@media (max-width: 900px) {
+  .ir-presets-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .ir-controls-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .spk-modal-grid {
+    grid-template-columns: 1fr;
+  }
+  .spk-list-container {
+    max-height: 260px;
+  }
+}
+
+@media (max-width: 600px) {
+  .ir-presets-grid {
+    grid-template-columns: 1fr;
+  }
+  .ir-controls-grid {
+    grid-template-columns: 1fr;
+  }
+  .ir-canvas {
+    height: 160px;
+  }
+  .spk-radar-canvas {
+    height: 220px;
+  }
+}
+
+
+/* ==========================================================================
+   AuraDSP Pro v54.9.0 - FLUID MICRO-ANIMATIONS & MOBILE ERGONOMICS
+   ========================================================================== */
+
+@keyframes irGlowPulse {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(0, 240, 255, 0.2);
+    border-color: rgba(0, 240, 255, 0.35);
+  }
+  50% {
+    box-shadow: 0 0 16px rgba(0, 240, 255, 0.45);
+    border-color: rgba(0, 240, 255, 0.65);
+  }
+}
+
+.ir-preset-badge {
+  animation: irGlowPulse 3s ease-in-out infinite;
+}
+
+.spk-badge-tag {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.spk-row-item:hover .spk-badge-tag {
+  transform: scale(1.08);
+  box-shadow: 0 0 8px rgba(0, 240, 255, 0.4);
+}
+
+/* Touch-action and Momentum Scrolling for Smooth Mobile Experience */
+.convolution-modal-body,
+.speaker-modal-body,
+.spk-list-container {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+@media (max-width: 768px) {
+  .ir-preset-card,
+  .ir-audition-btn,
+  .spk-preset-pill,
+  .unit-btn {
+    min-height: 44px !important;
+    touch-action: manipulation;
+  }
+
+  .spk-dist-input {
+    min-height: 40px;
+    font-size: 0.95rem;
+  }
+
+  .ir-drop-zone {
+    padding: 16px;
+  }
+
+  .convolution-modal,
+  .speaker-modal {
+    width: 98vw;
+    max-height: 96vh;
+    border-radius: 8px;
   }
 }

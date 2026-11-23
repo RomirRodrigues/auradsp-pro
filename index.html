@@ -49,7 +49,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=54.8.0">
+  <link rel="stylesheet" href="styles.css?v=54.8.1">
   <link rel="manifest" href="manifest.json">
 </head>
 <body class="theme-studio">
@@ -71,7 +71,7 @@
       <div>
         <div class="brand-title">
           <span class="animated-brand-text" id="brandTitleHeader" title="AuraDSP Pro Studio Audio Workstation (Click 5 times for Developer Console)">AURA<span class="brand-dsp-badge">DSP</span> PRO</span>
-          <span class="version-tag" id="appVersionTag" title="Click to view full Changelog &amp; Version History">v54.8.0</span>
+          <span class="version-tag" id="appVersionTag" title="Click to view full Changelog &amp; Version History">v54.9.0</span>
         </div>
         <p class="subtitle">Reference Studio Audio Workstation &middot; by <span class="animated-creator-name" id="creatorNameHeader">Romir Rodrigues</span></p>
       </div>
@@ -636,6 +636,7 @@
             <button id="openAutoEqBtn" class="sm-btn autoeq-trigger-btn" title="Open 500+ Headphone AutoEQ Profile Calibrator">
               <span>🎧 AutoEQ</span>
             </button>
+            <button id="openConvolutionStudioHeaderBtn" class="sm-btn ir-trigger-btn" title="Open Studio Convolution Reverb &amp; Room Impulse Response Simulator (Abbey Road, Sydney Opera, Notre-Dame, Car Cabin)" style="display:flex; align-items:center; gap:5px; border-color:rgba(245, 158, 11, 0.45); color:#f59e0b; background:rgba(245, 158, 11, 0.08);"><span>🏛️ IR Reverb Studio</span></button>
             <button id="openHearingTestBtn" class="sm-btn audiogram-trigger-btn" title="Open Personalized Hearing Calibration &amp; Audiogram Suite (Pure-Tone Assessment &amp; Custom Ear Compensation)" style="display:flex; align-items:center; gap:5px; border-color:rgba(0, 240, 255, 0.4); color:var(--accent-cyan); background:rgba(0, 240, 255, 0.08);">
               <span>👂 Hearing Test</span>
             </button>
@@ -829,6 +830,9 @@
                 <input type="range" id="reverbWet" min="0" max="80" value="25" step="1">
                 <span id="reverbWetVal">25%</span>
               </div>
+            </div>
+            <div style="margin-top:10px; padding-top:8px; border-top:1px solid rgba(255,255,255,0.06);">
+              <button id="openConvolutionStudioBtn" class="sm-btn ir-studio-btn" style="width:100%; display:flex; align-items:center; justify-content:center; gap:6px; border-color:rgba(0, 240, 255, 0.4); color:var(--accent-cyan); background:rgba(0, 240, 255, 0.08); padding:8px 12px; font-weight:600;"><span>🏛️ Open Studio IR Simulator &amp; Convolution Reverb</span></button>
             </div>
           </div>
 
@@ -1057,6 +1061,7 @@
             </div>
           </div>
           <div style="display:flex; align-items:center; gap:8px;">
+            <button id="openSpeakerAlignmentBtn" class="sm-btn spk-align-btn" title="Open Home Theater Speaker Delay &amp; Distance Phase Alignment Suite" style="display:flex; align-items:center; gap:5px; border-color:rgba(0,240,255,0.4); color:var(--accent-cyan); background:rgba(0,240,255,0.08);"><span>📐 Delay Alignment</span></button>
             <button id="dtsxAuditionBtn" class="sm-btn dtsx-audition-btn" title="Instant A/B switch between Direct Stereo and DTS:X Surround">A/B Compare</button>
             <label class="switch">
               <input type="checkbox" id="dtsxToggle" checked>
@@ -1136,7 +1141,7 @@
         &copy; 2026 <strong class="animated-creator-name" id="creatorNameFooter">Romir Rodrigues</strong>. All rights reserved.
       </div>
       <div class="footer-note">
-        AuraDSP Pro Workstation &nbsp;·&nbsp; Real-Time Web Audio DSP &nbsp;·&nbsp; 3D HRTF Spatial Soundstage &nbsp;·&nbsp; <a href="#" id="footerChangelogLink" style="color:var(--accent-cyan); text-decoration:none; border-bottom:1px dashed rgba(0,240,255,0.4); padding-bottom:1px;" title="View full release notes & version history">v54.8.0 Release Notes</a> &nbsp;·&nbsp; <a href="#" id="footerManualLink" style="color:var(--accent-cyan); text-decoration:none; border-bottom:1px dashed rgba(0,240,255,0.4); padding-bottom:1px; margin-left:6px;" title="Open Studio User Manual & Feature Guide">📖 Studio Manual &amp; Guide</a>
+        AuraDSP Pro Workstation &nbsp;·&nbsp; Real-Time Web Audio DSP &nbsp;·&nbsp; 3D HRTF Spatial Soundstage &nbsp;·&nbsp; <a href="#" id="footerChangelogLink" style="color:var(--accent-cyan); text-decoration:none; border-bottom:1px dashed rgba(0,240,255,0.4); padding-bottom:1px;" title="View full release notes & version history">v54.9.0 Release Notes</a> &nbsp;·&nbsp; <a href="#" id="footerManualLink" style="color:var(--accent-cyan); text-decoration:none; border-bottom:1px dashed rgba(0,240,255,0.4); padding-bottom:1px; margin-left:6px;" title="Open Studio User Manual & Feature Guide">📖 Studio Manual &amp; Guide</a>
       </div>
     </div>
   </footer>
@@ -1150,7 +1155,7 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px; height:20px; color:var(--accent-cyan);"><path d="M12 2v20M17 5v14M7 5v14M2 9v6M22 9v6"/></svg>
             <h3 id="changelogTitle" style="margin:0; font-size:1.05rem; font-weight:800; color:#fff; letter-spacing:0.02em;">AuraDSP Pro · Version History & Changelog</h3>
           </div>
-          <p style="margin:4px 0 0; font-size:0.75rem; color:var(--text-muted);">Complete milestone release notes from v1.0.0 (Genesis) to v54.8.0 (Latest)</p>
+          <p style="margin:4px 0 0; font-size:0.75rem; color:var(--text-muted);">Complete milestone release notes from v1.0.0 (Genesis) to v54.9.0 (Latest)</p>
         </div>
         <button id="closeChangelogBtn" class="changelog-close-btn" title="Close Changelog (Esc)">&times;</button>
       </div>
@@ -1345,7 +1350,7 @@
     </div>
   </div>
 
-  <!-- Personalized Hearing Calibration & Audiogram Modal (v54.8.0 Flagship Feature) -->
+  <!-- Personalized Hearing Calibration & Audiogram Modal (v54.9.0 Flagship Feature) -->
   <div id="hearingTestModalBackdrop" class="studio-modal-backdrop hearing-modal-backdrop">
     <div class="studio-modal hearing-modal" role="dialog" aria-modal="true" aria-labelledby="hearingTestTitle">
       <div class="studio-modal-header">
@@ -1356,7 +1361,7 @@
               <path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/>
             </svg>
             <h3 id="hearingTestTitle" class="studio-modal-title">Personalized Hearing Calibration &amp; Audiogram Suite</h3>
-            <span class="studio-modal-badge" style="background:rgba(0, 240, 255, 0.15); border:1px solid #00f0ff; color:#00f0ff;">v54.8.0</span>
+            <span class="studio-modal-badge" style="background:rgba(0, 240, 255, 0.15); border:1px solid #00f0ff; color:#00f0ff;">v54.9.0</span>
           </div>
           <p class="studio-modal-desc">Clinical pure-tone audiometry assessment &middot; Generates custom ear-calibrated NAL-R compensation curves</p>
         </div>
@@ -1488,6 +1493,438 @@
       </div>
     </div>
   </div>
+
+
+  <!-- Studio Convolution Reverb & Room Impulse Response (IR) Simulator Modal (v54.9.0 Flagship Feature) -->
+  <div id="convolutionModalBackdrop" class="studio-modal-backdrop convolution-modal-backdrop">
+    <div class="studio-modal convolution-modal" role="dialog" aria-modal="true" aria-labelledby="convolutionTitle">
+      <div class="studio-modal-header">
+        <div class="studio-modal-header-left">
+          <div class="studio-modal-title-row">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="studio-modal-icon" style="color:#00f0ff; width:20px; height:20px;">
+              <path d="M3 21h18M3 10h18M5 10v11M19 10v11M9 10v11M15 10v11M12 2l10 8H2l10-8z"/>
+            </svg>
+            <h3 id="convolutionTitle" class="studio-modal-title">Studio Convolution Reverb &amp; Room IR Simulator</h3>
+            <span class="studio-modal-badge" style="background:rgba(0, 240, 255, 0.15); border:1px solid #00f0ff; color:#00f0ff;">v54.9.0</span>
+          </div>
+          <p class="studio-modal-desc">Physical Acoustic Ray-Tracing &amp; Convolver Engine &middot; Abbey Road, Sydney Opera, Notre-Dame, Car Cabin</p>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px;">
+          <label class="switch" title="Toggle Convolution Reverb Engine">
+            <input type="checkbox" id="irBypassToggle" checked>
+            <span class="slider round"></span>
+          </label>
+          <button id="closeConvolutionBtn" class="studio-modal-close-btn" title="Close (Esc)">&times;</button>
+        </div>
+      </div>
+
+      <div class="convolution-modal-body">
+        <!-- TOP: LIVE IMPULSE RESPONSE WAVEFORM & SCHROEDER EDC CANVAS -->
+        <div class="ir-canvas-container">
+          <div class="ir-canvas-header">
+            <div class="ir-canvas-title-group">
+              <span class="ir-pill-label">ACOUSTIC IMPULSE PROFILE</span>
+              <span id="irActivePresetBadge" class="ir-preset-badge">🎙️ Abbey Road Studio 2</span>
+            </div>
+            <div class="ir-stats-pills">
+              <span class="ir-stat-pill" title="Schroeder-measured RT60 decay time to -60dB">RT60: <strong id="irMeasuredRt60Val" style="color:#f59e0b;">1.25s</strong></span>
+              <span class="ir-stat-pill" title="Simulated Room Geometric Volume">VOL: <strong id="irRoomVolBadge" style="color:#00f0ff;">1,800 m³</strong></span>
+              <span class="ir-stat-pill" id="irStatusPill" style="color:#10b981; border-color:rgba(16,185,129,0.4);">CONVOLUTION ACTIVE</span>
+            </div>
+          </div>
+
+          <div class="ir-canvas-wrap">
+            <canvas id="irCanvas" class="ir-canvas"></canvas>
+            <div class="ir-canvas-legend">
+              <span class="legend-item"><span class="legend-color" style="background:#00f0ff;"></span>Left Channel</span>
+              <span class="legend-item"><span class="legend-color" style="background:#a855f7;"></span>Right Channel</span>
+              <span class="legend-item"><span class="legend-color" style="background:#f59e0b;"></span>Schroeder Energy Decay (EDC)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- MIDDLE: PRESET GALLERY & DRAG/DROP IR LOADER -->
+        <div class="ir-presets-section">
+          <div class="ir-section-heading">
+            <h4>Curated Acoustic Spaces &amp; World-Class Studios</h4>
+            <span class="ir-subheading">Select an acoustic environment or drop custom IR WAV audio</span>
+          </div>
+          <div class="ir-presets-grid" id="irPresetsGrid">
+            <button class="ir-preset-card active" data-preset="abbey_road">
+              <span class="preset-icon">🎙️</span>
+              <div class="preset-info">
+                <span class="preset-name">Abbey Road Studio 2</span>
+                <span class="preset-meta">RT60: 1.25s &middot; Vintage Timber</span>
+              </div>
+            </button>
+            <button class="ir-preset-card" data-preset="sydney_opera">
+              <span class="preset-icon">🏛️</span>
+              <div class="preset-info">
+                <span class="preset-name">Sydney Opera Concert Hall</span>
+                <span class="preset-meta">RT60: 2.50s &middot; Symphonic Hall</span>
+              </div>
+            </button>
+            <button class="ir-preset-card" data-preset="notre_dame">
+              <span class="preset-icon">⛪</span>
+              <div class="preset-info">
+                <span class="preset-name">Notre-Dame Cathedral</span>
+                <span class="preset-meta">RT60: 5.80s &middot; Sacred Stone</span>
+              </div>
+            </button>
+            <button class="ir-preset-card" data-preset="car_cabin">
+              <span class="preset-icon">🚗</span>
+              <div class="preset-info">
+                <span class="preset-name">Luxury Sedan / Car Cabin</span>
+                <span class="preset-meta">RT60: 0.28s &middot; Automotive</span>
+              </div>
+            </button>
+            <button class="ir-preset-card" data-preset="scoring_stage">
+              <span class="preset-icon">🎬</span>
+              <div class="preset-info">
+                <span class="preset-name">Hollywood Scoring Stage</span>
+                <span class="preset-meta">RT60: 1.95s &middot; Cinematic Air</span>
+              </div>
+            </button>
+            <button class="ir-preset-card" data-preset="tokyo_tunnel">
+              <span class="preset-icon">🚇</span>
+              <div class="preset-info">
+                <span class="preset-name">Tokyo Underground Chamber</span>
+                <span class="preset-meta">RT60: 3.80s &middot; Cavern Slapback</span>
+              </div>
+            </button>
+            <button class="ir-preset-card" data-preset="plate_140">
+              <span class="preset-icon">⚡</span>
+              <div class="preset-info">
+                <span class="preset-name">Vintage EMT 140 Plate</span>
+                <span class="preset-meta">RT60: 2.20s &middot; Steel Shimmer</span>
+              </div>
+            </button>
+            <button class="ir-preset-card" data-preset="vocal_booth">
+              <span class="preset-icon">🎤</span>
+              <div class="preset-info">
+                <span class="preset-name">Acoustic Vocal Booth</span>
+                <span class="preset-meta">RT60: 0.18s &middot; Intimate Dry</span>
+              </div>
+            </button>
+          </div>
+
+          <!-- Drag and Drop Custom IR File Loader -->
+          <div class="ir-drop-zone" id="irDropZone" title="Drop any .wav, .mp3, or .flac impulse response file">
+            <input type="file" id="irFileInput" accept=".wav,.mp3,.flac,.ogg,.aiff" style="display:none;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:24px; height:24px; color:var(--accent-cyan);">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+            </svg>
+            <div class="drop-text-group">
+              <span class="drop-primary">Drag &amp; drop custom Impulse Response file (.WAV, .MP3, .FLAC)</span>
+              <span class="drop-secondary">or <strong id="irBrowseText" style="color:var(--accent-cyan); text-decoration:underline; cursor:pointer;">browse from computer</strong> to convolve directly in Web Audio</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- BOTTOM: PHYSICAL ACOUSTIC PARAMETERS -->
+        <div class="ir-controls-section">
+          <div class="ir-controls-grid">
+            <div class="ir-control-item">
+              <div class="ir-ctrl-header">
+                <label for="irRt60">RT60 Decay Time</label>
+                <span id="irRt60Val">1.25 s</span>
+              </div>
+              <input type="range" id="irRt60" min="0.1" max="8.0" step="0.05" value="1.25">
+            </div>
+            <div class="ir-control-item">
+              <div class="ir-ctrl-header">
+                <label for="irPreDelay">Pre-Delay</label>
+                <span id="irPreDelayVal">18 ms</span>
+              </div>
+              <input type="range" id="irPreDelay" min="0" max="150" step="1" value="18">
+            </div>
+            <div class="ir-control-item">
+              <div class="ir-ctrl-header">
+                <label for="irHfDamping">HF Damping / Air Absorption</label>
+                <span id="irHfDampingVal">6500 Hz</span>
+              </div>
+              <input type="range" id="irHfDamping" min="800" max="18000" step="100" value="6500">
+            </div>
+            <div class="ir-control-item">
+              <div class="ir-ctrl-header">
+                <label for="irRoomSize">Room Geometry Volume</label>
+                <span id="irRoomSizeVal">1,800 m³</span>
+              </div>
+              <input type="range" id="irRoomSize" min="4" max="30000" step="50" value="1800">
+            </div>
+            <div class="ir-control-item">
+              <div class="ir-ctrl-header">
+                <label for="irEarlyLate">Early / Late Reverb Ratio</label>
+                <span id="irEarlyLateVal">55%</span>
+              </div>
+              <input type="range" id="irEarlyLate" min="0" max="100" step="1" value="55">
+            </div>
+            <div class="ir-control-item">
+              <div class="ir-ctrl-header">
+                <label for="irStereoWidth">Stereo Spatial Width</label>
+                <span id="irStereoWidthVal">85%</span>
+              </div>
+              <input type="range" id="irStereoWidth" min="0" max="100" step="1" value="85">
+            </div>
+            <div class="ir-control-item">
+              <div class="ir-ctrl-header">
+                <label for="irWetLevel">Reverb Wet Blend</label>
+                <span id="irWetLevelVal">30%</span>
+              </div>
+              <input type="range" id="irWetLevel" min="0" max="100" step="1" value="30">
+            </div>
+            <div class="ir-control-item">
+              <div class="ir-ctrl-header">
+                <label for="irOutputGain">Output Trim Gain</label>
+                <span id="irOutputGainVal">0.0 dB</span>
+              </div>
+              <input type="range" id="irOutputGain" min="-12" max="6" step="0.5" value="0">
+            </div>
+          </div>
+
+          <!-- ACTION BAR: AUDITION STIMULI & WAV EXPORT -->
+          <div class="ir-action-bar">
+            <div class="ir-audition-group">
+              <span class="audition-label">AUDITION STIMULUS:</span>
+              <button class="ir-audition-btn" id="auditionClickBtn" title="1-Sample Dirac Delta impulse click">🎯 Dirac Click</button>
+              <button class="ir-audition-btn" id="auditionRimshotBtn" title="Studio Snare Rimshot transient burst">🥁 Snare Rimshot</button>
+              <button class="ir-audition-btn" id="auditionToneBtn" title="1 kHz acoustic sine tone burst">🔉 1kHz Burst</button>
+            </div>
+            <div class="ir-export-group">
+              <button class="sm-btn" id="exportIrWavBtn" title="Export active Impulse Response as 24-bit 48kHz WAV audio file">📤 Export IR (.WAV)</button>
+              <button class="sm-btn" id="resetIrPresetBtn" title="Reset parameters to active preset defaults">🔄 Reset</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Home Theater Speaker Delay & Distance Phase Alignment Modal (v54.9.0 Flagship Feature) -->
+  <div id="speakerAlignmentModalBackdrop" class="studio-modal-backdrop speaker-alignment-modal-backdrop">
+    <div class="studio-modal speaker-modal" role="dialog" aria-modal="true" aria-labelledby="speakerAlignmentTitle">
+      <div class="studio-modal-header">
+        <div class="studio-modal-header-left">
+          <div class="studio-modal-title-row">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="studio-modal-icon" style="color:var(--accent-cyan); width:20px; height:20px;">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="m4.93 4.93 4.24 4.24M14.83 14.83l4.24 4.24M14.83 9.17l4.24-4.24M4.93 19.07l4.24-4.24"/>
+            </svg>
+            <h3 id="speakerAlignmentTitle" class="studio-modal-title">Home Theater Speaker Delay &amp; Distance Phase Alignment</h3>
+            <span class="studio-modal-badge" style="background:rgba(0, 240, 255, 0.15); border:1px solid #00f0ff; color:#00f0ff;">v54.9.0</span>
+          </div>
+          <p class="studio-modal-desc">Time-of-flight acoustic delay compensation &middot; Subwoofer crossover phase polarity &middot; 5.1 / 7.1 / 9.1.4</p>
+        </div>
+        <button id="closeSpeakerAlignmentBtn" class="studio-modal-close-btn" title="Close (Esc)">&times;</button>
+      </div>
+
+      <div class="speaker-modal-body">
+        <div class="spk-modal-grid">
+          <!-- LEFT: INTERACTIVE SPEAKER RADAR CANVAS -->
+          <div class="spk-radar-container">
+            <div class="spk-radar-header">
+              <span class="spk-pill-label">LISTENER SWEET SPOT RADAR</span>
+              <div class="spk-unit-toggle">
+                <button id="spkUnitM" class="unit-btn active">Meters (m)</button>
+                <button id="spkUnitFt" class="unit-btn">Feet (ft)</button>
+              </div>
+            </div>
+            <div class="spk-canvas-wrap">
+              <canvas id="spkRadarCanvas" class="spk-radar-canvas"></canvas>
+            </div>
+            <!-- Subwoofer Phase Polarity Card -->
+            <div class="spk-sub-phase-card">
+              <div class="sub-phase-header">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span style="font-size:1.1rem;">🔊</span>
+                  <div>
+                    <h5 style="margin:0; font-size:0.85rem; color:#fff;">Subwoofer Phase Polarity (80Hz Crossover)</h5>
+                    <p style="margin:2px 0 0; font-size:0.7rem; color:var(--text-muted);">Eliminates destructive room-mode cancellation between front woofers &amp; subwoofer</p>
+                  </div>
+                </div>
+                <label class="switch" title="Invert Subwoofer Phase 180°">
+                  <input type="checkbox" id="subPhaseToggle">
+                  <span class="slider round"></span>
+                </label>
+              </div>
+              <div class="sub-phase-status-row">
+                <span class="sub-phase-label">PHASE STATUS:</span>
+                <span id="subPhaseBadge" class="sub-phase-badge" style="color:#10b981;">0° NORMAL (IN-PHASE)</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- RIGHT: SPEAKER DISTANCES & TIME-OF-FLIGHT DELAYS -->
+          <div class="spk-distances-container">
+            <!-- Room Presets Strip -->
+            <div class="spk-presets-strip">
+              <span class="presets-strip-label">ROOM PRESETS:</span>
+              <div class="presets-btn-row">
+                <button class="spk-preset-pill active" data-preset="living_room">🛋️ Living Room (4.5m x 5.5m)</button>
+                <button class="spk-preset-pill" data-preset="cinema">🎬 Cinema Hall (6m x 7.5m)</button>
+                <button class="spk-preset-pill" data-preset="bedroom">🛏️ Desktop / Bedroom (2.5m x 3m)</button>
+                <button class="spk-preset-pill" data-preset="corner_asymmetric">📐 Corner Sofa (Asymmetric)</button>
+              </div>
+            </div>
+
+            <!-- Speaker Distance Inputs List -->
+            <div class="spk-list-container">
+              <!-- Front Left -->
+              <div class="spk-row-item">
+                <div class="spk-row-left">
+                  <span class="spk-badge-tag">FL</span>
+                  <div class="spk-info-group">
+                    <span class="spk-name-text">Front Left</span>
+                    <span class="spk-delay-text" id="spkDelayVal_FL">0.0 ms (Reference Anchor)</span>
+                  </div>
+                </div>
+                <div class="spk-row-right">
+                  <input type="number" id="spkDist_FL" class="spk-dist-input" min="0.5" max="25" step="0.1" value="3.2">
+                  <span class="spk-unit-label">m</span>
+                </div>
+              </div>
+
+              <!-- Center -->
+              <div class="spk-row-item">
+                <div class="spk-row-left">
+                  <span class="spk-badge-tag" style="border-color:#10b981; color:#10b981;">C</span>
+                  <div class="spk-info-group">
+                    <span class="spk-name-text">Center Dialogue</span>
+                    <span class="spk-delay-text" id="spkDelayVal_C">+0.58 ms delay</span>
+                  </div>
+                </div>
+                <div class="spk-row-right">
+                  <input type="number" id="spkDist_C" class="spk-dist-input" min="0.5" max="25" step="0.1" value="3.0">
+                  <span class="spk-unit-label">m</span>
+                </div>
+              </div>
+
+              <!-- Front Right -->
+              <div class="spk-row-item">
+                <div class="spk-row-left">
+                  <span class="spk-badge-tag">FR</span>
+                  <div class="spk-info-group">
+                    <span class="spk-name-text">Front Right</span>
+                    <span class="spk-delay-text" id="spkDelayVal_FR">0.0 ms (Reference Anchor)</span>
+                  </div>
+                </div>
+                <div class="spk-row-right">
+                  <input type="number" id="spkDist_FR" class="spk-dist-input" min="0.5" max="25" step="0.1" value="3.2">
+                  <span class="spk-unit-label">m</span>
+                </div>
+              </div>
+
+              <!-- Subwoofer -->
+              <div class="spk-row-item">
+                <div class="spk-row-left">
+                  <span class="spk-badge-tag" style="border-color:#f59e0b; color:#f59e0b;">SUB</span>
+                  <div class="spk-info-group">
+                    <span class="spk-name-text">Subwoofer (LFE)</span>
+                    <span class="spk-delay-text" id="spkDelayVal_SUB">+1.17 ms delay</span>
+                  </div>
+                </div>
+                <div class="spk-row-right">
+                  <input type="number" id="spkDist_SUB" class="spk-dist-input" min="0.5" max="25" step="0.1" value="2.8">
+                  <span class="spk-unit-label">m</span>
+                </div>
+              </div>
+
+              <!-- Surround Left -->
+              <div class="spk-row-item">
+                <div class="spk-row-left">
+                  <span class="spk-badge-tag">SL</span>
+                  <div class="spk-info-group">
+                    <span class="spk-name-text">Side Surround Left</span>
+                    <span class="spk-delay-text" id="spkDelayVal_SL">+2.92 ms delay</span>
+                  </div>
+                </div>
+                <div class="spk-row-right">
+                  <input type="number" id="spkDist_SL" class="spk-dist-input" min="0.5" max="25" step="0.1" value="2.2">
+                  <span class="spk-unit-label">m</span>
+                </div>
+              </div>
+
+              <!-- Surround Right -->
+              <div class="spk-row-item">
+                <div class="spk-row-left">
+                  <span class="spk-badge-tag">SR</span>
+                  <div class="spk-info-group">
+                    <span class="spk-name-text">Side Surround Right</span>
+                    <span class="spk-delay-text" id="spkDelayVal_SR">+2.92 ms delay</span>
+                  </div>
+                </div>
+                <div class="spk-row-right">
+                  <input type="number" id="spkDist_SR" class="spk-dist-input" min="0.5" max="25" step="0.1" value="2.2">
+                  <span class="spk-unit-label">m</span>
+                </div>
+              </div>
+
+              <!-- Rear Left -->
+              <div class="spk-row-item">
+                <div class="spk-row-left">
+                  <span class="spk-badge-tag">RL</span>
+                  <div class="spk-info-group">
+                    <span class="spk-name-text">Rear Surround Left</span>
+                    <span class="spk-delay-text" id="spkDelayVal_RL">+4.08 ms delay</span>
+                  </div>
+                </div>
+                <div class="spk-row-right">
+                  <input type="number" id="spkDist_RL" class="spk-dist-input" min="0.5" max="25" step="0.1" value="1.8">
+                  <span class="spk-unit-label">m</span>
+                </div>
+              </div>
+
+              <!-- Rear Right -->
+              <div class="spk-row-item">
+                <div class="spk-row-left">
+                  <span class="spk-badge-tag">RR</span>
+                  <div class="spk-info-group">
+                    <span class="spk-name-text">Rear Surround Right</span>
+                    <span class="spk-delay-text" id="spkDelayVal_RR">+4.08 ms delay</span>
+                  </div>
+                </div>
+                <div class="spk-row-right">
+                  <input type="number" id="spkDist_RR" class="spk-dist-input" min="0.5" max="25" step="0.1" value="1.8">
+                  <span class="spk-unit-label">m</span>
+                </div>
+              </div>
+
+              <!-- Top Front Left -->
+              <div class="spk-row-item">
+                <div class="spk-row-left">
+                  <span class="spk-badge-tag" style="border-color:#a855f7; color:#a855f7;">TFL</span>
+                  <div class="spk-info-group">
+                    <span class="spk-name-text">Top Height Front Left</span>
+                    <span class="spk-delay-text" id="spkDelayVal_TFL">0.0 ms (Anchor)</span>
+                  </div>
+                </div>
+                <div class="spk-row-right">
+                  <input type="number" id="spkDist_TFL" class="spk-dist-input" min="0.5" max="25" step="0.1" value="3.4">
+                  <span class="spk-unit-label">m</span>
+                </div>
+              </div>
+
+              <!-- Top Front Right -->
+              <div class="spk-row-item">
+                <div class="spk-row-left">
+                  <span class="spk-badge-tag" style="border-color:#a855f7; color:#a855f7;">TFR</span>
+                  <div class="spk-info-group">
+                    <span class="spk-name-text">Top Height Front Right</span>
+                    <span class="spk-delay-text" id="spkDelayVal_TFR">0.0 ms (Anchor)</span>
+                  </div>
+                </div>
+                <div class="spk-row-right">
+                  <input type="number" id="spkDist_TFR" class="spk-dist-input" min="0.5" max="25" step="0.1" value="3.4">
+                  <span class="spk-unit-label">m</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
 
   <!-- Audio File Codec & Stream Metadata Inspector Modal (Feature 20) -->
   <div id="codecInspectorModalBackdrop" class="studio-modal-backdrop codec-modal-backdrop">
@@ -1859,18 +2296,20 @@
   </div>
 
   <!-- Modular Scripts -->
-  <script src="js/data/presets.js?v=54.8.0"></script>
-  <script src="js/data/autoeq-database.js?v=54.8.0"></script>
-  <script src="js/data/changelog.js?v=54.8.0"></script>
-  <script src="js/data/manual.js?v=54.8.0"></script>
-  <script src="js/audio/audio-engine.js?v=54.8.0"></script>
-  <script src="js/dsp/audio-pro-tools.js?v=54.8.0"></script>
-  <script src="js/dsp/audiogram-calibration.js?v=54.8.0"></script>
-  <script src="js/visual/spatial-canvas.js?v=54.8.0"></script>
-  <script src="js/visual/visualizer.js?v=54.8.0"></script>
-  <script src="js/ui/motion-ui.js?v=54.8.0"></script>
-  <script src="js/ui/dev-menu.js?v=54.8.0"></script>
-  <script src="js/app.js?v=54.8.0"></script>
+  <script src="js/data/presets.js?v=54.8.1"></script>
+  <script src="js/data/autoeq-database.js?v=54.8.1"></script>
+  <script src="js/data/changelog.js?v=54.8.1"></script>
+  <script src="js/data/manual.js?v=54.8.1"></script>
+  <script src="js/audio/audio-engine.js?v=54.8.1"></script>
+  <script src="js/dsp/audio-pro-tools.js?v=54.9.0"></script>
+  <script src="js/dsp/audiogram-calibration.js?v=54.9.0"></script>
+  <script src="js/dsp/convolution-studio.js?v=54.9.0"></script>
+  <script src="js/dsp/speaker-delay-alignment.js?v=54.9.0"></script>
+  <script src="js/visual/spatial-canvas.js?v=54.8.1"></script>
+  <script src="js/visual/visualizer.js?v=54.8.1"></script>
+  <script src="js/ui/motion-ui.js?v=54.8.1"></script>
+  <script src="js/ui/dev-menu.js?v=54.8.1"></script>
+  <script src="js/app.js?v=54.8.1"></script>
 
   <script>
     // ─── Automatic Zero-Touch Client Auto-Updater Engine ───
@@ -1887,9 +2326,9 @@
           }
         });
 
-        navigator.serviceWorker.register('sw.js?v=54.8.0')
+        navigator.serviceWorker.register('sw.js?v=54.8.1')
           .then(reg => {
-            console.log('Service Worker Registered v54.8.0');
+            console.log('Service Worker Registered v54.9.0');
 
             // 1. Check for new updates immediately on initial load
             reg.update().catch(() => {});

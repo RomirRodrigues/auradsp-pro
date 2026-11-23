@@ -1,4 +1,4 @@
-const CACHE_NAME = 'auradsp-pro-v54.8.0';
+const CACHE_NAME = 'auradsp-pro-v54.9.0';
 const ASSETS = [
   './',
   './index.html',
@@ -9,6 +9,8 @@ const ASSETS = [
   './js/audio/audio-engine.js',
   './js/dsp/audio-pro-tools.js',
   './js/dsp/audiogram-calibration.js',
+  './js/dsp/convolution-studio.js',
+  './js/dsp/speaker-delay-alignment.js',
   './js/data/autoeq-database.js',
   './js/data/presets.js',
   './js/data/changelog.js',

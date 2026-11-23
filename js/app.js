@@ -1519,6 +1519,7 @@ document.addEventListener('DOMContentLoaded', () => {
   async function searchSaavnMusic(query, limit = 25) {
     const mirrors = [
       { url: `https://saavn.sumit.co/api/search/songs?query=${encodeURIComponent(query)}&limit=${limit}`, type: 'v2' },
+      { url: `https://saavn.me/search/songs?query=${encodeURIComponent(query)}`, type: 'v2' },
       { url: `https://saavn-api-one.vercel.app/search/songs?query=${encodeURIComponent(query)}`, type: 'v2' }
     ];
 
@@ -1572,9 +1573,8 @@ document.addEventListener('DOMContentLoaded', () => {
   async function searchGlobalCatalog(query, limit = 25) {
     const providers = [
       'https://discoveryprovider.audius.co',
-      'https://audius-dp.singapore.creatorseed.com',
-      'https://audius-discovery-1.cultur3stake.com',
-      'https://discoveryprovider2.audius.co'
+      'https://discoveryprovider2.audius.co',
+      'https://discoveryprovider3.audius.co'
     ];
 
     for (const host of providers) {
@@ -4497,6 +4497,255 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+
+  // ==========================================================================
+  // AURADSP PRO v54.9.0 - STUDIO CONVOLUTION REVERB & ROOM IR SIMULATOR
+  // ==========================================================================
+  if (!window.convolutionStudio && window.ConvolutionStudio) {
+    window.convolutionStudio = new ConvolutionStudio(window.audioEngine);
+  }
+
+  const openConvolutionStudioBtn = document.getElementById('openConvolutionStudioBtn');
+  const openConvolutionStudioHeaderBtn = document.getElementById('openConvolutionStudioHeaderBtn');
+  const closeConvolutionBtn = document.getElementById('closeConvolutionBtn');
+  const convolutionModalBackdrop = document.getElementById('convolutionModalBackdrop');
+
+  function openConvolutionModal() {
+    if (!convolutionModalBackdrop) return;
+    convolutionModalBackdrop.classList.add('open');
+    document.body.style.overflow = 'hidden';
+
+    if (window.convolutionStudio) {
+      window.convolutionStudio.syncControlsToState();
+      const canvasEl = document.getElementById('irCanvas');
+      if (canvasEl) {
+        setTimeout(() => window.convolutionStudio.initCanvas(canvasEl), 60);
+      }
+    }
+  }
+
+  function closeConvolutionModal() {
+    if (!convolutionModalBackdrop) return;
+    convolutionModalBackdrop.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  if (openConvolutionStudioBtn) {
+    openConvolutionStudioBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      openConvolutionModal();
+    });
+  }
+
+  if (openConvolutionStudioHeaderBtn) {
+    openConvolutionStudioHeaderBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      openConvolutionModal();
+    });
+  }
+
+  if (closeConvolutionBtn) {
+    closeConvolutionBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      closeConvolutionModal();
+    });
+  }
+
+  if (convolutionModalBackdrop) {
+    convolutionModalBackdrop.addEventListener('click', (e) => {
+      if (e.target === convolutionModalBackdrop) closeConvolutionModal();
+    });
+  }
+
+  // Presets Gallery
+  document.querySelectorAll('.ir-preset-card').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const key = btn.getAttribute('data-preset');
+      if (window.convolutionStudio && key) {
+        window.convolutionStudio.applyPreset(key);
+      }
+    });
+  });
+
+  // Acoustic Parameter Sliders
+  ['irRt60', 'irPreDelay', 'irHfDamping', 'irRoomSize', 'irEarlyLate', 'irStereoWidth', 'irWetLevel', 'irOutputGain'].forEach(id => {
+    const el = document.getElementById(id);
+    const textEl = document.getElementById(id + 'Val');
+    if (!el) return;
+
+    el.addEventListener('input', (e) => {
+      const val = parseFloat(e.target.value);
+      if (textEl) {
+        if (id === 'irRt60') textEl.textContent = val.toFixed(2) + ' s';
+        else if (id === 'irPreDelay') textEl.textContent = val + ' ms';
+        else if (id === 'irHfDamping') textEl.textContent = val + ' Hz';
+        else if (id === 'irRoomSize') textEl.textContent = val.toLocaleString() + ' m³';
+        else if (id === 'irEarlyLate' || id === 'irStereoWidth' || id === 'irWetLevel') textEl.textContent = val + '%';
+        else if (id === 'irOutputGain') textEl.textContent = (val > 0 ? '+' : '') + val.toFixed(1) + ' dB';
+      }
+
+      if (window.convolutionStudio) {
+        const paramName = id.replace('ir', '');
+        const camelParam = paramName.charAt(0).toLowerCase() + paramName.slice(1);
+        window.convolutionStudio.setParam(camelParam, val);
+      }
+    });
+  });
+
+  // Audition buttons
+  const auditionClickBtn = document.getElementById('auditionClickBtn');
+  const auditionRimshotBtn = document.getElementById('auditionRimshotBtn');
+  const auditionToneBtn = document.getElementById('auditionToneBtn');
+  if (auditionClickBtn) auditionClickBtn.addEventListener('click', () => window.convolutionStudio?.playAuditionStimulus('click'));
+  if (auditionRimshotBtn) auditionRimshotBtn.addEventListener('click', () => window.convolutionStudio?.playAuditionStimulus('rimshot'));
+  if (auditionToneBtn) auditionToneBtn.addEventListener('click', () => window.convolutionStudio?.playAuditionStimulus('tone'));
+
+  // Bypass toggle
+  const irBypassToggle = document.getElementById('irBypassToggle');
+  if (irBypassToggle) {
+    irBypassToggle.addEventListener('change', (e) => {
+      window.convolutionStudio?.toggleBypass(e.target.checked);
+    });
+  }
+
+  // Export & Reset
+  const exportIrWavBtn = document.getElementById('exportIrWavBtn');
+  const resetIrPresetBtn = document.getElementById('resetIrPresetBtn');
+  if (exportIrWavBtn) exportIrWavBtn.addEventListener('click', () => window.convolutionStudio?.exportIrWav());
+  if (resetIrPresetBtn) {
+    resetIrPresetBtn.addEventListener('click', () => {
+      if (window.convolutionStudio) {
+        window.convolutionStudio.applyPreset(window.convolutionStudio.currentPresetKey);
+      }
+    });
+  }
+
+  // Drag & Drop Custom IR
+  const irDropZone = document.getElementById('irDropZone');
+  const irFileInput = document.getElementById('irFileInput');
+  const irBrowseText = document.getElementById('irBrowseText');
+
+  if (irDropZone && irFileInput) {
+    irDropZone.addEventListener('click', () => irFileInput.click());
+    if (irBrowseText) irBrowseText.addEventListener('click', (e) => { e.stopPropagation(); irFileInput.click(); });
+
+    irDropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      irDropZone.classList.add('drag-over');
+    });
+
+    irDropZone.addEventListener('dragleave', () => {
+      irDropZone.classList.remove('drag-over');
+    });
+
+    irDropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      irDropZone.classList.remove('drag-over');
+      const file = e.dataTransfer?.files?.[0];
+      if (file && window.convolutionStudio) {
+        window.convolutionStudio.loadCustomIrFile(file);
+      }
+    });
+
+    irFileInput.addEventListener('change', (e) => {
+      const file = e.target.files?.[0];
+      if (file && window.convolutionStudio) {
+        window.convolutionStudio.loadCustomIrFile(file);
+      }
+    });
+  }
+
+  // ==========================================================================
+  // AURADSP PRO v54.9.0 - HOME THEATER SPEAKER DELAY & DISTANCE PHASE ALIGNMENT
+  // ==========================================================================
+  if (!window.speakerDelayAlignment && window.SpeakerDelayAlignment) {
+    window.speakerDelayAlignment = new SpeakerDelayAlignment(window.audioEngine);
+  }
+
+  const openSpeakerAlignmentBtn = document.getElementById('openSpeakerAlignmentBtn');
+  const closeSpeakerAlignmentBtn = document.getElementById('closeSpeakerAlignmentBtn');
+  const speakerAlignmentModalBackdrop = document.getElementById('speakerAlignmentModalBackdrop');
+
+  function openSpeakerAlignmentModal() {
+    if (!speakerAlignmentModalBackdrop) return;
+    speakerAlignmentModalBackdrop.classList.add('open');
+    document.body.style.overflow = 'hidden';
+
+    if (window.speakerDelayAlignment) {
+      window.speakerDelayAlignment.renderUi();
+      const canvasEl = document.getElementById('spkRadarCanvas');
+      if (canvasEl) {
+        setTimeout(() => window.speakerDelayAlignment.initRadar(canvasEl), 60);
+      }
+    }
+  }
+
+  function closeSpeakerAlignmentModal() {
+    if (!speakerAlignmentModalBackdrop) return;
+    speakerAlignmentModalBackdrop.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  if (openSpeakerAlignmentBtn) {
+    openSpeakerAlignmentBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      openSpeakerAlignmentModal();
+    });
+  }
+
+  if (closeSpeakerAlignmentBtn) {
+    closeSpeakerAlignmentBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      closeSpeakerAlignmentModal();
+    });
+  }
+
+  if (speakerAlignmentModalBackdrop) {
+    speakerAlignmentModalBackdrop.addEventListener('click', (e) => {
+      if (e.target === speakerAlignmentModalBackdrop) closeSpeakerAlignmentModal();
+    });
+  }
+
+  // Presets
+  document.querySelectorAll('.spk-preset-pill').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.spk-preset-pill').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const pKey = btn.getAttribute('data-preset');
+      if (window.speakerDelayAlignment && pKey) {
+        window.speakerDelayAlignment.applyPreset(pKey);
+      }
+    });
+  });
+
+  // Unit toggles
+  const spkUnitM = document.getElementById('spkUnitM');
+  const spkUnitFt = document.getElementById('spkUnitFt');
+  if (spkUnitM) spkUnitM.addEventListener('click', () => window.speakerDelayAlignment?.setUnit('m'));
+  if (spkUnitFt) spkUnitFt.addEventListener('click', () => window.speakerDelayAlignment?.setUnit('ft'));
+
+  // Distance inputs
+  ['FL', 'C', 'FR', 'SUB', 'SL', 'SR', 'RL', 'RR', 'TFL', 'TFR'].forEach(spk => {
+    const input = document.getElementById('spkDist_' + spk);
+    if (input) {
+      input.addEventListener('input', (e) => {
+        const val = parseFloat(e.target.value);
+        if (!isNaN(val) && window.speakerDelayAlignment) {
+          window.speakerDelayAlignment.setSpeakerDistance(spk, val);
+        }
+      });
+    }
+  });
+
+  // Subwoofer phase polarity toggle
+  const subPhaseToggle = document.getElementById('subPhaseToggle');
+  if (subPhaseToggle) {
+    subPhaseToggle.addEventListener('change', (e) => {
+      window.speakerDelayAlignment?.toggleSubPhase(e.target.checked);
+    });
+  }
+
+
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && changelogModalBackdrop && changelogModalBackdrop.classList.contains('open')) {
       closeChangelogModal();
@@ -5682,6 +5931,8 @@ document.addEventListener('DOMContentLoaded', () => {
       if (earHealthModalBackdrop && earHealthModalBackdrop.classList.contains('open')) closeEarHealthModal();
       if (typeof closeHearingTestModal === 'function' && hearingTestModalBackdrop && hearingTestModalBackdrop.classList.contains('open')) closeHearingTestModal();
       if (codecInspectorModalBackdrop && codecInspectorModalBackdrop.classList.contains('open')) closeCodecInspectorModal();
+      if (typeof closeConvolutionModal === 'function' && convolutionModalBackdrop && convolutionModalBackdrop.classList.contains('open')) closeConvolutionModal();
+      if (typeof closeSpeakerAlignmentModal === 'function' && speakerAlignmentModalBackdrop && speakerAlignmentModalBackdrop.classList.contains('open')) closeSpeakerAlignmentModal();
       const devBackdrop = document.getElementById('devModalBackdrop');
       if (devBackdrop && devBackdrop.classList.contains('open') && window.auraDevMenu) {
         window.auraDevMenu.closeModal();

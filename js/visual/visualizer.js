@@ -301,6 +301,7 @@ class AudioVisualizer {
     if (this.brandLogoIcon && isActivelyPlaying !== this._lastLogoPlaying) {
       this._lastLogoPlaying = isActivelyPlaying;
       this.brandLogoIcon.classList.toggle('is-playing', isActivelyPlaying);
+    this.isActivelyPlaying = isActivelyPlaying;
     }
 
     // 3. Render Mode
@@ -688,7 +689,11 @@ class AudioVisualizer {
       lastTime = now;
 
       if (!document.hidden) {
-        this.drawSpectrum(dt);
+        const isBodeActive = this.isDraggingNode || this.hoveredNodeIndex !== -1;
+        if (this.isActivelyPlaying || isBodeActive || (now - (this._lastIdleDraw || 0) >= 66)) {
+          this._lastIdleDraw = now;
+          this.drawSpectrum(dt);
+        }
       }
 
       if (!document.hidden) {
