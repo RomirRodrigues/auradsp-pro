@@ -1,13 +1,24 @@
 /**
  * AuraDSP Pro - Complete Version History & Changelog Data
- * Records all 54+ version milestones from v1.0.0 (Genesis) to v54.4.2 (Latest).
+ * Records all 54+ version milestones from v1.0.0 (Genesis) to v54.5.0 (Latest).
  */
 
 const CHANGELOG_DATA = [
   {
+    version: 'v54.5.0',
+    title: 'Multi-Track Playlist Queue, Master Audio Recorder & Cross-Platform EQ Exporter',
+    tag: 'Latest',
+    date: 'November 2026',
+    items: [
+      'Multi-Track Local Playlist Queue: Full batch-upload support for entire albums and playlists (WAV, FLAC, MP3, AAC, OGG). Includes auto-advance on track completion, interactive shuffle, 3-mode repeat (Off / All / One), track removal, and live visualizer playing indicators.',
+      'DSP Master Audio Recorder: Real-time 320kbps master output recording directly from the post-limiter Web Audio node. Capture your processed, 10-band EQ-tuned, 3D spatialized tracks with zero latency and download as high-fidelity .webm / .wav.',
+      'Cross-Platform EQ Profile Exporter & Importer: Instant export and import of calibrated 10-band curves to Equalizer APO / Peace GUI (.txt) for Windows, Wavelet GraphicEQ (.txt) for Android, and AuraDSP Full Studio Snapshots (.json). Includes 1-click clipboard copying and live file drag-and-drop parsing.'
+    ]
+  },
+  {
     version: 'v54.4.2',
     title: 'Universal Streamer & Global CDN Restoration Engine',
-    tag: 'Latest',
+    tag: 'Stable',
     date: 'Current Release',
     items: [
       'JioSaavn Multi-Cluster Master Engine: Removed decommissioned Vercel endpoints and repointed directly to high-availability sumit.co and saavn-api-one clusters returning 100% full-length 320kbps CDNs with valid 2026 token generation.',

@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=54.4.2">
+  <link rel="stylesheet" href="styles.css?v=54.5.0">
   <link rel="manifest" href="manifest.json">
 </head>
 <body class="theme-studio">
@@ -35,7 +35,7 @@
       <div>
         <div class="brand-title">
           <span class="animated-brand-text" id="brandTitleHeader" title="AuraDSP Pro Studio Audio Workstation (Click 5 times for Developer Console)">AURA<span class="brand-dsp-badge">DSP</span> PRO</span>
-          <span class="version-tag" id="appVersionTag" title="Click to view full Changelog &amp; Version History">v54.4.2</span>
+          <span class="version-tag" id="appVersionTag" title="Click to view full Changelog &amp; Version History">v54.5.0</span>
         </div>
         <p class="subtitle">Reference Studio Audio Workstation &middot; by <span class="animated-creator-name" id="creatorNameHeader">Romir Rodrigues</span></p>
       </div>
@@ -218,17 +218,39 @@
         </div>
       </div>
 
-      <!-- File Upload Panel -->
+      <!-- File Upload & Multi-Track Playlist Queue Panel -->
       <div class="source-card hidden" id="cardFile">
-        <label>Upload Audio Master File:</label>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <label style="margin:0; font-weight:700;">Local Audio Master &amp; Playlist Queue:</label>
+          <span id="queueCountBadge" style="font-size:0.68rem; padding:2px 8px; border-radius:10px; background:rgba(0,240,255,0.1); color:var(--accent-cyan); border:1px solid rgba(0,240,255,0.25);">0 Tracks</span>
+        </div>
         <div class="file-dropzone" id="dropzone">
-          <input type="file" id="audioFileInput" accept="audio/*">
-          <p id="fileNameDisplay">Drop audio file here, or click to browse (WAV, FLAC, MP3, AAC, OGG)</p>
+          <input type="file" id="audioFileInput" accept="audio/*" multiple>
+          <p id="fileNameDisplay">Drop audio files or full albums here, or click to browse (WAV, FLAC, MP3, AAC, OGG)</p>
         </div>
-        <div id="fileControlsRow" class="hidden" style="margin-top:12px; display:flex; align-items:center; gap:12px; padding: 10px; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: var(--radius-md);">
-          <button id="filePlayPauseBtn" class="primary-btn-sm" style="flex: 1; min-height: 38px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 6px;">Play File</button>
-          <span id="fileTimeDisplay" style="font-size:0.75rem; font-family:var(--font-mono); color:var(--text-muted); min-width: 85px; text-align: right; padding-right: 4px;">0:00 / 0:00</span>
+
+        <!-- Playlist Queue Controls & Mini Player -->
+        <div id="fileControlsRow" class="hidden" style="margin-top:10px; display:flex; flex-direction:column; gap:8px; padding:10px 12px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05); border-radius:var(--radius-md);">
+          <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+            <div style="display:flex; align-items:center; gap:6px;">
+              <button id="queuePrevBtn" class="sm-btn" title="Previous Track in Queue" style="padding:4px 10px; font-size:0.8rem;">⏮</button>
+              <button id="filePlayPauseBtn" class="primary-btn-sm" style="min-height:32px; padding:4px 14px; font-weight:600; display:flex; align-items:center; gap:6px;">Play File</button>
+              <button id="queueNextBtn" class="sm-btn" title="Next Track in Queue" style="padding:4px 10px; font-size:0.8rem;">⏭</button>
+            </div>
+            <div style="display:flex; align-items:center; gap:6px;">
+              <button id="queueShuffleBtn" class="sm-btn" title="Toggle Shuffle Mode" style="padding:4px 8px; font-size:0.75rem;">🔀 Shuffle: OFF</button>
+              <button id="queueRepeatBtn" class="sm-btn" title="Toggle Repeat Mode" style="padding:4px 8px; font-size:0.75rem;">🔁 Off</button>
+              <button id="queueClearBtn" class="sm-btn" title="Clear Playlist Queue" style="padding:4px 8px; font-size:0.75rem; color:#ff4e4e;">🗑️ Clear</button>
+            </div>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.72rem; color:var(--text-muted); font-family:var(--font-mono);">
+            <span id="queueActiveTrackTitle" style="max-width:65%; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:var(--text-main); font-weight:600;">No track active</span>
+            <span id="fileTimeDisplay">0:00 / 0:00</span>
+          </div>
         </div>
+
+        <!-- Scrollable Playlist Queue Track Items -->
+        <div id="playlistQueueList" class="playlist-queue-list hidden" style="margin-top:8px; max-height:220px; overflow-y:auto; display:flex; flex-direction:column; gap:4px;"></div>
       </div>
 
       <!-- Mic Input Panel -->
@@ -454,6 +476,29 @@
           </div>
           <input type="range" id="targetLoudness" min="-24" max="-8" value="-14" step="1">
         </div>
+
+        <!-- DSP Master Audio Recorder (320kbps Master Export) -->
+        <div class="master-recorder-card" style="margin-top:14px; padding:12px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.08); border-radius:var(--radius-md);">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <div style="display:flex; align-items:center; gap:6px;">
+              <span id="recPulseLed" class="rec-pulse-led"></span>
+              <span style="font-size:0.75rem; font-weight:700; letter-spacing:0.04em; color:var(--text-main);">MASTER AUDIO RECORDER</span>
+            </div>
+            <span id="recTimeCounter" style="font-family:var(--font-mono); font-size:0.75rem; font-weight:700; color:var(--text-muted);">00:00:00</span>
+          </div>
+          <p style="font-size:0.68rem; color:var(--text-muted); margin:0 0 10px; line-height:1.4;">
+            Records post-DSP master audio (EQ, Spatial 3D, Limiter) in real-time high-fidelity 320kbps format.
+          </p>
+          <div style="display:flex; gap:8px;">
+            <button id="toggleMasterRecBtn" class="sm-btn" style="flex:1; min-height:34px; font-weight:700; display:flex; align-items:center; justify-content:center; gap:6px; background:rgba(255,42,95,0.12); border-color:rgba(255,42,95,0.4); color:#ff2a5f;">
+              <span id="recBtnIcon">🔴</span>
+              <span id="recBtnLabel">START RECORDING</span>
+            </button>
+            <button id="saveMasterRecBtn" class="sm-btn" disabled style="min-height:34px; font-weight:600; display:flex; align-items:center; justify-content:center; gap:4px; opacity:0.5; border-color:rgba(0,240,255,0.3); color:var(--accent-cyan); cursor:not-allowed;" title="Download Last Recorded Audio File">
+              💾 Download
+            </button>
+          </div>
+        </div>
       </div>
 
     </aside>
@@ -554,6 +599,9 @@
           <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
             <button id="openAutoEqBtn" class="sm-btn autoeq-trigger-btn" title="Open 500+ Headphone AutoEQ Profile Calibrator">
               <span>🎧 AutoEQ</span>
+            </button>
+            <button id="openEqExportImportBtn" class="sm-btn" title="Export EQ to Equalizer APO / Wavelet or Import Custom Profile" style="display:flex; align-items:center; gap:5px; border-color:rgba(0, 240, 255, 0.35); color:var(--accent-cyan);">
+              <span>💾 Export / Import EQ</span>
             </button>
             <button id="aiAutoEqBtn" class="sm-btn ai-eq-btn active" title="AI Auto-Tuning EQ: Unlimited real-time continuous optimization of 10-band sliders every 3s">
               <span class="ai-sparkle">✨</span>
@@ -1004,7 +1052,7 @@
         &copy; 2026 <strong class="animated-creator-name" id="creatorNameFooter">Romir Rodrigues</strong>. All rights reserved.
       </div>
       <div class="footer-note">
-        AuraDSP Pro Workstation &nbsp;·&nbsp; Real-Time Web Audio DSP &nbsp;·&nbsp; 3D HRTF Spatial Soundstage &nbsp;·&nbsp; <a href="#" id="footerChangelogLink" style="color:var(--accent-cyan); text-decoration:none; border-bottom:1px dashed rgba(0,240,255,0.4); padding-bottom:1px;" title="View full release notes & version history">v54.4.2 Release Notes</a> &nbsp;·&nbsp; <a href="#" id="footerManualLink" style="color:var(--accent-cyan); text-decoration:none; border-bottom:1px dashed rgba(0,240,255,0.4); padding-bottom:1px; margin-left:6px;" title="Open Studio User Manual & Feature Guide">📖 Studio Manual &amp; Guide</a>
+        AuraDSP Pro Workstation &nbsp;·&nbsp; Real-Time Web Audio DSP &nbsp;·&nbsp; 3D HRTF Spatial Soundstage &nbsp;·&nbsp; <a href="#" id="footerChangelogLink" style="color:var(--accent-cyan); text-decoration:none; border-bottom:1px dashed rgba(0,240,255,0.4); padding-bottom:1px;" title="View full release notes & version history">v54.5.0 Release Notes</a> &nbsp;·&nbsp; <a href="#" id="footerManualLink" style="color:var(--accent-cyan); text-decoration:none; border-bottom:1px dashed rgba(0,240,255,0.4); padding-bottom:1px; margin-left:6px;" title="Open Studio User Manual & Feature Guide">📖 Studio Manual &amp; Guide</a>
       </div>
     </div>
   </footer>
@@ -1018,7 +1066,7 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px; height:20px; color:var(--accent-cyan);"><path d="M12 2v20M17 5v14M7 5v14M2 9v6M22 9v6"/></svg>
             <h3 id="changelogTitle" style="margin:0; font-size:1.05rem; font-weight:800; color:#fff; letter-spacing:0.02em;">AuraDSP Pro · Version History & Changelog</h3>
           </div>
-          <p style="margin:4px 0 0; font-size:0.75rem; color:var(--text-muted);">Complete milestone release notes from v1.0.0 (Genesis) to v54.4.2 (Latest)</p>
+          <p style="margin:4px 0 0; font-size:0.75rem; color:var(--text-muted);">Complete milestone release notes from v1.0.0 (Genesis) to v54.5.0 (Latest)</p>
         </div>
         <button id="closeChangelogBtn" class="changelog-close-btn" title="Close Changelog (Esc)">&times;</button>
       </div>
@@ -1583,29 +1631,77 @@
   </div>
 
   <!-- Modular Scripts -->
-  <script src="js/data/presets.js?v=54.4.2"></script>
-  <script src="js/data/autoeq-database.js?v=54.4.2"></script>
-  <script src="js/data/changelog.js?v=54.4.2"></script>
-  <script src="js/data/manual.js?v=54.4.2"></script>
-  <script src="js/audio/audio-engine.js?v=54.4.2"></script>
-  <script src="js/dsp/audio-pro-tools.js?v=54.4.2"></script>
-  <script src="js/visual/spatial-canvas.js?v=54.4.2"></script>
-  <script src="js/visual/visualizer.js?v=54.4.2"></script>
-  <script src="js/ui/motion-ui.js?v=54.4.2"></script>
-  <script src="js/ui/dev-menu.js?v=54.4.2"></script>
-  <script src="js/app.js?v=54.4.2"></script>
+  <script src="js/data/presets.js?v=54.5.0"></script>
+  <script src="js/data/autoeq-database.js?v=54.5.0"></script>
+  <script src="js/data/changelog.js?v=54.5.0"></script>
+  <script src="js/data/manual.js?v=54.5.0"></script>
+  <script src="js/audio/audio-engine.js?v=54.5.0"></script>
+  <script src="js/dsp/audio-pro-tools.js?v=54.5.0"></script>
+  <script src="js/visual/spatial-canvas.js?v=54.5.0"></script>
+  <script src="js/visual/visualizer.js?v=54.5.0"></script>
+  <script src="js/ui/motion-ui.js?v=54.5.0"></script>
+  <script src="js/ui/dev-menu.js?v=54.5.0"></script>
+  <script src="js/app.js?v=54.5.0"></script>
 
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js?v=54.4.2')
+        navigator.serviceWorker.register('sw.js?v=54.5.0')
           .then(reg => {
-            console.log('Service Worker Registered v54.4.2');
+            console.log('Service Worker Registered v54.5.0');
             reg.update();
           })
           .catch(err => console.log('Service Worker Error', err));
       });
     }
   </script>
+
+  <!-- Export / Import EQ Modal (Equalizer APO, Wavelet & AuraDSP JSON) -->
+  <div id="eqExportModalBackdrop" class="studio-modal-backdrop">
+    <div class="studio-modal" role="dialog" aria-modal="true" aria-labelledby="eqExportModalTitle" style="max-width:720px;">
+      <div class="studio-modal-header">
+        <div class="studio-modal-header-left">
+          <div class="studio-modal-title-row">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px; height:20px; color:var(--accent-cyan);"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            <h3 id="eqExportModalTitle" style="margin:0; font-size:1.05rem; font-weight:800; color:#fff;">Equalizer Profile Exporter &amp; Importer</h3>
+          </div>
+          <p style="margin:4px 0 0; font-size:0.75rem; color:var(--text-muted);">Cross-platform presets for Equalizer APO / Peace (Windows), Wavelet (Android) &amp; AuraDSP JSON</p>
+        </div>
+        <button id="closeEqExportModalBtn" class="studio-modal-close-btn" title="Close (Esc)">&times;</button>
+      </div>
+
+      <div class="eq-export-tabs">
+        <button class="eq-export-tab active" data-tab="apo">Equalizer APO (.txt)</button>
+        <button class="eq-export-tab" data-tab="wavelet">Wavelet Android (.txt)</button>
+        <button class="eq-export-tab" data-tab="json">AuraDSP Studio (.json)</button>
+        <button class="eq-export-tab" data-tab="import" style="margin-left:auto; color:var(--accent-cyan); border-color:rgba(0,240,255,0.4);">📥 Import Profile</button>
+      </div>
+
+      <div id="eqExportTabContent" style="padding:18px 24px; display:flex; flex-direction:column; gap:12px;">
+        <div id="eqExportViewSection">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <span id="eqExportFormatLabel" style="font-size:0.75rem; font-weight:700; color:var(--text-main);">Equalizer APO Configuration</span>
+            <div style="display:flex; gap:8px;">
+              <button id="copyEqExportBtn" class="sm-btn" style="padding:4px 10px;">📋 Copy Text</button>
+              <button id="downloadEqExportBtn" class="sm-btn" style="padding:4px 10px; border-color:var(--accent-cyan); color:var(--accent-cyan);">💾 Download File</button>
+            </div>
+          </div>
+          <pre id="eqExportCodePreview" class="eq-code-preview"></pre>
+        </div>
+
+        <div id="eqImportViewSection" class="hidden" style="display:none; flex-direction:column; gap:12px;">
+          <p style="font-size:0.75rem; color:var(--text-muted); margin:0;">
+            Paste your Equalizer APO config, Wavelet GraphicEQ line, or AuraDSP JSON preset below, or drop a file:
+          </p>
+          <textarea id="eqImportTextArea" class="eq-code-preview" style="height:120px; width:100%; box-sizing:border-box; resize:vertical;" placeholder="Paste Equalizer APO text, GraphicEQ: 32 3.0; ..., or JSON here..."></textarea>
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <input type="file" id="eqImportFileInput" accept=".txt,.json,.csv" style="font-size:0.75rem; color:var(--text-muted);">
+            <button id="applyEqImportBtn" class="primary-btn-sm" style="padding:6px 18px; font-weight:700;">Apply to 10-Band EQ</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </body>
 </html>

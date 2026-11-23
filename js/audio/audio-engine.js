@@ -343,6 +343,12 @@ class AudioEngine {
     this.refAudioNode = null;
     this.isListeningToRef = false;
     
+    // Master Output Recording Stream
+    this.recDestNode = null;
+    this.mediaRecorder = null;
+    this.recordedChunks = [];
+    this.isRecording = false;
+    
     // Limiter Ceiling Gain
     this.limiterCeilingDb = -0.1;
     this.targetLoudnessLufs = -14;
@@ -360,6 +366,16 @@ class AudioEngine {
     this.analyserNode = this.ctx.createAnalyser();
     this.analyserNode.fftSize = 256;
     this.analyserNode.smoothingTimeConstant = 0.8;
+
+    // Tap Post-Limiter Master Output for Live DSP Master Recording
+    if (this.ctx.createMediaStreamDestination) {
+      try {
+        this.recDestNode = this.ctx.createMediaStreamDestination();
+        this.limiterNode.connect(this.recDestNode);
+      } catch (e) {
+        console.warn('recDestNode init notice:', e);
+      }
+    }
 
     // Dedicated High-Resolution AI Acoustic Spectrum Analyser (2048 FFT)
     this.aiAnalyserNode = this.ctx.createAnalyser();
@@ -1910,6 +1926,64 @@ class AudioEngine {
       this.isPlaying = false;
       return false;
     }
+  }
+
+  // --- DSP MASTER AUDIO RECORDER ---
+  startMasterRecording() {
+    this.resumeCtx();
+    if (!this.recDestNode) {
+      if (this.ctx && this.ctx.createMediaStreamDestination && this.limiterNode) {
+        this.recDestNode = this.ctx.createMediaStreamDestination();
+        this.limiterNode.connect(this.recDestNode);
+      } else {
+        throw new Error("Audio stream destination is not supported on this browser.");
+      }
+    }
+    if (typeof MediaRecorder === 'undefined') {
+      throw new Error("MediaRecorder API is not available on this browser.");
+    }
+    this.recordedChunks = [];
+    const mimeTypes = [
+      'audio/webm;codecs=opus',
+      'audio/webm',
+      'audio/ogg;codecs=opus',
+      'audio/mp4'
+    ];
+    let selectedMime = mimeTypes.find(m => typeof MediaRecorder.isTypeSupported === 'function' && MediaRecorder.isTypeSupported(m)) || '';
+    const options = selectedMime ? { mimeType: selectedMime, audioBitsPerSecond: 320000 } : {};
+
+    this.mediaRecorder = new MediaRecorder(this.recDestNode.stream, options);
+    this.mediaRecorder.ondataavailable = (e) => {
+      if (e.data && e.data.size > 0) {
+        this.recordedChunks.push(e.data);
+      }
+    };
+    this.mediaRecorder.start(250); // 250ms timeslices
+    this.isRecording = true;
+    return selectedMime || 'audio/webm';
+  }
+
+  stopMasterRecording() {
+    return new Promise((resolve) => {
+      if (!this.mediaRecorder || this.mediaRecorder.state === 'inactive') {
+        this.isRecording = false;
+        resolve(null);
+        return;
+      }
+      this.mediaRecorder.onstop = () => {
+        this.isRecording = false;
+        const mime = this.mediaRecorder.mimeType || 'audio/webm';
+        const blob = new Blob(this.recordedChunks, { type: mime });
+        this.recordedChunks = [];
+        resolve({ blob, mime });
+      };
+      try {
+        this.mediaRecorder.stop();
+      } catch (e) {
+        this.isRecording = false;
+        resolve(null);
+      }
+    });
   }
 }
 

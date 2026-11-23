@@ -6792,3 +6792,152 @@ input, textarea, .dev-custom-json-input {
     transition: background-color 0.1s ease !important;
   }
 }
+
+/* ==========================================================================
+   AuraDSP Pro v54.5.0: Playlist Queue, Master Recorder & EQ Exporter Styles
+   ========================================================================== */
+
+/* Playlist Queue */
+.playlist-queue-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 10px;
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.playlist-queue-item:hover {
+  background: rgba(0, 240, 255, 0.05);
+  border-color: rgba(0, 240, 255, 0.25);
+  transform: translateX(2px);
+}
+
+.playlist-queue-item.active {
+  background: rgba(0, 240, 255, 0.1);
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
+}
+
+.playlist-queue-item .queue-track-idx {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  min-width: 18px;
+  text-align: center;
+}
+
+.playlist-queue-item.active .queue-track-idx {
+  color: var(--accent-cyan);
+  font-weight: 700;
+}
+
+.playlist-queue-item .queue-track-info {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.playlist-queue-item .queue-track-name {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.playlist-queue-item.active .queue-track-name {
+  color: #00f0ff;
+}
+
+.playlist-queue-item .queue-track-meta {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+
+.playlist-queue-item .queue-remove-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  line-height: 1;
+  transition: color 0.15s ease;
+}
+
+.playlist-queue-item .queue-remove-btn:hover {
+  color: #ff3366;
+  background: rgba(255, 51, 102, 0.1);
+}
+
+/* Master Audio Recorder */
+.rec-pulse-led {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #666;
+  display: inline-block;
+  transition: all 0.2s ease;
+}
+
+.rec-pulse-led.recording {
+  background: #ff2a5f;
+  box-shadow: 0 0 10px #ff2a5f;
+  animation: recBlink 1s infinite alternate ease-in-out;
+}
+
+@keyframes recBlink {
+  from { opacity: 1; transform: scale(1); }
+  to { opacity: 0.3; transform: scale(0.85); }
+}
+
+/* EQ Profile Exporter/Importer Modal */
+.eq-export-tabs {
+  display: flex;
+  gap: 8px;
+  padding: 12px 24px;
+  background: rgba(13, 17, 23, 0.95);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.eq-export-tab {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-muted);
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.eq-export-tab.active {
+  background: rgba(0, 240, 255, 0.12);
+  border-color: var(--accent-cyan);
+  color: var(--accent-cyan);
+}
+
+.eq-code-preview {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 14px;
+  color: #a5d6ff;
+  white-space: pre-wrap;
+  word-break: break-all;
+  max-height: 240px;
+  overflow-y: auto;
+  line-height: 1.5;
+}

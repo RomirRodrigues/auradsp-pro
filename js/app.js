@@ -634,6 +634,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     audioPlayer.addEventListener('ended', () => {
       window.syncMediaSession(false);
+      if (typeof playNextQueueTrack === 'function' && playlistQueue && playlistQueue.length > 0) {
+        playNextQueueTrack();
+      }
     });
   }
 
@@ -1060,41 +1063,270 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Local File Upload & Playback Controls
+  // ─── Local File Upload & Multi-Track Playlist Queue ───
   const audioFileInput = document.getElementById('audioFileInput');
   const fileNameDisplay = document.getElementById('fileNameDisplay');
   const fileControlsRow = document.getElementById('fileControlsRow');
   const filePlayPauseBtn = document.getElementById('filePlayPauseBtn');
   const fileTimeDisplay = document.getElementById('fileTimeDisplay');
+  const queueCountBadge = document.getElementById('queueCountBadge');
+  const queuePrevBtn = document.getElementById('queuePrevBtn');
+  const queueNextBtn = document.getElementById('queueNextBtn');
+  const queueShuffleBtn = document.getElementById('queueShuffleBtn');
+  const queueRepeatBtn = document.getElementById('queueRepeatBtn');
+  const queueClearBtn = document.getElementById('queueClearBtn');
+  const queueActiveTrackTitle = document.getElementById('queueActiveTrackTitle');
+  const playlistQueueList = document.getElementById('playlistQueueList');
 
-  audioFileInput.addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      fileNameDisplay.textContent = `Active File: ${file.name}`;
-      const url = URL.createObjectURL(file);
-      audioPlayer.src = url;
-      
-      if (window.audioEngine) {
-        window.audioEngine.stopAllSources();
-        window.audioEngine.activeSource = 'file';
-        window.audioEngine.connectMediaElement(audioPlayer);
+  let playlistQueue = [];
+  let currentQueueIndex = -1;
+  let isQueueShuffle = false;
+  let queueRepeatMode = 'off'; // 'off' | 'all' | 'one'
+
+  function formatFileSize(bytes) {
+    if (!bytes || isNaN(bytes)) return '';
+    if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / 1048576).toFixed(1) + ' MB';
+  }
+
+  function formatTime(secs) {
+    if (isNaN(secs) || !isFinite(secs)) return "0:00";
+    const m = Math.floor(secs / 60);
+    const s = Math.floor(secs % 60).toString().padStart(2, '0');
+    return `${m}:${s}`;
+  }
+
+  function renderPlaylistQueue() {
+    if (!playlistQueueList) return;
+    if (playlistQueue.length === 0) {
+      playlistQueueList.classList.add('hidden');
+      if (fileControlsRow) fileControlsRow.classList.add('hidden');
+      if (queueCountBadge) queueCountBadge.textContent = '0 Tracks';
+      if (fileNameDisplay) fileNameDisplay.textContent = 'Drop audio files or full albums here, or click to browse (WAV, FLAC, MP3, AAC, OGG)';
+      if (queueActiveTrackTitle) queueActiveTrackTitle.textContent = 'No track active';
+      return;
+    }
+
+    playlistQueueList.classList.remove('hidden');
+    if (fileControlsRow) fileControlsRow.classList.remove('hidden');
+    if (queueCountBadge) queueCountBadge.textContent = `${playlistQueue.length} Track${playlistQueue.length > 1 ? 's' : ''}`;
+
+    playlistQueueList.innerHTML = '';
+    playlistQueue.forEach((track, idx) => {
+      const item = document.createElement('div');
+      item.className = 'playlist-queue-item' + (idx === currentQueueIndex ? ' active' : '');
+
+      const ext = track.name.split('.').pop().toUpperCase();
+      item.innerHTML = `
+        <span class="queue-track-idx">${idx === currentQueueIndex ? '▶' : (idx + 1)}</span>
+        <div class="queue-track-info">
+          <span class="queue-track-name" title="${track.name}">${track.title}</span>
+          <span class="queue-track-meta">${ext} · ${formatFileSize(track.size)}</span>
+        </div>
+        <button class="queue-remove-btn" data-index="${idx}" title="Remove track from queue">&times;</button>
+      `;
+
+      item.addEventListener('click', (e) => {
+        if (e.target.classList.contains('queue-remove-btn')) return;
+        playQueueTrack(idx);
+      });
+
+      const removeBtn = item.querySelector('.queue-remove-btn');
+      if (removeBtn) {
+        removeBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          removeTrackFromQueue(idx);
+        });
       }
-      
-      audioPlayer.play();
-      
-      if (fileControlsRow) fileControlsRow.classList.remove('hidden');
-      if (filePlayPauseBtn) filePlayPauseBtn.innerHTML = "⏸ Pause File";
-      
+
+      playlistQueueList.appendChild(item);
+    });
+  }
+
+  function playQueueTrack(index) {
+    if (index < 0 || index >= playlistQueue.length) return;
+    currentQueueIndex = index;
+    const track = playlistQueue[currentQueueIndex];
+
+    if (queueActiveTrackTitle) {
+      queueActiveTrackTitle.textContent = track.title;
+    }
+    if (fileNameDisplay) {
+      fileNameDisplay.textContent = `Playing [${currentQueueIndex + 1}/${playlistQueue.length}]: ${track.name}`;
+    }
+
+    audioPlayer.src = track.url;
+    audioPlayer.crossOrigin = null;
+
+    if (window.audioEngine) {
+      window.audioEngine.stopAllSources();
+      window.audioEngine.activeSource = 'file';
+      window.audioEngine.connectMediaElement(audioPlayer);
+    }
+
+    audioPlayer.play().then(() => {
       isPlaying = true;
       isSynthBeatActive = false;
+      if (filePlayPauseBtn) filePlayPauseBtn.innerHTML = "⏸ Pause File";
       if (playText) playText.textContent = "Pause Track";
       if (playIcon) playIcon.textContent = "⏸";
+      renderPlaylistQueue();
+    }).catch(err => {
+      console.warn("Queue track play notice:", err);
+      renderPlaylistQueue();
+    });
+  }
+
+  function removeTrackFromQueue(idx) {
+    if (idx === currentQueueIndex) {
+      audioPlayer.pause();
+      playlistQueue.splice(idx, 1);
+      if (playlistQueue.length > 0) {
+        const nextIdx = idx < playlistQueue.length ? idx : 0;
+        playQueueTrack(nextIdx);
+      } else {
+        currentQueueIndex = -1;
+        isPlaying = false;
+        renderPlaylistQueue();
+      }
+    } else {
+      if (idx < currentQueueIndex) currentQueueIndex--;
+      playlistQueue.splice(idx, 1);
+      renderPlaylistQueue();
     }
-  });
+  }
+
+  function playNextQueueTrack() {
+    if (playlistQueue.length === 0) return;
+    if (queueRepeatMode === 'one') {
+      audioPlayer.currentTime = 0;
+      audioPlayer.play();
+      return;
+    }
+    if (isQueueShuffle && playlistQueue.length > 1) {
+      let randIdx = currentQueueIndex;
+      let attempts = 0;
+      while (randIdx === currentQueueIndex && attempts < 10) {
+        randIdx = Math.floor(Math.random() * playlistQueue.length);
+        attempts++;
+      }
+      playQueueTrack(randIdx);
+      return;
+    }
+    if (currentQueueIndex < playlistQueue.length - 1) {
+      playQueueTrack(currentQueueIndex + 1);
+    } else if (queueRepeatMode === 'all') {
+      playQueueTrack(0);
+    } else {
+      isPlaying = false;
+      if (filePlayPauseBtn) filePlayPauseBtn.innerHTML = "▶ Play File";
+      if (playText) playText.textContent = "Play Selected Track";
+      if (playIcon) playIcon.textContent = "▶";
+    }
+  }
+
+  function playPrevQueueTrack() {
+    if (playlistQueue.length === 0) return;
+    if (audioPlayer.currentTime > 3) {
+      audioPlayer.currentTime = 0;
+      return;
+    }
+    if (currentQueueIndex > 0) {
+      playQueueTrack(currentQueueIndex - 1);
+    } else if (queueRepeatMode === 'all') {
+      playQueueTrack(playlistQueue.length - 1);
+    } else {
+      audioPlayer.currentTime = 0;
+    }
+  }
+
+  if (audioFileInput) {
+    audioFileInput.addEventListener('change', (e) => {
+      const files = Array.from(e.target.files || []);
+      if (files.length === 0) return;
+
+      const startIndex = playlistQueue.length;
+      files.forEach(file => {
+        const url = URL.createObjectURL(file);
+        const cleanTitle = file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ');
+        playlistQueue.push({
+          file,
+          url,
+          name: file.name,
+          title: cleanTitle,
+          size: file.size
+        });
+      });
+
+      renderPlaylistQueue();
+      if (currentQueueIndex === -1 || audioPlayer.paused) {
+        playQueueTrack(startIndex);
+      }
+      if (window.showToast) {
+        window.showToast(`Added ${files.length} track${files.length > 1 ? 's' : ''} to queue`, 'success');
+      }
+      audioFileInput.value = '';
+    });
+  }
+
+  if (queuePrevBtn) queuePrevBtn.addEventListener('click', playPrevQueueTrack);
+  if (queueNextBtn) queueNextBtn.addEventListener('click', playNextQueueTrack);
+
+  if (queueShuffleBtn) {
+    queueShuffleBtn.addEventListener('click', () => {
+      isQueueShuffle = !isQueueShuffle;
+      queueShuffleBtn.textContent = isQueueShuffle ? '🔀 Shuffle: ON' : '🔀 Shuffle: OFF';
+      queueShuffleBtn.style.color = isQueueShuffle ? 'var(--accent-cyan)' : '';
+      queueShuffleBtn.style.borderColor = isQueueShuffle ? 'var(--accent-cyan)' : '';
+      if (window.showToast) window.showToast(`Queue Shuffle: ${isQueueShuffle ? 'Enabled' : 'Disabled'}`, 'info');
+    });
+  }
+
+  if (queueRepeatBtn) {
+    queueRepeatBtn.addEventListener('click', () => {
+      if (queueRepeatMode === 'off') {
+        queueRepeatMode = 'all';
+        queueRepeatBtn.textContent = '🔁 All';
+        queueRepeatBtn.style.color = 'var(--accent-cyan)';
+        queueRepeatBtn.style.borderColor = 'var(--accent-cyan)';
+      } else if (queueRepeatMode === 'all') {
+        queueRepeatMode = 'one';
+        queueRepeatBtn.textContent = '🔂 One';
+        queueRepeatBtn.style.color = '#ff9900';
+        queueRepeatBtn.style.borderColor = '#ff9900';
+      } else {
+        queueRepeatMode = 'off';
+        queueRepeatBtn.textContent = '🔁 Off';
+        queueRepeatBtn.style.color = '';
+        queueRepeatBtn.style.borderColor = '';
+      }
+      if (window.showToast) window.showToast(`Queue Repeat: ${queueRepeatMode.toUpperCase()}`, 'info');
+    });
+  }
+
+  if (queueClearBtn) {
+    queueClearBtn.addEventListener('click', () => {
+      audioPlayer.pause();
+      playlistQueue.forEach(t => URL.revokeObjectURL(t.url));
+      playlistQueue = [];
+      currentQueueIndex = -1;
+      isPlaying = false;
+      renderPlaylistQueue();
+      if (window.showToast) window.showToast('Playlist queue cleared', 'info');
+    });
+  }
 
   if (filePlayPauseBtn) {
     filePlayPauseBtn.addEventListener('click', async () => {
       if (window.audioEngine) window.audioEngine.resumeCtx();
+      if (playlistQueue.length === 0) {
+        if (audioFileInput) audioFileInput.click();
+        return;
+      }
+      if (currentQueueIndex === -1) {
+        playQueueTrack(0);
+        return;
+      }
       if (audioPlayer.paused) {
         if (window.audioEngine) {
           window.audioEngine.stopAllSources();
@@ -1117,13 +1349,6 @@ document.addEventListener('DOMContentLoaded', () => {
         filePlayPauseBtn.innerHTML = "▶ Play File";
       }
     });
-  }
-
-  function formatTime(secs) {
-    if (isNaN(secs) || !isFinite(secs)) return "0:00";
-    const m = Math.floor(secs / 60);
-    const s = Math.floor(secs % 60).toString().padStart(2, '0');
-    return `${m}:${s}`;
   }
 
   audioPlayer.addEventListener('timeupdate', () => {
@@ -4754,8 +4979,354 @@ document.addEventListener('DOMContentLoaded', () => {
     audioPlayer.addEventListener('play', () => updateCodecInspector());
   }
 
+  // ─── DSP Master Audio Recorder ───
+  const toggleMasterRecBtn = document.getElementById('toggleMasterRecBtn');
+  const saveMasterRecBtn = document.getElementById('saveMasterRecBtn');
+  const recPulseLed = document.getElementById('recPulseLed');
+  const recTimeCounter = document.getElementById('recTimeCounter');
+  const recBtnIcon = document.getElementById('recBtnIcon');
+  const recBtnLabel = document.getElementById('recBtnLabel');
+
+  let recTimer = null;
+  let recSeconds = 0;
+  let lastRecordedBlob = null;
+  let lastRecordedMime = 'audio/webm';
+
+  function formatRecTime(sec) {
+    const h = Math.floor(sec / 3600);
+    const m = Math.floor((sec % 3600) / 60);
+    const s = sec % 60;
+    return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+  }
+
+  if (toggleMasterRecBtn) {
+    toggleMasterRecBtn.addEventListener('click', async () => {
+      if (!window.audioEngine) return;
+      if (!window.audioEngine.isRecording) {
+        try {
+          const mime = window.audioEngine.startMasterRecording();
+          lastRecordedMime = mime;
+          recSeconds = 0;
+          if (recTimeCounter) recTimeCounter.textContent = '00:00:00';
+          if (recPulseLed) recPulseLed.classList.add('recording');
+          if (recBtnIcon) recBtnIcon.textContent = '⏹';
+          if (recBtnLabel) recBtnLabel.textContent = 'STOP RECORDING';
+          if (toggleMasterRecBtn) {
+            toggleMasterRecBtn.style.background = 'rgba(255, 42, 95, 0.3)';
+          }
+          if (saveMasterRecBtn) {
+            saveMasterRecBtn.disabled = true;
+            saveMasterRecBtn.style.opacity = '0.5';
+            saveMasterRecBtn.style.cursor = 'not-allowed';
+          }
+          clearInterval(recTimer);
+          recTimer = setInterval(() => {
+            recSeconds++;
+            if (recTimeCounter) recTimeCounter.textContent = formatRecTime(recSeconds);
+          }, 1000);
+          if (window.showToast) window.showToast('Master Audio Recording Started (320kbps)', 'info');
+        } catch (e) {
+          console.error('Recording start error:', e);
+          if (window.showToast) window.showToast('Could not start recorder: ' + e.message, 'error');
+        }
+      } else {
+        clearInterval(recTimer);
+        const res = await window.audioEngine.stopMasterRecording();
+        if (recPulseLed) recPulseLed.classList.remove('recording');
+        if (recBtnIcon) recBtnIcon.textContent = '🔴';
+        if (recBtnLabel) recBtnLabel.textContent = 'START RECORDING';
+        if (toggleMasterRecBtn) {
+          toggleMasterRecBtn.style.background = 'rgba(255, 42, 95, 0.12)';
+        }
+        if (res && res.blob && res.blob.size > 0) {
+          lastRecordedBlob = res.blob;
+          lastRecordedMime = res.mime;
+          if (saveMasterRecBtn) {
+            saveMasterRecBtn.disabled = false;
+            saveMasterRecBtn.style.opacity = '1';
+            saveMasterRecBtn.style.cursor = 'pointer';
+          }
+          if (window.showToast) window.showToast(`Master recording captured (${formatFileSize(res.blob.size)})! Tap Download.`, 'success');
+        } else {
+          if (window.showToast) window.showToast('No audio data captured in session', 'warning');
+        }
+      }
+    });
+  }
+
+  if (saveMasterRecBtn) {
+    saveMasterRecBtn.addEventListener('click', () => {
+      if (!lastRecordedBlob) {
+        if (window.showToast) window.showToast('No recorded session available to download', 'info');
+        return;
+      }
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+      const ext = lastRecordedMime.includes('mp4') ? 'mp4' : (lastRecordedMime.includes('ogg') ? 'ogg' : 'webm');
+      const filename = `AuraDSP_Master_Recorded_${timestamp}.${ext}`;
+      const downloadUrl = URL.createObjectURL(lastRecordedBlob);
+      const a = document.createElement('a');
+      a.href = downloadUrl;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(downloadUrl), 5000);
+      if (window.showToast) window.showToast(`Downloaded: ${filename}`, 'success');
+    });
+  }
+
+  // ─── Equalizer Profile Exporter & Importer ───
+  const openEqExportImportBtn = document.getElementById('openEqExportImportBtn');
+  const closeEqExportModalBtn = document.getElementById('closeEqExportModalBtn');
+  const eqExportModalBackdrop = document.getElementById('eqExportModalBackdrop');
+  const eqExportTabs = document.querySelectorAll('.eq-export-tab');
+  const eqExportViewSection = document.getElementById('eqExportViewSection');
+  const eqImportViewSection = document.getElementById('eqImportViewSection');
+  const eqExportFormatLabel = document.getElementById('eqExportFormatLabel');
+  const eqExportCodePreview = document.getElementById('eqExportCodePreview');
+  const copyEqExportBtn = document.getElementById('copyEqExportBtn');
+  const downloadEqExportBtn = document.getElementById('downloadEqExportBtn');
+  const eqImportTextArea = document.getElementById('eqImportTextArea');
+  const eqImportFileInput = document.getElementById('eqImportFileInput');
+  const applyEqImportBtn = document.getElementById('applyEqImportBtn');
+
+  const EQ_FREQS = [32, 64, 125, 250, 500, 1000, 2000, 4000, 8000, 16000];
+  let activeEqTab = 'apo';
+
+  function getCurrentEqGains() {
+    if (!window.audioEngine || !window.audioEngine.eqNodes) {
+      return [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+    }
+    return window.audioEngine.eqNodes.map(n => n.gain.value);
+  }
+
+  function generateEqualizerApoText() {
+    const gains = getCurrentEqGains();
+    let txt = `# AuraDSP Pro - Equalizer APO Parametric EQ Configuration\n`;
+    txt += `# Generated: ${new Date().toLocaleDateString()} | 10-Band Studio Filter Set\n\n`;
+    txt += `Preamp: 0.0 dB\n`;
+    EQ_FREQS.forEach((freq, i) => {
+      const g = (gains[i] || 0).toFixed(1);
+      const q = 1.41;
+      const type = (freq <= 62) ? 'LS' : (freq >= 8000 ? 'HS' : 'PK');
+      txt += `Filter ${i + 1}: ON ${type} Fc ${freq} Hz Gain ${g} dB Q ${q}\n`;
+    });
+    return txt;
+  }
+
+  function generateWaveletText() {
+    const gains = getCurrentEqGains();
+    const parts = EQ_FREQS.map((freq, i) => `${freq} ${(gains[i] || 0).toFixed(1)}`);
+    return `GraphicEQ: ${parts.join('; ')}`;
+  }
+
+  function generateAuraDspJson() {
+    const snapshot = window.audioEngine && window.audioEngine.getSnapshot ? window.audioEngine.getSnapshot() : {};
+    snapshot.app = "AuraDSP Pro";
+    snapshot.version = "v54.5.0";
+    snapshot.exportedAt = new Date().toISOString();
+    return JSON.stringify(snapshot, null, 2);
+  }
+
+  function updateEqExportView() {
+    if (activeEqTab === 'import') {
+      if (eqExportViewSection) eqExportViewSection.style.display = 'none';
+      if (eqImportViewSection) eqImportViewSection.style.display = 'flex';
+      return;
+    }
+
+    if (eqExportViewSection) eqExportViewSection.style.display = 'block';
+    if (eqImportViewSection) eqImportViewSection.style.display = 'none';
+
+    let content = '';
+    if (activeEqTab === 'apo') {
+      if (eqExportFormatLabel) eqExportFormatLabel.textContent = 'Equalizer APO (Windows) Configuration';
+      content = generateEqualizerApoText();
+    } else if (activeEqTab === 'wavelet') {
+      if (eqExportFormatLabel) eqExportFormatLabel.textContent = 'Wavelet (Android) GraphicEQ Configuration';
+      content = generateWaveletText();
+    } else if (activeEqTab === 'json') {
+      if (eqExportFormatLabel) eqExportFormatLabel.textContent = 'AuraDSP Studio Full Preset (.json)';
+      content = generateAuraDspJson();
+    }
+    if (eqExportCodePreview) eqExportCodePreview.textContent = content;
+  }
+
+  if (openEqExportImportBtn) {
+    openEqExportImportBtn.addEventListener('click', () => {
+      if (eqExportModalBackdrop) {
+        eqExportModalBackdrop.classList.add('open');
+        updateEqExportView();
+      }
+    });
+  }
+
+  function closeEqExportModal() {
+    if (eqExportModalBackdrop) eqExportModalBackdrop.classList.remove('open');
+  }
+
+  if (closeEqExportModalBtn) closeEqExportModalBtn.addEventListener('click', closeEqExportModal);
+  if (eqExportModalBackdrop) {
+    eqExportModalBackdrop.addEventListener('click', (e) => {
+      if (e.target === eqExportModalBackdrop) closeEqExportModal();
+    });
+  }
+
+  eqExportTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      eqExportTabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      activeEqTab = tab.dataset.tab;
+      updateEqExportView();
+    });
+  });
+
+  if (copyEqExportBtn) {
+    copyEqExportBtn.addEventListener('click', () => {
+      const text = eqExportCodePreview ? eqExportCodePreview.textContent : '';
+      if (text && navigator.clipboard) {
+        navigator.clipboard.writeText(text).then(() => {
+          if (window.showToast) window.showToast('Copied EQ profile to clipboard!', 'success');
+        });
+      }
+    });
+  }
+
+  if (downloadEqExportBtn) {
+    downloadEqExportBtn.addEventListener('click', () => {
+      const text = eqExportCodePreview ? eqExportCodePreview.textContent : '';
+      if (!text) return;
+      let filename = 'AuraDSP_Equalizer_APO.txt';
+      let mime = 'text/plain';
+      if (activeEqTab === 'wavelet') filename = 'AuraDSP_Wavelet_GraphicEQ.txt';
+      else if (activeEqTab === 'json') {
+        filename = 'AuraDSP_Studio_Preset.json';
+        mime = 'application/json';
+      }
+      const blob = new Blob([text], { type: mime });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      if (window.showToast) window.showToast(`Exported: ${filename}`, 'success');
+    });
+  }
+
+  function applyImportedEqProfile(text) {
+    if (!text || !text.trim()) {
+      if (window.showToast) window.showToast('Please provide EQ text or file to import', 'warning');
+      return;
+    }
+    const clean = text.trim();
+
+    // 1. Check if JSON
+    if (clean.startsWith('{') && clean.endsWith('}')) {
+      try {
+        const json = JSON.parse(clean);
+        if (json.eqBands && Array.isArray(json.eqBands)) {
+          json.eqBands.forEach((gain, i) => {
+            if (i < 10) applyEqBandGain(i, parseFloat(gain));
+          });
+        }
+        if (window.audioEngine && window.audioEngine.applySnapshot) {
+          window.audioEngine.applySnapshot(json);
+        }
+        if (window.showToast) window.showToast('AuraDSP Studio Preset Applied Successfully!', 'success');
+        closeEqExportModal();
+        return;
+      } catch (e) {}
+    }
+
+    // 2. Check if Wavelet GraphicEQ format
+    if (clean.includes('GraphicEQ:')) {
+      const eqLine = clean.split('GraphicEQ:')[1].split('\n')[0];
+      const pairs = eqLine.split(';').map(p => p.trim()).filter(Boolean);
+      pairs.forEach(pair => {
+        const parts = pair.split(/\s+/);
+        if (parts.length >= 2) {
+          const f = parseFloat(parts[0]);
+          const g = parseFloat(parts[1]);
+          if (!isNaN(f) && !isNaN(g)) {
+            let closestIdx = 0;
+            let minDiff = Math.abs(EQ_FREQS[0] - f);
+            EQ_FREQS.forEach((freq, idx) => {
+              const diff = Math.abs(freq - f);
+              if (diff < minDiff) { minDiff = diff; closestIdx = idx; }
+            });
+            applyEqBandGain(closestIdx, g);
+          }
+        }
+      });
+      if (window.showToast) window.showToast('Wavelet GraphicEQ Curve Imported!', 'success');
+      closeEqExportModal();
+      return;
+    }
+
+    // 3. Check if Equalizer APO format
+    const lines = clean.split('\n');
+    let apoMatched = false;
+    lines.forEach(line => {
+      const match = line.match(/Fc\s+(\d+)(?:\s*Hz)?\s+Gain\s+([+-]?\d+(?:\.\d+)?)/i);
+      if (match) {
+        apoMatched = true;
+        const f = parseFloat(match[1]);
+        const g = parseFloat(match[2]);
+        let closestIdx = 0;
+        let minDiff = Math.abs(EQ_FREQS[0] - f);
+        EQ_FREQS.forEach((freq, idx) => {
+          const diff = Math.abs(freq - f);
+          if (diff < minDiff) { minDiff = diff; closestIdx = idx; }
+        });
+        applyEqBandGain(closestIdx, g);
+      }
+    });
+
+    if (apoMatched) {
+      if (window.showToast) window.showToast('Equalizer APO Curve Imported!', 'success');
+      closeEqExportModal();
+      return;
+    }
+
+    if (window.showToast) window.showToast('Could not parse EQ format. Please check configuration text.', 'error');
+  }
+
+  function applyEqBandGain(bandIdx, gainDb) {
+    const clamped = Math.max(-12, Math.min(12, gainDb));
+    if (window.audioEngine && window.audioEngine.setEqGain) {
+      window.audioEngine.setEqGain(bandIdx, clamped);
+    }
+    const slider = document.getElementById(`eq-slider-${bandIdx}`);
+    if (slider) slider.value = clamped;
+    const valDisplay = document.getElementById(`eq-val-${bandIdx}`);
+    if (valDisplay) valDisplay.textContent = (clamped >= 0 ? '+' : '') + clamped.toFixed(1) + ' dB';
+  }
+
+  if (applyEqImportBtn) {
+    applyEqImportBtn.addEventListener('click', () => {
+      const txt = eqImportTextArea ? eqImportTextArea.value : '';
+      applyImportedEqProfile(txt);
+    });
+  }
+
+  if (eqImportFileInput) {
+    eqImportFileInput.addEventListener('change', (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        const content = evt.target?.result;
+        if (eqImportTextArea) eqImportTextArea.value = content;
+        applyImportedEqProfile(content);
+      };
+      reader.readAsText(file);
+    });
+  }
+
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
+      if (eqExportModalBackdrop && eqExportModalBackdrop.classList.contains('open')) closeEqExportModal();
       if (autoEqModalBackdrop && autoEqModalBackdrop.classList.contains('open')) closeAutoEqModal();
       if (earHealthModalBackdrop && earHealthModalBackdrop.classList.contains('open')) closeEarHealthModal();
       if (codecInspectorModalBackdrop && codecInspectorModalBackdrop.classList.contains('open')) closeCodecInspectorModal();
