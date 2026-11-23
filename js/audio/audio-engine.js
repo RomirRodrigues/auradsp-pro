@@ -43,7 +43,7 @@ class AudioEngine {
 
     // 10 EQ Bands
     this.eqNodes = [];
-    this.bands = FREQ_BANDS;
+    this.bands = (typeof FREQ_BANDS !== 'undefined') ? FREQ_BANDS : [31, 62, 125, 250, 500, 1000, 2000, 4000, 8000, 16000];
 
     // Dolby Compressor Nodes
     this.compressorNode = null;
@@ -68,6 +68,13 @@ class AudioEngine {
     this.outL = null;
     this.outR = null;
     this.sideInvGain = null;
+
+    // Mid/Side Matrix & Real-Time Vocal Isolator / Karaoke Mode
+    this.msMode = 'normal'; // 'normal', 'karaoke', 'vocal_solo', 'side_solo', 'mid_solo'
+    this.vocalCancelDepth = 18.0; // dB attenuation in karaoke mode
+    this.midVocalNotchFilter = null;
+    this.midGainDb = 0.0;
+    this.sideGainDb = 0.0;
 
     // Room Reverb Nodes
     this.convolverNode = null;
@@ -214,7 +221,13 @@ class AudioEngine {
       this.eqNodes[i].connect(this.eqNodes[i + 1]);
     }
 
-    // 4. Center Channel Vocal Enhancer Node (Peaking EQ at 2500Hz for speech intelligibility)
+    // 4. Mid Channel Vocal Notch Filter (Karaoke / Vocal Cancellation) & Vocal Enhancer
+    this.midVocalNotchFilter = this.ctx.createBiquadFilter();
+    this.midVocalNotchFilter.type = 'peaking';
+    this.midVocalNotchFilter.frequency.value = 2200; // Human vocal formant center
+    this.midVocalNotchFilter.Q.value = 1.1;
+    this.midVocalNotchFilter.gain.value = 0.0; // Flat 0dB default
+
     this.vocalBandpassNode = this.ctx.createBiquadFilter();
     this.vocalBandpassNode.type = 'peaking';
     this.vocalBandpassNode.frequency.value = 2500;
@@ -666,8 +679,9 @@ class AudioEngine {
     this.sideGainL.connect(this.sideSum);
     this.sideGainR.connect(this.sideSum);
 
-    // PROCESS MID CHANNEL: Peaking Vocal EQ -> Dolby Compressor
-    this.midSum.connect(this.vocalBandpassNode);
+    // PROCESS MID CHANNEL: Vocal Notch Filter (Karaoke) -> Peaking Vocal EQ -> Dolby Compressor
+    this.midSum.connect(this.midVocalNotchFilter);
+    this.midVocalNotchFilter.connect(this.vocalBandpassNode);
     this.vocalBandpassNode.connect(this.compressorNode);
     this.compressorNode.connect(this.compMakeupGainNode);
 
@@ -1464,15 +1478,72 @@ class AudioEngine {
     }
   }
 
+  // --- MID/SIDE (M/S) STEREO MATRIX & REAL-TIME VOCAL ISOLATOR / KARAOKE MODE ---
+  setMsMode(mode) {
+    this.msMode = mode || 'normal';
+    if (!this.ctx || !this.midSum || !this.sideWidthGain || !this.midVocalNotchFilter) return;
+    const now = this.ctx.currentTime;
+    const tc = 0.04;
+
+    switch (this.msMode) {
+      case 'karaoke':
+        // Real-time vocal cancellation: notch out center vocal band (-18dB to -24dB) & preserve wide stereo backing
+        this.midVocalNotchFilter.gain.setTargetAtTime(-Math.abs(this.vocalCancelDepth || 18), now, tc);
+        if (this.vocalBandpassNode) this.vocalBandpassNode.gain.setTargetAtTime(0.0, now, tc);
+        this.midSum.gain.setTargetAtTime(0.65, now, tc); // -3.7 dB gentle mid dip
+        this.sideWidthGain.gain.setTargetAtTime(1.35, now, tc); // expand wide stereo backing & reverb
+        break;
+
+      case 'vocal_solo':
+        // Acapella vocal isolation: boost mid vocal presence (+5dB), mute side stereo ambience
+        this.midVocalNotchFilter.gain.setTargetAtTime(3.5, now, tc);
+        if (this.vocalBandpassNode) this.vocalBandpassNode.gain.setTargetAtTime(6.0, now, tc);
+        this.midSum.gain.setTargetAtTime(1.25, now, tc);
+        this.sideWidthGain.gain.setTargetAtTime(0.01, now, tc); // mute stereo sides
+        break;
+
+      case 'side_solo':
+        // Stereo Ambience Solo: mute center mid completely, reveal pure side spatial reverberation
+        this.midVocalNotchFilter.gain.setTargetAtTime(0.0, now, tc);
+        this.midSum.gain.setTargetAtTime(0.0001, now, tc);
+        this.sideWidthGain.gain.setTargetAtTime(1.15, now, tc);
+        break;
+
+      case 'mid_solo':
+        // Center Channel Solo: mute side channel, reveal pure phantom center (mono lead, kick, bass)
+        this.midVocalNotchFilter.gain.setTargetAtTime(0.0, now, tc);
+        this.midSum.gain.setTargetAtTime(1.0, now, tc);
+        this.sideWidthGain.gain.setTargetAtTime(0.0001, now, tc);
+        break;
+
+      case 'normal':
+      default:
+        this.midVocalNotchFilter.gain.setTargetAtTime(0.0, now, tc);
+        this.midSum.gain.setTargetAtTime(Math.pow(10, this.midGainDb / 20), now, tc);
+        this.sideWidthGain.gain.setTargetAtTime(Math.pow(10, this.sideGainDb / 20) * (this.haasWidth / 50), now, tc);
+        break;
+    }
+  }
+
+  setVocalCancelDepth(depthDb) {
+    this.vocalCancelDepth = Math.max(0, Math.min(30, parseFloat(depthDb) || 18));
+    if (this.msMode === 'karaoke' && this.midVocalNotchFilter && this.ctx) {
+      this.midVocalNotchFilter.gain.setTargetAtTime(-this.vocalCancelDepth, this.ctx.currentTime, 0.03);
+    }
+  }
+
   setMidGain(dbVal) {
-    if (this.midSum) {
-      this.midSum.gain.value = Math.pow(10, dbVal / 20);
+    this.midGainDb = parseFloat(dbVal) || 0.0;
+    if (this.midSum && this.msMode === 'normal' && this.ctx) {
+      this.midSum.gain.setTargetAtTime(Math.pow(10, this.midGainDb / 20), this.ctx.currentTime, 0.03);
     }
   }
 
   setSideGain(dbVal) {
-    if (this.sideSum) {
-      this.sideSum.gain.value = Math.pow(10, dbVal / 20);
+    this.sideGainDb = parseFloat(dbVal) || 0.0;
+    if (this.sideWidthGain && this.msMode === 'normal' && this.ctx) {
+      const baseWidth = (this.haasWidth || 70) / 50;
+      this.sideWidthGain.gain.setTargetAtTime(Math.pow(10, this.sideGainDb / 20) * baseWidth, this.ctx.currentTime, 0.03);
     }
   }
 
@@ -1988,4 +2059,9 @@ class AudioEngine {
 }
 
 // Global Engine Instance
-window.audioEngine = new AudioEngine();
+if (typeof window !== 'undefined') {
+  window.audioEngine = new AudioEngine();
+}
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = AudioEngine;
+}

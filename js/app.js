@@ -1610,10 +1610,13 @@ document.addEventListener('DOMContentLoaded', () => {
   // 4. ENGINE 4: Radio Browser Worldwide Live Radio Network (30,000+ Stations)
   // Continuous real-time live music radio streams matching any genre/artist (Bollywood, Marathi, Pop, Rock, EDM, Club).
   async function searchRadioStations(query, limit = 8) {
-    const radioNodes = ['de1', 'nl1', 'at1'];
+    const radioNodes = ['de1', 'all'];
     for (const node of radioNodes) {
       try {
-        const res = await fetchWithTimeout(`https://${node}.api.radio-browser.info/json/stations/search?name=${encodeURIComponent(query)}&limit=${limit}`, 3500);
+        let res = await fetchWithTimeout(`https://${node}.api.radio-browser.info/json/stations/byname/${encodeURIComponent(query)}?limit=${limit}`, 3500);
+        if (!res.ok) {
+          res = await fetchWithTimeout(`https://${node}.api.radio-browser.info/json/stations/bytag/${encodeURIComponent(query)}?limit=${limit}`, 3500);
+        }
         if (!res.ok) continue;
         const list = await res.json();
         if (Array.isArray(list) && list.length > 0) {
@@ -5373,11 +5376,311 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // ==========================================================================
+  // AURADSP PRO v54.8.0 - HEARING CALIBRATION & MID/SIDE VOCAL ISOLATOR SUITE
+  // ==========================================================================
+
+  // --- 1. Personalized Hearing Calibration & Audiogram Suite (Feature 1) ---
+  if (!window.audiogramCalibration && window.AudiogramCalibration) {
+    window.audiogramCalibration = new AudiogramCalibration(window.audioEngine);
+  }
+
+  const openHearingTestBtn = document.getElementById('openHearingTestBtn');
+  const closeHearingTestBtn = document.getElementById('closeHearingTestBtn');
+  const hearingTestModalBackdrop = document.getElementById('hearingTestModalBackdrop');
+
+  function openHearingTestModal() {
+    if (!hearingTestModalBackdrop) return;
+    hearingTestModalBackdrop.classList.add('open');
+    document.body.style.overflow = 'hidden';
+
+    if (window.audiogramCalibration) {
+      window.audiogramCalibration.computeCompensationCurve();
+      window.audiogramCalibration.renderTestingUi();
+      const canvasEl = document.getElementById('audiogramCanvas');
+      if (canvasEl) {
+        setTimeout(() => window.audiogramCalibration.initCanvas(canvasEl), 60);
+      }
+    }
+  }
+
+  function closeHearingTestModal() {
+    if (!hearingTestModalBackdrop) return;
+    if (window.audiogramCalibration) {
+      window.audiogramCalibration.stopTone();
+      window.audiogramCalibration.stopTest();
+    }
+    hearingTestModalBackdrop.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  if (openHearingTestBtn) {
+    openHearingTestBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      openHearingTestModal();
+    });
+  }
+
+  if (closeHearingTestBtn) {
+    closeHearingTestBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      closeHearingTestModal();
+    });
+  }
+
+  if (hearingTestModalBackdrop) {
+    hearingTestModalBackdrop.addEventListener('click', (e) => {
+      if (e.target === hearingTestModalBackdrop) closeHearingTestModal();
+    });
+  }
+
+  // Audiogram Test Wizard Channel Chips
+  document.querySelectorAll('.ag-ear-chip').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.ag-ear-chip').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const ear = btn.getAttribute('data-ear') || 'both';
+      if (window.audiogramCalibration) {
+        window.audiogramCalibration.startTest(ear);
+      }
+    });
+  });
+
+  // Audiogram Test Controls
+  const agPlayToneBtn = document.getElementById('agPlayToneBtn');
+  const agHearToneBtn = document.getElementById('agHearToneBtn');
+  const agLouderBtn = document.getElementById('agLouderBtn');
+  const agSofterBtn = document.getElementById('agSofterBtn');
+  const agSkipBtn = document.getElementById('agSkipBtn');
+
+  if (agPlayToneBtn) {
+    agPlayToneBtn.addEventListener('click', () => {
+      if (!window.audiogramCalibration) return;
+      window.audiogramCalibration.playTone(
+        window.audiogramCalibration.getCurrentFrequency(),
+        window.audiogramCalibration.currentDbHl,
+        window.audiogramCalibration.currentEar
+      );
+    });
+  }
+
+  if (agHearToneBtn) {
+    agHearToneBtn.addEventListener('click', () => {
+      if (!window.audiogramCalibration) return;
+      window.audiogramCalibration.hearTone();
+    });
+  }
+
+  if (agLouderBtn) {
+    agLouderBtn.addEventListener('click', () => {
+      if (!window.audiogramCalibration) return;
+      window.audiogramCalibration.adjustTestVolume(5);
+    });
+  }
+
+  if (agSofterBtn) {
+    agSofterBtn.addEventListener('click', () => {
+      if (!window.audiogramCalibration) return;
+      window.audiogramCalibration.adjustTestVolume(-5);
+    });
+  }
+
+  if (agSkipBtn) {
+    agSkipBtn.addEventListener('click', () => {
+      if (!window.audiogramCalibration) return;
+      window.audiogramCalibration.skipFrequency();
+    });
+  }
+
+  // Audiogram Presets
+  document.querySelectorAll('.ag-preset-chip').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const presetKey = btn.getAttribute('data-preset');
+      if (window.audiogramCalibration && presetKey) {
+        window.audiogramCalibration.applyPreset(presetKey);
+      }
+    });
+  });
+
+  // Strength Slider
+  const agStrengthSlider = document.getElementById('agStrengthSlider');
+  const agStrengthVal = document.getElementById('agStrengthVal');
+  if (agStrengthSlider) {
+    agStrengthSlider.addEventListener('input', (e) => {
+      const val = parseInt(e.target.value, 10);
+      if (agStrengthVal) agStrengthVal.textContent = val + '%';
+      if (window.audiogramCalibration) {
+        window.audiogramCalibration.setCompensationStrength(val / 100);
+      }
+    });
+  }
+
+  // Apply Ear Compensation to 10-Band EQ
+  const applyAudiogramEqBtn = document.getElementById('applyAudiogramEqBtn');
+  if (applyAudiogramEqBtn) {
+    applyAudiogramEqBtn.addEventListener('click', () => {
+      if (window.audiogramCalibration) {
+        window.audiogramCalibration.applyToMasterEq();
+        closeHearingTestModal();
+      }
+    });
+  }
+
+  // Save, Export & Import
+  const saveAudiogramBtn = document.getElementById('saveAudiogramBtn');
+  const exportAudiogramBtn = document.getElementById('exportAudiogramBtn');
+  const importAudiogramBtn = document.getElementById('importAudiogramBtn');
+  const importAudiogramFileInput = document.getElementById('importAudiogramFileInput');
+
+  if (saveAudiogramBtn) {
+    saveAudiogramBtn.addEventListener('click', () => {
+      if (window.audiogramCalibration) {
+        window.audiogramCalibration.saveToStorage();
+        if (window.showToast) window.showToast('💾 Saved Audiogram Profile to Local Storage', 'success');
+      }
+    });
+  }
+
+  if (exportAudiogramBtn) {
+    exportAudiogramBtn.addEventListener('click', () => {
+      if (window.audiogramCalibration) {
+        window.audiogramCalibration.exportProfileJson();
+      }
+    });
+  }
+
+  if (importAudiogramBtn && importAudiogramFileInput) {
+    importAudiogramBtn.addEventListener('click', () => {
+      importAudiogramFileInput.click();
+    });
+
+    importAudiogramFileInput.addEventListener('change', (e) => {
+      const file = e.target.files?.[0];
+      if (file && window.audiogramCalibration) {
+        window.audiogramCalibration.importProfileJson(file);
+      }
+    });
+  }
+
+  // --- 2. Mid/Side (M/S) Matrix & Real-Time Vocal Isolator / Karaoke Mode (Feature 2) ---
+  const msMatrixToggle = document.getElementById('msMatrixToggle');
+  const resetMsBtn = document.getElementById('resetMsBtn');
+  const vocalCancelDepth = document.getElementById('vocalCancelDepth');
+  const vocalCancelDepthVal = document.getElementById('vocalCancelDepthVal');
+  const msMidGain = document.getElementById('msMidGain');
+  const msMidGainVal = document.getElementById('msMidGainVal');
+  const msSideGain = document.getElementById('msSideGain');
+  const msSideGainVal = document.getElementById('msSideGainVal');
+  const msModeBtns = document.querySelectorAll('.ms-mode-btn');
+
+  let activeMsMode = 'normal';
+
+  function applyMsMode(mode) {
+    activeMsMode = mode;
+    msModeBtns.forEach(b => {
+      if (b.getAttribute('data-mode') === mode) b.classList.add('active');
+      else b.classList.remove('active');
+    });
+
+    if (window.audioEngine && typeof window.audioEngine.setMsMode === 'function') {
+      window.audioEngine.setMsMode(mode);
+    }
+
+    if (window.showToast) {
+      switch (mode) {
+        case 'karaoke':
+          window.showToast('🎤 Karaoke Mode: Center lead vocals cancelled. Backing track isolated.', 'info');
+          break;
+        case 'vocal_solo':
+          window.showToast('🎙️ Acapella Solo: Center lead vocal presence isolated.', 'info');
+          break;
+        case 'side_solo':
+          window.showToast('🌌 Stereo Ambience Solo: Center channel muted. Solos side room reflections & instruments.', 'info');
+          break;
+        case 'mid_solo':
+          window.showToast('🎯 Center Solo: Pure phantom center mono channel (vocals, kick, bass).', 'info');
+          break;
+        case 'normal':
+        default:
+          window.showToast('Normal Full Stereo (Mid + Side) Mode Active', 'info');
+          break;
+      }
+    }
+  }
+
+  msModeBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const mode = btn.getAttribute('data-mode') || 'normal';
+      applyMsMode(mode);
+    });
+  });
+
+  if (msMatrixToggle) {
+    msMatrixToggle.addEventListener('change', (e) => {
+      if (e.target.checked) {
+        applyMsMode(activeMsMode || 'normal');
+      } else {
+        if (window.audioEngine && typeof window.audioEngine.setMsMode === 'function') {
+          window.audioEngine.setMsMode('normal');
+        }
+        if (window.showToast) window.showToast('M/S Matrix Bypassed: Standard Stereo', 'info');
+      }
+    });
+  }
+
+  if (vocalCancelDepth) {
+    vocalCancelDepth.addEventListener('input', (e) => {
+      const val = parseFloat(e.target.value);
+      if (vocalCancelDepthVal) vocalCancelDepthVal.textContent = '-' + val.toFixed(0) + ' dB';
+      if (window.audioEngine && typeof window.audioEngine.setVocalCancelDepth === 'function') {
+        window.audioEngine.setVocalCancelDepth(val);
+      }
+    });
+  }
+
+  if (msMidGain) {
+    msMidGain.addEventListener('input', (e) => {
+      const val = parseFloat(e.target.value);
+      if (msMidGainVal) msMidGainVal.textContent = (val >= 0 ? '+' : '') + val.toFixed(1) + ' dB';
+      if (window.audioEngine && typeof window.audioEngine.setMidGain === 'function') {
+        window.audioEngine.setMidGain(val);
+      }
+    });
+  }
+
+  if (msSideGain) {
+    msSideGain.addEventListener('input', (e) => {
+      const val = parseFloat(e.target.value);
+      if (msSideGainVal) msSideGainVal.textContent = (val >= 0 ? '+' : '') + val.toFixed(1) + ' dB';
+      if (window.audioEngine && typeof window.audioEngine.setSideGain === 'function') {
+        window.audioEngine.setSideGain(val);
+      }
+    });
+  }
+
+  if (resetMsBtn) {
+    resetMsBtn.addEventListener('click', () => {
+      if (vocalCancelDepth) { vocalCancelDepth.value = 18; if (vocalCancelDepthVal) vocalCancelDepthVal.textContent = '-18 dB'; }
+      if (msMidGain) { msMidGain.value = 0; if (msMidGainVal) msMidGainVal.textContent = '0.0 dB'; }
+      if (msSideGain) { msSideGain.value = 0; if (msSideGainVal) msSideGainVal.textContent = '0.0 dB'; }
+      if (msMatrixToggle) msMatrixToggle.checked = true;
+      applyMsMode('normal');
+      if (window.audioEngine) {
+        if (window.audioEngine.setMidGain) window.audioEngine.setMidGain(0);
+        if (window.audioEngine.setSideGain) window.audioEngine.setSideGain(0);
+        if (window.audioEngine.setVocalCancelDepth) window.audioEngine.setVocalCancelDepth(18);
+      }
+      if (window.showToast) window.showToast('Reset Mid/Side Matrix & Vocal Isolator Controls', 'success');
+    });
+  }
+
+
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       if (eqExportModalBackdrop && eqExportModalBackdrop.classList.contains('open')) closeEqExportModal();
       if (autoEqModalBackdrop && autoEqModalBackdrop.classList.contains('open')) closeAutoEqModal();
       if (earHealthModalBackdrop && earHealthModalBackdrop.classList.contains('open')) closeEarHealthModal();
+      if (typeof closeHearingTestModal === 'function' && hearingTestModalBackdrop && hearingTestModalBackdrop.classList.contains('open')) closeHearingTestModal();
       if (codecInspectorModalBackdrop && codecInspectorModalBackdrop.classList.contains('open')) closeCodecInspectorModal();
       const devBackdrop = document.getElementById('devModalBackdrop');
       if (devBackdrop && devBackdrop.classList.contains('open') && window.auraDevMenu) {

@@ -618,6 +618,26 @@ const MANUAL_FEATURES = [
     working: "Inspects MediaElement and AudioContext hardware nodes to reveal container codec, estimated bitrate, native sample rate (e.g. 48kHz / 96kHz), and internal DSP latency.",
     whyToUse: "Verifies whether your audio stream or uploaded file is truly studio-quality lossless or compressed, and checks hardware latency.",
     proTip: "Upload local WAV or FLAC files to see the golden 'HI-RES AUDIO LOSSLESS' certification badge activate."
+  },
+  {
+    id: "audiogram_calibration",
+    category: "calibration",
+    title: "Personalized Hearing Calibration & Audiogram Suite",
+    badge: "Clinical DSP",
+    summary: "ISO 8253-1 clinical pure-tone audiometry test generator and interactive audiogram canvas with automated NAL-R inverted compensation curves.",
+    working: "Generates calibrated triple-pulse sine bursts across 9 standard medical frequencies (125Hz to 16kHz) with smooth 25ms raised cosine envelopes. Automatically plots Left (X) and Right (O) ear thresholds on an interactive high-DPI audiogram canvas, calculates Pure-Tone Average (PTA), and computes an inverse frequency compensation prescription using the internationally recognized NAL-R formula.",
+    whyToUse: "No two human ears perceive frequencies identically. As we age or use headphones, high-frequency roll-off (presbycusis) or 4kHz notches occur. This calibration suite tailors AuraDSP's EQ directly to your biological auditory profile, restoring lost acoustic detail and sparkle.",
+    proTip: "Test each ear in a quiet environment using comfortable volume. Once completed, click 'Apply Ear Compensation to 10-Band EQ' and adjust the Strength Slider (default 75%) to experience crystal-clear audio tailored to your ears."
+  },
+  {
+    id: "ms_vocal_isolator",
+    category: "mastering",
+    title: "Mid/Side (M/S) Matrix & Real-Time Vocal Isolator / Karaoke Mode",
+    badge: "Karaoke Pro",
+    summary: "Phase cancellation and M/S matrix routing that separates center phantom lead vocals from wide stereo ambience.",
+    working: "Splits incoming stereo audio into Mid (L+R)/2 and Side (L-R)/2 streams. In Karaoke Mode, applies an ultra-sharp parametric notch filter across the human vocal formant band (2.2kHz, -18dB to -24dB) and balances mid/side gains, canceling out centered lead vocals while preserving stereo guitars, drums, synths, and bass.",
+    whyToUse: "Perfect for singing along to any song in Karaoke Mode, practicing vocal tracks, soloing acapella lead vocals for transcription, or isolating wide ambient stereo reverbs and instruments.",
+    proTip: "Use 'Karaoke Mode' for instant instrumental tracks with background instruments, and 'Stereo Ambience' to listen exclusively to wide reverbs and panned effects."
   }
 ];
 

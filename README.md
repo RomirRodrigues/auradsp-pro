@@ -53,6 +53,8 @@
 
 ## ✨ Features Overview
 
+- **🎧 Personalized Hearing Calibration & Audiogram Suite**: ISO 8253-1 clinical pure-tone audiometry test generator (125Hz-16kHz), high-DPI interactive audiogram canvas, Pure-Tone Average (PTA) diagnostic scoring, and dynamic NAL-R inverted ear-compensation curve engine with one-click application to Master EQ.
+- **🎤 Mid/Side Matrix & Real-Time Vocal Isolator / Karaoke Mode**: Hardware-accurate M/S matrix processing with real-time center-channel vocal notch cancellation (-18dB to -24dB), Acapella vocal isolation, and side ambience soloing.
 - **🎚️ 10-Band EQ & Interactive Parametric Canvas**: Real BiquadFilter nodes (31Hz to 16kHz) with interactive node dragging.
 - **📊 AudioWorklet Pro Metering**: Off-main-thread Peak, RMS, True-Peak clipping, Phase Correlation (-1 to +1), and Momentary/Short-Term **LUFS**.
 - **🌐 3D HRTF Binaural Spatializer**: Interactive soundstage canvas with coordinate overlay and automated motion patterns (Circular Orbit, Figure-Eight ♾️, Left-Right Sweep, Random).
@@ -81,7 +83,9 @@ auradsp-pro/
     ├── audio/
     │   └── audio-engine.js # Core Web Audio API DSP signal chain
     ├── dsp/
-    │   └── meter-worklet.js# AudioWorklet processor for 60fps meters & LUFS
+    │   ├── meter-worklet.js        # AudioWorklet processor for 60fps meters & LUFS
+    │   ├── audio-pro-tools.js      # DR meter, ear dose tracker & Atmos test
+    │   └── audiogram-calibration.js # Clinical hearing calibration & audiogram suite
     ├── visual/
     │   ├── visualizer.js   # Spectrum, Waveform, Spectrogram & Phase Scope
     │   └── spatial-canvas.js # 3D HRTF soundstage canvas

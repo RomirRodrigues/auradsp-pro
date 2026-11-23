@@ -7061,3 +7061,576 @@ input[type="range"]::-webkit-slider-thumb:active {
   border-color: var(--accent-cyan) !important;
   box-shadow: 0 0 12px rgba(0, 240, 255, 0.2) !important;
 }
+
+
+/* ==========================================================================
+   AuraDSP Pro v54.8.0 - PERSONALIZED HEARING CALIBRATION & AUDIOGRAM SUITE
+   ========================================================================== */
+
+.audiogram-trigger-btn {
+  background: rgba(0, 240, 255, 0.08) !important;
+  border-color: rgba(0, 240, 255, 0.4) !important;
+  color: var(--accent-cyan) !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.audiogram-trigger-btn:hover {
+  background: rgba(0, 240, 255, 0.18) !important;
+  border-color: var(--accent-cyan) !important;
+  box-shadow: 0 0 14px rgba(0, 240, 255, 0.35) !important;
+  transform: translateY(-1px) scale(1.02) !important;
+}
+
+/* Hearing Test Studio Modal */
+.hearing-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(5, 7, 12, 0.82);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  padding: 16px;
+}
+
+.hearing-modal-backdrop.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.hearing-modal {
+  width: 100%;
+  max-width: 860px;
+  max-height: 92vh;
+  background: rgba(14, 18, 26, 0.96);
+  border: 1px solid rgba(0, 240, 255, 0.28);
+  border-radius: var(--radius-md, 12px);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.75), 0 0 32px rgba(0, 240, 255, 0.12);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transform: translateY(16px) scale(0.97);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hearing-modal-backdrop.open .hearing-modal {
+  transform: translateY(0) scale(1);
+}
+
+.hearing-modal-body {
+  padding: 18px 22px 22px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Top Assessment Cockpit */
+.ag-assessment-card {
+  background: rgba(20, 26, 38, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 14px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ag-assessment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.ag-ear-selector-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.ag-selector-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+
+.ag-ear-chip {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--text-main);
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  min-height: 36px;
+}
+
+.ag-ear-chip:hover {
+  background: rgba(0, 240, 255, 0.12);
+  border-color: rgba(0, 240, 255, 0.3);
+}
+
+.ag-ear-chip.active {
+  background: rgba(0, 240, 255, 0.2);
+  border-color: var(--accent-cyan);
+  color: #fff;
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+}
+
+.ag-step-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  font-family: var(--font-mono, monospace);
+  padding: 4px 10px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  color: var(--accent-cyan);
+}
+
+.ag-test-cockpit {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 12px;
+  background: rgba(10, 14, 22, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 12px 16px;
+}
+
+.ag-cockpit-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ag-stat-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+.ag-stat-value {
+  font-size: 1.35rem;
+  font-weight: 800;
+  font-family: var(--font-mono, monospace);
+  letter-spacing: -0.02em;
+}
+
+.ag-stat-pill {
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: var(--accent-cyan);
+  margin-top: 4px;
+}
+
+.ag-wizard-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.ag-play-btn {
+  padding: 10px 20px !important;
+  font-size: 0.85rem !important;
+  font-weight: 700 !important;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+  overflow: hidden;
+}
+
+.ag-play-btn.playing {
+  background: linear-gradient(135deg, #00f0ff, #0088ff) !important;
+  color: #000 !important;
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.6) !important;
+}
+
+.ag-heard-btn {
+  background: linear-gradient(135deg, #10b981, #059669) !important;
+  border-color: #10b981 !important;
+  color: #fff !important;
+  padding: 10px 20px !important;
+  font-size: 0.85rem !important;
+  font-weight: 700 !important;
+  min-height: 44px;
+  box-shadow: 0 0 14px rgba(16, 185, 129, 0.35) !important;
+}
+
+.ag-volume-nudge-group {
+  display: flex;
+  gap: 6px;
+}
+
+.ag-volume-nudge-group button {
+  min-height: 44px;
+  padding: 0 14px;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.ag-status-note {
+  margin: 0;
+  font-size: 0.74rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+/* Middle: Canvas Section */
+.ag-chart-card {
+  background: rgba(18, 23, 34, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 14px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ag-chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.ag-chart-title-group h4 {
+  margin: 0;
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: #fff;
+}
+
+.ag-profile-tag {
+  font-size: 0.72rem;
+  color: var(--accent-cyan);
+  font-weight: 600;
+}
+
+.ag-chart-legend {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.legend-zone-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  opacity: 0.65;
+}
+
+.ag-canvas-wrapper {
+  width: 100%;
+  height: 290px;
+  background: #090c12;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+}
+
+.ag-canvas-wrapper canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+  cursor: crosshair;
+}
+
+/* Bottom Grid: Diagnostics & Compensation */
+.ag-bottom-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 768px) {
+  .ag-bottom-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.ag-diag-card, .ag-compensation-card {
+  background: rgba(18, 23, 34, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ag-diag-card h4, .ag-comp-header h4 {
+  margin: 0;
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: #fff;
+}
+
+.ag-diag-stat-row {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+
+.ag-diag-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.diag-label {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.diag-val {
+  font-size: 1.15rem;
+  font-weight: 800;
+  font-family: var(--font-mono, monospace);
+  color: #fff;
+}
+
+.diag-badge {
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 4px;
+  letter-spacing: 0.04em;
+  display: inline-block;
+}
+
+.ag-diag-notes {
+  margin: 0;
+  font-size: 0.74rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+  background: rgba(0, 0, 0, 0.25);
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.ag-presets-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.ag-presets-chips {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.ag-preset-chip {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-main);
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  min-height: 32px;
+}
+
+.ag-preset-chip:hover {
+  background: rgba(0, 240, 255, 0.12);
+  border-color: var(--accent-cyan);
+  color: #fff;
+}
+
+/* Compensation Card Controls */
+.ag-comp-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.ag-strength-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.74rem;
+  color: var(--text-muted);
+}
+
+.ag-strength-wrap input[type="range"] {
+  width: 90px;
+  accent-color: var(--accent-cyan);
+}
+
+.ag-eq-mini-bars {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 5px;
+  height: 90px;
+  align-items: flex-end;
+  background: rgba(10, 14, 22, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 8px 6px 4px;
+}
+
+.ag-mini-bar-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  justify-content: flex-end;
+  gap: 2px;
+}
+
+.ag-bar-track {
+  width: 100%;
+  max-width: 16px;
+  height: 52px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 3px;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+}
+
+.ag-bar-fill {
+  width: 100%;
+  border-radius: 3px;
+  transition: height 0.35s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease;
+}
+
+.ag-bar-label {
+  font-size: 0.58rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.ag-bar-val {
+  font-size: 0.56rem;
+  font-family: var(--font-mono, monospace);
+  font-weight: 700;
+  color: var(--accent-cyan);
+}
+
+.ag-apply-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.ag-apply-actions button {
+  min-height: 40px;
+}
+
+/* ==========================================================================
+   AuraDSP Pro v54.8.0 - MID/SIDE STEREO MATRIX & VOCAL ISOLATOR CARD
+   ========================================================================== */
+
+.ms-vocal-card {
+  background: rgba(16, 21, 31, 0.9) !important;
+  border: 1px solid rgba(0, 240, 255, 0.22) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4) !important;
+}
+
+.ms-modes-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin: 10px 0 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.ms-mode-btn {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-main);
+  padding: 7px 12px;
+  border-radius: 6px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  min-height: 38px;
+}
+
+.ms-mode-btn:hover {
+  background: rgba(0, 240, 255, 0.12);
+  border-color: rgba(0, 240, 255, 0.35);
+  transform: translateY(-1px);
+}
+
+.ms-mode-btn:active {
+  transform: scale(0.96) translateY(1px);
+}
+
+.ms-mode-btn.active {
+  background: rgba(0, 240, 255, 0.22);
+  border-color: var(--accent-cyan);
+  color: #fff;
+  box-shadow: 0 0 12px rgba(0, 240, 255, 0.35);
+}
+
+/* Fluid Micro-Animations & Mobile Touch Ergonomics */
+@media (max-width: 768px) {
+  .hearing-modal {
+    max-height: 96vh;
+    border-radius: var(--radius-sm, 8px);
+  }
+
+  .hearing-modal-body {
+    padding: 14px 14px 18px;
+    gap: 12px;
+  }
+
+  .ag-canvas-wrapper {
+    height: 230px;
+  }
+
+  .ag-play-btn, .ag-heard-btn {
+    flex: 1 1 100%;
+  }
+
+  .ms-mode-btn {
+    flex: 1 1 calc(50% - 6px);
+    text-align: center;
+  }
+}

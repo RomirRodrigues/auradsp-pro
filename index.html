@@ -49,7 +49,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=54.7.0">
+  <link rel="stylesheet" href="styles.css?v=54.8.0">
   <link rel="manifest" href="manifest.json">
 </head>
 <body class="theme-studio">
@@ -71,7 +71,7 @@
       <div>
         <div class="brand-title">
           <span class="animated-brand-text" id="brandTitleHeader" title="AuraDSP Pro Studio Audio Workstation (Click 5 times for Developer Console)">AURA<span class="brand-dsp-badge">DSP</span> PRO</span>
-          <span class="version-tag" id="appVersionTag" title="Click to view full Changelog &amp; Version History">v54.7.0</span>
+          <span class="version-tag" id="appVersionTag" title="Click to view full Changelog &amp; Version History">v54.8.0</span>
         </div>
         <p class="subtitle">Reference Studio Audio Workstation &middot; by <span class="animated-creator-name" id="creatorNameHeader">Romir Rodrigues</span></p>
       </div>
@@ -636,6 +636,9 @@
             <button id="openAutoEqBtn" class="sm-btn autoeq-trigger-btn" title="Open 500+ Headphone AutoEQ Profile Calibrator">
               <span>🎧 AutoEQ</span>
             </button>
+            <button id="openHearingTestBtn" class="sm-btn audiogram-trigger-btn" title="Open Personalized Hearing Calibration &amp; Audiogram Suite (Pure-Tone Assessment &amp; Custom Ear Compensation)" style="display:flex; align-items:center; gap:5px; border-color:rgba(0, 240, 255, 0.4); color:var(--accent-cyan); background:rgba(0, 240, 255, 0.08);">
+              <span>👂 Hearing Test</span>
+            </button>
             <button id="openEqExportImportBtn" class="sm-btn" title="Export EQ to Equalizer APO / Wavelet or Import Custom Profile" style="display:flex; align-items:center; gap:5px; border-color:rgba(0, 240, 255, 0.35); color:var(--accent-cyan);">
               <span>💾 Export / Import EQ</span>
             </button>
@@ -750,6 +753,51 @@
                 <label for="vocalBoost">Vocal Gain</label>
                 <input type="range" id="vocalBoost" min="0" max="9" value="3" step="0.5">
                 <span id="vocalBoostVal">+3.0 dB</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- FEATURE: MID/SIDE STEREO MATRIX & REAL-TIME VOCAL ISOLATOR / KARAOKE MODE -->
+          <div class="enhancer-card ms-vocal-card" id="msVocalWidget">
+            <div class="card-header">
+              <label class="switch">
+                <input type="checkbox" id="msMatrixToggle" checked>
+                <span class="slider round"></span>
+              </label>
+              <div class="card-title-group">
+                <div style="display:flex; align-items:center; gap:6px;">
+                  <h4 style="color:var(--accent-cyan);">Mid/Side Matrix &amp; Real-Time Vocal Isolator</h4>
+                  <span class="status-pill" style="font-size:0.6rem; padding:1px 6px; background:rgba(0, 240, 255, 0.15); border:1px solid #00f0ff; color:#00f0ff; border-radius:4px;">KARAOKE PRO</span>
+                </div>
+                <p>Separates center phantom vocals from stereo side ambience with phase cancellation</p>
+              </div>
+              <button id="resetMsBtn" class="sm-btn card-reset-btn">Reset</button>
+            </div>
+
+            <!-- Mode Selector Pills -->
+            <div class="ms-modes-row">
+              <button class="ms-mode-btn active" data-mode="normal" title="Standard Full Stereo (Mid + Side)">Normal Stereo</button>
+              <button class="ms-mode-btn" data-mode="karaoke" title="Karaoke Mode: Real-time lead vocal elimination / cancellation">🎤 Karaoke Mode</button>
+              <button class="ms-mode-btn" data-mode="vocal_solo" title="Acapella Solo: Isolates center-channel lead vocal">🎙️ Acapella Solo</button>
+              <button class="ms-mode-btn" data-mode="side_solo" title="Side Ambience: Solos stereo guitars, reverbs & synths">🌌 Stereo Ambience</button>
+              <button class="ms-mode-btn" data-mode="mid_solo" title="Center Solo: Phantom center mono channel">🎯 Center Solo</button>
+            </div>
+
+            <div class="knob-group-row">
+              <div class="knob-item">
+                <label for="vocalCancelDepth">Vocal Cut Depth</label>
+                <input type="range" id="vocalCancelDepth" min="6" max="24" value="18" step="1">
+                <span id="vocalCancelDepthVal">-18 dB</span>
+              </div>
+              <div class="knob-item">
+                <label for="msMidGain">Mid Channel Level</label>
+                <input type="range" id="msMidGain" min="-12" max="6" value="0" step="0.5">
+                <span id="msMidGainVal">0.0 dB</span>
+              </div>
+              <div class="knob-item">
+                <label for="msSideGain">Side Ambience Level</label>
+                <input type="range" id="msSideGain" min="-12" max="6" value="0" step="0.5">
+                <span id="msSideGainVal">0.0 dB</span>
               </div>
             </div>
           </div>
@@ -1088,7 +1136,7 @@
         &copy; 2026 <strong class="animated-creator-name" id="creatorNameFooter">Romir Rodrigues</strong>. All rights reserved.
       </div>
       <div class="footer-note">
-        AuraDSP Pro Workstation &nbsp;·&nbsp; Real-Time Web Audio DSP &nbsp;·&nbsp; 3D HRTF Spatial Soundstage &nbsp;·&nbsp; <a href="#" id="footerChangelogLink" style="color:var(--accent-cyan); text-decoration:none; border-bottom:1px dashed rgba(0,240,255,0.4); padding-bottom:1px;" title="View full release notes & version history">v54.7.0 Release Notes</a> &nbsp;·&nbsp; <a href="#" id="footerManualLink" style="color:var(--accent-cyan); text-decoration:none; border-bottom:1px dashed rgba(0,240,255,0.4); padding-bottom:1px; margin-left:6px;" title="Open Studio User Manual & Feature Guide">📖 Studio Manual &amp; Guide</a>
+        AuraDSP Pro Workstation &nbsp;·&nbsp; Real-Time Web Audio DSP &nbsp;·&nbsp; 3D HRTF Spatial Soundstage &nbsp;·&nbsp; <a href="#" id="footerChangelogLink" style="color:var(--accent-cyan); text-decoration:none; border-bottom:1px dashed rgba(0,240,255,0.4); padding-bottom:1px;" title="View full release notes & version history">v54.8.0 Release Notes</a> &nbsp;·&nbsp; <a href="#" id="footerManualLink" style="color:var(--accent-cyan); text-decoration:none; border-bottom:1px dashed rgba(0,240,255,0.4); padding-bottom:1px; margin-left:6px;" title="Open Studio User Manual & Feature Guide">📖 Studio Manual &amp; Guide</a>
       </div>
     </div>
   </footer>
@@ -1102,7 +1150,7 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px; height:20px; color:var(--accent-cyan);"><path d="M12 2v20M17 5v14M7 5v14M2 9v6M22 9v6"/></svg>
             <h3 id="changelogTitle" style="margin:0; font-size:1.05rem; font-weight:800; color:#fff; letter-spacing:0.02em;">AuraDSP Pro · Version History & Changelog</h3>
           </div>
-          <p style="margin:4px 0 0; font-size:0.75rem; color:var(--text-muted);">Complete milestone release notes from v1.0.0 (Genesis) to v54.7.0 (Latest)</p>
+          <p style="margin:4px 0 0; font-size:0.75rem; color:var(--text-muted);">Complete milestone release notes from v1.0.0 (Genesis) to v54.8.0 (Latest)</p>
         </div>
         <button id="closeChangelogBtn" class="changelog-close-btn" title="Close Changelog (Esc)">&times;</button>
       </div>
@@ -1292,6 +1340,150 @@
         <!-- Actions -->
         <div class="ear-modal-actions">
           <button id="resetEarDoseBtn" class="sm-btn ear-reset-btn">Reset Daily Dose &amp; Timer</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Personalized Hearing Calibration & Audiogram Modal (v54.8.0 Flagship Feature) -->
+  <div id="hearingTestModalBackdrop" class="studio-modal-backdrop hearing-modal-backdrop">
+    <div class="studio-modal hearing-modal" role="dialog" aria-modal="true" aria-labelledby="hearingTestTitle">
+      <div class="studio-modal-header">
+        <div class="studio-modal-header-left">
+          <div class="studio-modal-title-row">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="studio-modal-icon" style="color:var(--accent-cyan); width:20px; height:20px;">
+              <path d="M3 18v-6a9 9 0 0 1 18 0v6"/>
+              <path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/>
+            </svg>
+            <h3 id="hearingTestTitle" class="studio-modal-title">Personalized Hearing Calibration &amp; Audiogram Suite</h3>
+            <span class="studio-modal-badge" style="background:rgba(0, 240, 255, 0.15); border:1px solid #00f0ff; color:#00f0ff;">v54.8.0</span>
+          </div>
+          <p class="studio-modal-desc">Clinical pure-tone audiometry assessment &middot; Generates custom ear-calibrated NAL-R compensation curves</p>
+        </div>
+        <button id="closeHearingTestBtn" class="studio-modal-close-btn" title="Close (Esc)">&times;</button>
+      </div>
+
+      <div class="hearing-modal-body">
+        <!-- TOP: ASSESSMENT CONTROLS & TEST RUNNER -->
+        <div class="ag-assessment-card">
+          <div class="ag-assessment-header">
+            <div class="ag-ear-selector-group">
+              <span class="ag-selector-label">Test Channel:</span>
+              <button class="ag-ear-chip active" data-ear="both">Binaural (Stereo)</button>
+              <button class="ag-ear-chip" data-ear="left">Left Ear (L)</button>
+              <button class="ag-ear-chip" data-ear="right">Right Ear (R)</button>
+            </div>
+            <div class="ag-step-badge" id="agStepCounter">Frequency 1 of 9</div>
+          </div>
+
+          <!-- Wizard Live Status Display -->
+          <div class="ag-test-cockpit">
+            <div class="ag-cockpit-stat">
+              <span class="ag-stat-label">TEST FREQUENCY</span>
+              <span class="ag-stat-value" id="agCurrentFreq" style="color:var(--accent-cyan);">1 kHz</span>
+            </div>
+            <div class="ag-cockpit-stat">
+              <span class="ag-stat-label">HEARING LEVEL</span>
+              <span class="ag-stat-value" id="agCurrentDb" style="color:var(--accent-amber);">15 dB HL</span>
+            </div>
+            <div class="ag-cockpit-stat">
+              <span class="ag-stat-label">CHANNEL</span>
+              <span class="ag-stat-pill" id="agCurrentEarTag">BINAURAL</span>
+            </div>
+          </div>
+
+          <!-- Wizard Action Buttons -->
+          <div class="ag-wizard-actions">
+            <button id="agPlayToneBtn" class="primary-btn-sm ag-play-btn" title="Play calibrated 3-pulse pure sine tone">
+              <span>▶ Play Test Tone</span>
+            </button>
+            <button id="agHearToneBtn" class="accent-btn ag-heard-btn" title="I perceive the test tone (record threshold)">
+              <span>👂 I Hear It!</span>
+            </button>
+            <div class="ag-volume-nudge-group">
+              <button id="agLouderBtn" class="sm-btn" title="Can't hear it yet (+5 dB louder)">+5 dB Louder</button>
+              <button id="agSofterBtn" class="sm-btn" title="Too loud (-5 dB softer)">-5 dB Softer</button>
+            </div>
+            <button id="agSkipBtn" class="sm-btn" title="Skip to next frequency">Skip ⏭</button>
+          </div>
+          <p class="ag-status-note" id="agTestingStatus">Assessment ready. Click "▶ Play Test Tone" to begin pure-tone threshold evaluation.</p>
+        </div>
+
+        <!-- MIDDLE: CLINICAL AUDIOGRAM CHART CANVAS -->
+        <div class="ag-chart-card">
+          <div class="ag-chart-header">
+            <div class="ag-chart-title-group">
+              <h4>Clinical Audiogram (ISO 8253-1 Reference)</h4>
+              <span class="ag-profile-tag" id="agProfileTitle">Golden Ears Young Reference (0 dB HL)</span>
+            </div>
+            <div class="ag-chart-legend">
+              <span class="legend-item"><span class="legend-symbol" style="color:#ef4444;">●</span> Right Ear (R)</span>
+              <span class="legend-item"><span class="legend-symbol" style="color:#38bdf8;">✕</span> Left Ear (L)</span>
+              <span class="legend-item"><span class="legend-zone-swatch" style="background:#10b981;"></span> Normal (0-20dB)</span>
+              <span class="legend-item"><span class="legend-zone-swatch" style="background:#f59e0b;"></span> Mild (20-40dB)</span>
+              <span class="legend-item"><span class="legend-zone-swatch" style="background:#ef4444;"></span> Moderate/Severe</span>
+            </div>
+          </div>
+          <div class="ag-canvas-wrapper">
+            <canvas id="audiogramCanvas" width="640" height="300"></canvas>
+          </div>
+        </div>
+
+        <!-- BOTTOM: PTA DIAGNOSTICS & NAL-R INVERTED COMPENSATION CURVE -->
+        <div class="ag-bottom-grid">
+          <!-- Left: Diagnostic Summary -->
+          <div class="ag-diag-card">
+            <h4>Pure-Tone Average &amp; Ear Health</h4>
+            <div class="ag-diag-stat-row">
+              <div class="ag-diag-item">
+                <span class="diag-label">PTA (0.5k-4k Hz)</span>
+                <span class="diag-val" id="agPtaScore">0.0 dB HL</span>
+              </div>
+              <div class="ag-diag-item">
+                <span class="diag-label">HEARING STATUS</span>
+                <span class="diag-badge" id="agClassBadge" style="background:rgba(16, 185, 129, 0.2); color:#10b981; border:1px solid #10b981;">PRISTINE</span>
+              </div>
+            </div>
+            <p class="ag-diag-notes" id="agDiagnosticNotes">Well-balanced binaural response across audible spectrum.</p>
+
+            <!-- Presets Row -->
+            <div class="ag-presets-wrapper">
+              <span class="diag-label">Clinical &amp; Demographic Presets:</span>
+              <div class="ag-presets-chips">
+                <button class="ag-preset-chip" data-preset="young_reference">Young Flat (0dB)</button>
+                <button class="ag-preset-chip" data-preset="presbycusis">Presbycusis 45+ (Air Lift)</button>
+                <button class="ag-preset-chip" data-preset="fletcher_munson">Fletcher-Munson 40-Phon</button>
+                <button class="ag-preset-chip" data-preset="noise_notch">4kHz Notch Repair</button>
+                <button class="ag-preset-chip" data-preset="speech_clarity">Podcast / Speech</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: NAL-R Inverted EQ Preview & Apply -->
+          <div class="ag-compensation-card">
+            <div class="ag-comp-header">
+              <h4>Ear-Calibrated EQ (NAL-R Prescription)</h4>
+              <div class="ag-strength-wrap">
+                <label for="agStrengthSlider">Strength: <span id="agStrengthVal">75%</span></label>
+                <input type="range" id="agStrengthSlider" min="20" max="100" value="75" step="5">
+              </div>
+            </div>
+
+            <!-- Mini Gain Bars for 10 Bands -->
+            <div class="ag-eq-mini-bars" id="agEqMiniBars">
+              <!-- Dynamically populated 10 mini bars -->
+            </div>
+
+            <div class="ag-apply-actions">
+              <button id="applyAudiogramEqBtn" class="primary-btn-sm" style="flex:1.4; padding:9px 16px; font-weight:700; background:linear-gradient(135deg, #00f0ff, #0088ff); color:#000;">
+                <span>✨ Apply Ear Compensation to 10-Band EQ</span>
+              </button>
+              <button id="saveAudiogramBtn" class="sm-btn" title="Save profile to local storage">💾 Save</button>
+              <button id="exportAudiogramBtn" class="sm-btn" title="Export profile as JSON file">📤 Export</button>
+              <button id="importAudiogramBtn" class="sm-btn" title="Import profile from JSON file">📥 Import</button>
+              <input type="file" id="importAudiogramFileInput" accept=".json" style="display:none;">
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -1667,17 +1859,18 @@
   </div>
 
   <!-- Modular Scripts -->
-  <script src="js/data/presets.js?v=54.7.0"></script>
-  <script src="js/data/autoeq-database.js?v=54.7.0"></script>
-  <script src="js/data/changelog.js?v=54.7.0"></script>
-  <script src="js/data/manual.js?v=54.7.0"></script>
-  <script src="js/audio/audio-engine.js?v=54.7.0"></script>
-  <script src="js/dsp/audio-pro-tools.js?v=54.7.0"></script>
-  <script src="js/visual/spatial-canvas.js?v=54.7.0"></script>
-  <script src="js/visual/visualizer.js?v=54.7.0"></script>
-  <script src="js/ui/motion-ui.js?v=54.7.0"></script>
-  <script src="js/ui/dev-menu.js?v=54.7.0"></script>
-  <script src="js/app.js?v=54.7.0"></script>
+  <script src="js/data/presets.js?v=54.8.0"></script>
+  <script src="js/data/autoeq-database.js?v=54.8.0"></script>
+  <script src="js/data/changelog.js?v=54.8.0"></script>
+  <script src="js/data/manual.js?v=54.8.0"></script>
+  <script src="js/audio/audio-engine.js?v=54.8.0"></script>
+  <script src="js/dsp/audio-pro-tools.js?v=54.8.0"></script>
+  <script src="js/dsp/audiogram-calibration.js?v=54.8.0"></script>
+  <script src="js/visual/spatial-canvas.js?v=54.8.0"></script>
+  <script src="js/visual/visualizer.js?v=54.8.0"></script>
+  <script src="js/ui/motion-ui.js?v=54.8.0"></script>
+  <script src="js/ui/dev-menu.js?v=54.8.0"></script>
+  <script src="js/app.js?v=54.8.0"></script>
 
   <script>
     // ─── Automatic Zero-Touch Client Auto-Updater Engine ───
@@ -1694,9 +1887,9 @@
           }
         });
 
-        navigator.serviceWorker.register('sw.js?v=54.7.0')
+        navigator.serviceWorker.register('sw.js?v=54.8.0')
           .then(reg => {
-            console.log('Service Worker Registered v54.7.0');
+            console.log('Service Worker Registered v54.8.0');
 
             // 1. Check for new updates immediately on initial load
             reg.update().catch(() => {});

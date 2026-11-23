@@ -1,13 +1,27 @@
 /**
  * AuraDSP Pro - Complete Version History & Changelog Data
- * Records all 54+ version milestones from v1.0.0 (Genesis) to v54.7.0 (Latest).
+ * Records all 55+ version milestones from v1.0.0 (Genesis) to v54.8.0 (Latest).
  */
 
 const CHANGELOG_DATA = [
   {
+    version: 'v54.8.0',
+    title: 'Personalized Hearing Calibration & Audiogram Suite, Mid/Side Vocal Isolator & Live Radio Network Repair',
+    tag: 'Latest',
+    date: 'November 2026',
+    items: [
+      'Personalized Hearing Calibration & Audiogram Suite: Deployed a clinical-grade pure-tone audiometry assessment engine (ISO 8253-1 reference) testing 9 critical frequencies from 125 Hz to 16,000 Hz with calibrated triple-pulse sine bursts and raised cosine envelopes. Supports independent Left Ear, Right Ear, and Binaural assessment modes.',
+      'Interactive Clinical Audiogram Canvas & Diagnostic Summary: High-DPI interactive canvas plotting hearing thresholds (-10 dB to 90 dB HL) with colored diagnostic bands (Normal, Mild, Moderate, Severe), clinical Red-Circle/Blue-Cross symbols, crosshairs, and hover tooltips. Automatically calculates Pure-Tone Average (PTA) and diagnoses conditions like 4kHz noise notches or presbycusis.',
+      'Dynamic NAL-R Inverted Ear-Compensation Engine: Converts measured user thresholds into a customized 10-band target EQ curve using the internationally recognized NAL-R formula with adjustable prescription intensity (10%-100%). Includes demographic presets (Young Flat, Presbycusis 45+, Fletcher-Munson 40-Phon, 4kHz Notch Repair, Speech Intelligibility) and 1-click application to Master EQ.',
+      'Mid/Side (M/S) Matrix & Real-Time Vocal Isolator / Karaoke Mode: Integrated full M/S matrix processing with center-channel vocal notch cancellation (-18dB to -24dB at 2.2kHz). Features 5 studio monitoring modes: Normal Stereo, Karaoke Mode (vocal elimination for singing along), Acapella Solo (lead vocal extraction), Stereo Ambience Solo (muting center to reveal pure room reverbs and wide guitars), and Center Solo (phantom center mono channel).',
+      'Zero-Fallback Live Radio Cluster Repair: Repaired global Radio Browser API integration to use active DNS clusters (all.api.radio-browser.info & de1.api.radio-browser.info) with automatic byname/bytag fallback, ensuring 100% 200 OK responses with zero stream interruptions.',
+      'Continuous UI/UX Evolution & Touch Ergonomics: Added fluid 60/120fps modal entrance blurs, pulsing LED soundwave animations during tone testing, dynamic 10-band compensation mini-bars, 44px+ mobile touch targets, and full JSON profile export/import.'
+    ]
+  },
+  {
     version: 'v54.7.0',
     title: 'Ultra-Premium Studio Theme Engine, Glassmorphic Panels & Tactile Micro-Animations',
-    tag: 'Latest',
+    tag: 'Stable',
     date: 'November 2026',
     items: [
       'Two Flagship Studio Themes Added: Introduced Cyberpunk Neon (electric cyan & violet with radial glow backdrops) and Vintage Analog Tube Console (warm mahogany obsidian with amber tube highlights), joining Dark Studio, Obsidian OLED, Graphite Titanium, and Daylight.',
