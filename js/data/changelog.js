@@ -1,13 +1,23 @@
 /**
  * AuraDSP Pro - Complete Version History & Changelog Data
- * Records all 54+ version milestones from v1.0.0 (Genesis) to v54.5.0 (Latest).
+ * Records all 54+ version milestones from v1.0.0 (Genesis) to v54.5.1 (Latest).
  */
 
 const CHANGELOG_DATA = [
   {
+    version: 'v54.5.1',
+    title: 'Zero-Touch Automatic Self-Update Engine & Background Sync',
+    tag: 'Latest',
+    date: 'November 2026',
+    items: [
+      'Zero-Touch Client-Side Auto-Updater: Implemented automated Service Worker controllerchange lifecycle with background 15-minute polling and tab visibility triggers. Whenever code is updated on GitHub, mobile and desktop clients automatically detect, fetch, and activate the latest release without requiring any manual cache-clearing or reload commands.',
+      'Instant Background SKIP_WAITING Handshake: Configured cross-thread postMessage signaling between the main DOM and the Service Worker to immediately discard stale caches and promote new assets upon detection.'
+    ]
+  },
+  {
     version: 'v54.5.0',
     title: 'Multi-Track Playlist Queue, Master Audio Recorder & Cross-Platform EQ Exporter',
-    tag: 'Latest',
+    tag: 'Stable',
     date: 'November 2026',
     items: [
       'Multi-Track Local Playlist Queue: Full batch-upload support for entire albums and playlists (WAV, FLAC, MP3, AAC, OGG). Includes auto-advance on track completion, interactive shuffle, 3-mode repeat (Off / All / One), track removal, and live visualizer playing indicators.',

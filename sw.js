@@ -1,4 +1,4 @@
-const CACHE_NAME = 'auradsp-pro-v54.5.0';
+const CACHE_NAME = 'auradsp-pro-v54.5.1';
 const ASSETS = [
   './',
   './index.html',
@@ -52,4 +52,10 @@ self.addEventListener('fetch', (event) => {
       })
       .catch(() => caches.match(event.request))
   );
+});
+
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 });
