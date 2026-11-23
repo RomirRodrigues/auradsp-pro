@@ -1,11 +1,11 @@
 /**
  * AuraDSP Pro - Complete Version History & Changelog Data
- * Records all 56+ version milestones from v1.0.0 (Genesis) to v54.9.0 (Latest).
+ * Records all 56+ version milestones from v1.0.0 (Genesis) to v54.9.1 (Latest).
  */
 
 const CHANGELOG_DATA = [
   {
-    version: 'v54.9.0 (Latest)',
+    version: 'v54.9.1 (Latest)',
     title: 'Zero-Lag GPU Compositing Optimization, Convolution Reverb Studio & Speaker Alignment',
     tag: 'Latest',
     date: 'November 2026',

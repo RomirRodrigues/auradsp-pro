@@ -147,7 +147,7 @@
 html {
   overflow-x: clip;
   overflow-y: auto;
-  scroll-behavior: smooth;
+  /* scroll-behavior: instant; */
   -webkit-overflow-scrolling: touch;
   touch-action: pan-y pinch-zoom;
 }
@@ -3523,8 +3523,8 @@ input[type=range]:not(.eq-slider)::-webkit-slider-thumb:hover {
 }
 
 body.cyber-dark {
-  background-size: 200% 200% !important;
-  animation: auroraGlow 25s ease infinite !important;
+  background-size: 100% 100% !important;
+  animation: none !important;
 }
 
 /* 2. Magnetic Studio Button Hover Elevate Animation */
@@ -3590,9 +3590,11 @@ body.cyber-dark {
   animation: ledPulseBeacon 2s ease-in-out infinite !important;
 }
 
-/* 5. Range Slider Thumb Pulse on Drag */
+/* 5. Range Slider Thumb Glow on Drag (Static 0ms Latency) */
 input[type=range]:not(.eq-slider):active::-webkit-slider-thumb {
-  animation: thumbPulse 0.6s ease-in-out infinite alternate;
+  animation: none !important;
+  transform: scale(1.2) !important;
+  box-shadow: 0 0 12px var(--accent-cyan) !important;
 }
 
 @keyframes thumbPulse {
@@ -3695,7 +3697,9 @@ input[type=range]:not(.eq-slider):active::-webkit-slider-thumb {
 }
 
 .preset-card.active, .vis-btn.active, .spat-btn.active {
-  animation: activeBorderPulse 3s infinite ease-in-out !important;
+  animation: none !important;
+  border-color: var(--accent-cyan) !important;
+  box-shadow: 0 0 14px rgba(0, 240, 255, 0.3) !important;
 }
 
 /* 3. Glowing Studio Canvas Surround Aura */
@@ -8358,4 +8362,35 @@ input[type="range"]::-webkit-slider-thumb:active {
     max-height: 96vh;
     border-radius: 8px;
   }
+}
+
+/* ==========================================================================
+   AuraDSP Pro: Zero-Jank Hardware Acceleration & 144Hz Fluidity Layer
+   ========================================================================== */
+
+/* 1. Prevent repaint thrashing on scroll */
+.studio-grid {
+  contain: layout style;
+}
+
+.panel {
+  contain: layout paint;
+  isolation: isolate;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+}
+
+/* 2. Skip offscreen rendering for closed modals and drawers */
+.hearing-modal-backdrop:not(.open),
+.changelog-modal-overlay:not(.open),
+.manual-modal-overlay:not(.open),
+.dev-modal-backdrop:not(.open),
+.ir-modal-backdrop:not(.open) {
+  display: none !important;
+  content-visibility: hidden !important;
+}
+
+/* 3. Instant tactile button feedback without layout shift */
+button, .sm-btn, .pro-btn, .source-btn, .tab-btn {
+  will-change: auto;
 }

@@ -351,11 +351,17 @@ class SpatialCanvas {
 
   startLoop() {
     let lastTime = performance.now();
+    let lastIdleDraw = 0;
     const render = (now) => {
       const dt = Math.min(0.05, (now - lastTime) / 1000);
       lastTime = now;
       if (!document.hidden) {
-        this.draw(dt);
+        // High-framerate 60/144Hz while actively orbiting or dragging.
+        // Drops to 10 FPS when stationary/idle, eliminating continuous canvas repaints.
+        if (this.isOrbiting || this.isDragging || (now - lastIdleDraw >= 100)) {
+          lastIdleDraw = now;
+          this.draw(dt);
+        }
       }
       requestAnimationFrame(render);
     };

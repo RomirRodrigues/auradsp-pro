@@ -34,8 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const val = parseFloat(input.value) || 0;
         const percentage = ((val - min) / (max - min)) * 100;
 
-        input.style.setProperty('--slider-progress', `${percentage}%`);
-        input.style.setProperty('--slider-glow', 'var(--accent-cyan)');
+        /* Native CSS handles progress directly without expensive setProperty on every pixel */
       };
 
       input.addEventListener('input', update);
