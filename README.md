@@ -53,6 +53,8 @@
 
 ## ✨ Features Overview
 
+- **🏛️ Studio Convolution Reverb & Room IR Simulator**: Physical acoustic ray-tracing and stochastic velvet-noise impulse response synthesizer using Web Audio ConvolverNode. Features 8 curated spaces (Abbey Road Studio 2, Sydney Opera, Notre-Dame, Luxury Car Cabin, Hollywood Scoring Stage, Tokyo Cavern, EMT 140 Plate, Vocal Booth), high-DPI waveform & Schroeder Energy Decay Curve (EDC) canvas, custom WAV/MP3 drag & drop loader, audition triggers, and 24-bit WAV exporter.
+- **📐 Home Theater Speaker Delay & Distance Phase Alignment Suite**: Multi-channel time-of-flight acoustic delay calculator (343 m/s) compensating for physical distance offsets across 5.1, 7.1, and 9.1.4 speaker layouts. Includes an interactive listener sweet spot radar canvas and 0°/180° subwoofer crossover phase polarity alignment.
 - **🎧 Personalized Hearing Calibration & Audiogram Suite**: ISO 8253-1 clinical pure-tone audiometry test generator (125Hz-16kHz), high-DPI interactive audiogram canvas, Pure-Tone Average (PTA) diagnostic scoring, and dynamic NAL-R inverted ear-compensation curve engine with one-click application to Master EQ.
 - **🎤 Mid/Side Matrix & Real-Time Vocal Isolator / Karaoke Mode**: Hardware-accurate M/S matrix processing with real-time center-channel vocal notch cancellation (-18dB to -24dB), Acapella vocal isolation, and side ambience soloing.
 - **🎚️ 10-Band EQ & Interactive Parametric Canvas**: Real BiquadFilter nodes (31Hz to 16kHz) with interactive node dragging.

@@ -637,7 +637,26 @@ const MANUAL_FEATURES = [
     summary: "Phase cancellation and M/S matrix routing that separates center phantom lead vocals from wide stereo ambience.",
     working: "Splits incoming stereo audio into Mid (L+R)/2 and Side (L-R)/2 streams. In Karaoke Mode, applies an ultra-sharp parametric notch filter across the human vocal formant band (2.2kHz, -18dB to -24dB) and balances mid/side gains, canceling out centered lead vocals while preserving stereo guitars, drums, synths, and bass.",
     whyToUse: "Perfect for singing along to any song in Karaoke Mode, practicing vocal tracks, soloing acapella lead vocals for transcription, or isolating wide ambient stereo reverbs and instruments.",
-    proTip: "Use 'Karaoke Mode' for instant instrumental tracks with background instruments, and 'Stereo Ambience' to listen exclusively to wide reverbs and panned effects."
+    proTip: "Use 'Karaoke Mode' for instant instrumental tracks with background instruments, and 'Stereo Ambience' to listen exclusively to wide reverbs and panned effects."  },
+  {
+    id: "convolution_studio",
+    category: "spatial",
+    title: "Studio Convolution Reverb & Room Impulse Response (IR) Simulator",
+    badge: "v54.9.0 Flagship",
+    summary: "Physical acoustic ray-tracing & convolver engine simulating Abbey Road Studio 2, Sydney Opera, Notre-Dame, and Car Cabin with interactive Schroeder EDC canvas, custom IR file loader, and 24-bit WAV exporter.",
+    working: "Uses Web Audio ConvolverNode driven by an acoustic ray-tracing and stochastic velvet-noise physical synthesizer. Simulates discrete early reflection geometry (Image Source Model) with Sabine wall absorption, and diffuse reverberation tails with Rayleigh-Stokes frequency-dependent air viscous damping. Displays the impulse response waveform and backward-integrated Schroeder Energy Decay Curve (EDC) from 0 dB down to -60 dB with live RT60 detection.",
+    whyToUse: "Standard synthetic algorithmic reverbs sound metallic and artificial. Convolution reverb uses true mathematical impulse responses—or real acoustic room recordings—to wrap your music in the breathtaking warmth, organic reflections, and authentic spatial bloom of world-class recording studios, concert halls, and cathedrals.",
+    proTip: "Audition room acoustics using the built-in Dirac Delta Click or Snare Rimshot triggers. Drag and drop any real-world .WAV impulse response to load it into the engine, or click 'Export IR (.WAV)' to use AuraDSP Pro's synthesized spaces in Ableton, Logic, or FL Studio."
+  },
+  {
+    id: "speaker_delay_alignment",
+    category: "spatial",
+    title: "Home Theater Speaker Delay & Distance Phase Alignment Suite",
+    badge: "v54.9.0 Flagship",
+    summary: "Time-of-flight acoustic delay calculator (343 m/s) and subwoofer crossover phase polarity alignment for 5.1 / 7.1 / 9.1.4 multi-channel setups with interactive radar canvas.",
+    working: "Calculates the exact time-of-flight delay offset: delta_t = ((d_max - d_i) / 343 m/s) * 1000 ms. Applies microsecond delay times to individual multi-channel delay nodes so that sound waves from speakers placed at differing distances arrive at the listener's sweet spot in absolute temporal coherence. Features an interactive 360° speaker distance radar canvas and an 80Hz subwoofer crossover phase polarity switch (0° / 180° Inverted) to eliminate acoustic room-mode cancellation.",
+    whyToUse: "In real-world living rooms and home theaters, speakers are rarely placed at identical distances from your sofa. A speaker just 1 meter closer arrives 2.92 ms earlier, creating severe comb filtering, smearing transients, and destroying surround localization. Distance alignment restores crystalline phase clarity and pinpoint multi-channel staging.",
+    proTip: "Enter your physical speaker distances from your primary seat in meters or feet. If your bass sounds weak or hollow around the 80Hz crossover point, toggle the 'Subwoofer Phase Polarity' switch to 180° Inverted to eliminate destructive room-mode cancellation."
   }
 ];
 

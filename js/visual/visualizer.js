@@ -297,11 +297,12 @@ class AudioVisualizer {
       }
     }
 
+    this.isActivelyPlaying = isActivelyPlaying;
+
     // Toggle live playback state on brand logo soundwave
     if (this.brandLogoIcon && isActivelyPlaying !== this._lastLogoPlaying) {
       this._lastLogoPlaying = isActivelyPlaying;
       this.brandLogoIcon.classList.toggle('is-playing', isActivelyPlaying);
-    this.isActivelyPlaying = isActivelyPlaying;
     }
 
     // 3. Render Mode
